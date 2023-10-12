@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <style>
+html,body{
+    margin:0px;
+    background:#f0f0f0;
+}
+form{
+    position:absolute;
+    left:37.5%;
+    top:20%;
+    background:white;
+    width:25%;
+    height:35%;
+    border-radius:5px;
+    box-shadow: 0.5px 0.5px 20px rgb(128, 128, 128,0.5);
+}
+#email,#senha{
+    font-size:105%;
+    padding-left:5%;
+    position:relative;
+    margin-top:5%;
+    margin-left:5%;
+    width:90%;
+    height:20%;
+    border:solid 1px #f0f0f0;
+    border-radius:0px;
+}
+button{
+    position:relative;
+    margin-top:10%;
+    margin-left:5%;
+    width:90%;
+    height:20%;
+    background:black;
+    color:white;
+    border:solid 1px black;
+}
+button:hover{
+    background:white;
+    color:black;
+}
+        </style>
+    </head>
+    <body>
+        <form action="" method="post">
+            <input name="email" id="email" placeholder="Email" required>
+            <input name="password" id="senha" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <script src="/static/comom.js"></script>
+        <script src="/static/login.js"></script>
+    </body>
+</html>
