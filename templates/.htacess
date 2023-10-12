@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/admin.html$
+RewriteRule .* /index.php [L,R=302]

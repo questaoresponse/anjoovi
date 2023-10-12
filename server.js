@@ -5,9 +5,9 @@ const path=require("path")
 const app=express();
 const server=http.createServer(app)
 const io=socketio(server)
-app.use("/static",express.use(path.join(__dirname,"static")))
+app.use("/static",express.static(path.join(__dirname,"static")))
 app.get("/",(req,res)=>{
-    res.sendFile(__dirname+"/templates/index.html")
+    res.sendFile(__dirname+"/templates/index.php")
 })
 app.get("/admin",(req,res)=>{
     res.sendFile(__dirname+"/templates/admin.html")
