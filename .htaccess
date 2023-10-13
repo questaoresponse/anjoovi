@@ -1,7 +1,6 @@
-RewriteEngine On
-RewriteBase /
-
 # Roteie todas as solicitações para index.php
+RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [L,R=302]
+RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]
+
