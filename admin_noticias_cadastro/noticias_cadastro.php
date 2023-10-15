@@ -20,7 +20,7 @@ function verificar($conn,$database_name){
     } else {
     }
 }
-$conn = new mysqli("127.0.0.1:3306", "root",null,"config");
+$conn = new mysqli("localhost:3306", "cpses_anyj8yi6ea",null,"config");
 //verificar($conn,"config");
 //$conn->query("DROP TABLE config_noticias");
 $conn->query("CREATE TABLE IF NOT EXISTS config_noticias(selects JSON,categorias JSON)");

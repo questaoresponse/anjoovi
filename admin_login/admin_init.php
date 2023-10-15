@@ -1,11 +1,11 @@
 <?php
 function get_time(){
-    $conn = new mysqli("127.0.0.1:3306", "root");
+    $conn = new mysqli("localhost:3306", "cpses_anyj8yi6ea");
     $ip=$_SERVER['REMOTE_ADDR'];
     if ($conn->connect_error) {
     }
     verificar($conn,"ip");
-    $conn = new mysqli("127.0.0.1:3306", "root",null,"ip");
+    $conn = new mysqli("localhost:3306", "cpses_anyj8yi6ea",null,"ip");
     if ($conn->connect_error) {
     }
     $result=$conn->query("SELECT * FROM ips WHERE ip='$ip'");

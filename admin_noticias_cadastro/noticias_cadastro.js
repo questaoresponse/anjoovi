@@ -47,7 +47,7 @@ form.addEventListener("submit",(e)=>{
     fd.append("subtitulo",subtitulo);
     imagem_data && fd.append("imagem",imagem_data);
     $.ajax({
-        url: "/templates/post/config_cadastro.php",
+        url: "/post/config_cadastro.php",
         type:'POST',
         processData: false, // Não processar dados
         contentType: false, // Não definir o tipo de conteúdo
