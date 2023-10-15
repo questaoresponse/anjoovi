@@ -3,7 +3,7 @@ window.form.addEventListener("submit",(e)=>{
     var email=document.querySelector("#email").value;
     var password=document.querySelector("#senha").value;
     $.ajax({
-        url: "/templates/admin_login/admin_post.php",
+        url: "/admin_login/admin_post.php",
         type:'POST',
         data:{email:email,password:password},
         success: function(data) {
