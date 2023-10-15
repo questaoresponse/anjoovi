@@ -1,17 +1,17 @@
 <?php
-function verificar($conn,$database_name){
-    $result = $conn->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$database_name'");
+// function verificar($conn,$database_name){
+//     $result = $conn->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$database_name'");
     
-    if ($result->num_rows == 0) {
-        // O banco de dados não existe, então crie-o
-        $sql = "CREATE DATABASE $database_name";
+//     if ($result->num_rows == 0) {
+//         // O banco de dados não existe, então crie-o
+//         $sql = "CREATE DATABASE $database_name";
     
-        if ($conn->query($sql) === TRUE) {
-        } else {
-        }
-    } else {
-    }
-}
+//         if ($conn->query($sql) === TRUE) {
+//         } else {
+//         }
+//     } else {
+//     }
+// }
 //$url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
 $url=$_GET['route'];
 // echo $url;
@@ -86,9 +86,9 @@ if ($url=="/"){
     }
 }else if ($url=="reload"){
     $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea");
-    verificar($conn,"anjoov00_ip");
-    verificar($conn,"anjoov00_config");
-    verificar($conn,"anjoov00_posts");
+    // verificar($conn,"anjoov00_ip");
+    // verificar($conn,"anjoov00_config");
+    // verificar($conn,"anjoov00_posts");
     $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
     $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT)");
     $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
