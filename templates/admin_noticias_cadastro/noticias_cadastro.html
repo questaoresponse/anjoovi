@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <style>
+html,body{
+    margin:0px;
+}
+#usuario-l{
+    font-family: Arial;
+    font-size:110%;
+    padding-left:2.5%;
+    position:absolute;
+    background:white;
+    top:11.5%;
+    left:5%;
+    width:20%;
+    height:5%;
+    border-radius:5px;
+}
+#usuario{
+    font-family: Arial;
+    font-size:110%;
+    position:absolute;
+    background:white;
+    top:15%;
+    left:5%;
+    width:20%;
+    height:5%;
+    border-radius:5px;
+    border:solid 2px black;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+#categorias-l{
+    font-family: Arial;
+    font-size:110%;
+    padding-left:2.5%;
+    position:absolute;
+    background:white;
+    top:11.5%;
+    left:30%;
+    width:20%;
+    height:5%;
+    border-radius:5px;
+}
+#categorias{
+    font-size: 110%;
+    position:absolute;
+    top:15%;
+    left:30%;
+    width:20%;
+    height:5.5%;
+    border-radius:5px;
+    border:solid 2px black;
+}
+#destaques-l{
+    font-family: Arial;
+    font-size:110%;
+    padding-left:2.5%;
+    position:absolute;
+    background:white;
+    top:11.5%;
+    left:60%;
+    width:20%;
+    height:5%;
+    border-radius:5px;
+}
+#destaques{
+    font-size: 110%;
+    position:absolute;
+    top:15%;
+    left:60%;
+    width:20%;
+    height:5.5%;
+    border-radius:5px;
+    border:solid 2px black;
+}
+#acessos-l{
+    font-family: Arial;
+    font-size:110%;
+    padding-left:2.5%;
+    position:absolute;
+    background:white;
+    top:26.5%;
+    left:60%;
+    width:20%;
+    height:5%;
+    border-radius:5px;
+}
+#acessos{
+    position:absolute;
+    background:gray;
+    top:30%;
+    left:60%;
+    padding-left:2.5%;
+    width:17.5%;
+    height:5%;
+    border-radius:5px;
+    border:solid 2px black;
+    display:flex;
+    align-items: center;
+}
+#titulo-l{
+    font-family: Arial;
+    font-size:110%;
+    padding-left:2.5%;
+    position:absolute;
+    background:white;
+    top:36.5%;
+    left:5%;
+    width:20%;
+    height:5%;
+    border-radius:5px;
+}
+#titulo{
+    font-size: 110%;
+    position:absolute;
+    background:white;
+    top:40%;
+    left:5%;
+    padding-left:2.5%;
+    width:30%;
+    height:5%;
+    border-radius:5px;
+    border:solid 2px black;
+    display:flex;
+    align-items: center;
+}
+#subtitulo-l{
+    font-family: Arial;
+    font-size:110%;
+    padding-left:2.5%;
+    position:absolute;
+    background:white;
+    top:36.5%;
+    left:50%;
+    width:20%;
+    height:5%;
+    border-radius:5px;
+}
+#subtitulo{
+    font-size: 110%;
+    position:absolute;
+    background:white;
+    top:40%;
+    left:50%;
+    padding-left:2.5%;
+    width:30%;
+    height:5%;
+    border-radius:5px;
+    border:solid 2px black;
+    display:flex;
+    align-items: center;
+}
+iframe{
+    position:absolute;
+    background:white;
+    top:60%;
+    width:100%;
+    height:60%;
+}
+#imagem-view{
+    position:absolute;
+    background:gray;
+    width:20vh;
+    height:20vh;
+    top:120%;
+}
+#imagem{
+    position:absolute;
+    background:white;
+    display:flex;
+    padding-top:1%;
+    padding-left:1%;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    width:30%;
+    height:6.5%;
+    top:127.5%;
+    left:25vh;
+    border:solid 1px gray;
+    border-radius:5px;
+}
+#button{
+    position:absolute;
+    background:black;
+    color:white;
+    top:145%;
+    width:10%;
+    height:5%;
+    border:solid 1px black;
+    border-radius:10px;
+}
+#button:hover{
+    background:white;
+    color:black;
+}
+#m{
+    position:absolute;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background:rgb(0,255,0);
+    color:white;
+    top:10%;
+    width:100%;
+    height:10%;
+}
+        </style>
+    </head>
+    <body>
+    <form>
+        <label id="usuario-l">Usuário</label>
+        <div id="usuario">t</div>
+        <label id="categorias-l">Categorias</label>
+        <select id="categorias" required>
+            <option value="">Selecione...</option>
+        </select>
+        <label id="destaques-l">Destaques</label>
+        <select id="destaques" required>
+            <option>Nenhum destaque</option>
+            <option>Slide</option>
+            <option>Manchete</option>
+            <option>Seção Destaques para voçê</option>
+            <option>Seção</option>
+            <option>Seção Assuntos do momento</option>
+            <option>NOTÍCIA URGENTE (por 24 horas)</option>
+        </select>
+        <label id="acessos-l">Acessos</label>
+        <div id="acessos">0</div>
+        <label id="titulo-l">Título</label>
+        <input id="titulo" placeholder="Insira um título" required>
+        <label id="subtitulo-l">Subtítulo</label>
+        <input id="subtitulo" placeholder="Insira um subtítulo" required>
+        <iframe src="/templates/admin_noticias_cadastro/editor.html"></iframe>
+        <img id="imagem-view" src="../../static/sem-imagem.jpg">
+        <input type="file" id="imagem" accept="image/jpg, image/jpeg">
+        <button type="submit" id="button">Cadastrar</button>
+    </form>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <script src="/templates/admin_noticias_cadastro/noticias_cadastro.js"></script>
+    </body>
+</html>

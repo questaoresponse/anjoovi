@@ -1,5 +1,3 @@
-<html>
-    <body>
-        <div id="oi">
-    </body>
-</html>
+<?php
+include(__DIR__ . "/index.html");
+?>

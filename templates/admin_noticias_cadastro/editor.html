@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<head>
+
+</head>
+<body>
+    <textarea></textarea>
+    <div id="teste"></div>
+    <button>testar</button>
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js"></script>  
+    <script>
+tinymce.init({
+    selector: "textarea",
+    height: 400,
+    plugins: "image media",
+    toolbar: "undo redo | formatselect | bold italic forecolor backcolor | link | code",
+  });
+// Acesse o conteúdo do TinyMCE
+document.querySelector("button").addEventListener("click",()=>{
+var conteudo = tinymce.activeEditor.getContent();
+
+// Crie um novo elemento HTML para exibir o conteúdo
+var novoElemento = document.querySelector("#teste");
+console.log(conteudo);
+novoElemento.innerHTML = conteudo;
+})
+// Adicione o novo elemento à sua página
+// window.addEventListener('beforeunload', function (e) {
+//   // Exibe uma mensagem de alerta personalizada
+//   var confirmationMessage = 'Deseja realmente recarregar a página? Todas as alterações não salvas serão perdidas.';
+
+//   // Define a mensagem a ser exibida no navegador (a especificação varia entre navegadores)
+//   (e || window.event).returnValue = confirmationMessage;
+
+//   return confirmationMessage;
+// });
+    </script>
+</body>
+</html>

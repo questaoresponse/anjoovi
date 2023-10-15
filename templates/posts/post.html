@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <style>
+.usuario-p{
+    font-family: Arial;
+    display:inline-block;
+    font-size:120%;
+}
+#usuario-1{
+    font-weight: bold;
+
+}
+#titulo{
+    font-family: Arial;
+    font-weight: 900;
+    font-size:400%;
+}
+#subtitulo{
+    font-family: Arial;
+    font-size:120%;
+}
+img{
+    display:none;
+}
+#campo-img{
+    position:absolute;
+    width:80%;
+    height:70%;
+    top:30%;
+    display:flex;
+    justify-content: center;
+}
+        </style>
+    </head>
+    <body>
+        <div id="titulo"></div>
+        <p id="subtitulo"></p>
+        <div id="usuario">
+            <p class="usuario-p" id="usuario-1">Por: </p><p class="usuario-p" id="usuario-t"></p>
+        </div>
+        <div id="campo-img">
+        <img>
+        </div>
+        <script>
+            console.log(window.post);
+            document.querySelector("#titulo").textContent=window.post[0].titulo;
+            document.querySelector("#subtitulo").textContent=window.post[0].subtitulo;
+            document.querySelector("#usuario-t").textContent=window.post[0].usuario;
+            var imagem=document.querySelector("img");
+            window.post[0].imagem!="n" ? (()=>{imagem.style.display="block";imagem.src="../../../images/"+window.post[0].imagem})() : null;
+        </script>
+    </body>
+</html>

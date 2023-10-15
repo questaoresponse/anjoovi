@@ -45,7 +45,7 @@ html,body{
     background:#f0f0f0;
     height:90%;
     top:10%;
-    transition:width 1s;
+    transition:width 0.5s;
 }
 #menu{
     position:relative;
@@ -84,11 +84,6 @@ html,body{
     background:rgba(128, 128, 128,0.1);
     border-bottom:solid 1px rgba(100,100,100,0.2);
 } */
-.i-menu a{
-    color:black;
-    font-family:Arial;
-    text-decoration: none;
-}
 .i-menu-1{
     top:0.75px;
     border-top:solid 1px rgba(100,100,100,0.2);
@@ -101,10 +96,72 @@ html,body{
     width:3vh;
     height:3vh;
 }
+#bt-noticias{
+    font-family: Arial;
+    padding-left:10%;
+    position:relative;
+    background:white;
+    width:90%;
+    height:7.5%;
+    align-items: center;
+}
+#noticias{
+    padding-left:20%;
+    position:relative;
+    background:white;
+    width:80%;
+    /* height:15%; */
+    align-items: center;
+    transition: height 0.5s;
+}
+p{
+    font-family:Arial;
+}
+.i-menu2{
+    font-family: Arial;
+    padding-left:10%;
+    position:relative;
+    background:white;
+    width:90%;
+    display:flex;
+    align-items: center;
+    height:50%;
+    border-bottom:solid 1px rgba(100,100,100,0.2);
+    border-radius:20px;
+}
+a{
+    color:black;
+    font-family:Arial;
+    text-decoration: none;
+}
+.i-menu2:hover{
+    background:rgba(100,100,100,0.2);
+}
+.fechado-noticia{
+    height:0px;
+}
+.aberto-noticia{
+    height:15%;
+}
+#v{
+    margin-left:40%;
+}
+#n2-menu{
+    position:absolute;
+    background:white;
+    width:80%;
+    height:100%;
+}
+#n2-menu.fechado{
+    display:none;
+}
+#n2-menu.aberto{
+    display:block;
+}
         </style>
     </head>
     <body>
-        <a href="/"><img id="logo" src="../static/logo-anjoovi.png"></a>
+        <a href="/"><img id="logo" src="../../static/logo-anjoovi.png"></a>
         <div id="bt-menu">
             <div id="b1"></div>
             <div id="b2"></div>
@@ -112,15 +169,19 @@ html,body{
         </div>
         <div id="c_menu" class="fechado">
             <div id="menu" class="fechado">
-                <div class="i-menu-1 i-menu" ><a href="/noticias-lista">Últimas notícias</a></div>
-                <div class="i-menu i-menu2" ><a href="/editoriais">Editoriais</a></div>
-                <div class="i-menu" ><a href="/blogs-e-colunas">Blogs & Colunas</a></div>
-                <div class="i-menu i-menu2" ><a href="/paginas">Páginas</a></div>
-                <div class="i-menu" ><a href="/classificados">Classificados</a></div>
-                <div class="i-menu i-menu2" ><a href="/contato">Fale conosco</a></div>
+                <a href="/admin"><div class="i-menu-1 i-menu" id="inicio" >Ínicio</div></a>
+                <div class="i-menu" id="bt-noticias"><p>Notícias</p><p id="v">^</p></div>
+                <div class="n-menu fechado-noticia" id="noticias">
+                    <div id="n2-menu" class="fechado">
+                        <a href="/admin/noticias_cadastro"><div class="i-menu2" id="noticias_cadastro" >Cadastrar notícias</div></a>
+                        <a href="/admin/noticias_lista"><div class="i-menu2" id="noticias_lista" >Listar notícias</div></a>
+                    </div>
+                </div>
+                <a href="/admin/sair"><div class="i-menu" id="sair">Sair</div></a>
             </div>
         </div>
-        <script src="../static/index.js"></script>
-        <img id="lupa" src="../static/imagem-lupa.png">
+        <img id="lupa" src="../../static/imagem-lupa.png">
+        <script src="../../static/index.js"></script>
+        <script src="/templates/admin_painel/cadastro_usuario.js"></script>
     </body>
 </html>
