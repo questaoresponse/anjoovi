@@ -48,7 +48,7 @@ img{
             document.querySelector("#subtitulo").textContent=window.post[0].subtitulo;
             document.querySelector("#usuario-t").textContent=window.post[0].usuario;
             var imagem=document.querySelector("img");
-            window.post[0].imagem!="n" ? (()=>{imagem.style.display="block";imagem.src="../../../images/"+window.post[0].imagem})() : null;
+            window.post[0].imagem!="n" ? (()=>{imagem.style.display="block";imagem.src="/images/"+window.post[0].imagem})() : null;
         </script>
     </body>
 </html>

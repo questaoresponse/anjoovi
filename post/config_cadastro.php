@@ -55,19 +55,19 @@ if ($tipo=="noticias_cadastro"){
     $texto=isset($_POST["texto"]) ? $_POST["texto"] : "n";
     if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
         $nomeTemporario = $_FILES['imagem']['tmp_name'];
-        $nomeDoArquivo = __DIR__ . '/../../images/' . $_FILES['imagem']['name'];
+        $nomeDoArquivo = __DIR__ . '/../images/' . $_FILES['imagem']['name'];
         move_uploaded_file($nomeTemporario, $nomeDoArquivo);
         $imagem=$_FILES['imagem']['name'];
     } else {
         $imagem="n";
     }
     $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
+    $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT)");
     $s=$conn->prepare("SELECT * FROM post WHERE titulo=?");
     $s->bind_param("s",$titulo);
     $s->execute();
     $result=$s->get_result();
     if ($result->num_rows==0){
-        $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT)");
         $s=$conn->prepare("INSERT INTO post(usuario,categoria,destaque,titulo,subtitulo,texto,imagem) VALUES (?,?,?,?,?,?,?)");
         $s->bind_param("sssssss",$usuario,$categoria,$destaque,$titulo,$subtitulo,$texto,$imagem);
         $s->execute();
