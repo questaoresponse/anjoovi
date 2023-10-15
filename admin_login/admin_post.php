@@ -29,7 +29,7 @@ function verificar($conn,$database_name){
     // Faça o que desejar com os dados, como salvá-los em um banco de dados ou exibi-los
     $ip = $_SERVER['REMOTE_ADDR'];
     if ($email=="t@gmail.com" && $senha=="1"){
-        $conn = new mysqli("localhost:3306", "cpses_anyj8yi6ea",null,"ip");
+        $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","ip");
         $conn->query("CREATE TABLE IF NOT EXISTS ips_logados(ip TEXT,usuario TEXT)");
         $s=$conn->prepare("INSERT INTO ips_logados(ip,usuario) VALUES(?,?)");
         $n="anjoovi";
@@ -39,11 +39,11 @@ function verificar($conn,$database_name){
     }else{
         $erro;
         $erro_json;
-        $conn = new mysqli("localhost:3306", "cpses_anyj8yi6ea");
+        $conn = new mysqli("localhost:3306", "anjoov00_root");
         if ($conn->connect_error) {
         }
         verificar($conn,"ip");
-        $conn = new mysqli("localhost:3306", "cpses_anyj8yi6ea",null,"ip");
+        $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","ip");
         if ($conn->connect_error) {
         }
         //$conn->query("DROP TABLE ips");

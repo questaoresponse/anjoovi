@@ -22,7 +22,7 @@ function p($result){
 }
 if ($tipo=="config_cadastro"){
     $opcao=$_POST["opcao"];
-    $conn = new mysqli("localhost:3306", "cpses_anyj8yi6ea",null,"config");
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","config");
     //$conn->query("CREATE TABLE IF NOT EXISTS config_noticias(selects JSON,categorias JSON)");
     $result=$conn->query("SELECT selects FROM config_noticias");
     $r=p($result);
@@ -35,7 +35,7 @@ if ($tipo=="config_cadastro"){
 }
 if ($tipo=="noticias_cadastro"){
     $ip = $_SERVER['REMOTE_ADDR'];
-    $conn = new mysqli("localhost:3306", "cpses_anyj8yi6ea",null,"ip");
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","ip");
     $conn->query("CREATE TABLE IF NOT EXISTS ips_logados(ip TEXT,usuario TEXT)");
     $s=$conn->prepare("SELECT * FROM ips_logados WHERE ip=?");
     $s->bind_param("s",$ip);
@@ -61,7 +61,7 @@ if ($tipo=="noticias_cadastro"){
     } else {
         $imagem="n";
     }
-    $conn = new mysqli("localhost:3306", "cpses_anyj8yi6ea",null,"posts");
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","posts");
     $s=$conn->prepare("SELECT * FROM post WHERE titulo=?");
     $s->bind_param("s",$titulo);
     $s->execute();
