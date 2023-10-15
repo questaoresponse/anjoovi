@@ -35,7 +35,7 @@ if ($tipo=="config_cadastro"){
 }
 if ($tipo=="noticias_cadastro"){
     $ip = $_SERVER['REMOTE_ADDR'];
-    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","ip");
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
     $conn->query("CREATE TABLE IF NOT EXISTS ips_logados(ip TEXT,usuario TEXT)");
     $s=$conn->prepare("SELECT * FROM ips_logados WHERE ip=?");
     $s->bind_param("s",$ip);
@@ -71,8 +71,9 @@ if ($tipo=="noticias_cadastro"){
         $s=$conn->prepare("INSERT INTO post(usuario,categoria,destaque,titulo,subtitulo,texto,imagem) VALUES (?,?,?,?,?,?,?)");
         $s->bind_param("sssssss",$usuario,$categoria,$destaque,$titulo,$subtitulo,$texto,$imagem);
         $s->execute();
-    } else {
         echo "true";
+    } else {
+        echo "false";
     }
 }
 ?>

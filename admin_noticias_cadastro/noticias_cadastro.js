@@ -53,6 +53,7 @@ form.addEventListener("submit",(e)=>{
         contentType: false, // Não definir o tipo de conteúdo
         data:fd,
         success: function(data) {
+          console.log(data);
             data=="true" && sucesso();
         //   data!="true" && erro(data);
       }
