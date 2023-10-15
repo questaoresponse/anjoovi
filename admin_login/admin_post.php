@@ -7,19 +7,19 @@ function get_sec($data2,$data1){
     $data1=strtotime($data1);
     return $data2-$data1;
 }
-function verificar($conn,$database_name){
-    $result = $conn->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$database_name'");
+// function verificar($conn,$database_name){
+//     $result = $conn->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$database_name'");
     
-    if ($result->num_rows == 0) {
-        // O banco de dados não existe, então crie-o
-        $sql = "CREATE DATABASE $database_name";
+//     if ($result->num_rows == 0) {
+//         // O banco de dados não existe, então crie-o
+//         $sql = "CREATE DATABASE $database_name";
     
-        if ($conn->query($sql) === TRUE) {
-        } else {
-        }
-    } else {
-    }
-}
+//         if ($conn->query($sql) === TRUE) {
+//         } else {
+//         }
+//     } else {
+//     }
+// }
     // Verifica se a solicitação é do tipo POST
 
     // Recupere os dados do formulário usando a variável $_POST
@@ -39,14 +39,7 @@ function verificar($conn,$database_name){
     }else{
         $erro;
         $erro_json;
-        $conn = new mysqli("localhost:3306", "anjoov00_root");
-        if ($conn->connect_error) {
-        }
-        verificar($conn,"anjoov00_ip");
         $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
-        if ($conn->connect_error) {
-        }
-        //$conn->query("DROP TABLE ips");
         $result = $conn->query("CREATE TABLE IF NOT EXISTS ips(ip VARCHAR(255),n INT,d VARCHAR(255))");
         $stmt = $conn->prepare("SELECT ip,n,d FROM ips WHERE ip = ?");
         $stmt->bind_param("s", $ip);
