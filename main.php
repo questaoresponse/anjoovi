@@ -22,7 +22,7 @@ if ($url=="/"){
     include(__DIR__ . '/index.php');
 } else if (substr($url, 0, strlen("admin"))=="admin"){
     $ip = $_SERVER['REMOTE_ADDR'];
-    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","ip");
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
     $conn->query("CREATE TABLE IF NOT EXISTS ips_logados(ip TEXT,usuario TEXT)");
     $s=$conn->prepare("SELECT * FROM ips_logados WHERE ip=?");
     $s->bind_param("s",$ip);
@@ -67,7 +67,7 @@ if ($url=="/"){
     }
 } else if (substr($url, 0, strlen("noticia"))=="noticia"){
     $name=substr($url, strlen("noticia")+1, strlen($url));
-    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","posts");
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
     //$conn->query("CREATE TABLE IF NOT EXISTS post(ip TEXT,usuario TEXT)");
     $s=$conn->prepare("SELECT * FROM post WHERE titulo=?");
     echo $name;
@@ -86,15 +86,15 @@ if ($url=="/"){
     }
 }else if ($url=="reload"){
     $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea");
-    verificar($conn,"ip");
-    verificar($conn,"config");
-    verificar($conn,"posts");
-    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","posts");
+    verificar($conn,"anjoov00_ip");
+    verificar($conn,"anjoov00_config");
+    verificar($conn,"anjoov00_posts");
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
     $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT)");
-    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","ip");
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
     $conn->query("CREATE TABLE IF NOT EXISTS ips_logados(ip TEXT,usuario TEXT)");
     $conn->query("CREATE TABLE IF NOT EXISTS ips(ip VARCHAR(255),n INT,d VARCHAR(255))");
-    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","config");
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_config");
     $conn->query("CREATE TABLE IF NOT EXISTS config_noticias(selects JSON,categorias JSON)");
 } else {
         header("HTTP/1.0 404 Not Found");

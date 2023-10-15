@@ -4,8 +4,8 @@ function get_time(){
     $ip=$_SERVER['REMOTE_ADDR'];
     if ($conn->connect_error) {
     }
-    verificar($conn,"ip");
-    $conn = new mysqli("localhost:3306", "anjoov00_root",null,"ip");
+    verificar($conn,"anjoov00_ip");
+    $conn = new mysqli("localhost:3306", "anjoov00_root",null,"anjoov00_ip");
     if ($conn->connect_error) {
     }
     $result=$conn->query("SELECT * FROM ips WHERE ip='$ip'");
