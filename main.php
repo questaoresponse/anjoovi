@@ -87,7 +87,7 @@ if ($url=="/"){
         }
     }
 } else if ($params[0]=="admin" && (!array_key_exists("key",$_SESSION) || !descrip($_SESSION["key"],$c))){
-
+    include (__DIR__ . "/admin_login/admin_init.php");
 } else if ($params[0]=="noticia"){
     $id=intval($params[1]);
     $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
