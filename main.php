@@ -76,8 +76,7 @@ if ($url=="/"){
             case 'admin/sair':
                 $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
                 $s=$conn->prepare("DELETE FROM ips_logados WHERE ip=?");
-                $ip=descrip($_SESSION["key_init"],$c);
-                $_SESSION["key_init"]=null;
+                $ip=$_SESSION["key_init"];
                 $s->bind_param("s",$ip);
                 $result=$s->execute();
                 header("location: /");
