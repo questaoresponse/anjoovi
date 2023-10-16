@@ -108,7 +108,9 @@ function definir_tabela(posts,l){
         var excluir=c.querySelector(".excluir");
         id.textContent=post.id;
         titulo.textContent=post.titulo;
-        titulo.href="/noticia/"+post.id+"/"+titulo;
+        titulo.onclick=()=>{
+            "/noticia/"+post.id+"/"+titulo;
+        }
         categoria.textContent=post.categoria;
         usuario.textContent=post.usuario;
         acessos.textContent=post.acessos;
