@@ -4,5 +4,5 @@
 </script>
 <?php
 include(__DIR__ . "/noticias_lista.html");
-include (__DIR__ . "/admin_barra/cadastro_usuario.html");
+include (__DIR__ . "/../admin_barra/cadastro_usuario.html");
 ?>

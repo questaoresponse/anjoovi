@@ -3,21 +3,17 @@
         <style>
 html,body{
     margin:0px;
+    width:100%;
+    height:100%;
+    background:white;
 }
 #tabela{
-    top:10%;
-    position:absolute;
-    background:white;
-    left:10%;
-    width:80%;
-    height:100%;
-}
-.linha{
     position:relative;
     background:white;
-    width:100%;
-    height:5%;
-    border:solid 1px black;
+    top:20%;
+    left:10%;
+    width:80%;
+    overflow-x: auto;
 }
 .coluna{
     position:relative;
@@ -30,19 +26,27 @@ html,body{
     width:18%;
     height:100%;
 }
+.linha .coluna{
+    padding-left:3%;
+    width:15%;
+    justify-content: normal;
+}
 .id{
     width:10%;
     border-left:solid 1px black;
     border-right:solid 1px black;
 }
+.linha .id{
+    width:7%;
+}
 .titulo{
     text-decoration: none;
     color:black;
 }
-.titulo:hover{
+a.titulo:hover{
     text-decoration: underline;
 }
-.titulo,.categoria,.usuario,.acessos{
+.titulo,.linha .categoria,.line .div-categoria,.usuario,.acessos,.opcoes{
     border-right:solid 1px black;
 }
 .edit{
@@ -56,20 +60,70 @@ html,body{
 }
 .excluir{
     top:10%;
-    width:55;
+    width:4%;
     height:50%;
 }
 .excluir:hover{
     opacity:0.5;
 }
+.registros,.linha,.line{
+    min-width:800px;
+}
+.linha,.line{
+    font-family:Arial;
+    position:relative;
+    background:white;
+    width:calc(100% - 3px);
+    height:5vh;
+    border:solid 1px black;
+}
+.linha .coluna{
+    font-weight:900;
+}
+.linha .categoria{
+    display:inline-flex;
+}
+.line .categoria{
+    display:none;
+}
+.linha .div-categoria{
+    display:none;
+}
+.line .div-categoria{
+    display:inline-flex;
+    top:-1px;
+}
+.line .div-categoria span{
+    position:relative;
+    background:black;
+    color:white;
+    border-radius:5px;
+    width:80%;
+    height:60%;
+}
+.coluna.opcoes{
+    width:9.8%;
+    border-right:0px;
+}
+.registros{
+    position:relative;
+    background:white;
+    width:calc(100% - 1px);
+    height:4vh;
+    padding-top:1vh;
+}
         </style>
     </head>
     <body>
         <div id="tabela">
+            <div class="registros"></div>
             <div class="linha">
                 <div class="coluna id">ID</div>
                 <a class="coluna titulo">TITULO</a>
                 <div class="coluna categoria">CATEGORIA</div>
+                <div class="coluna div-categoria">
+                    <span>ai</span>
+                </div>
                 <div class="coluna usuario">USUÁRIO</div>
                 <div class="coluna acessos">ACESSOS</div>
                 <img class="coluna edit" src="../static/edit-icone.png">
@@ -87,21 +141,29 @@ l.remove();
 var l2=l.cloneNode(true);
 window.l=l;
 window.l2=l2;
+window.tabela=tabela;
 l.querySelector(".edit").remove();
 l.querySelector(".excluir").remove();
+//l.querySelector(".categoria").remove();
+//l.querySelector(".registros").remove();
+var d=document.createElement("div");
+d.className="coluna titulo";
+d.textContent="TÍTULO";
+l.querySelector(".titulo").parentNode.replaceChild(d,l.querySelector(".titulo"));
 var o=document.createElement("div");
-o.textContent="OPÇÕES";
+o.textContent="AÇÕES";
 o.classList.add("coluna");
 o.classList.add("opcoes");
-o.style.width="14.9%";
 l.appendChild(o);
 function definir_tabela(posts,l){
     tabela.appendChild(window.l.cloneNode(true));
+    tabela.querySelector(".registros").textContent=posts.length>=0 && posts.length<=1 ? `Foi encontrado ${posts.length} registro.` : `Foram encontrados ${posts.length} registros.`;
     for (post of posts){
         var c=window.l2.cloneNode(true);
+        c.className="line";
         var id=c.querySelector(".id");
         var titulo=c.querySelector(".titulo");
-        var categoria=c.querySelector(".categoria");
+        var categoria=c.querySelector(".div-categoria span");
         var usuario=c.querySelector(".usuario");
         var acessos=c.querySelector(".acessos");
         var editar=c.querySelector(".edit");
@@ -109,7 +171,7 @@ function definir_tabela(posts,l){
         id.textContent=post.id;
         titulo.textContent=post.titulo;
         titulo.onclick=()=>{
-            "/noticia/"+post.id+"/"+titulo;
+            window.open("/noticia/"+post.id+"/"+titulo);
         }
         categoria.textContent=post.categoria;
         usuario.textContent=post.usuario;
@@ -124,7 +186,7 @@ function definir_tabela(posts,l){
                 type:'POST',
                 data:{type:"delete",id:post.id},
                 success: function(data) {
-                    tabela.textContent="";
+                    window.tabela.textContent="";
                     data=JSON.parse(data);
                     definir_tabela(data,l);
                 }
