@@ -45,7 +45,7 @@ if ($url=="/"){
 } else if ($params[0]=="admin"){
     $usuario;
     if (!array_key_exists("key",$_SESSION) || !descrip($_SESSION["key"],$c)){
-            include($url=="admin" ? __DIR__ . "/admin_login/admin_init.php" : __DIR__ . "/erro/404.html");
+            include($url=="admin/" ? __DIR__ . "/admin_login/admin_init.php" : __DIR__ . "/erro/404.html");
     } else if ($params[0]=="admin" && count($params)>1 &&  $params[1]=="noticias_edit"){
             $usuario=descrip($_SESSION["key"],$c);
             $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
