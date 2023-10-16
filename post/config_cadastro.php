@@ -11,7 +11,6 @@ function verificar($conn,$database_name){
         if ($conn->query($sql) === TRUE) {
         } else {
         }
-    } else {
     }
 }
 function p($result){

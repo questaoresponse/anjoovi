@@ -1,3 +1,3 @@
 <?php
-include(__DIR__."/cadastro_usuario.html");
+include(__DIR__ . "/cadastro_usuario.html");
 ?>

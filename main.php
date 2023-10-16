@@ -42,10 +42,10 @@ $params=explode("/",$url);
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
 if ($url=="/"){
     include(__DIR__ . '/index.php');
-} else if ($params[0]=="admin"){
+} else if ($params[0]=="admin" && array_key_exists("key",$_SESSION) && descrip($_SESSION["key"],$c)){
     $usuario;
-    if (!array_key_exists("key",$_SESSION) || !descrip($_SESSION["key"],$c)){
-            include($url=="admin/" ? __DIR__ . "/admin_login/admin_init.php" : __DIR__ . "/erro/404.html");
+    if ($url=="admin"){
+        include(__DIR__ . "/admin_inicio/index.php");
     } else if ($params[0]=="admin" && count($params)>1 &&  $params[1]=="noticias_edit"){
             $usuario=descrip($_SESSION["key"],$c);
             $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
@@ -58,7 +58,7 @@ if ($url=="/"){
                 while ($row = $result->fetch_assoc()) { $r[] = $row; }
             }
             include(__DIR__ . "/admin_noticias_cadastro/noticias_edit.php");
-    } else {
+    } else{
         $usuario=descrip($_SESSION["key"],$c);
         switch ($url){
             case 'admin': include(__DIR__ . "/admin_barra/cadastro_usuario.php");break;
@@ -74,7 +74,10 @@ if ($url=="/"){
             case 'admin/config_cadastro':
                 include(__DIR__ . "/admin_config/config_cadastro.html");break;
             case 'admin/sair':
+                $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
                 $s=$conn->prepare("DELETE FROM ips_logados WHERE ip=?");
+                $ip=descrip($_SESSION["key_init"],$c);
+                $_SESSION["key_init"]=null;
                 $s->bind_param("s",$ip);
                 $result=$s->execute();
                 header("location: /");
@@ -84,6 +87,8 @@ if ($url=="/"){
             include(__DIR__ . "/erro/404.html");
         }
     }
+} else if ($params[0]=="admin" && (array_key_exists("key",$_SESSION) || descrip($_SESSION["key"],$c))){
+
 } else if ($params[0]=="noticia"){
     $id=intval($params[1]);
     $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
