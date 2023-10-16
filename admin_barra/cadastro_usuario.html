@@ -158,10 +158,19 @@ a{
 #n2-menu.aberto{
     display:block;
 }
+#nome_usuario{
+    position:absolute;
+    font-family: Arial;
+    font-size:110%;
+    top:3.5%;
+    left:75%;
+    width:10%;
+    height:5%;
+}
         </style>
     </head>
     <body>
-        <a href="/"><img id="logo" src="../static/logo-anjoovi.png"></a>
+        <a href="/"><img id="logo" src="/static/logo-anjoovi.png"></a>
         <div id="bt-menu">
             <div id="b1"></div>
             <div id="b2"></div>
@@ -180,8 +189,9 @@ a{
                 <a href="/admin/sair"><div class="i-menu" id="sair">Sair</div></a>
             </div>
         </div>
-        <img id="lupa" src="../static/imagem-lupa.png">
-        <script src="../static/index.js"></script>
+        <img id="lupa" src="/static/imagem-lupa.png">
+        <div id="nome_usuario"></div>
+        <script src="/static/index.js"></script>
         <script src="/admin_barra/cadastro_usuario.js"></script>
     </body>
 </html>

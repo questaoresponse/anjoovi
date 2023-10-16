@@ -11,3 +11,4 @@ noticia.addEventListener("transitionend",()=>{
 noticia.addEventListener("transitionstart",()=>{
     noticia.classList.contains("fechado-noticia") ? menu2.className="fechado" : null;
 })
+window.usuario ? document.querySelector("#nome_usuario").textContent=window.usuario : null;

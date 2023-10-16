@@ -1,4 +1,4 @@
-var s=document.querySelector("#categorias")
+s=document.querySelector("#categorias")
 document.querySelector("#usuario").textContent=window.usuario;
 console.log(window.select_options);
 //var opt=JSON.parse(window.select_options);
@@ -45,9 +45,11 @@ form.addEventListener("submit",(e)=>{
     fd.append("destaque",destaque);
     fd.append("titulo",titulo);
     fd.append("subtitulo",subtitulo);
+    window.edit ? fd.append("type","update") :null;
+    window.edit ? fd.append("id",window.post_edit[0].id): null;
     imagem_data && fd.append("imagem",imagem_data);
     $.ajax({
-        url: "/post/config_cadastro.php",
+        url: window.edit ? "/post/posts.php" : "/post/config_cadastro.php",
         type:'POST',
         processData: false, // Não processar dados
         contentType: false, // Não definir o tipo de conteúdo
@@ -62,9 +64,19 @@ form.addEventListener("submit",(e)=>{
 function sucesso(){
     var m=document.createElement("div");
     m.id="m";
-    m.textContent="Notícia cadastrada com sucesso.";
+    m.textContent=`Notícia ${window.edit ? "alterada" : "cadastrada"} com sucesso.`;
     document.body.appendChild(m);
     setTimeout(()=>{
         m.remove();
     },1500);
+}
+if (window.edit){
+  console.log(window.post_edit)
+  document.querySelector("button").textContent="Alterar";
+  document.querySelector("#categorias").value=window.post_edit[0].categoria;
+  document.querySelector("#destaques").value=window.post_edit[0].destaque;
+  document.querySelector("#titulo").value=window.post_edit[0].titulo;
+  document.querySelector("#subtitulo").value=window.post_edit[0].subtitulo;
+  document.querySelector("#acessos").value=window.post_edit[0].acessos;
+  window.post_edit[0].imagem!="n" ? imagem_view.src="/images/"+window.post_edit[0].imagem : null;
 }

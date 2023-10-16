@@ -1,12 +1,13 @@
 <?php
+$c=__DIR__ . "/../../key.json";
+function descrip($texto,$c){
+    $keys = json_decode(file_get_contents($c));$key=$keys->key;$iv=base64_decode($keys->iv);return openssl_decrypt($texto, 'aes-256-cbc', $key, 0, $iv);
+}
 $tipo=$_POST["tipo"];
 function verificar($conn,$database_name){
-    $result = $conn->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$database_name'");
-    
+    $result = $conn->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$database_name'");   
     if ($result->num_rows == 0) {
-        // O banco de dados não existe, então crie-o
         $sql = "CREATE DATABASE $database_name";
-    
         if ($conn->query($sql) === TRUE) {
         } else {
         }
@@ -14,11 +15,7 @@ function verificar($conn,$database_name){
     }
 }
 function p($result){
-    $resultados=[];
-    while ($row = $result->fetch_assoc()) {
-            $resultados[] = $row;
-    }
-    return $resultados;
+    $resultados=[]; while ($row = $result->fetch_assoc()) { $resultados[] = $row; }; return $resultados;
 }
 if ($tipo=="config_cadastro"){
     $opcao=$_POST["opcao"];
@@ -34,22 +31,13 @@ if ($tipo=="config_cadastro"){
     $s->execute();
 }
 if ($tipo=="noticias_cadastro"){
-    $ip = $_SERVER['REMOTE_ADDR'];
-    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
-    $conn->query("CREATE TABLE IF NOT EXISTS ips_logados(ip TEXT,usuario TEXT)");
-    $s=$conn->prepare("SELECT * FROM ips_logados WHERE ip=?");
-    $s->bind_param("s",$ip);
-    $s->execute();
-    $result=$s->get_result();
-    $r=[];
-    while ($row = $result->fetch_assoc()) {
-            $r[] = $row;
-    }
-    $usuario=$r[0]["usuario"];
+    session_start();
+    $usuario = descrip($_SESSION["key"],$c);
     $categoria=$_POST["categoria"];
     $destaque=$_POST["destaque"];
     $titulo=$_POST["titulo"];
     $subtitulo=$_POST["subtitulo"];
+    $acessos=0;
     $texto;
     $imagem;
     $texto=isset($_POST["texto"]) ? $_POST["texto"] : "n";
@@ -62,18 +50,18 @@ if ($tipo=="noticias_cadastro"){
         $imagem="n";
     }
     $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
-    $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT)");
-    $s=$conn->prepare("SELECT * FROM post WHERE titulo=?");
-    $s->bind_param("s",$titulo);
-    $s->execute();
-    $result=$s->get_result();
+    $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
+    $result=$conn->query("SELECT id FROM post");
+    $id;
     if ($result->num_rows==0){
-        $s=$conn->prepare("INSERT INTO post(usuario,categoria,destaque,titulo,subtitulo,texto,imagem) VALUES (?,?,?,?,?,?,?)");
-        $s->bind_param("sssssss",$usuario,$categoria,$destaque,$titulo,$subtitulo,$texto,$imagem);
-        $s->execute();
-        echo "true";
+        $id=1;
     } else {
-        echo "false";
+        $id=p($result);
+        $id=end($id)["id"]+1;
     }
+    $s=$conn->prepare("INSERT INTO post(usuario,categoria,destaque,titulo,subtitulo,texto,imagem,acessos,id) VALUES (?,?,?,?,?,?,?,?,?)");
+    $s->bind_param("sssssssii",$usuario,$categoria,$destaque,$titulo,$subtitulo,$texto,$imagem,$acessos,$id);
+    $s->execute();
+    echo "true";
 }
 ?>

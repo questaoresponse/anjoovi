@@ -5,4 +5,3 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_METHOD} ^GET$
 #RewriteRule ^$ main.php?route=$1 [L]
 RewriteRule ^(.*)$ main.php?route=$1 [L]
-
