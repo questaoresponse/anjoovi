@@ -87,7 +87,7 @@ if ($url=="/"){
             include(__DIR__ . "/erro/404.html");
         }
     }
-} else if ($params[0]=="admin" && (array_key_exists("key",$_SESSION) || descrip($_SESSION["key"],$c))){
+} else if ($params[0]=="admin" && (!array_key_exists("key",$_SESSION) || !descrip($_SESSION["key"],$c))){
 
 } else if ($params[0]=="noticia"){
     $id=intval($params[1]);
