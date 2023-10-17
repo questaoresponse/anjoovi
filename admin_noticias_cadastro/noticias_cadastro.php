@@ -41,7 +41,7 @@ $select_options=$r;
 ?>
 <script>
     window.select_options=<?php echo json_encode($select_options)?>;
-    window.usuario=<?php echo json_encode([$usuario])?>
+    window.usuario=<?php echo json_encode([$usuario])?>;
 </script>
 <?php
 include(__DIR__ . "/noticias_cadastro.html");

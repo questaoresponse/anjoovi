@@ -4,8 +4,6 @@ console.log(window.select_options);
 //var opt=JSON.parse(window.select_options);
 var opt=window.select_options;
 var s2=JSON.parse(opt[0].selects)
-console.log(s2);
-console.log("ai")
 for (op of s2){
     var o=document.createElement("option");
     o.textContent=op;
@@ -31,13 +29,21 @@ imagem.addEventListener('change', ()=>{
       imagem_view.src = ''; // Limpa a imagem
     }
   });
-form.addEventListener("submit",(e)=>{
+async function get_message(){
+  return new Promise((resolve,reject)=>{
+    window.addEventListener("message",(e)=>{
+      resolve(e.data);
+    })
+  })
+}
+form.addEventListener("submit",async (e)=>{
     e.preventDefault();
     var fd=new FormData();
     var categoria=document.querySelector("#categorias").value;
     var destaque=document.querySelector("#destaques").value;
     var titulo=document.querySelector("#titulo").value;
     var subtitulo=document.querySelector("#subtitulo").value;
+    var texto=document.querySelector("textarea").value;
     imagem_data=imagem.files.length>0 ? imagem.files[0] : null;
     fd.append("tipo","noticias_cadastro");
     fd.append("usuario",window.usuario);
@@ -45,6 +51,7 @@ form.addEventListener("submit",(e)=>{
     fd.append("destaque",destaque);
     fd.append("titulo",titulo);
     fd.append("subtitulo",subtitulo);
+    texto!="" ? fd.append("texto",texto) : null;
     window.edit ? fd.append("type","update") :null;
     window.edit ? fd.append("id",window.post_edit[0].id): null;
     imagem_data && fd.append("imagem",imagem_data);
@@ -55,7 +62,6 @@ form.addEventListener("submit",(e)=>{
         contentType: false, // Não definir o tipo de conteúdo
         data:fd,
         success: function(data) {
-          console.log(data);
             data=="true" && sucesso();
         //   data!="true" && erro(data);
       }
@@ -71,12 +77,13 @@ function sucesso(){
     },1500);
 }
 if (window.edit){
-  console.log(window.post_edit)
+  document.querySelector("#msg1").textContent="Editar notícia"
   document.querySelector("button").textContent="Alterar";
   document.querySelector("#categorias").value=window.post_edit[0].categoria;
   document.querySelector("#destaques").value=window.post_edit[0].destaque;
   document.querySelector("#titulo").value=window.post_edit[0].titulo;
   document.querySelector("#subtitulo").value=window.post_edit[0].subtitulo;
-  document.querySelector("#acessos").value=window.post_edit[0].acessos;
+  document.querySelector("#acessos").textContent=window.post_edit[0].acessos;
   window.post_edit[0].imagem!="n" ? imagem_view.src="/images/"+window.post_edit[0].imagem : null;
+  window.post_edit[0].texto!="n" ? document.querySelector("textarea").textContent=window.post_edit[0].texto : null;
 }

@@ -51,7 +51,6 @@ if ($url=="/"){
             $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
             $id = explode('/', $url)[2]; // Divide a URI em partes
             $id=intval($id);
-            echo $id;
             $s=$conn->prepare("SELECT * FROM post WHERE usuario=? AND id=?");$s->bind_param("si",$usuario,$id);$s->execute();$result=$s->get_result();
             $r=[];
             if ($result->num_rows>0){
