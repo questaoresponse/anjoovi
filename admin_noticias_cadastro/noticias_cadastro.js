@@ -3,10 +3,10 @@ document.querySelector("#usuario").textContent=window.usuario;
 console.log(window.select_options);
 //var opt=JSON.parse(window.select_options);
 var opt=window.select_options;
-var s2=JSON.parse(opt[0].selects)
-for (op of s2){
+//var s2=JSON.parse(opt);
+for (op of opt){
     var o=document.createElement("option");
-    o.textContent=op;
+    o.textContent=op.nome;
     s.appendChild(o);
 }
 var imagem=document.querySelector("#imagem");
@@ -50,11 +50,12 @@ form.addEventListener("submit",async (e)=>{
     fd.append("categoria",categoria);
     fd.append("destaque",destaque);
     fd.append("titulo",titulo);
-    fd.append("subtitulo",subtitulo);
+    subtitulo!="" ? fd.append("subtitulo", subtitulo) : null;
     texto!="" ? fd.append("texto",texto) : null;
     window.edit ? fd.append("type","update") :null;
     window.edit ? fd.append("id",window.post_edit[0].id): null;
     imagem_data && fd.append("imagem",imagem_data);
+    document.querySelector("#button").disabled=true;
     $.ajax({
         url: window.edit ? "/post/posts.php" : "/post/config_cadastro.php",
         type:'POST',
@@ -62,6 +63,7 @@ form.addEventListener("submit",async (e)=>{
         contentType: false, // Não definir o tipo de conteúdo
         data:fd,
         success: function(data) {
+          document.querySelector("#button").disabled=false;
             data=="true" && sucesso();
         //   data!="true" && erro(data);
       }

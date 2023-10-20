@@ -28,6 +28,7 @@ $select_options=$r2;
     window.usuario=<?php echo json_encode([$usuario])?>;
     window.edit="true";
     window.post_edit=<?php echo json_encode($r) ?>;
+    window.setStyle={elemento:"#noticias_lista",color:"gray"};
 </script>
 <?php
 include(__DIR__ . "/noticias_cadastro.html");

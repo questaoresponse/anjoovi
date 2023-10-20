@@ -21,7 +21,7 @@ switch ($type){
         $categoria=$_POST["categoria"];
         $destaque=$_POST["destaque"];
         $titulo=$_POST["titulo"];
-        $subtitulo=$_POST["subtitulo"];
+        $subtitulo=isset($_POST["subtitulo"]) ? $_POST["subtitulo"] : "n";
         $texto;
         $imagem;
         $texto=isset($_POST["texto"]) ? $_POST["texto"] : "n";

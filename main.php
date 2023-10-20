@@ -9,6 +9,9 @@ function crip($texto,$c){
 function descrip($texto,$c){
     $keys = json_decode(file_get_contents($c));$key=$keys->key;$iv=base64_decode($keys->iv);return openssl_decrypt($texto, 'aes-256-cbc', $key, 0, $iv);
 }
+function c($result){
+    $r=[];while ($row = $result->fetch_assoc()) { $r[] = $row; }; return $r;
+}
 function rt($texto){
     $posicao_inicio = strpos($texto, '/');
 if ($posicao_inicio !== false) {
@@ -23,20 +26,6 @@ session_start();
 if (!(array_key_exists("key_init",$_SESSION))){
     $t = 16; $ba = random_bytes($t); $ca = bin2hex($ba); $_SESSION["key_init"]=$ca;
 }
-// function verificar($conn,$database_name){
-//     $result = $conn->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$database_name'");
-    
-//     if ($result->num_rows == 0) {
-//         // O banco de dados não existe, então crie-o
-//         $sql = "CREATE DATABASE $database_name";
-    
-//         if ($conn->query($sql) === TRUE) {
-//         } else {
-//         }
-//     } else {
-//     }
-// }
-//$url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
 $url=$_GET['route'];
 $params=explode("/",$url);
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
@@ -49,14 +38,30 @@ if ($url=="/"){
     } else if ($params[0]=="admin" && count($params)>1 &&  $params[1]=="noticias_edit"){
             $usuario=descrip($_SESSION["key"],$c);
             $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
-            $id = explode('/', $url)[2]; // Divide a URI em partes
+            $id=$params[2];
             $id=intval($id);
             $s=$conn->prepare("SELECT * FROM post WHERE usuario=? AND id=?");$s->bind_param("si",$usuario,$id);$s->execute();$result=$s->get_result();
             $r=[];
-            if ($result->num_rows>0){
-                while ($row = $result->fetch_assoc()) { $r[] = $row; }
+            if ($s->num_rows==0){
+                if ($result->num_rows>0){
+                    while ($row = $result->fetch_assoc()) { $r[] = $row; };
+                }
+                include(__DIR__ . "/admin_noticias_cadastro/noticias_edit.php");
+            } else {
+                include(__DIR__ . "/erro/404.html");
             }
-            include(__DIR__ . "/admin_noticias_cadastro/noticias_edit.php");
+        }else if ($params[0]=="admin" && count($params)>1 &&  $params[1]=="categorias_edit"){
+        $id=$params[2];
+        $id=intval($id);
+        $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_config");
+        $result=$conn->query("SELECT * FROM categorias");
+         if ($result->num_rows>0){
+            $all=[];
+            while ($row = $result->fetch_assoc()) { $all[] = $row; }
+            include(__DIR__ . "/admin_categorias_cadastro/edit.php");
+        } else {
+            include(__DIR__ . "/erro/404.html");
+        }
     } else{
         $usuario=descrip($_SESSION["key"],$c);
         switch ($url){
@@ -72,6 +77,12 @@ if ($url=="/"){
                 include(__DIR__ . "/admin_noticias_lista/noticias_lista.php");break;
             case 'admin/config_cadastro':
                 include(__DIR__ . "/admin_config/config_cadastro.html");break;
+            case 'admin/categorias_cadastro':
+                $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_config");
+                $result=$conn->query("SELECT * FROM categorias");
+                $r=[];
+                while ($row = $result->fetch_assoc()) { $r[] = $row; }
+                include(__DIR__ . "/admin_categorias_cadastro/index.php");break;
             case 'admin/sair':
                 $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
                 $s=$conn->prepare("DELETE FROM ips_logados WHERE ip=?");
@@ -107,7 +118,40 @@ if ($url=="/"){
     } else {
         header("HTTP/1.0 404 Not Found");include(__DIR__ . "/erro/404.html");
     }
-}else if ($url=="reload"){
+} else if ($params[0]=="categoria"){
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_config");
+    $s=$conn->prepare("SELECT * FROM categorias WHERE link=?");
+    $s->bind_param("s",$params[1]);
+    $s->execute();
+    $result=$s->get_result();
+    if ($result->num_rows>0){
+        $rc=c($result);
+        $categoria=$rc[0]["nome"];
+        $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
+        $s=$conn->prepare("SELECT * FROM post WHERE categoria=?");
+        $s->bind_param("s",$categoria);
+        $s->execute();
+        $result=$s->get_result();
+        $r=c($result);
+        include(__DIR__ . "/categoria/index.php");
+    }else {
+        include(__DIR__ . "/erro/404.html");
+    }
+}else if ($url=="editorias"){
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_config");
+    $result=$conn->query("SELECT * FROM categorias");
+    $r=c($result);
+    include(__DIR__ . "/editorial/index.php");
+} else if ($params[0]=="busca"){
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
+    $p = '%' . $params[1] . '%' ;
+    $s = $conn->prepare("SELECT * FROM post WHERE LOWER(titulo) LIKE LOWER(?)");
+    $s->bind_param("s", $p);
+    $s->execute();
+    $result = $s->get_result();
+    $r=c($result);
+    include(__DIR__ . "/busca/index.php");
+} else if ($url=="reload"){
     $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea");
     $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_posts");
     $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");

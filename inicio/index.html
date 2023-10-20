@@ -103,10 +103,44 @@ html,body{
     width:3vh;
     height:3vh;
 }
+:root{
+    --p:10%;
+}
+#pesquisa{
+    font-size:110%;
+    position:absolute;
+    background:white;
+    top:2.5vh;
+    height:5vh;
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
+    padding-left: 5vw;
+    width:30vw;
+    left:32.5vw;
+    background-size: 300px 300px;
+}
+#pl{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    width:2.5vw;
+    height:2.5vw;
+    border-radius: 50%;
+    /* display:none; */
+}
+#pl img{
+    position: absolute;
+    background-color: rgba(0,0,0,0);
+    top:1.75vw;
+    left:34vw;
+    width:100%;
+    height:100%;
+}
         </style>
     </head>
     <body>
-        <a href="/"><img id="logo" src="../static/logo-anjoovi.png"></a>
+        <a href="/"><img id="logo" src="/static/logo-anjoovi.png"></a>
         <div id="bt-menu">
             <div id="b1"></div>
             <div id="b2"></div>
@@ -115,14 +149,68 @@ html,body{
         <div id="c_menu" class="fechado">
             <div id="menu" class="fechado">
                 <div class="i-menu-1 i-menu" ><a href="/noticias-lista">Últimas notícias</a></div>
-                <div class="i-menu i-menu2" ><a href="/editoriais">Editoriais</a></div>
+                <div class="i-menu i-menu2" ><a href="/editorias">Editoriais</a></div>
                 <div class="i-menu" ><a href="/blogs-e-colunas">Blogs & Colunas</a></div>
                 <div class="i-menu i-menu2" ><a href="/paginas">Páginas</a></div>
                 <div class="i-menu" ><a href="/classificados">Classificados</a></div>
                 <div class="i-menu i-menu2" ><a href="/contato">Fale conosco</a></div>
             </div>
         </div>
-        <script src="../static/index.js"></script>
-        <img id="lupa" src="../static/imagem-lupa.png">
+        <script src="/static/index.js"></script>
+        <img id="lupa" src="/static/imagem-lupa.png">
+        <form id="fp">
+            <input  id="pesquisa" class="fechado" placeholder="Pesquisar">
+        </form>
+        <div id="pl">
+            <img src="/static/imagem-lupa.png">
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+        <script>
+var p=document.querySelector("#pesquisa");
+var pl=document.querySelector("#pl");
+var fp=document.querySelector("#fp");
+fp.addEventListener("submit",(e)=>{
+    e.preventDefault();
+    var i=p.value;
+    var i=encodeURIComponent(i);
+    window.location.href="/busca/"+i.replace(/%20/g,"+");
+    // $.ajax({
+    //     url:"/post/config_cadastro.php",
+    //     type:'POST',
+    //     data:{pesquisa:"pesquisa",query:p.value},
+    //     success: function(data) {
+    //     //   document.querySelector("#button").disabled=false;
+    //     //     data=="true" && sucesso();
+    //     //   data!="true" && erro(data);
+    //     // data=JSON.parse(data);
+    //     // console.log(data);
+    //     // data=JSON.parse(data);
+        
+    //     // window.posts=data.p
+    //     //window.document.body.innerHTML=data.b;
+    //   }
+    // });
+    // window.document.querySelector("html").innerHTML="";
+    // // document="";
+    // history.pushState(null, null, "/busca");
+})
+p.addEventListener("input",()=>{
+    if (p.value!=""){
+        pl.style.left="24.5vw";
+    } else {
+        pl.style.left="0vw";
+    }
+})
+// p.addEventListener("focus",()=>{
+//     pesquisa.classList.toggle("fechado");
+//     pesquisa.classList.toggle("aberto");
+//     document.querySelector("#pl").style.display="flex";
+// });
+// p.addEventListener("blur",()=>{
+//     pesquisa.classList.toggle("fechado");
+//     pesquisa.classList.toggle("aberto");
+//     document.querySelector("#pl").style.display="none";
+// })
+        </script>
     </body>
 </html>

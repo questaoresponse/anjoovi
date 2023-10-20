@@ -3,4 +3,5 @@
 </script>
 <?php
 include(__DIR__ . "/post.html");
+include(__DIR__ . "/../inicio/index.html");
 ?>

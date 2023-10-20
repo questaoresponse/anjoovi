@@ -1,0 +1,148 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon">
+        <title>Anjoovi</title>
+        <style>
+html,body{
+    margin:0px;
+}
+#tabela{
+    top:30%;
+    left:5%;
+    position:absolute;
+    background: white;
+    width:70%;
+}
+#registros{
+    font-size:110%;
+    left:5%;
+    top:20%;
+    font-family: Arial;
+    position: absolute;
+    background:white;
+    width:95%;
+    height:10%;
+}
+.linha{
+    text-decoration: none;
+}
+.t{
+    font-family: Arial;
+    font-size:140%;
+    position: relative;
+    background: white;
+    width:100%;
+    height:40vh;
+    color:black;
+    text-decoration: none;
+}
+.t::before{
+    position:absolute;
+    background:gray;
+    content:"";
+    display: block;
+    width:100%;
+    height:0.5%;
+    top:99.5%;
+}
+.usuario{
+    position:relative;
+    background:gray;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
+    margin-left:50%;
+    top:10%;
+    width:20%;
+    height:5vh;
+}
+.imagem{
+    position:absolute;
+    top:5%;
+    width:35%;
+    height:80%;
+}
+.imagem,.titulo,.subtitulo{
+    background:rgba(0,0,0,0);
+}
+/* .titulo{
+    position:relative;
+    width:50%;
+    padding-left:50%;
+} */
+.titulo,.subtitulo{
+    position:relative;
+    background:rgba(0,0,0,0);
+    padding-left:50%;
+    margin-top:2%;
+}
+.titulo{
+    font-weight: 900;
+    margin-top:5%;
+}
+#p1,#p2,#p3{
+    display:inline-block;
+}
+#p2{
+    font-weight: 900;
+}
+.t:hover{
+    background:#f0f0f0;
+}
+        </style>
+    </head>
+    <body>
+        <div id="registros">
+            <p id="p1"></p>
+            <p id="p2"></p>
+            <p id="p3"></p>
+        </div>
+        <div id="tabela">
+            <a class="linha">
+                <div class="t">
+                <div class="usuario"></div>
+                <img class="imagem">
+                <div class="titulo"></div>
+                <div class="subtitulo"></div>
+                </div>
+            </a>
+        </div>
+        <script>
+var tabela=document.querySelector("#tabela");
+var lr=tabela.querySelector(".linha");
+lr.remove();
+var ps=window.posts;
+console.log(ps);
+function criar_tabela(){
+    var rs=document.querySelector("#registros");
+    var q=ps.length>=0 && ps.length<=1 ? true : false;
+    var p1=rs.querySelector("#p1");
+    var p2=rs.querySelector("#p2");
+    var p3=rs.querySelector("#p3");
+    p1.textContent=q ? "Foi encontrado " : "Foram encontrados";
+    p2.textContent=ps.length;
+    p3.textContent=q ? "registro." : "registros.";
+    for (var p of ps){
+        var linha=lr.cloneNode(true);
+        var u=linha.querySelector(".usuario");
+        var i=linha.querySelector(".imagem");
+        var t=linha.querySelector(".titulo");
+        var s=linha.querySelector(".subtitulo");
+        p.imagem!="n" ? i.src="/images/"+p.imagem : null;
+        t.textContent=p.titulo;
+        linha.href="/noticia/"+p.id;
+        u.textContent=p.usuario;
+        s.textContent=p.subtitulo;
+        tabela.appendChild(linha);
+    }
+}
+criar_tabela();
+        </script>
+    </body>
+</html>

@@ -1,9 +1,21 @@
 <?php
 $c=__DIR__ . "/../../key.json";
+$url;
 function descrip($texto,$c){
     $keys = json_decode(file_get_contents($c));$key=$keys->key;$iv=base64_decode($keys->iv);return openssl_decrypt($texto, 'aes-256-cbc', $key, 0, $iv);
 }
-$tipo=$_POST["tipo"];
+function p($result){
+    $resultados=[]; while ($row = $result->fetch_assoc()) { $resultados[] = $row; }; return $resultados;
+}
+session_start();
+if (isset($_SESSION["key"]) && descrip($_SESSION["key"],$c)){ 
+if (isset($_SERVER['HTTP_REFERER'])) {
+    $url= $_SERVER['HTTP_REFERER'];
+}
+$url_parts = parse_url($url);
+$url = $url_parts['path'];
+$params=explode("/",$url);
+$tipo=$params[0]=="admin" ? $_POST["tipo"] : null;
 function verificar($conn,$database_name){
     $result = $conn->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$database_name'");   
     if ($result->num_rows == 0) {
@@ -12,9 +24,6 @@ function verificar($conn,$database_name){
         } else {
         }
     }
-}
-function p($result){
-    $resultados=[]; while ($row = $result->fetch_assoc()) { $resultados[] = $row; }; return $resultados;
 }
 if ($tipo=="config_cadastro"){
     $opcao=$_POST["opcao"];
@@ -63,4 +72,52 @@ if ($tipo=="noticias_cadastro"){
     $s->execute();
     echo "true";
 }
+if ($params[2]=="categorias_cadastro" && $_GET["type"]=="cadastro"){
+    $nome=$_POST["nome"];
+    $descricao=$_POST["descricao"];
+    $link=$_POST["link"];
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_config");
+    $conn->query("CREATE TABLE IF NOT EXISTS categorias(id INT,nome TEXT,descricao TEXT,link TEXT)");
+    $result=$conn->query("SELECT id FROM categorias");
+    $id;
+    if ($result->num_rows==0){
+        $id=1;
+    } else {
+        $id=p($result);
+        $id=end($id)["id"]+1;
+    }
+    $s=$conn->prepare("INSERT INTO categorias(id,nome,descricao,link) VALUES(?,?,?,?)");
+    $s->bind_param("isss",$id,$nome,$descricao,$link);
+    $s->execute();
+    $result=$conn->query("SELECT * FROM categorias");
+    $r=p($result);
+    echo json_encode($r);
+}
+if ($params[2]=="categorias_edit" && $_GET["type"]=="edit"){
+    $nome=$_POST["nome"];
+    $descricao=$_POST["descricao"];
+    $link=$_POST["link"];
+    $id=$params[3];
+    $id=intval($id);
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_config");
+    $s=$conn->prepare("UPDATE categorias SET nome=?,descricao=?,link=? WHERE id=?");
+    $s->bind_param("sssi",$nome,$descricao,$link,$id);
+    $s->execute();
+    $result=$conn->query("SELECT * FROM categorias");
+    $r=p($result);
+    echo json_encode($r);
+}
+if (($params[2]=="categorias_edit" || $params[2]=="categorias_cadastro") && $_GET["type"]=="remove"){
+    $id=$_GET["id"];
+    $id=intval($id);
+    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_config");
+    $s=$conn->prepare("DELETE FROM categorias WHERE id=?");
+    $s->bind_param("i",$id);
+    $s->execute();
+    $result=$conn->query("SELECT * FROM categorias");
+    $r=p($result);
+    echo json_encode($r);
+}
+}
+
 ?>

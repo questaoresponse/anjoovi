@@ -7,7 +7,7 @@
 html,body{
     margin:0px;
     width:100%;
-    height:100%;
+    height:145%;
     background:#f0f0f0;
 }
 body::before{
@@ -15,10 +15,11 @@ body::before{
   position:relative;
   display:block;
   width:100%;
-  height:10%; /* Altura do espaço em branco */
+  height:10vh; /* Altura do espaço em branco */
   background-color:white; /* Cor de fundo de exemplo */
 }
 #msg1{
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
     font-family: Arial;
     font-size:200%;
     position:relative;
@@ -28,22 +29,24 @@ body::before{
     right:2%;
     padding-left: 2%;
     width:94%;
-    height:15%;
+    height:15vh;
     display:flex;
     align-items: center;
     border-radius: 2px;
 }
 form{
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
     position:relative;
     background:white;
     left:2%;
     right:2%;
-    margin-top:5%;
+    margin-top:2%;
     width:96%;
-    height:100%;
+    height:160vh;
     border-radius: 5px;
+    overflow-y: visible;
 }
-form::before{
+/* form::before{
     content:"";
     background:white;
     position: absolute;
@@ -52,16 +55,16 @@ form::before{
     height:50%;
     top:100%;
     border-radius:5px;
-}
+} */
 #usuario-l{
     font-family: Arial;
     font-size:110%;
     position:absolute;
     background:rgba(0,0,0,0);
-    top:11.5%;
+    top:11.5vh;
     left:5%;
     width:20%;
-    height:5%;
+    height:5vh;
     border-radius:5px;
 }
 #usuario{
@@ -69,10 +72,10 @@ form::before{
     font-size:110%;
     position:absolute;
     background:white;
-    top:15%;
+    top:15vh;
     left:5%;
     width:25%;
-    height:5%;
+    height:5vh;
     border-radius:5px;
     /* border:solid 2px black; */
     display:flex;
@@ -85,19 +88,19 @@ form::before{
     font-size:110%;
     position:absolute;
     background:rgba(0,0,0,0);
-    top:11.5%;
+    top:11.5vh;
     left:40%;
     width:20%;
-    height:5%;
+    height:5vh;
     border-radius:5px;
 }
 #categorias{
     font-size: 110%;
     position:absolute;
-    top:15%;
+    top:15vh;
     left:40%;
     width:20%;
-    height:5.5%;
+    height:5.5vh;
     border-radius:5px;
     /* border:solid 2px black; */
 }
@@ -106,19 +109,19 @@ form::before{
     font-size:110%;
     position:absolute;
     background:rgba(0,0,0,0);
-    top:11.5%;
+    top:11.5vh;
     left:67.5%;
     width:20%;
-    height:5%;
+    height:5vh;
     border-radius:5px;
 }
 #destaques{
     font-size: 110%;
     position:absolute;
-    top:15%;
+    top:15vh;
     left:67.5%;
     width:27.5%;
-    height:5.5%;
+    height:5.5vh;
     border-radius:5px;
     /* border:solid 2px black; */
 }
@@ -127,21 +130,21 @@ form::before{
     font-size:110%;
     position:absolute;
     background:rgba(0,0,0,0);
-    top:26.5%;
+    top:26.5vh;
     left:67.5%;
     width:20%;
-    height:5%;
+    height:5vh;
     border-radius:5px;
 }
 #acessos{
     font-family: Arial;
     position:absolute;
     background:gray;
-    top:30%;
+    top:30vh;
     left:67.5%;
     padding-left:2.5%;
     width:25%;
-    height:5%;
+    height:5vh;
     border-radius:5px;
     border:solid 2px black;
     display:flex;
@@ -152,21 +155,21 @@ form::before{
     font-size:110%;
     position:absolute;
     background:rgba(0,0,0,0);
-    top:36.5%;
+    top:36.5vh;
     left:5%;
     width:40%;
-    height:5%;
+    height:5vh;
     border-radius:5px;
 }
 #titulo{
     font-size: 110%;
     position:absolute;
     background:white;
-    top:40%;
+    top:40vh;
     left:5%;
     padding-left:2.5%;
     width:40%;
-    height:5%;
+    height:5vh;
     border-radius:5px;
     /* border:solid 2px black; */
     display:flex;
@@ -177,21 +180,21 @@ form::before{
     font-size:110%;
     position:absolute;
     background:rgba(0,0,0,0);
-    top:36.5%;
+    top:36.5vh;
     left:55%;
     width:40%;
-    height:5%;
+    height:5vh;
     border-radius:5px;
 }
 #subtitulo{
     font-size: 110%;
     position:absolute;
     background:white;
-    top:40%;
+    top:40vh;
     left:55%;
     padding-left:2.5%;
     width:40%;
-    height:5%;
+    height:5vh;
     border-radius:5px;
     /* border:solid 2px black; */
     display:flex;
@@ -209,7 +212,8 @@ iframe{
     background:gray;
     width:20vh;
     height:20vh;
-    top:120%;
+    left:2.5%;
+    top:114vh;
 }
 #imagem{
     position:absolute;
@@ -221,21 +225,24 @@ iframe{
     text-align: center;
     align-items: center;
     width:30%;
-    height:6.5%;
-    top:127.5%;
+    height:6.5vh;
+    top:120vh;
     left:25vh;
     border:solid 1px gray;
     border-radius:5px;
 }
 #button{
+    font-family:Arial;
+    font-size:110%;
     position:absolute;
     background:black;
     color:white;
-    top:145%;
+    top:165vh;
     width:10%;
-    height:5%;
+    height:7.5vh;
+    left:1%;
     border:solid 1px black;
-    border-radius:10px;
+    border-radius:5px;
 }
 #button:hover{
     background:white;
@@ -266,10 +273,10 @@ textarea{
     font-family: Arial;
     font-size:110%;
     position:absolute;
-    top:60%;
+    top:60vh;
     background:white;
     width:100%;
-    height:40%;
+    height:40vh;
 
 }
         </style>
@@ -298,11 +305,11 @@ textarea{
         <label id="titulo-l">Título</label>
         <input class="input" id="titulo" placeholder="Insira um título" required>
         <label id="subtitulo-l">Subtítulo</label>
-        <input class="input" id="subtitulo" placeholder="Insira um subtítulo" required>
+        <input class="input" id="subtitulo" placeholder="Insira um subtítulo">
         <!-- <iframe src="/admin_noticias_cadastro/editor.html"></iframe> -->
         <textarea></textarea>
         <img id="imagem-view" src="/static/sem-imagem.jpg">
-        <input type="file" id="imagem" accept="image/jpg, image/jpeg">
+        <input type="file" id="imagem" accept="image/jpg, image/jpeg" required>
         <button type="submit" id="button">Cadastrar</button>
     </form>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>

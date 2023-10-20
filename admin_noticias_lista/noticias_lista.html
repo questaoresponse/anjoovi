@@ -8,14 +8,73 @@ html,body{
     margin:0px;
     width:100%;
     height:100%;
+    background:#f0f0f0;
+}
+body::before{
+    content: "";
     background:white;
+    display:block;
+    width:100%;
+    height:10%;
+}
+#msg1{
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+    font-family: Arial;
+    font-size:200%;
+    position:relative;
+    background:white;
+    margin-top:2%;
+    left:2%;
+    right:2%;
+    padding-left: 2%;
+    width:94%;
+    height:15%;
+    display:flex;
+    align-items: center;
+    border-radius: 2px;
+}
+#top{
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+    position:relative;
+    background:white;
+    margin-top:2%;
+    left:1.875%;
+    width: 96.25%;
+    min-height:90%;
+    overflow: visible;
+}
+#top::after{
+    padding-top: 2%;
+    padding-left:2%;
+    font-size: 180%;
+    position: absolute;
+    display:block;
+    font-family: Arial;
+    content: "Informações";
+    background:white;
+    width:98%;
+    margin-top:-10%;
+    /* margin-top:40vh; */
+    /* padding-top:11%; */
+    height:2vh;
+}
+#top::before{
+    padding-left:2%;
+    position: absolute;
+    display:block;
+    font-family: Arial;
+    background:rgba(128, 128, 128,0.5);
+    top:12.5%;
+    width:98%;
+    height:0.125vh;
+    content:"";
 }
 #tabela{
     position:relative;
     background:white;
-    top:20%;
-    left:10%;
-    width:80%;
+    top:20vh;
+    left:7.5vw;
+    width:80vw;
     overflow-x: auto;
 }
 .coluna{
@@ -109,28 +168,48 @@ a.titulo:hover{
     border-right:0px;
 }
 .registros{
+    font-family: Arial;
+    font-size:110%;
     position:relative;
     background:white;
     width:calc(100% - 1px);
-    height:4vh;
-    padding-top:1vh;
+    height:7vh;
+    /* padding-top:-1vh; */
+}
+.registros .n{
+    font-family:Arial;
+    display:inline-block;
+    font-weight: 900;
+    height:100%;
+}
+.registros .p1, .registros .p2{
+    font-family:Arial;
+    display:inline-block;
+    height:100%;
 }
         </style>
     </head>
     <body>
-        <div id="tabela">
-            <div class="registros"></div>
-            <div class="linha">
-                <div class="coluna id">ID</div>
-                <a class="coluna titulo">TITULO</a>
-                <div class="coluna categoria">CATEGORIA</div>
-                <div class="coluna div-categoria">
-                    <span>ai</span>
+        <div id="msg1">Listar notícias</div>
+        <div id="top">
+            <div id="tabela">
+                <div class="registros">
+                    <p class="p1"></p>
+                    <p class="n"></p>
+                    <p class="p2"></p>
                 </div>
-                <div class="coluna usuario">USUÁRIO</div>
-                <div class="coluna acessos">ACESSOS</div>
-                <img class="coluna edit" src="../static/edit-icone.png">
-                <img class="coluna excluir" src="../static/remove-icone.png">
+                <div class="linha">
+                    <div class="coluna id">ID</div>
+                    <a class="coluna titulo">TITULO</a>
+                    <div class="coluna categoria">CATEGORIA</div>
+                    <div class="coluna div-categoria">
+                        <span>ai</span>
+                    </div>
+                    <div class="coluna usuario">USUÁRIO</div>
+                    <div class="coluna acessos">ACESSOS</div>
+                    <img class="coluna edit" src="../static/edit-icone.png">
+                    <img class="coluna excluir" src="../static/remove-icone.png">
+                </div>
             </div>
         </div>
         <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
@@ -146,8 +225,6 @@ window.l2=l2;
 window.tabela=tabela;
 l.querySelector(".edit").remove();
 l.querySelector(".excluir").remove();
-//l.querySelector(".categoria").remove();
-//l.querySelector(".registros").remove();
 var d=document.createElement("div");
 d.className="coluna titulo";
 d.textContent="TÍTULO";
@@ -158,7 +235,10 @@ o.classList.add("coluna");
 o.classList.add("opcoes");
 l.appendChild(o);
 function definir_tabela(posts,l){
-    tabela.querySelector(".registros").textContent=posts.length>=0 && posts.length<=1 ? `Foi encontrado ${posts.length} registro.` : `Foram encontrados ${posts.length} registros.`;
+    var r=tabela.querySelector(".registros");
+    r.querySelector(".p1").textContent=posts.length>=0 && posts.length<=1 ? "Foi encontrado " : "Foram encontrados ";
+    r.querySelector(".n").textContent=posts.length;
+    r.querySelector(".p2").textContent=posts.length>=0 && posts.length<=1 ? "registro." : "registros."
     for (post of posts){
         var c=window.l2.cloneNode(true);
         c.className="line";

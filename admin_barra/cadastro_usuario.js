@@ -13,3 +13,4 @@ noticia.addEventListener("transitionstart",()=>{
 })
 window.usuario ? document.querySelector("#nome_usuario").textContent=window.usuario : null;
 window.usuario ? document.title = "Painel - "+window.usuario : null;
+window.setStyle ? document.querySelector(window.setStyle.elemento).style.background=window.setStyle.color : null;

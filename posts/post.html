@@ -22,45 +22,53 @@
     font-family: Arial;
     font-size:120%;
 }
+#campo-img{
+    position:relative;
+    max-width:100%;
+    max-height:100%;
+    display:flex;
+    justify-content: center;
+}
 img{
     position:absolute;
     background:white;
     display:none;
-    width:100%;
-}
-#campo-img{
-    position:absolute;
-    width:50%;
-    height:70%;
-    top:30%;
-    display:flex;
-    justify-content: center;
+    min-width:70%;
+    max-width:100%;
 }
 #texto{
     font-family: Arial;
     font-size: 110%;
-    position:absolute;
+    position:relative;
     width:48%;
     left:52%;
     height:70%;
     top:30%;
 }
+#noticia{
+    position: absolute;
+    background: white;
+    width:80%;
+    top:20%;
+}
         </style>
     </head>
     <body>
-        <div id="titulo"></div>
-        <p id="subtitulo"></p>
-        <div id="usuario">
-            <p class="usuario-p" id="usuario-1">Por: </p><p class="usuario-p" id="usuario-t"></p>
+        <div id="noticia">
+            <div id="titulo"></div>
+            <p id="subtitulo"></p>
+            <div id="usuario">
+                <p class="usuario-p" id="usuario-1">Por: </p><p class="usuario-p" id="usuario-t"></p>
+            </div>
+            <div id="texto"></div>
+            <div id="campo-img">
+            <img>
+            </div>
         </div>
-        <div id="campo-img">
-        <img>
-        </div>
-        <div id="texto"></div>
         <script>
             console.log(window.post);
             document.querySelector("#titulo").textContent=window.post[0].titulo;
-            document.querySelector("#subtitulo").textContent=window.post[0].subtitulo;
+            window.post[0].subtitulo!="n" ? document.querySelector("#subtitulo").textContent=window.post[0].subtitulo : null;
             document.querySelector("#usuario-t").textContent=window.post[0].usuario;
             var texto=document.querySelector("#texto");
             window.post[0].texto!="n" ? texto.innerHTML=window.post[0].texto : null;
