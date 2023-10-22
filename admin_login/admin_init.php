@@ -1,7 +1,9 @@
 <?php
 function get_time(){
+    global $ub;
+    global $sb;
     $ip=$_SESSION["key_init"];
-    $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
+    $conn = new mysqli("localhost:3306", $ub,$sb,"anjoov00_ip");
     $result=$conn->query("SELECT * FROM ips WHERE ip='$ip'");
     if ($result->num_rows>0){
         $resultados = array();

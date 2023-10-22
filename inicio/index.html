@@ -12,7 +12,7 @@ html,body{
     position:absolute;
     background:white;
     width:12.5%;
-    height:10%;
+    height:10vh;
     top:-1%;
     left:7%;
     /* top:5%;
@@ -22,8 +22,8 @@ html,body{
     position:absolute;
     background:white;
     width:2%;
-    height:2.5%;
-    top:3%;
+    height:2.5vh;
+    top:3vh;
     left:3.5%;
 }
 #b1,#b2,#b3{
@@ -43,11 +43,13 @@ html,body{
     margin-top:70%;
 } 
 #c_menu{
+    font-size:120%;
     position:absolute;
-    background:#f0f0f0;
-    height:90%;
-    top:10%;
-    transition:width 1s;
+    background:white;
+    border-right:solid 5px gray;
+    width:25%;
+    height:90vh;
+    top:10vh;
 }
 #menu{
     position:relative;
@@ -57,18 +59,13 @@ html,body{
     border-right: solid 4px rgba(100,100,100,0.2);
 } 
 #c_menu.fechado{
-    width:0%;
+    display:none;
 }   
 #c_menu.aberto{
-    width:25%;
-}
-#menu.fechado{
-    display:none;
-}
-#menu.aberto{
     display:block;
 }
 .i-menu{
+    text-decoration: none;
     padding-left:10%;
     position:relative;
     background:white;
@@ -95,13 +92,20 @@ html,body{
     top:0.75px;
     border-top:solid 1px rgba(100,100,100,0.2);
 }
-#lupa{
+#logado{
     position:absolute;
-    background:white;
-    top:3.5%;
+    background:black;
+    color:white;
+    font-family: Arial;
+    display:flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    border-radius: 50%;
+    top:3.5vh;
     left:90%;
-    width:3vh;
-    height:3vh;
+    width:5vh;
+    height:5vh;
 }
 :root{
     --p:10%;
@@ -116,101 +120,142 @@ html,body{
     border-bottom-left-radius: 100px;
     border-top-right-radius: 100px;
     border-bottom-right-radius: 100px;
-    padding-left: 5vw;
-    width:30vw;
-    left:32.5vw;
+    padding-left: 3vw;
+    width:32vw;
+    left:35vw;
     background-size: 300px 300px;
 }
 #pl{
     position:absolute;
     background:rgba(0,0,0,0);
-    width:2.5vw;
-    height:2.5vw;
+    width:4vh;
+    height:4vh;
     border-radius: 50%;
+    left:62.5vw;
     /* display:none; */
 }
 #pl img{
     position: absolute;
     background-color: rgba(0,0,0,0);
-    top:1.75vw;
-    left:34vw;
+    top:0.75vh;
     width:100%;
     height:100%;
+}
+.a-l{
+    color:black;
+    text-decoration: none;
+}
+.a-l:hover{
+    text-decoration: underline;
+}
+#login{
+    font-family: Arial;
+    font-size: 110%;
+    position: absolute;
+    display:none;
+    color:white;
+    background: black;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    top:2.5vh;
+    left:80%;
+    width:10%;
+    height:5vh;
+    border:solid 1px black;
+    border-radius:5px;
+}
+#login:hover{
+    background:white;
+    color:black;
+}
+.menu-fechado{
+    opacity: 0;
+    display:none;
+}
+.menu-aberto{
+    opacity: 0.5;
+    display:block;
+}
+#menu-a{
+    position:absolute;
+    background:gray;
+    top:0%;
+    left:25%;
+    width:75%;
+    height:100vh;
+}
+/* .l-l{
+    text-decoration-color: none;
+    text-decoration: none;
+}
+.l-l:hover{
+    color:black;
+} */
+#cb{
+    position:fixed;
+    background:white;
+    overflow-y:visible;
+    width:100%;
+    height:10%;
 }
         </style>
     </head>
     <body>
-        <a href="/"><img id="logo" src="/static/logo-anjoovi.png"></a>
-        <div id="bt-menu">
-            <div id="b1"></div>
-            <div id="b2"></div>
-            <div id="b3"></div>
-        </div>
-        <div id="c_menu" class="fechado">
-            <div id="menu" class="fechado">
-                <div class="i-menu-1 i-menu" ><a href="/noticias-lista">Últimas notícias</a></div>
-                <div class="i-menu i-menu2" ><a href="/editorias">Editoriais</a></div>
-                <div class="i-menu" ><a href="/blogs-e-colunas">Blogs & Colunas</a></div>
-                <div class="i-menu i-menu2" ><a href="/paginas">Páginas</a></div>
-                <div class="i-menu" ><a href="/classificados">Classificados</a></div>
-                <div class="i-menu i-menu2" ><a href="/contato">Fale conosco</a></div>
+        <div id="cb">
+            <a href="/"><img id="logo" src="/static/logo-anjoovi.png"></a>
+            <div id="bt-menu">
+                <div id="b1"></div>
+                <div id="b2"></div>
+                <div id="b3"></div>
             </div>
-        </div>
-        <script src="/static/index.js"></script>
-        <img id="lupa" src="/static/imagem-lupa.png">
-        <form id="fp">
-            <input  id="pesquisa" class="fechado" placeholder="Pesquisar">
-        </form>
-        <div id="pl">
-            <img src="/static/imagem-lupa.png">
+            <div id="c_menu" class="fechado">
+                <a class="a-l" href="/noticias-lista"><div class="i-menu-1 i-menu" >Últimas notícias</div></a>
+                <a class="a-l" href="/editorias"><div class="i-menu i-menu2" >Editoriais</div></a>
+                <a class="a-l" href="/blogs-e-colunas"><div class="i-menu" >Blogs & Colunas</div></a>
+                <a class="a-l" href="/paginas"><div class="i-menu i-menu2" >Páginas</div></a>
+                <a class="a-l" href="/classificados"><div class="i-menu" >Classificados</div></a>
+                <a class="a-l" href="/contato"><div class="i-menu i-menu2" >Fale conosco</div></a>
+            </div>
+            <script src="/static/index.js"></script>
+            <form id="fp">
+                <input  id="pesquisa" class="fechado" placeholder="Pesquisar">
+            </form>
+            <div id="pl">
+                <img src="/static/imagem-lupa.png">
+            </div>
+            <a class="l-l" href="/admin"><div id="login">Fazer login</div></a>
+            <a href="/admin"><div id="logado"></div></a>
+            <div id="menu-a" class="menu-fechado"></div>
         </div>
         <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
         <script>
 var p=document.querySelector("#pesquisa");
 var pl=document.querySelector("#pl");
 var fp=document.querySelector("#fp");
+var x="/static/x.jpg";
+var l="/static/imagem-lupa.png"
 fp.addEventListener("submit",(e)=>{
     e.preventDefault();
     var i=p.value;
     var i=encodeURIComponent(i);
-    window.location.href="/busca/"+i.replace(/%20/g,"+");
-    // $.ajax({
-    //     url:"/post/config_cadastro.php",
-    //     type:'POST',
-    //     data:{pesquisa:"pesquisa",query:p.value},
-    //     success: function(data) {
-    //     //   document.querySelector("#button").disabled=false;
-    //     //     data=="true" && sucesso();
-    //     //   data!="true" && erro(data);
-    //     // data=JSON.parse(data);
-    //     // console.log(data);
-    //     // data=JSON.parse(data);
-        
-    //     // window.posts=data.p
-    //     //window.document.body.innerHTML=data.b;
-    //   }
-    // });
-    // window.document.querySelector("html").innerHTML="";
-    // // document="";
-    // history.pushState(null, null, "/busca");
+    window.location.href="/busca/?q="+i.replace(/%20/g,"+");
 })
 p.addEventListener("input",()=>{
     if (p.value!=""){
-        pl.style.left="24.5vw";
+        pl.querySelector("img").src=x;
     } else {
-        pl.style.left="0vw";
+        pl.querySelector("img").src=l;
     }
 })
-// p.addEventListener("focus",()=>{
-//     pesquisa.classList.toggle("fechado");
-//     pesquisa.classList.toggle("aberto");
-//     document.querySelector("#pl").style.display="flex";
-// });
-// p.addEventListener("blur",()=>{
-//     pesquisa.classList.toggle("fechado");
-//     pesquisa.classList.toggle("aberto");
-//     document.querySelector("#pl").style.display="none";
-// })
+if (!window.isLogado){
+    document.querySelector("#login").style.display="flex";
+    document.querySelector("#logado").style.display="none";
+} else{
+    document.querySelector("#logado").textContent=window.usuario[0];
+    document.querySelector("#login").style.display="none";
+    document.querySelector("#logado").style.display="flex";
+}
         </script>
     </body>
 </html>

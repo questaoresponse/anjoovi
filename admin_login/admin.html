@@ -17,10 +17,38 @@ form{
     display:none;
     top:23%;
     background:white;
-    width:25.6%;
-    height:40%;
     border-radius:5px;
     box-shadow: 0.5px 0.5px 30px rgb(128, 128, 128,0.5);
+}
+img{
+    position:absolute;
+    display:block;
+    left:43.75%;
+    top:8%;
+}
+@media screen and (max-width:768px){
+img{
+    left:25%;
+    width:50%;
+    height:11.25%;
+}
+form{
+    display:block;
+    width:80%;
+    height:30%;
+}
+}
+@media screen and (min-width:769px){
+img{
+    left:43.75%;
+    width:12.5%;
+    height:11.25%;
+}
+form{
+    display:block;
+    width:25.6%;
+    height:40%;
+}
 }
 #email,#senha{
     font-size:94%;
@@ -56,19 +84,11 @@ button:hover{
     background:white;
     color:black;
 }
-img{
-    position:absolute;
-    display:none;
-    left:43.75%;
-    top:8%;
-    width:12.5%;
-    height:11.25%;
-}
 #a{
     position:relative;
     display:flex;
     justify-content: center;
-    top:3vh;
+    top:4%;
     width:100%;
     height:10%;
 
@@ -124,8 +144,8 @@ p{
             <button type="submit">Entrar</button>
             <div id="a"><a href="/pegar_senha">Esqueceu a senha?</a></div>
         </form>
-        <script src="../static/admin.js"></script>
+        <!-- <script src="../static/admin.js"></script> -->
         <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-        <script src="../static/post.js"></script>
+        <script src="/static/post.js"></script>
     </body>
 </html>

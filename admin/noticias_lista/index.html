@@ -43,20 +43,15 @@ body::before{
     min-height:90%;
     overflow: visible;
 }
-#top::after{
-    padding-top: 2%;
-    padding-left:2%;
-    font-size: 180%;
-    position: absolute;
-    display:block;
+#div_info{
     font-family: Arial;
-    content: "Informações";
-    background:white;
-    width:98%;
-    margin-top:-10%;
-    /* margin-top:40vh; */
-    /* padding-top:11%; */
-    height:2vh;
+    font-size: 200%;
+    position:absolute;
+    background:rgba(0,0,0,0);
+    padding-left:2%;
+    top:4%;
+    width:96%;
+    height:10%;
 }
 #top::before{
     padding-left:2%;
@@ -73,7 +68,6 @@ body::before{
     position:relative;
     background:white;
     top:20vh;
-    left:7.5vw;
     width:80vw;
     overflow-x: auto;
 }
@@ -187,11 +181,33 @@ a.titulo:hover{
     display:inline-block;
     height:100%;
 }
+#dt{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    height:100%;
+    overflow-y: visible;
+}
+#dt.fechado{
+    width:100%;
+}
+#dt.aberto{
+    width:80%;
+    left:20%;
+}
+#tb{
+    position:relative;
+    background:rgba(0,0,0,0);
+    display:flex;
+    justify-content: center;
+}
         </style>
     </head>
     <body>
+        <div id="dt" class="fechado">
         <div id="msg1">Listar notícias</div>
         <div id="top">
+            <div id="div_info">Informações</div>
+            <div id="tb">
             <div id="tabela">
                 <div class="registros">
                     <p class="p1"></p>
@@ -207,16 +223,19 @@ a.titulo:hover{
                     </div>
                     <div class="coluna usuario">USUÁRIO</div>
                     <div class="coluna acessos">ACESSOS</div>
-                    <img class="coluna edit" src="../static/edit-icone.png">
-                    <img class="coluna excluir" src="../static/remove-icone.png">
+                    <img class="coluna edit" src="/static/edit-icone.png">
+                    <img class="coluna excluir" src="/static/remove-icone.png">
                 </div>
             </div>
+            </div>
+        </div>
         </div>
         <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
         <script>
 var posts=window.noticias;
 console.log(posts);
 console.log(posts.length);
+window.setStyle={elemento:"#noticias_lista",color:"gray"};
 var tabela=document.querySelector("#tabela");
 var l=document.querySelector(".linha");
 var l2=l.cloneNode(true);
@@ -252,21 +271,22 @@ function definir_tabela(posts,l){
         id.textContent=post.id;
         titulo.textContent=post.titulo;
         titulo.onclick=()=>{
-            window.open("/noticia/"+post.id+"/"+titulo);
+            window.open("/noticia/id=?"+post.id);
         }
         categoria.textContent=post.categoria;
         usuario.textContent=post.usuario;
         acessos.textContent=post.acessos;
         tabela.appendChild(c);
-        editar.addEventListener("click",()=>{window.location.href="/admin/noticias_edit/"+post.id})
+        editar.addEventListener("click",()=>{window.location.href="/admin/noticias_edit/?id="+post.id})
         excluir.addEventListener("click",()=>{
         var r=window.confirm("Deseja remover este registro? O item será enviado à lixeira.");
         if (r){
             $.ajax({
-                url: "/post/posts.php",
+                url: "/post/config_cadastro.php?type=remove",
                 type:'POST',
-                data:{type:"delete",id:post.id},
+                data:{type:"delete",id:post.id,tipo:"noticias_lista"},
                 success: function(data) {
+                    console.log(data);
                     for (e of document.querySelectorAll(".line")){
                         e.remove();
                     }
@@ -279,7 +299,11 @@ function definir_tabela(posts,l){
     }
 }
 definir_tabela(posts,l);
-
+window.esmagar=()=>{
+    var e=document.querySelector("#dt");
+    e.classList.toggle("fechado");
+    e.classList.toggle("aberto");
+}
     </script>
     </body>
 </html>

@@ -136,7 +136,7 @@ function criar_tabela(){
         var s=linha.querySelector(".subtitulo");
         p.imagem!="n" ? i.src="/images/"+p.imagem : null;
         t.textContent=p.titulo;
-        linha.href="/noticia/"+p.id;
+        linha.href="/noticia/?id="+p.id;
         u.textContent=p.usuario;
         s.textContent=p.subtitulo;
         tabela.appendChild(linha);

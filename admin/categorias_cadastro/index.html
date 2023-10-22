@@ -184,9 +184,12 @@ button:hover{
     height:40%;
     border:solid 0.5px black;
 }
+.linha{
+    margin-top:2vh;
+}
 .linha,.line{
     width:100%;
-    height:10%;
+    height:4vh;
     overflow-x: visible;
 }
 .coluna{
@@ -215,7 +218,7 @@ button:hover{
     left:90.5%;
     right:0px;
     width:calc(7.5% - 1px);
-    height:10%;
+    height:4vh;
     margin:0px;
 }
 .line .acoes{
@@ -242,9 +245,23 @@ button:hover{
 #n{
     font-size:100%;
 }
+#dt{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    height:100%;
+    overflow-y: visible;
+}
+#dt.fechado{
+    width:100%;
+}
+#dt.aberto{
+    width:80%;
+    left:20%;
+}
         </style>
     </head>
     <body>
+        <div id="dt" class="fechado">
         <div id="msg1">Cadastrar categorias</div>
         <form>
             <label id="nome-l">Nome</label>
@@ -272,6 +289,7 @@ button:hover{
                 </div>
             </div>
         </div>
+        </div>
         <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
         <script>
 window.setStyle={elemento:"#categorias_cadastro",color:"gray"};
@@ -292,6 +310,7 @@ form.addEventListener("submit",(e)=>{
         type:'POST',
         data:{tipo:window.edit ? "categorias_edit" : "categorias_cadastro",nome:nome.value,descricao:descricao.value,link:link.value},
         success: function(data) {
+        console.log(data);
         data!="true" && criar_tabela(JSON.parse(data));
         }
     });
@@ -335,7 +354,7 @@ function criar_tabela(d){
         tabela.appendChild(l);
         console.log(p.id);
         div_edit.n=p.id;
-        div_edit.addEventListener("click",(e)=>{ window.location.href="/admin/categorias_edit/"+e.target.n+"/"})
+        div_edit.addEventListener("click",(e)=>{ window.location.href="/admin/categorias_edit/?id="+e.target.n})
         div_excluir.addEventListener("click",()=>{
             var r=window.confirm("Deseja remover este registro? Esta ação não pode ser revertida.");
             if (r){
@@ -345,8 +364,9 @@ function criar_tabela(d){
                     type:'POST',
                     data:{"tipo":"remove"},
                     success: function(data) {
+                        console.log(data);
                         console.log(window.edit && p.id==Number(window.location.href.split("/")[5]));
-                    window.edit && p.id==Number(window.location.href.split("/")[5]) ? window.location.href="/admin/categorias_cadastro" : criar_tabela(JSON.parse(data));
+                    window.edit && p.id==new URLSearchParams(window.location.search).get("id") ? window.location.href="/admin/categorias_cadastro/" : criar_tabela(JSON.parse(data));
                     }
                 });
             }
@@ -355,6 +375,11 @@ function criar_tabela(d){
     }
 }
 criar_tabela(window.select_options);
+window.esmagar=()=>{
+    var e=document.querySelector("#dt");
+    e.classList.toggle("fechado");
+    e.classList.toggle("aberto");
+}
 if (window.edit){
     nome.value=window.categoria_edit[0].nome;
     descricao.value=window.categoria_edit[0].descricao;

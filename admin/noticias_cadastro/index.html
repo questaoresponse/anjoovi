@@ -279,9 +279,23 @@ textarea{
     height:40vh;
 
 }
+#dt{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    height:100%;
+    overflow-y: visible;
+}
+#dt.fechado{
+    width:100%;
+}
+#dt.aberto{
+    width:80%;
+    left:20%;
+}
         </style>
     </head>
     <body>
+    <div id="dt" class="fechado">
     <div id="msg1">Cadastrar notícia</div>
     <form>
         <label id="usuario-l">Usuário</label>
@@ -312,7 +326,8 @@ textarea{
         <input type="file" id="imagem" accept="image/jpg, image/jpeg" required>
         <button type="submit" id="button">Cadastrar</button>
     </form>
+    </div>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-    <script src="/admin_noticias_cadastro/noticias_cadastro.js"></script>
+    <script src="/admin/noticias_cadastro/noticias_cadastro.js"></script>
     </body>
 </html>

@@ -1,4 +1,4 @@
-window.form.addEventListener("submit",(e)=>{
+document.querySelector("form").addEventListener("submit",(e)=>{
     e.preventDefault();
     var email=document.querySelector("#email").value;
     var password=document.querySelector("#senha").value;
@@ -15,7 +15,7 @@ window.form.addEventListener("submit",(e)=>{
 window.r && window.r.type!="null" && erro(JSON.stringify(window.r));
 function erro(data){
     console.log(data);
-    window.form.style.height="49%";
+    document.querySelector("form").style.height="49%";
     document.querySelector("#email").style.marginTop="1vh";
     document.querySelector("#senha").style.marginTop="1vh";
     document.querySelector("#message").style.display="block";

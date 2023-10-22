@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <style>
+html,body{
+    margin:0px;
+}
+#logo{
+    font-size:200%;
+    position:absolute;
+    background: black;
+    color:white;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width:15vw;
+    height:15vw;
+    border-radius: 50%;
+}
+        </style>
+    </head>
+    <body>
+        <div id="logo"></div>
+        <script>
+var l=document.querySelector("#logo");
+l.textContent=window.usuario;
+        </script>
+    </body>
+</html>

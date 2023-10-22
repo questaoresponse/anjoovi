@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <style>
+html,body{
+    margin:0px;
+}
+#banner{
+    position:absolute;
+    background:white;
+    display:block;
+    top:15%;
+    width:100%;
+    height:25%;
+}
+#logo_c{
+    font-family: Arial;
+    font-size:220%;
+    position: absolute;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color:white;
+    border-radius:50%;
+    top:45%;
+    left:5%;
+    width:5vw;
+    height:5vw;
+}
+        </style>
+    </head>
+    <body>
+        <img id="banner">
+        <div id="logo_c"></div>
+        <script>
+var banner=document.querySelector("#banner");
+var logo=document.querySelector("#logo_c");
+logo.textContent=window.canal.name[0];
+banner.src=window.canal.banner && window.canal.banner!="n" ? window.canal.banner : "/static/sem-imagem.jpg";
+        </script>
+    </body>
+</html>

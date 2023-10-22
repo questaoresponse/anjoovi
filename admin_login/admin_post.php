@@ -1,5 +1,9 @@
 <?php
 $c=__DIR__ . "/../../key.json";
+$ub;
+$sb;
+$pc=__DIR__ . "/../../banco.json";
+$ks=json_decode(file_get_contents($pc),true);$ub=$ks["user"];$sb=$ks["senha"];
 function verificar($l,$s,$c){
     foreach ($l as $d) {
         if ($d[$c]==$s) {
@@ -49,7 +53,7 @@ function p($result){
     $senha = $_POST["password"];
    
     // Faça o que desejar com os dados, como salvá-los em um banco de dados ou exibi-los
-    $conn=new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_users");
+    $conn=new mysqli("localhost:3306", $ub,$sb,"anjoov00_users");
     $result=$conn->query("SELECT * FROM user");
     $r=p($result);
     if (verificar($r,$email,"email") && verificar($r,$senha,"senha")){
@@ -61,7 +65,7 @@ function p($result){
         $erro_json;
         session_start();
         $ip=$_SESSION["key_init"];
-        $conn = new mysqli("localhost:3306", "anjoov00_root","cpses_anyj8yi6ea","anjoov00_ip");
+        $conn = new mysqli("localhost:3306", $ub,$sb,"anjoov00_ip");
         $result = $conn->query("CREATE TABLE IF NOT EXISTS ips(ip VARCHAR(255),n INT,d VARCHAR(255))");
         $stmt = $conn->prepare("SELECT ip,n,d FROM ips WHERE ip = ?");
         $stmt->bind_param("s", $ip);

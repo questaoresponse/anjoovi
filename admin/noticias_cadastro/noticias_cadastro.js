@@ -1,4 +1,5 @@
 s=document.querySelector("#categorias")
+window.setStyle={elemento:"#noticias_cadastro",color:"gray"};
 document.querySelector("#usuario").textContent=window.usuario;
 console.log(window.select_options);
 //var opt=JSON.parse(window.select_options);
@@ -38,6 +39,7 @@ async function get_message(){
 }
 form.addEventListener("submit",async (e)=>{
     e.preventDefault();
+    console.log("enviado")
     var fd=new FormData();
     var categoria=document.querySelector("#categorias").value;
     var destaque=document.querySelector("#destaques").value;
@@ -46,23 +48,25 @@ form.addEventListener("submit",async (e)=>{
     var texto=document.querySelector("textarea").value;
     imagem_data=imagem.files.length>0 ? imagem.files[0] : null;
     fd.append("tipo","noticias_cadastro");
-    fd.append("usuario",window.usuario);
+    fd.append("usuario",window.name_usuario);
     fd.append("categoria",categoria);
     fd.append("destaque",destaque);
     fd.append("titulo",titulo);
-    subtitulo!="" ? fd.append("subtitulo", subtitulo) : null;
-    texto!="" ? fd.append("texto",texto) : null;
-    window.edit ? fd.append("type","update") :null;
-    window.edit ? fd.append("id",window.post_edit[0].id): null;
-    imagem_data && fd.append("imagem",imagem_data);
+    subtitulo!="" && fd.append("subtitulo", subtitulo);
+    texto!="" && fd.append("texto",texto);
+    window.edit && fd.append("type","update");
+    window.edit && fd.append("id",window.post_edit[0].id);
+    fd.append("imagem",imagem_data ? imagem_data : window.post_edit[0].imagem);
+    imagem_data && fd.append("imagem_edit",true);
     document.querySelector("#button").disabled=true;
     $.ajax({
-        url: window.edit ? "/post/posts.php" : "/post/config_cadastro.php",
+        url: "/post/config_cadastro.php?type="+(window.edit? "edit" : "cadastro"),
         type:'POST',
         processData: false, // Não processar dados
         contentType: false, // Não definir o tipo de conteúdo
         data:fd,
         success: function(data) {
+        console.log(data);
           document.querySelector("#button").disabled=false;
             data=="true" && sucesso();
         //   data!="true" && erro(data);
@@ -78,7 +82,13 @@ function sucesso(){
         m.remove();
     },1500);
 }
+window.esmagar=()=>{
+  var e=document.querySelector("#dt");
+  e.classList.toggle("fechado");
+  e.classList.toggle("aberto");
+}
 if (window.edit){
+  document.querySelector("#imagem").required=false;
   document.querySelector("#msg1").textContent="Editar notícia"
   document.querySelector("button").textContent="Alterar";
   document.querySelector("#categorias").value=window.post_edit[0].categoria;
