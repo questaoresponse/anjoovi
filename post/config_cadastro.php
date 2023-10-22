@@ -142,16 +142,6 @@ if ($tipo=="noticias_cadastro"){
     }
     echo "true";
 }
-if ($params[2]=="noticias_lixeira" && $type=="repor"){
-    $id=$_POST["id"];
-    $usuario=descrip($_SESSION["key"],$c);
-    $id=intval($id);
-    $conn = new mysqli("localhost:3306", $ub,$sb,"anjoov00_posts");
-    $s=$conn->prepare("UPDATE post SET lixeira='false' WHERE id=? AND usuario=?");$s->bind_param("is",$id,$usuario);$s->execute();
-    $s=$conn->prepare("SELECT * FROM post WHERE usuario=? AND lixeira='true'");$s->bind_param("s",$usuario);$s->execute();$result=$s->get_result();
-    $r=p($result);
-    echo json_encode($r);
-}
 if ($params[2]=="categorias_cadastro" && $_GET["type"]=="cadastro"){
     $nome=$_POST["nome"];
     $descricao=$_POST["descricao"];

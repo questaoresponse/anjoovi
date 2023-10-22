@@ -1,0 +1,97 @@
+<html>
+    <head>
+        <style>
+html,body{
+    margin:0px;
+}
+#tabela{
+    top:20%;
+    position:absolute;
+    background:white;
+    left:5%;
+    width:90%;
+    overflow: visible;
+}
+.linha{
+    position:relative;
+    background:white;
+    display:inline-block;
+    margin-right:2%;
+    margin-bottom:2%;
+    width:calc(23.5% - 8px);
+    height:40vh;
+    border:solid 1px black;
+}
+.imagem{
+    position:absolute;
+    background:white;
+    width:100%;
+    height:50%;
+}
+.titulo{
+    position:relative;
+    background:white;
+    top:65%;
+    left:2%;
+    width:96%;
+    height:35%;
+}
+.subtitulo{
+    position:absolute;
+    background:white;
+    top:75%;
+    width:100%;
+    height:25%;
+}
+.nome{
+    top:50%;
+    left:2%;
+    font-family: Arial;
+    font-size: 130%;
+    position:absolute;
+    background:white;
+    width:50%;
+    height:10%;
+}
+.a{
+    text-decoration: none;
+    color:black;
+}
+        </style>
+    </head>
+    <body>
+        <div id="tabela"></div>
+        <script>
+var ps=window.posts;
+var t=document.querySelector("#tabela");
+for (var i=0;i<ps.length;i++){
+    var p=ps[i];
+    var l=document.createElement("div");
+    l.className="linha";
+    var img=document.createElement("img");
+    img.className="imagem";
+    img.src="/images/"+p.imagem;
+    var ti=document.createElement("div");
+    ti.className="titulo";
+    ti.textContent=p.titulo;
+    var nome=document.createElement("div");
+    nome.className="nome";
+    nome.textContent=p.usuario;
+    l.appendChild(img);
+    l.appendChild(ti);
+    l.appendChild(nome);
+    var l2=document.createElement("a");
+    l2.className="a";
+    l2.href="/noticia?id="+p.id;
+    l2.appendChild(l);
+    t.appendChild(l2);
+    l.addEventListener("hover",()=>{
+        nome.style.background = 'gray';
+    })
+    l2.addEventListener('mouseleave',()=>{
+        nome.style.background = 'rgb(100,100,100)';
+    });
+}
+        </script>
+    </body>
+</html>
