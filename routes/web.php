@@ -141,7 +141,7 @@ Route::post("/admin/noticias_cadastro",function(Request $request){
             $file = request()->file("imagem");
     
             // Salvar a imagem em um diretório
-            $caminhoDestino = public_path('images/');
+            $caminhoDestino = __DIR__ . "/../images/";
             $imagem = $file->getClientOriginalName();
             $imagem=$id . "_" . $imagem;
             $file->move($caminhoDestino,$imagem);
