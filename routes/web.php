@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
+Route::domain('anjoovi.com.br')->group(function () {
+    // Suas rotas específicas para este subdomínio aqui
 Route::get('/', function () {
     // return view('welcome');
     include(__DIR__ . "/../function.php");
@@ -33,63 +34,12 @@ Route::get('/admin', function () {
         $usuario=descrip(session("key"),$c);
         return view("admin.admin_inicio.index",compact("usuario"));
     } else{
-        return view("admin.admin_login.index");
+        return redirect("https://accounts.anjoovi.com.br");
     }
     if (!session()->has("key_init")){
         $t = 16; $ba = random_bytes($t); $ca = bin2hex($ba); session(["key_init"=>$ca]);
     }
     // include(__DIR__ . "/../../inicio/index.php");
-});
-Route::post('/admin',function(){
-    include(__DIR__ . "/../function.php");
-    function resp($texto){
-        return response($texto, 200)
-        ->header('Content-Type', 'text/plain');
-    }
-    try{
-    function cript($usuario,$c){
-        $k=crip($usuario,$c);
-        session(["key"=>$k]);
-    }
-    $type=$_POST["type"];
-    if ($type=="login"){
-        $email=$_POST["email"];
-        $senha=$_POST["senha"];
-        $conn=new mysqli("localhost:3306", $ub,$sb,"anjoov00_users_conteudo");
-        $conn->query("CREATE TABLE IF NOT EXISTS user(nome TEXT, usuario TEXT, email TEXT, senha TEXT,data_n TEXT)");
-        $s=$conn->prepare("SELECT usuario,email,senha FROM user WHERE (usuario=? || email=?) AND senha=?");
-        $s->bind_param("sss",$email,$email,$senha);$s->execute();$result=$s->get_result();
-        if ($result->num_rows>0){
-            $usuario=p($result)[0]["usuario"];
-            cript($usuario,$c);
-            return resp("true");
-        } else {
-            return resp("false");
-        }
-    } else if ($type=="cadastro"){
-        $nome=$_POST["nome"];
-        $usuario=$_POST["usuario"];
-        $email=$_POST["email"];
-        $senha=$_POST["senha"];
-        $month=$_POST["month"];
-        $day=$_POST["day"];
-        $year=$_POST["year"];
-        $conn=new mysqli("localhost:3306", $ub,$sb,"anjoov00_users_conteudo");
-        $s=$conn->prepare("SELECT * FROM user WHERE usuario=?");$s->bind_param("s",$usuario);$s->execute();$result=$s->get_result();
-        if ($result->num_rows>0){
-            return resp("false");
-        } else {
-            $data = new DateTime("$year-$month-$day");
-            $data_str= $data->format('d/m/Y');
-            $s=$conn->prepare("INSERT INTO user(nome,usuario,email,senha,data_n) VALUES(?,?,?,?,?)");$s->bind_param("sssss",$nome,$usuario,$email,$senha,$data_n);$s->execute();
-            cript($usuario,$c);
-            return resp("true");
-        }
-        }
-    } catch (Exception $e){
-        return resp($e);
-    }
-  
 });
 Route::get("/admin/noticias_cadastro",function (){
     include(__DIR__ . "/../function.php");
@@ -141,7 +91,7 @@ Route::post("/admin/noticias_cadastro",function(Request $request){
             $file = request()->file("imagem");
     
             // Salvar a imagem em um diretório
-            $caminhoDestino = __DIR__ . "/../images/";
+            $caminhoDestino = __DIR__ . "/../public_html/images/";
             $imagem = $file->getClientOriginalName();
             $imagem=$id . "_" . $imagem;
             $file->move($caminhoDestino,$imagem);
@@ -411,4 +361,75 @@ Route::get("/categoria",function(){
     } else {
         return view("erro.404");
     }
+});
+});
+Route::domain('accounts.anjoovi.com.br')->group(function () {
+    // Suas rotas específicas para este subdomínio aqui
+    
+    Route::get('/', function(){
+        $usuario="n";
+    $url;
+    include(__DIR__ . "/../function.php");
+    if (session()->has("key") && descrip(session("key"),$c)){
+        $usuario=descrip(session("key"),$c);
+        return redirect("https://anjoovi.com.br");
+    } else{
+        return view("admin.admin_login.index");
+    }
+    if (!session()->has("key_init")){
+        $t = 16; $ba = random_bytes($t); $ca = bin2hex($ba); session(["key_init"=>$ca]);
+    }
+    });
+    Route::post('/',function(){
+        include(__DIR__ . "/../function.php");
+        $dados=request()->all();
+        function resp($texto){
+            return response($texto, 200)
+            ->header('Content-Type', 'text/plain');
+        }
+        try{
+        function cript($usuario,$c){
+            $k=crip($usuario,$c);
+            session(["key"=>$k]);
+        }
+        $type=$dados["type"];
+        if ($type=="login"){
+            $email=$dados["email"];
+            $senha=$dados["senha"];
+            $conn=new mysqli("localhost:3306", $ub,$sb,"anjoov00_users_conteudo");
+            $conn->query("CREATE TABLE IF NOT EXISTS user(nome TEXT, usuario TEXT, email TEXT, senha TEXT,data_n TEXT)");
+            $s=$conn->prepare("SELECT usuario,email,senha FROM user WHERE (usuario=? || email=?) AND senha=?");
+            $s->bind_param("sss",$email,$email,$senha);$s->execute();$result=$s->get_result();
+            if ($result->num_rows>0){
+                $usuario=p($result)[0]["usuario"];
+                cript($usuario,$c);
+                return response()->json("true");
+            } else {
+                return response()->json("false");
+            }
+        } else if ($type=="cadastro"){
+            $nome=$dados["nome"];
+            $usuario=$dados["usuario"];
+            $email=$dados["email"];
+            $senha=$dados["senha"];
+            $month=$dados["month"];
+            $day=$dados["day"];
+            $year=$dados["year"];
+            $conn=new mysqli("localhost:3306", $ub,$sb,"anjoov00_users_conteudo");
+            $s=$conn->prepare("SELECT * FROM user WHERE usuario=?");$s->bind_param("s",$usuario);$s->execute();$result=$s->get_result();
+            if ($result->num_rows>0){
+                return response()->json("false");
+            } else {
+                $data = new DateTime("$year-$month-$day");
+                $data_str= $data->format('d/m/Y');
+                $s=$conn->prepare("INSERT INTO user(nome,usuario,email,senha,data_n) VALUES(?,?,?,?,?)");$s->bind_param("sssss",$nome,$usuario,$email,$senha,$data_n);$s->execute();
+                cript($usuario,$c);
+                return response()->json("true");
+            }
+            }
+        } catch (Exception $e){
+            return resp($e);
+        }
+      
+    });
 });

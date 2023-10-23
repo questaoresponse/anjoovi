@@ -1,8 +1,9 @@
 <html>
     <head>
-         <meta charset="UTF-8">
+        <!-- <meta charset="UTF-8"> -->
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
-        <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon">
+        <!-- <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon"> -->
+        <link rel="icon" href="/static/favicon.png" type="image/png">
         <title>Login - Anjoovi</title>
         <style>
 html,body{
@@ -18,20 +19,20 @@ html,body{
     text-align: center;
     align-items: center;
 }
-#form{
+#cd,#login{
     position:relative;
     background:white;
     display:block;
     overflow-y: auto;
 }
 @media screen and (max-width:768px){
-#form{
+#cd,#login{
     width:80%;
     height:40%;
 }
 }
 @media screen and (min-width:769px){
-#form{
+#cd,#login{
     max-width:750px;
     width:60%;
     height:80%;
@@ -136,7 +137,7 @@ html,body{
 #bc.disabled{
     opacity:0.5;
 }
-#t{
+.t{
     position:relative;
     background:white;
     display:block;
@@ -146,7 +147,7 @@ html,body{
     width:100%;
     height:10%;
 }
-#t:hover{
+.t:hover{
     text-decoration: underline;
 }
 .c{
@@ -173,30 +174,36 @@ html,body{
         </style>
     </head>
     <body>
-        <div id="form">
-            <form id="cadastro" action="" method="POST" style="display:block;">
+        <div id="cd">
+            <form id="cadastro" style="display:block">
                 <input class="i" name="nome" id="nome" placeholder="Nome" required>
                 <input class="i" name="usuario" id="usuario" placeholder="Nome de usuário" required>
                 <input type="email" name="email" class="i" id="email" placeholder="E-mail" required>
                 <input type="password" name="senha" class="i" id="senha" placeholder="Senha" required>
                 <button type="submit" class="c disabled">Próximo</button>
             </form>
-            <form id="data" style="display:none;">
-                <div id="m">Isso não será exibido publicamente. Confirme sua própria idade, mesmo se esta conta for de empresa, de um animal de estimação ou outros.</div>
-                <select class="date" name="month" id="month" type="number" required>
-                    <option value="" selected>Selecione uma opção</option>
-                </select>
-                <select class="date" name="day" id="day" type="number" required>
-                    <option value="" selected>Selecione uma opção</option>
-                </select>
-                <select class="date" name="year" id="year" type="number" required>
-                    <option value="" selected>Selecione uma opção</option>
-                </select>
-                <button type="submit" class="c disabled">Cadastrar</button>
-            </form>
-            <!-- <div id="bc" class="disabled" type="submit">Próximo</div> -->
-            <div id="t">Já possui uma conta? Fazer login</div>
+        <form id="data" style="display:none">
+            <div id="m">Isso não será exibido publicamente. Confirme sua própria idade, mesmo se esta conta for de empresa, de um animal de estimação ou outros.</div>
+            <select class="date" name="month" id="month" type="number" required>
+                <option value="" selected>Selecione uma opção</option>
+            </select>
+            <select class="date" name="day" id="day" type="number" required>
+                <option value="" selected>Selecione uma opção</option>
+            </select>
+            <select class="date" name="year" id="year" type="number" required>
+                <option value="" selected>Selecione uma opção</option>
+            </select>
+            <button type="submit" class="c disabled">Cadastrar</button>
+        </form>
+        <div class="t" id="t1">Já possui uma conta? Fazer login</div>
         </div>
+        <form id="login" style="display:none;">
+            <input type="email" name="email" class="i" id="email_login" placeholder="E-mail" required>
+            <input type="password" name="senha" class="i" id="senha_login" placeholder="Senha" required>
+            <div class="t" id="t2">Não possui uma conta? Fazer cadastro</div>
+            <button type="submit" class="c disabled">Cadastrar</button>
+        </form>
+            <!-- <div id="bc" class="disabled" type="submit">Próximo</div> -->
         <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
         <script>
             
@@ -220,33 +227,36 @@ add(t2,30,30);
 var t3=document.querySelector("#year");
 add(t3,2023,121);
 var tipo="cadastro";
-var inputs=document.querySelector("#form").querySelectorAll('input');
+var inputs=document.querySelector("#cadastro").querySelectorAll('input');
 function trocar_tipo(){
     tipo=tipo=="cadastro" ? "login" : "cadastro"; 
-    console.log(tipo);
+    var c=document.querySelector("#cd");
+    var l=document.querySelector("#login");
     var p=tipo=="cadastro" ? true : false;
-    var text=document.querySelector("#t");
-    var cad=document.querySelector("#cadastro");
-    var data=document.querySelector("#data");
-    var n = document.querySelector("#nome");
-    var u=document.querySelector("#usuario");
-    var ca=document.querySelector("#cadastro .c");
-    text.textContent=p ? "Já possui uma conta? Fazer login." : "Não possui uma conta? Cadastrar";
-    data.style.display="none";
-    n.style.display=p ? "block" : "none";
-    u.style.display=p ? "block" : "none";
-    cad.style.display="block";
-    ca.textContent=p ? "Próximo" : "Entrar";
-    //ca.style.display=p ? "none" : "block";
-    var cd=document.querySelectorAll(".date");    
-    var p=tipo=="cadastro" ? true : false;
-    for (var c of cd){
-        c.required=p;
-    }
-    var e=document.querySelector("#nome");
-    var s=document.querySelector("#usuario");
-    e.required=p;
-    s.required=p;
+    c.style.display=p ? "block" : "none";
+    l.style.display=p ? "none" : "block";
+    // var text=document.querySelector("#t");
+    // var cad=document.querySelector("#cadastro");
+    // var data=document.querySelector("#data");
+    // var n = document.querySelector("#nome");
+    // var u=document.querySelector("#usuario");
+    // var ca=document.querySelector("#cadastro .c");
+    // text.textContent=p ? "Já possui uma conta? Fazer login." : "Não possui uma conta? Cadastrar";
+    // data.style.display="none";
+    // n.style.display=p ? "block" : "none";
+    // u.style.display=p ? "block" : "none";
+    // cad.style.display="block";
+    // ca.textContent=p ? "Próximo" : "Entrar";
+    // //ca.style.display=p ? "none" : "block";
+    // var cd=document.querySelectorAll(".date");    
+    // var p=tipo=="cadastro" ? true : false;
+    // for (var c of cd){
+    //     c.required=p;
+    // }
+    // var e=document.querySelector("#nome");
+    // var s=document.querySelector("#usuario");
+    // e.required=p;
+    // s.required=p;
     //bc.style.display=p ? "flex" : "none";
     //p ? bc.textContent="Próximo" : null;
 }
@@ -254,28 +264,34 @@ var c=document.querySelector("#cadastro");
 var d=document.querySelector("#data");
 var bt=document.querySelector("#cadastro .c");
 //var ca=document.querySelector("#c");
+var tr1=document.querySelector("#cd");
+var tr2=document.querySelector("#login");
+var cd=document.querySelector("#cadastro");
+var cc=document.querySelector("#data");
 function ir(){
-    bt.textContent="Voltar";
-    c.style.display="none";
-    d.style.display="block";
-    document.querySelector("#data .c").style.display="flex";
+    cd.style.display="none";
+    cc.style.display="block";
+    // document.querySelector("#data .c").style.display="flex";
 }
 function voltar(){
-    bt.textContent="Próximo";
-    c.style.display="block";
-    d.style.display="none";
-    document.querySelector("#cadastro .c").style.display="flex";
+    cd.style.display="block";
+    cc.style.display="none";
+    // document.querySelector("#cadastro .c").style.display="flex";
 }
 var btd;
 // bt.addEventListener("click",()=>{
 //     console.log(bt.className);
 //     tipo=="cadastro" && bt.className=="c" ? c.style.display=="block" ? ir() : voltar() : null;
 // });
-document.querySelector("#t").addEventListener("click",trocar_tipo);
+document.querySelectorAll(".t").forEach(t=>{ t.addEventListener("click",trocar_tipo) });
 document.querySelector("#cadastro").addEventListener("submit",(e)=>{
     e.preventDefault();
-    tipo=="cadastro" ? ir() : login();
-})
+    ir();
+});
+document.querySelector("#login").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    login();
+});
 document.querySelector("#data").addEventListener("submit",(e)=>{
     e.preventDefault();
     document.querySelector("#cadastro").checkValidity() ? cadastro() : null;
@@ -284,14 +300,19 @@ var i1=document.querySelector("nome");
 var i2=document.querySelector("#usuario");
 var i3=document.querySelector("email");
 var i4=document.querySelector("#senha");
-inputs.forEach(input => {
+document.querySelector("#cadastro").querySelectorAll("input").forEach(input => {
   input.addEventListener('input',()=> {
     console.log(document.querySelector("#cadastro").checkValidity());
     document.querySelector("#cadastro .c").className=document.querySelector("#cadastro").checkValidity() ? "c" : "c disabled";
     // checkFormValidity();
   });
 });
-
+document.querySelector("#login").querySelectorAll("input").forEach(input=>{
+    input.addEventListener('input',()=> {
+    console.log(document.querySelector("#login").checkValidity());
+    document.querySelector("#login .c").className=document.querySelector("#login").checkValidity() ? "c" : "c disabled";
+    });
+})
 function checkFormValidity() {
   let isFormValid = true;
 
@@ -323,8 +344,10 @@ function verify_s(){
 }
 verify_s();
 function login(){
-    var e=document.querySelector("#email");
-    var s=document.querySelector("#senha");
+    var c=document.querySelector("#cadastro");
+    var m=document.querySelector("#m");
+    var e=document.querySelector("#email_login");
+    var s=document.querySelector("#senha_login");
     var ev=e.value;
     var sv=s.value;
     $.ajax({
@@ -336,7 +359,10 @@ function login(){
         //  },
         success: function(data) {
             console.log(data);
-          data=="true" ? window.location.href="/admin" : null;
+          data=="true" ? window.location.href="https://anjoovi.com.br/admin" : erro();
+          function erro(){
+                m.style.display="block";
+          }
       }
     });
 }
@@ -356,7 +382,7 @@ function cadastro(){
     var dv=d.value;
     var yv=y.value;
     $.ajax({
-        url: "/admin/",
+        url: "",
         type:'POST',
         // headers: {
         // 'X-CSRF-TOKEN': token // Configure o token CSRF nos cabeçalhos
@@ -364,7 +390,7 @@ function cadastro(){
         data:{type:"cadastro",nome:nv,usuario:uv,email:ev,senha:sv,month:mv,day:dv,year:yv,_token:token},
         success: function(data) {
             console.log(data);
-          data=="true" ? window.location.href="/admin" : null;
+          data=="true" ? window.location.href="https://anjoovi.com.br/admin" : null;
       }
     });
 }
