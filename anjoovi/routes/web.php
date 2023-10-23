@@ -381,7 +381,7 @@ Route::get("/categoria",function(){
     include(__DIR__ . "/../function.php");
     $usuario=session("key") && descrip2(session("key")) ? descrip2(session("key")) : "n";
     if (request()->has("name")){
-        $name=result()->query("name");
+        $name=request()->query("name");
         $conn = new mysqli("localhost:3306", $ub,$sb,"anjoov00_config");
         $s=$conn->prepare("SELECT * FROM categorias WHERE link=?");
         $s->bind_param("s",$name);
