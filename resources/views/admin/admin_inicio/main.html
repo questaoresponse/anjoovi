@@ -171,6 +171,13 @@ a{
     height:10vh;
     overflow-y:visible;
 }
+a[name='nome_usuario']{
+    text-decoration: none;
+    color:black;
+}
+a[name='nome_usuario']:hover{
+    text-decoration: underline;
+}
         </style>
     </head>
     <body>
@@ -191,10 +198,11 @@ a{
                 </div>
                 <a href="/admin/noticias_lixeira/"><div class="i-menu" id="noticias_lixeira">Lixeira</div></a>
                 <a href="/admin/grafico/"><div class="i-menu" id="grafico">Gráficos</div></a>
+                <a href="/admin/settings/"><div class="i-menu" id="settings">Configurações</div></a>
                 <a href="/admin/sair/"><div class="i-menu" id="sair">Sair</div></a>
             </div>
             <img id="lupa" src="/static/imagem-lupa.png">
-            <div name="nome_usuario"></div>
+            <a name="nome_usuario" href="/admin/settings"><div name="nome_usuario"></div></a>
         </div>
         <script>
 var bt_menu=document.querySelector("#bt-menu");

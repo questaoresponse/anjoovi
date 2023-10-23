@@ -31,7 +31,7 @@ Route::get('/admin', function () {
     include(__DIR__ . "/../function.php");
     if (session()->has("key") && descrip(session("key"),$c)){
         $usuario=descrip(session("key"),$c);
-        return view("admin.admin_inicio.index");
+        return view("admin.admin_inicio.index",compact("usuario"));
     } else{
         return view("admin.admin_login.index");
     }
@@ -40,7 +40,7 @@ Route::get('/admin', function () {
     }
     // include(__DIR__ . "/../../inicio/index.php");
 });
-Route::post('/admin/',function(){
+Route::post('/admin',function(){
     include(__DIR__ . "/../function.php");
     function resp($texto){
         return response($texto, 200)
@@ -248,11 +248,12 @@ Route::post("/admin/noticias_lixeira",function(){
 Route::get("/admin/categorias_cadastro",function(){
     include(__DIR__ . "/../function.php");
     include(__DIR__ . "/../admin_v.php");
+    $usuario=descrip2(session("key"));
     $conn = new mysqli("localhost:3306", $ub,$sb,"anjoov00_config");
     $result=$conn->query("SELECT * FROM categorias");
     $r=[];
     while ($row = $result->fetch_assoc()) { $r[] = $row; }
-    return view("admin.categorias_cadastro.index",compact("r"));
+    return view("admin.categorias_cadastro.index",compact("r","usuario"));
 });
 Route::post("/admin/categorias_cadastro",function(){
     include(__DIR__ . '/../function.php');
@@ -298,6 +299,7 @@ Route::get("/admin/categorias_edit",function(){
     include(__DIR__ . "/../admin_v.php");
     $id=request()->query("id");
     $id=intval($id);
+    $usuario=descrip2(session("Key"));
     $conn = new mysqli("localhost:3306", $ub,$sb,"anjoov00_config");
     $result=$conn->query("SELECT * FROM categorias");
     $all=[];
@@ -313,7 +315,13 @@ Route::get("/admin/categorias_edit",function(){
     $result=$s->get_result();
     $r=[];
     while ($row = $result->fetch_assoc()) { $r[] = $row; }
-    return view("admin.categorias_edit.index",compact("all","r"));
+    return view("admin.categorias_edit.index",compact("all","r","usuario"));
+});
+Route::get("/admin/settings",function(){
+    include(__DIR__ . "/../function.php");
+    include(__DIR__ . "/../admin_v.php");
+    $usuario=descrip2(session("key"));
+    return view("admin.settings.index",compact("usuario"));
 });
 Route::get("/admin/sair",function(){
     include(__DIR__ . "/../admin_v.php");

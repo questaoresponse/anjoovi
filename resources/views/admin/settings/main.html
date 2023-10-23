@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <style>
+html,body{
+    margin:0px;
+}
+#perfil{
+    top:10%;
+    font-family: Arial;
+    font-size:600%;
+    position:absolute;
+    background:black;
+    color:white;
+    width:30vh;
+    height:30vh;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 50%;
+}
+.sp{
+    position: absolute;
+    background:white;
+    top:20%;
+    width:20%;
+    height:3%;
+    border:solid 1px black;
+}
+#bb1{
+    background:black;
+}
+#bb2{
+    left:20%;
+}
+#bb3{
+    left:40%;
+}
+.p{
+    top:60%;
+    position: absolute;
+    background:white;
+    display:none;
+    width:100%;
+    height:40%;
+}
+#p1{
+    display:block;
+}
+        </style>
+    </head>
+    <body>
+        <div class="sp" id="bb1"></div>
+        <div class="sp" id="bb2"></div>
+        <div class="sp" id="bb3"></div>
+        <div class="p" id="p1">
+            <div id="perfil"></div>
+        </div>
+        <div class="p" id="p2">
+        </div>
+        <script>
+window.setStyle={elemento:"#settings",color:"gray"};
+var p=document.querySelector("#perfil");
+p.textContent=window.usuario[0];
+var b1=document.querySelector("#bb1");
+var b2=document.querySelector("#bb2");
+var b3=document.querySelector("#bb3");
+var p1=document.querySelector("#p1");
+var p2=document.querySelector("#p2");
+b1.addEventListener("click",()=>{
+    b1.style.background="black";
+    b2.style.background="white";
+    p1.style.display="block";
+    p2.style.display="none";
+})
+b2.addEventListener("click",()=>{
+    b1.style.background="white";
+    b2.style.background="black";
+    p1.style.display="none";
+    p2.style.display="block";
+})
+        </script>
+    </body>
+</html>
