@@ -29,6 +29,7 @@ function get_token($dados){
     $token = JWT::encode(array_merge($payload,$dados), $chaveSecreta, 'HS256');
     return $token;
 }
+try{
 $emailContent = file_get_contents("php://stdin");
 
 // Opcional: Salva o e-mail em um arquivo para depuração
@@ -76,4 +77,6 @@ if ($emailContent) {
         $mail->AltBody = "Clicke aqui.";
     }
 }
-?>
+} catch (Exception $e){
+    file_put_contents(__DIR__ . "/log.txt",$e->getMessage());
+}
