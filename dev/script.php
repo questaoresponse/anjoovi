@@ -50,7 +50,7 @@ if ($emailContent) {
     // echo "De: $from\n";
     // echo "Assunto: $subject\n";
     // echo "Corpo:\n$body\n";
-    if ($subject=="Restore"){
+    if ($subject=="Restore" | $body=="Restore"){
         $mail->isSMTP();
         $mail->Host = 'mail.anjoovi.com'; // Altere para o seu servidor SMTP
         $mail->SMTPAuth = true;
@@ -69,7 +69,7 @@ if ($emailContent) {
             "restoreValue"=>1
         ];
         $queryString=http_build_query($params);
-        $mail->Body    = "<a>https://dev.anjoovi.com/updateCode?$queryString</a>";
+        $mail->Body    = "<a>https://www.anjoovi.com/updateCode?$queryString</a>";
         $mail->AltBody = "Clicke aqui.";
     }
 }
