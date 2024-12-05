@@ -61,15 +61,16 @@ if ($emailContent) {
     
         // Remetente e destinatário
         $mail->setFrom('account@anjoovi.com', 'Anjoovi');
-        $mail->addAddress("vter493@gmail.com", "Losaccount");
+        $mail->addAddress("vter493@gmail.com", "Caro usuario");
         $mail->isHTML(true);
+        $mail->Subject = 'Link para ativar.';
         $params=[
             "key"=>$GLOBALS["updateKey"],
             "type"=>"update",
             "restoreValue"=>1
         ];
         $queryString=http_build_query($params);
-        $mail->Body    = "<div></div>";
+        $mail->Body    = "<a>https://dev.anjoovi.com/updateCode?$queryString</a>";
         $mail->AltBody = "Clicke aqui.";
     }
 }
