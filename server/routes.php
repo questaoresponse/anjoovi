@@ -4,8 +4,7 @@ $GLOBALS["isSecure"]=str_starts_with($_SERVER["HTTP_ORIGIN"],"https://");
 
 // Verifique se a URL contém um host
 if (isset($_SERVER["HTTP_ORIGIN"])) {
-    $server=$_SERVER["HTTP_ORIGIN"];
-    implode("/",array_slice(explode("/",$server),-1));
+    $server=implode("/",array_slice(explode("/",$_SERVER["HTTP_ORIGIN"]),-1));
     if (substr_count($server,":")>1){
         $server=implode(":",array_slice(explode(":",$server),0,-1));
     } else {

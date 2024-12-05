@@ -50,7 +50,7 @@ if ($emailContent) {
     // echo "De: $from\n";
     // echo "Assunto: $subject\n";
     // echo "Corpo:\n$body\n";
-    if ($subject=="Restore" | $body=="Restore"){
+    if ($subject=="Restore" || $body=="Restore"){
         $mail->isSMTP();
         $mail->Host = 'mail.anjoovi.com'; // Altere para o seu servidor SMTP
         $mail->SMTPAuth = true;
