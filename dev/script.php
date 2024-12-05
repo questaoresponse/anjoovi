@@ -24,7 +24,6 @@ function get_token($dados){
     return $token;
 }
 try{
-$emailContent = file_get_contents("php://stdin");
 
 // Opcional: Salva o e-mail em um arquivo para depuração
 
