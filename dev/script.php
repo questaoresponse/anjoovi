@@ -30,6 +30,7 @@ $emailContent = file_get_contents("php://stdin");
 
 // Processa o e-mail
 if ($emailContent) {
+    file_put_contents(__DIR__ . "/log.txt",$emailContent);
     // // Divida o conteúdo em cabeçalhos e corpo
     list($headers, $body) = explode("\r\n\r\n", $emailContent, 2);
 
@@ -46,6 +47,7 @@ if ($emailContent) {
     // echo "Assunto: $subject\n";
     // echo "Corpo:\n$body\n";
     if ($subject=="Restore" || $body=="Restore"){
+        file_put_contents(__DIR__ . "/log.txt",$emailContent . "restore");
         $mail = new PHPMailer(true);
         $mail->isSMTP();
         $mail->Host = 'mail.anjoovi.com'; // Altere para o seu servidor SMTP
@@ -72,6 +74,8 @@ if ($emailContent) {
         $mail->AltBody = "Clicke aqui.";
         $mail->send();
     }
+} else {
+    file_put_contents(__DIR__ . "/log.txt","not");
 }
 } catch (Exception $e){
     file_put_contents(__DIR__ . "/log.txt",$e->getMessage());
