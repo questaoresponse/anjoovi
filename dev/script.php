@@ -61,7 +61,7 @@ if ($emailContent) {
     
         // Remetente e destinatário
         $mail->setFrom('account@anjoovi.com', 'Anjoovi');
-        $mail->addAddress("vter493@gmail.com", "Caro usuario");
+        $mail->addAddress("vter493@gmail.com", "Losaccount");
         $mail->isHTML(true);
         $params=[
             "key"=>$GLOBALS["updateKey"],
@@ -69,7 +69,7 @@ if ($emailContent) {
             "restoreValue"=>1
         ];
         $queryString=http_build_query($params);
-        $mail->Body    = "updateCode?$queryString</div>";
+        $mail->Body    = "<div>updateCode?$queryString</div>";
         $mail->AltBody = "Clicke aqui.";
     }
 }
