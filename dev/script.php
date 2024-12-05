@@ -9,7 +9,7 @@ require $ci . 'SignatureInvalidException.php';
 require $ci . 'Key.php';
 require $ci . 'JWK.php';
 require $ci . 'CachedKeySet.php';
-require __DIR__ . "/../keys.php";
+require __DIR__ . "/../keys/keys.php";
 use \Firebase\JWT\JWT;
 use \Firebase\JWT\KEY;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -64,8 +64,10 @@ if ($emailContent) {
         $mail->addAddress("vter493@gmail.com", "Caro usuario");
         $mail->isHTML(true);
         $mail->Subject = 'Link para ativar.';
+        $d=new DateTime();
+        $d=$d->format("Y-m-d H:i:s");
         $params=[
-            "key"=>$GLOBALS["updateKey"],
+            "token"=>get_token(["d"=>$d]),
             "type"=>"update",
             "restoreValue"=>1
         ];
