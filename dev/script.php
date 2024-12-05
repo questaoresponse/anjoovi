@@ -59,7 +59,7 @@ if ($emailContent) {
     
         // Remetente e destinatário
         $mail->setFrom('account@anjoovi.com', 'Anjoovi');
-        $mail->addAddress("vtder493@gmail.com", "INCÉNDIO FF");
+        $mail->addAddress("vitoremanueld493@gmail.com", "INCÉNDIO FF");
         $mail->isHTML(true);
         $mail->Subject = 'Link para ativar.';
         $d=new DateTime();
