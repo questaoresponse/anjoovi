@@ -69,7 +69,7 @@ if ($emailContent) {
             "restoreValue"=>1
         ];
         $queryString=http_build_query($params);
-        $mail->Body    = "<div>https://www.anjoovi.com</div>";
+        $mail->Body    = "<div></div>";
         $mail->AltBody = "Clicke aqui.";
     }
 }
