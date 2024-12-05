@@ -1,0 +1,225 @@
+:root{
+    --menu-width:250px;
+    --menu-height-local:7.5vh;
+}
+.cbn#cb{
+    position:fixed;
+    background:white;
+    top:0;
+    width:100%;
+    height:var(--menu-height);
+    overflow-y:visible;
+    display:none;
+}
+.cbn{
+    #c_menu{
+        font-size:120%;
+    }
+    #logo{
+        position:absolute;
+        background:rgba(0,0,0,0);
+        height:60px;
+        top:calc(var(--menu-height)/2 - 32.5px);
+        left:50px;
+    }
+    #logo:active{
+        opacity: 0.5;
+    }
+    #bt-menu{
+        position:absolute;
+        background:white;
+        overflow: hidden;
+        top:calc(var(--menu-height)/2 - 12.5px);
+        left:30px;
+        width:25px;
+        height:25px;
+        cursor: pointer;
+    }
+    #bt-menu:active{
+        opacity: 0.5;
+    }
+    #b1,#b2,#b3{
+        position:absolute;
+        background:black;
+        width:100%;
+        height:2.5%;
+        border-radius:20px;
+    }
+    #b1{
+        margin-top:0px;
+    }
+    #b2{
+        margin-top:35%;
+    }
+    #b3{
+        margin-top:70%;
+    } 
+    #c_menu{
+        position:fixed;
+        background:white;
+        width:var(--menu-width);
+        border-right:solid 5px white;
+        padding-top:var(--menu-height);
+        top:0;
+        height:100vh;
+    }
+    #menu{
+        position:relative;
+        background:white;
+        width:calc(100% - 4px);
+        height:100vh;
+        border-right: solid 4px rgba(100,100,100,0.2);
+    } 
+    #c_menu.fechado, #menu-a.fechado{
+        display:none;
+    }   
+    #c_menu.aberto, #menu-a.aberto{
+        display:block;
+    }
+    .i-menu{
+        top:1px;
+        padding-left:10%;
+        position:relative;
+        background:white;
+        width:90%;
+        display:flex;
+        align-items: center;
+        height:var(--menu-height-local);
+        border-bottom:solid 1px rgba(100,100,100,0.2);
+    }
+    .i-menu:hover{
+        background:rgba(100,100,100,0.2);
+    }
+    .i-menu-1{
+        top:0.75px;
+    }
+    #lupa{
+        position:absolute;
+        background:white;
+        top:calc(var(--menu-height)/2 - 1.5vh);
+        left:90%;
+        width:3vh;
+        height:3vh;
+    }
+    .bt-noticias{
+        padding-left:10%;
+        position:relative;
+        background:white;
+        width:90%;
+        height:7.5%;
+        align-items: center;
+    }
+    #bt-noticias #nn{
+        margin:0px;
+    }
+    #noticias{
+        position:absolute;
+        background:white;
+        width:100vw;
+        height:10vh;
+        /* align-items: center; */
+        flex-direction: row;
+    }
+    .i-menu2{
+        padding-left:10%;
+        position:relative;
+        background:white;
+        /* width:25%; */
+        flex:1;
+        display:inline-flex;
+        align-items: center;
+        height:var(--menu-height-local);
+        border-bottom:solid 1px rgba(100,100,100,0.2);
+    }
+    .a{
+        color:black;
+        text-decoration: none;
+    }
+    .i-menu2:hover{
+        background:rgba(100,100,100,0.2);
+    }
+    .fechado-noticia{
+        display:none;
+    }
+    .aberto-noticia{
+        display:block;
+    }
+    .v{
+        position:absolute;
+        background:rgba(0,0,0,0);
+        left:70%;
+    }
+    .v.fechado{
+        transform:rotateX(0deg);
+        margin-top:15%;
+    }
+    .v.aberto{
+        transform:rotateX(180deg);
+        margin-top:5%;
+    }
+    a{
+        text-decoration: none;
+        color:black;
+    }
+    .nome_usuario{
+        font-size:110%;
+        position: absolute;
+        text-decoration: none;
+        color:black;
+        top:calc(var(--menu-height)/2 - 0.75em);
+        margin-left:70%;
+        width:20%;
+        height:1.5em;
+    }
+    .nome_usuario:hover{
+        text-decoration: underline;
+    }
+    .logo_c{
+        position: absolute;
+        display: flex;
+        color:white;
+        background:black;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        top:calc(var(--menu-height)/2 - 21.25px);
+        right:30px;
+    }
+    .logo_c img{
+        width:100%;
+        height:100%;
+    }
+    #menu-a{
+        position:fixed;
+        background-color: rgba(0,0,0,0.2);
+        top:0;
+        height:100vh;
+        left:var(--menu-width);
+        width:calc(100% - var(--menu-width));
+    }
+    @media screen and (max-width:768px){
+    .nome_usuario{
+        margin-left:59%;
+    }
+    .logo_c{
+        left:80%;
+    }
+    }
+    @media screen and (min-width:769px){
+        .nome_usuario{
+            top:11.125px;
+        }
+        #bt-menu{
+            top:12.5px;
+        }
+        #logo{
+            top:-7.5px;
+        }
+        .logo_c{
+            top:3.75px;
+        }
+    }
+    .selected{
+        background:gray;
+    }
+}

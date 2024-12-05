@@ -1,0 +1,286 @@
+@import '../../function.scss';
+#chat-p{
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+#chat-p{
+    #header{
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height:6vh;
+        border-top: solid 1px rgba(0,0,0,0.2);
+        border-bottom: solid 1px rgba(0,0,0,0.2);
+    }
+    #logo-chat{
+        margin-left:1.5em;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top: 0.375vh;
+        width: 5vh;
+        height: 5vh;
+        border-radius: 1vh;
+        overflow: hidden;
+        background-color: black;
+        color: rgb(255, 255, 255);
+    }
+    #logo-chat-img{
+        width: 100%;
+        height: 100%;
+    }
+    #group-infos{
+        margin-left: 1%;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        max-width: 49%;
+    }
+    #name{
+        position: relative;
+        display: flex;
+        width: 100%;
+        height:100%;
+        align-items: center;
+    }
+    #usuario{
+        position: relative;
+        display: flex;
+        width: 100%;
+        height:100%;
+        align-items: center;
+    }
+    #content{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height:calc(100% - 6vh);
+    }
+    #messages{
+        position: relative;
+        display: block;
+        width: 100%;
+        // height: auto;
+        // flex-direction: column;
+        // flex:1;
+        overflow: auto;
+        // flex-direction: column;
+    }
+    #campo{
+        position: relative;
+        display: flex;
+        width: calc(100% - 0.2ch);
+        height: auto;
+        flex-direction: row;
+        margin-left: 0.1ch;
+        margin-right:0.1ch;
+        margin-top:0.5ch;
+        margin-bottom: 0.5ch;
+    }
+    #send-div{
+        position: relative;
+        display: block;
+        width:calc(100% - 14ch);
+        height:auto;
+        margin-left: 1ch;
+        border: solid 1px rgba(0,0,0,0.54);
+        border-radius: 20px;
+        padding-top: 0.75ch;
+        padding-bottom:0.75ch;
+        padding-right:1ch;
+        @include pc(){
+            width: calc(100% - 21ch);
+        }
+    }
+    #send-input{
+        position: relative;
+        display: block;
+        width: calc(100% - 1ch);
+        height:100%;
+        min-height:2vh;
+        overflow:visible;
+        max-height:4.5em;
+        // border: solid 1px black;
+        overflow: auto;
+        padding-left: 2ch;
+    }
+    #send-input:focus{
+        border: none;
+        outline: none;
+    }
+    #send-after{
+        top:0.75ch;
+        position: absolute;
+        display: block;
+        color: rgba(0,0,0,0.54);
+        margin-left: 2ch;
+        pointer-events: none;
+    }
+    #send-after.hidden{
+        display: none;
+    }
+    #send-btn-div{
+        display: flex;
+        align-items: center;
+    }
+    #send-btn{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width:10ch;
+        background-color: black;
+        color: white;
+        outline: none;
+        border: none;
+        border-radius: 20px;
+        height:4ch;
+        margin-left: 2ch;
+        @include pc(){
+            height:2.5ch;
+            margin-left: 8.375ch;
+        }
+    }
+    #send-btn:focus{
+        outline: none;
+        border:none;
+    }
+    .message{
+        position: relative;
+        display: block;
+        background-color: rgba(0,0,0,0.15);
+        width:fit-content;
+        // height:fit-content;
+        height:auto;
+        min-width:6em;
+        min-height:0;
+        max-width: 30%;
+        max-height: 25em;
+        max-lines: 15;
+        -webkit-line-clamp: 15;
+        line-clamp: 15;
+        // height:22.5em;
+
+        // min-height:2.5em;
+        // max-width: 30%;
+        // max-height: 22.5em;
+
+        // max-lines: 15;
+        // -webkit-line-clamp:15;
+        border-radius: 2px;
+        padding-left:0.5em;
+        padding-top: 0.5em;
+        padding-bottom: 2em; 
+        padding-right: 0.5em;
+        border-radius: 15px;
+        margin-top: 2vh;
+        // white-space: pre;  
+
+        // word-wrap: break-word;
+
+        // white-space-collapse: collapse;
+        // white-space: pre;
+        // overflow-wrap: break-word;
+
+        // white-space: break-word;
+        // word-wrap: break-word;
+        // word-break: break-word;
+        // overflow-wrap: break-word;
+        // white-space: normal;
+
+        // overflow-wrap: break-word;
+
+        // overflow-wrap: break-word;
+    }
+    .message p{
+        display: block;
+        width: auto;
+        max-height: 22.5em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        overflow-wrap: break-word;
+        padding: 0;
+        margin: 0;
+    }
+    .data{
+        position: absolute;
+        display: flex;
+        width:calc(100% - 1em);
+        height:1.5em;
+        justify-content: end;
+        align-items: center;
+    }
+    .data-div{
+        position: relative;
+        display:flex;
+        width: fit-content;
+        height:2em;
+        margin-left: auto;
+        margin-right: auto;
+        justify-content: center;
+        align-items: center;
+        padding:0.5em;
+        background-color: black;
+        color:white;
+        border-radius: 10px;
+        margin-top: 2vh;
+    }
+    .message.my{
+        margin-left:auto;
+        margin-right:1ch;
+        // margin-left: 70%;
+    }
+    .message.you{
+        margin-left: 1ch;
+    }
+    .del_message{
+        position: absolute;
+        width:1.5em;
+        height:1.5em;
+        top:calc(50% - 0.75em);
+        left:-1.5em;
+    }
+    .del_message img{
+        width: 100%;
+        height: 100%;
+    }
+    #options-m{
+        position: fixed;
+        width: 100%;
+        height: 100%;
+    }
+    #options{
+        position: fixed;
+        width: 150px;
+        height:200px;
+        border-radius: 15px;
+        border:solid 1px rgba(0, 0, 0, 0.2);
+        background-color: white;
+        overflow: hidden;
+    }
+    .option-m{
+        position: relative;
+        display: block;
+        width: 100%;
+        height:24px;
+        cursor: pointer;
+        padding-left: 10px;
+    }
+    .option-m:hover{
+        background-color: gray;
+    }
+    .delete-o{
+        display: flex;
+        flex-direction: row;
+    }
+    .delete-o img{
+        top:2px;
+        width:20px;
+        height: 20px;
+    }
+}

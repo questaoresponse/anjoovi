@@ -1,0 +1,332 @@
+<html>
+    <head>
+        <style>
+html,body{
+    margin:0px;
+}
+#pl{
+    top:10%;
+    font-family: Arial;
+    font-size:600%;
+    position:relative;
+    background:black;
+    color:white;
+    width:30vh;
+    height:30vh;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 50%;
+    overflow:hidden;
+}
+#pl img{
+    width:100%;
+    height:100%;
+}
+.spd{
+    top:20%;
+    position:absolute;
+    background:white;
+    display:block;
+    width:20%;
+    height:5%;
+    transition: background-color 0.5s;
+}
+.t{
+    position: relative;
+    width:4vh;
+}
+.sp{
+    position: relative;
+    background:white;
+    width:100%;
+    height:1vh;
+}
+.spd:hover{
+    background:black;
+    color:white;
+}
+#bb1{
+    /* background:black; */
+}
+#spd2{
+    left:20%;
+}
+#spd1::before{
+    position: absolute;
+    display:block;
+    background:white;
+    color:black;
+    content:"Logo";
+    top:-3vh;
+}
+#spd2::before{
+    color:black;
+    position: absolute;
+    display:block;
+    background:white;
+    content:"Banner";
+    top:-3vh;
+}
+.p{
+    top:30%;
+    position: absolute;
+    background:white;
+    display:none;
+    width:100%;
+    height:40%;
+}
+#p1{
+    display:block;
+}
+.a{
+    background:black;
+    color:white;
+}
+.f{
+    background:white;
+    color:black;
+}
+.o{
+    position:relative;
+    background:white;
+    top:15%;
+    width:50%;
+    height:5%;
+}
+.oa{
+    position:relative;
+    display:inline-block;
+    padding-left: 2vw;
+    width:calc(32% - 2vw);
+}
+.ap{
+    position:relative;
+    display:inline-block;
+    color:gray;
+    padding-left:2vw;
+    width:calc(32% - 2vw);
+    height:100%;
+}
+.or{
+    position:relative;
+    display:inline-block;
+    padding-left:2vw;
+    width:calc(32% - 2vw);
+}
+.oa:hover{
+    background:black;
+    color:white;
+}
+.or:hover{
+    background:black;
+    color:white;
+}
+#banner{
+    position:relative;
+    background:white;
+    width:100%;
+    height:35vh;
+}
+        </style>
+    </head>
+    <body>
+        <div class="spd a" id="spd1"></div>
+        <div class="spd f" id="spd2"></div>
+        <div class="p" id="p1">
+            <div id="pl"></div>
+            <div class="o">
+                <div class="oa" id="oa1">Alterar</div>
+                <div class="ap" id="ap1">Alterar permanente</div>
+                <div class="or" id="or1">Remover</div>
+            </div>
+            <input class="i" id="i1" style="display:none" type="file" accept="image/jpeg, image/jpg">
+        </div>
+        <div class="p" id="p2">
+            <img id="banner" src="/static/sem-imagem.jpg">
+            <div class="o">
+                <div class="oa" id="oa2">Alterar</div>
+                <div class="ap" id="ap2">Alterar permanente</div>
+                <div class="or" id="or2">Remover</div>
+            </div>
+            <input class="i" id="i2" style="display:none" type="file" accept="image/jpeg, image/jpg">
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+        <script>
+var lo1="";
+var lo2="";
+if (window.config){
+    window.config.banner ? document.querySelector("#banner").src="/images/"+window.config.banner:null;
+    window.config.logo ? adf("/images/"+window.config.logo) : adt(window.usuario[0]);
+    lo1=window.config.banner ? window.config.banner : "";
+    lo2=window.config.logo ? window.config.logo : "";
+} else {
+    adt(window.usuario[0]);
+}
+var l1=lo1;
+var l2=lo2;
+function me(elemento,c){
+        elemento.style.color= c ? "black" : "gray";
+}
+function ms(){
+    var s1=document.querySelector("#oat1");
+    var s2=document.querySelector("#oat2");
+    
+}
+function adf(l){
+        var p=document.querySelector("#pl");
+        p.textContent="";
+        var a=document.createElement("img");
+        a.src=l;
+        p.appendChild(a);
+        l1=l;
+        me(document.querySelector("#ap1"),lo1!=l1);
+}
+function adt(t){
+    var p=document.querySelector("#pl");
+    p.textContent=t;
+    document.querySelector("#i1").value="";
+    l1="";
+    me(document.querySelector("#ap1"),lo1!=l1);
+};
+function tc(a,c1,c2){
+    a.classList.remove(c1);a.classList.add(c2);
+}
+window.setStyle={elemento:"#settings",color:"gray"};
+// var p=document.querySelector("#pl");
+// var logo=p;
+// p.textContent=window.usuario[0];
+var b1=document.querySelector("#spd1");
+var b2=document.querySelector("#spd2");
+var p1=document.querySelector("#p1");
+var p2=document.querySelector("#p2");
+b1.addEventListener("click",()=>{
+    tc(b1,"f","a");
+    tc(b2,"a","f");
+    p1.style.display="block";
+    p2.style.display="none";
+})
+b2.addEventListener("click",()=>{
+    tc(b1,"a","f");
+    tc(b2,"f","a");
+    p1.style.display="none";
+    p2.style.display="block";
+})
+function ae(e){
+    var a=event.target.parentNode.parentNode.querySelector(".i");
+    a.click();
+    //var a=event.target;
+    //document.querySelector("#m").style.display="block";
+}
+// document.querySelector("#m #x").addEventListener("click",()=>{document.querySelector("#m").style.display="none"});
+var al=document.querySelectorAll(".oa");
+al.forEach(a=>{ a.addEventListener("click",ae)})
+var oa1=document.querySelector("#oa1");
+var oa2=document.querySelector("#oa2");
+var or1=document.querySelector("#or1");
+var or2=document.querySelector("#or2");
+var fl1=document.querySelector("#p1 .i");
+var fl2=document.querySelector("#p2 .i");
+or1.addEventListener("click",or);
+or2.addEventListener("click",or);
+// function asl(l){
+//     logo.textContent="n";logo.src=l;
+// }
+// function rsl(){
+//     logo.src="";logo.textContent=window.usuario[0];
+// }
+function rb(){
+    document.querySelector("#i2").value="";
+    banner.src='/static/sem-imagem.jpg';
+    l2="";
+    me(document.querySelector("#ap2"),lo2!=l2);
+}
+function or(e){
+    e.target.id=="or1" ? adt(window.usuario[0]) : rb();
+}
+fl1.addEventListener("change",()=>{
+    const file = fl1.files[0];
+
+    if (file) {
+        const leitor = new FileReader();
+
+        leitor.onload = function (e) {
+        adf(e.target.result);
+        };
+
+        leitor.readAsDataURL(file);
+    } else {
+        // O usuário não selecionou um arquivo
+        adt(window.usuario[0]);
+    }
+})
+function ba(e){
+    l2=e;
+    if (lo2!=l2){
+        document.querySelector("#ap2").style.color="black";
+    } else {
+        document.querySelector("#ap2").style.color="gray";
+    };
+}
+fl2.addEventListener("change",()=>{
+    const file = fl2.files[0];
+
+    if (file) {
+        const leitor = new FileReader();
+
+        leitor.onload = function (e) {
+        banner.src = e.target.result;
+        };
+        ba(banner.src);
+        leitor.readAsDataURL(file);
+    } else {
+        // O usuário não selecionou um arquivo
+        rb();
+    }
+})
+document.querySelector("#ap1").addEventListener("click",()=>{
+    if (document.querySelector("#ap1").style.color=="black"){
+        var fd=new FormData();
+        fd.append("logo",l1!="" ? fl1.files.length>0 ? fl1.files[0] : null : null);
+        fd.append("_token",window.token);
+        $.ajax({
+            url: "/admin/settings?type=logo",
+            type:'POST',
+            processData: false, // Não processar dados
+            contentType: false, // Não definir o tipo de conteúdo
+            data:fd,
+            success: function(data) {
+                console.log(data);
+        }
+        });
+    };
+})
+document.querySelector("#ap2").addEventListener("click",()=>{
+    if (document.querySelector("#ap2").style.color=="black"){
+        var fd=new FormData();
+        l2!="" ? fl2.files.length>0 ? fd.append("banner", fl2.files[0]) : null : null;
+        fd.append("_token",window.token);
+        $.ajax({
+            url: "/admin/settings?type=banner",
+            type:'POST',
+            processData: false, // Não processar dados
+            contentType: false, // Não definir o tipo de conteúdo
+            data:fd,
+            success: function(data) {
+                console.log(data);
+        }
+        });
+    };
+})
+// document.querySelector("#spd1").addEventListener("hover",()=>{
+//     tc(b1,"f","a");
+//     tc(b2,"a","f");
+// })
+// document.querySelector("#spd1").addEventListener("mouseleave",()=>{
+//     tc(b1,"a","f");
+//     tc(b2,"f","a");
+// })
+        </script>
+    </body>
+</html>

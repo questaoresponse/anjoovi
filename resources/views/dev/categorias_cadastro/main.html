@@ -1,0 +1,391 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon">
+        <title>Painel - Anjoovi</title>
+        <style>
+html,body{
+    margin:0px;
+    width:100%;
+    height:145%;
+    background:#f0f0f0;
+}
+body::before{
+  content: "";
+  position:relative;
+  display:block;
+  width:100%;
+  height:10vh; /* Altura do espaço em branco */
+  background-color:white; /* Cor de fundo de exemplo */
+}
+#msg1{
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+    font-family: Arial;
+    font-size:200%;
+    position:relative;
+    background:white;
+    margin-top:2%;
+    left:2%;
+    right:2%;
+    padding-left: 2%;
+    width:94%;
+    height:15vh;
+    display:flex;
+    align-items: center;
+    border-radius: 2px;
+}
+form{
+    font-size:120%;
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+    position:relative;
+    background:white;
+    left:2%;
+    right:2%;
+    margin-top:2%;
+    width:96%;
+    height:160vh;
+    border-radius: 5px;
+    overflow-y: visible;
+}
+form::after{
+    padding-top: 2%;
+    padding-left:2%;
+    font-size: 150%;
+    position: absolute;
+    display:block;
+    font-family: Arial;
+    content: "Informações";
+    background:white;
+    width:98%;
+    /* margin-top:40vh; */
+    /* padding-top:11%; */
+    height:2vh;
+}
+form::before{
+    padding-left:2%;
+    font-size: 150%;
+    position: absolute;
+    display:block;
+    font-family: Arial;
+    background:rgba(128, 128, 128,0.5);
+    top:7%;
+    width:98%;
+    height:0.25vh;
+    content:"";
+}
+#nome-l,#descricao-l,#link-l{
+    position:absolute;
+    background:white;
+    width:40vh;
+    height:5vh;
+}
+#nome-l{
+    top:15vh;
+    left:2%;
+}
+#descricao-l{
+    top:15vh;
+    left:60%;
+}
+#link-l{
+    top:25vh;
+    left:2%;
+}
+#nome,#descricao,#link{
+    position:absolute;
+    background:white;
+    width:36%;
+    height:5vh;
+    padding-left:1%;
+    border:solid 0.5px gray;
+    border-radius:5px;
+}
+#nome:focus,#descricao:focus,#link:focus{
+    outline: none;
+    border:solid 0.5px black;
+}
+#nome{
+    top:18.5vh;
+    left:2%;
+}
+#descricao{
+    top:18.5vh;
+    left:60%;
+}
+#link{
+    width:19%;
+    top:30vh;
+    left:60vh;
+}
+#link-c{
+    font-size:90%;
+    position:absolute;
+    background:gray;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    left:2%;
+    top:30vh;
+    width:29.5%;
+    padding-left:0.5%;
+    height:4.5vh;
+    border:solid 0.5px black;
+    border-radius:5px;
+}
+#link-s{
+    font-family: Arial;
+    position:absolute;
+    background:white;
+    top:31vh;
+    left:35%;
+    height:5vh;
+}
+button{
+    position:absolute;
+    background:black;
+    color:white;
+    font-size: 110%;
+    font-family: Arial;
+    width:15%;
+    height:5%;
+    top:110%;
+    border-radius:5px;
+}
+button:hover{
+    background:white;
+    color:black;
+}
+#msg2{
+    padding-left: 2%;
+    font-family: Arial;
+    font-size: 110%;
+    position:relative;
+    background:rgba(0,0,0,0);
+    margin-top:20%;
+    width:98%;
+    height:5%;
+}
+#top2{
+    font-family: Arial;
+    font-size:110%;
+    position:relative;
+    background:white;
+    left:2%;
+    width:96%;
+    height:40%;
+    border-radius:5px;
+}
+#tabela{
+    position:absolute;
+    background:white;
+    left:5%;
+    width:90%;
+    height:40%;
+    border:solid 0.5px black;
+}
+.linha{
+    margin-top:2vh;
+}
+.linha,.line{
+    width:100%;
+    height:4vh;
+    overflow-x: visible;
+}
+.coluna{
+    font-family: Arial;
+    position:relative;
+    background:white;
+    padding-left:2%;
+    height:100%;
+    display:inline-block;
+    border:solid 1px black;
+}
+.id{
+    width:8%;
+}
+.nome{
+    width:78%;
+}
+.linha .nome{
+    left:-0.5%;
+}
+.linha .coluna{
+    font-weight: 900;
+}
+.acoes{
+    position:absolute;
+    left:90.5%;
+    right:0px;
+    width:calc(7.5% - 1px);
+    height:4vh;
+    margin:0px;
+}
+.line .acoes{
+    padding:0px;
+    width:calc(9.5% - 1px);
+}
+.edit,.excluir{
+    position:relative;
+    background:white;
+    display:inline-block;
+    width:50%;
+    height:100%;
+}
+#registros{
+    width:100%;
+    height:10%;
+}
+#p1,#n,#p2{
+    margin-top:-10%;
+    font-family: Arial;
+    display:inline-block;
+    height:100%;
+}
+#n{
+    font-size:100%;
+}
+#dt{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    height:100%;
+    overflow-y: visible;
+}
+#dt.fechado{
+    width:100%;
+}
+#dt.aberto{
+    width:80%;
+    left:20%;
+}
+        </style>
+    </head>
+    <body>
+        <div id="dt" class="fechado">
+        <div id="msg1">Cadastrar categorias</div>
+        <form>
+            <label id="nome-l">Nome</label>
+            <input id="nome">
+            <label id="descricao-l">Descrição</label>
+            <input id="descricao">
+            <label id="link-l">Link</label>
+            <div id="link-c">https://www.anjoovi.com.br/categoria</div>
+            <div id="link-s">/</div>
+            <input id="link">
+            <button type="submit">Cadastrar</button>
+        </form>
+        <div id="msg2">Lista de registros</div>
+        <div id="top2">
+            <div id="tabela">
+                <div id="registros">
+                    <p id="p1"></p>
+                    <p id="n"></p>
+                    <p id="p2"></p>
+                </div>
+                <div class="linha">
+                    <div class="coluna id">ID</div>
+                    <div class="coluna nome">NOME</div>
+                    <div class="coluna acoes">AÇÕES</div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+        <script>
+window.setStyle={elemento:"#categorias_cadastro",color:"gray"};
+var nome=document.querySelector("#nome");
+var link=document.querySelector("#link");
+var descricao=document.querySelector("#descricao");
+var form=document.querySelector("form");
+nome.addEventListener("input",()=>{
+    var nome2=nome.value.replace(/\s+/g,"-")
+    nome2=nome2.toLowerCase();
+    nome2=nome2.replace(/[^a-zA-Z0-9\-]/g, '');
+    link.value=nome2;
+})
+form.addEventListener("submit",(e)=>{
+    e.preventDefault();
+    $.ajax({
+        url:"/dev/categorias_cadastro?type="+(window.edit ? "edit" : "cadastro"),
+        type:'POST',
+        data:{_token:window.token,tipo:window.edit ? "categorias_edit" : "categorias_cadastro",nome:nome.value,descricao:descricao.value,link:link.value},
+        success: function(data) {
+        console.log(data);
+        data!="true" && criar_tabela(data);
+        }
+    });
+})
+var tabela=document.querySelector("#tabela");
+function criar_tabela(d){
+    var ab=tabela.querySelectorAll(".line");
+    if (ab.length>0){
+        for (a of ab){
+            a.remove();
+        }
+    }
+    var registros=tabela.querySelector("#registros");
+    var t=d.length>=0 && d.length<=1 ? true : false;
+    registros.querySelector("#p1").textContent=t ? "Foi encontrado" : "Foram encontrados";
+    registros.querySelector("#n").textContent=d.length;
+    registros.querySelector("#p2").textContent=t ? "registro." : "registros.";
+    if (d.length>0){
+    for (p of d){
+        var div_id=document.createElement("div");
+        div_id.className="coluna id";
+        div_id.textContent=p.id;
+        var div_nome=document.createElement("div");
+        div_nome.className="coluna nome";
+        div_nome.textContent=p.nome;
+        var div_acoes=document.createElement("div");
+        div_acoes.className="coluna acoes";
+        var div_edit=document.createElement("img");
+        var div_excluir=document.createElement("img");
+        div_edit.className="edit";
+        div_edit.src="/static/edit-icone.png";
+        div_excluir.className="excluir";
+        div_excluir.src="/static/remove-icone.png"
+        div_acoes.appendChild(div_edit);
+        div_acoes.appendChild(div_excluir);
+        var l=document.createElement("div");
+        l.className="line";
+        l.appendChild(div_id);
+        l.appendChild(div_nome);
+        l.appendChild(div_acoes);
+        tabela.appendChild(l);
+        console.log(p.id);
+        div_edit.n=p.id;
+        div_edit.addEventListener("click",(e)=>{ window.location.href="/dev/categorias_edit/?id="+e.target.n})
+        div_excluir.addEventListener("click",()=>{
+            var r=window.confirm("Deseja remover este registro? Esta ação não pode ser revertida.");
+            if (r){
+                var url;
+                $.ajax({
+                    url:"/dev/categorias_cadastro?type=remove&id="+p.id,
+                    type:'POST',
+                    data:{"tipo":"remove",_token:window.token},
+                    success: function(data) {
+                        console.log(data);
+                        console.log(window.edit && p.id==Number(window.location.href.split("/")[5]));
+                    window.edit && p.id==new URLSearchParams(window.location.search).get("id") ? window.location.href="/dev/categorias_cadastro/" : criar_tabela(data);
+                    }
+                });
+            }
+        })
+    }
+    }
+}
+criar_tabela(window.select_options);
+window.esmagar=()=>{
+    var e=document.querySelector("#dt");
+    e.classList.toggle("fechado");
+    e.classList.toggle("aberto");
+}
+if (window.edit){
+    nome.value=window.categoria_edit[0].nome;
+    descricao.value=window.categoria_edit[0].descricao;
+    link.value=window.categoria_edit[0].link;
+    document.querySelector("button").textContent="Alterar";
+}
+        </script>
+    </body>
+</html>

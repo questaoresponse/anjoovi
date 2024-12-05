@@ -1,0 +1,192 @@
+html,body{
+    margin:0px;
+    font-family: Arial;
+}
+#tabela{
+    top:30%;
+    left:5%;
+    position:absolute;
+    background: white;
+    width:70%;
+}
+#registros{
+    font-size:110%;
+    left:5%;
+    top:20%;
+    position: absolute;
+    background:white;
+    width:95%;
+    height:10%;
+}
+.linha{
+    text-decoration: none;
+}
+.t{
+    font-size:140%;
+    position: relative;
+    background: white;
+    width:100%;
+    min-height:40vh;
+    margin-bottom:7vh;
+    color:black;
+    text-decoration: none;
+}
+.t_linha{
+    position:relative;
+    background:gray;
+    content:"";
+    display: block;
+    width:100%;
+    height:0.5vh;
+    margin-top:1.5vh;
+}
+.usuario{
+    position:relative;
+    background:rgba(0,0,0,0);
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
+    top:0vh;
+    margin-left:0%;
+    width:100%;
+}
+.imagem{
+    position:relative;
+    display:inline-block;
+    top:5%;
+    width:50%;
+}
+.imagem,.titulo,.subtitulo{
+    background:rgba(0,0,0,0);
+}
+/* .titulo{
+    position:relative;
+    width:50%;
+    padding-left:50%;
+} */
+.titulo,.subtitulo{
+    position:relative;
+    background:rgba(0,0,0,0);
+    /* padding-left:50%; */
+    margin-top:2%;
+}
+.titulo{
+    /* font-weight: 900; */
+    width:100%;
+    margin-top:3vh;
+}
+#p1,#p2,#p3{
+    display:inline-block;
+}
+#p2{
+    font-weight: 900;
+}
+.t:hover{
+    background:#f0f0f0;
+}
+.pp2{
+    top:0%;
+    left:52%;
+    position:absolute;
+    width:48%;
+    height:100%;
+}
+@media screen and (max-width:768px){
+.imagem{
+    width:100%;
+}
+#tabela{
+    width:90%;
+}
+.pp2{
+    width:100%;
+    position:relative;
+    left:0%;
+}
+}
+@media screen and (min-width:769px){
+    #registros{
+        left:20%;
+        width:60%;
+    }
+    #tabela{
+        width:60%;
+        left:10%;
+    }
+    .titulo{
+        width:100%;
+        max-height:30%;
+        overflow-wrap: break-word;
+        margin-bottom: 5%;
+        overflow: hidden;
+    }
+}
+.ca{
+    text-decoration: none;
+}
+.canal{
+    position:relative;
+    background:white;
+    width:100%;
+    height:15vh;
+    margin-top:1vh;
+}
+.logo{
+    font-size:180%;
+    position:relative;
+    background:black;
+    display:flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    color:white;
+    width:15vh;
+    height:15vh;
+    border-radius: 50%;
+    overflow:hidden;
+}
+.logo img{
+    width:100%;
+    height:100%;
+}
+.count{
+    position:absolute;
+    background:white;
+    color:gray;
+    width:50%;
+    height:100%;
+    left:16vh;
+    top:50%;
+}
+.nome{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    color:black;
+    top:20%;
+    left:16vh;
+    width:60%;
+    height:30%;
+}
+#registros p{
+    margin:0px;
+}
+.anunciodiv{
+    margin:0px;
+    position: relative;
+    width:100%;
+    height:100%;
+}
+.ads-b{
+    position:fixed;
+    display:none;
+    left:65%;
+    width:35%;
+    height:45vh !important;
+}
+#ads-d1{
+    top:10vh;
+}
+#ads-d2{
+    top:55vh;
+}

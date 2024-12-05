@@ -1,0 +1,79 @@
+@import '../../function.scss';
+#den{
+    position: absolute;
+    left:calc(100% - 9ch);
+}
+#den{
+    #report{
+        font-size: 110%;
+        position: relative;
+        display: flex;
+        width:9ch;
+        height:100%;
+        background-color: white;
+        justify-content: center;
+        align-items: center;
+        border: none;
+        cursor: pointer;
+        user-select: none;
+    }
+    #menu{
+        padding-top: 4vh;
+        position: fixed;
+        background-color: white;
+        border-radius: 10px;
+        z-index: 10000;
+        box-shadow: 0.5px 0.5px 20px gray;
+        left:5%;
+        top:5%;
+        width:90%;
+        height:90%;
+        @include pc(){
+            left:25vw;
+            top:12.5vh;
+            width:50vw;
+            height:75vh;
+        }
+    }
+    #menu{
+        #x{
+            position: absolute;
+            display: block;
+            font-size: 1.5em;
+            left:calc(100% - 1.75ch);
+            width:1.5ch;
+            height:1.5ch;
+            top:0.25ch;
+            font-size:150%;
+            }
+        #options *{
+            position: relative;
+            display: flex;
+            width: 100%;
+            height:2em;
+            align-items: center;
+            border-top:solid 1px rgba(128,128,128);
+            padding-left: 1ch;
+            font-size: 110%;
+        }
+        #options :last-child{
+            border-bottom: solid 1px rgba(128,128,128);
+        }
+    }
+    // #menu #options{
+    //     position: relative;
+    //     display: block;
+    //     overflow: auto;
+    //     width: 100%;
+    //     height:100
+    // }
+    #avs{
+        margin: 0;
+        padding: 0;
+    }
+}
+.disabled #den{
+    #report{
+        pointer-events: none;
+    }
+}

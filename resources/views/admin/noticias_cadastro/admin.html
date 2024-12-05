@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon">
+        <title>Painel - Anjoovi</title>
+        <style>
+html,body{
+    margin:0px;
+    width:100%;
+    height:145%;
+    background:#f0f0f0;
+}
+body::before{
+  content: "";
+  position:relative;
+  display:block;
+  width:100%;
+  height:10vh; /* Altura do espaço em branco */
+  background-color:white; /* Cor de fundo de exemplo */
+}
+#msg1{
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+    font-family: Arial;
+    font-size:200%;
+    position:relative;
+    background:white;
+    margin-top:2%;
+    left:2%;
+    right:2%;
+    padding-left: 2%;
+    width:94%;
+    height:15vh;
+    display:flex;
+    align-items: center;
+    border-radius: 2px;
+}
+form{
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+    position:relative;
+    background:white;
+    left:2%;
+    right:2%;
+    margin-top:2%;
+    width:96%;
+    height:160vh;
+    border-radius: 5px;
+    overflow-y: visible;
+}
+/* form::before{
+    content:"";
+    background:white;
+    position: absolute;
+    display:block;
+    width:100%;
+    height:50%;
+    top:100%;
+    border-radius:5px;
+} */
+#usuario-l{
+    font-family: Arial;
+    font-size:110%;
+    position:absolute;
+    background:rgba(0,0,0,0);
+    top:11.5vh;
+    left:5%;
+    width:20%;
+    height:5vh;
+    border-radius:5px;
+}
+#usuario{
+    font-family: Arial;
+    font-size:110%;
+    position:absolute;
+    background:white;
+    top:15vh;
+    left:5%;
+    width:25%;
+    height:5vh;
+    border-radius:5px;
+    /* border:solid 2px black; */
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+#categorias-l{
+    font-family: Arial;
+    font-size:110%;
+    position:absolute;
+    background:rgba(0,0,0,0);
+    top:11.5vh;
+    left:40%;
+    width:20%;
+    height:5vh;
+    border-radius:5px;
+}
+#categorias{
+    font-size: 110%;
+    position:absolute;
+    top:15vh;
+    left:40%;
+    width:20%;
+    height:5.5vh;
+    border-radius:5px;
+    /* border:solid 2px black; */
+}
+#destaques-l{
+    font-family: Arial;
+    font-size:110%;
+    position:absolute;
+    background:rgba(0,0,0,0);
+    top:11.5vh;
+    left:67.5%;
+    width:20%;
+    height:5vh;
+    border-radius:5px;
+}
+#destaques{
+    font-size: 110%;
+    position:absolute;
+    top:15vh;
+    left:67.5%;
+    width:27.5%;
+    height:5.5vh;
+    border-radius:5px;
+    /* border:solid 2px black; */
+}
+#acessos-l{
+    font-family: Arial;
+    font-size:110%;
+    position:absolute;
+    background:rgba(0,0,0,0);
+    top:26.5vh;
+    left:67.5%;
+    width:20%;
+    height:5vh;
+    border-radius:5px;
+}
+#acessos{
+    font-family: Arial;
+    position:absolute;
+    background:gray;
+    top:30vh;
+    left:67.5%;
+    padding-left:2.5%;
+    width:25%;
+    height:5vh;
+    border-radius:5px;
+    border:solid 2px black;
+    display:flex;
+    align-items: center;
+}
+#titulo-l{
+    font-family: Arial;
+    font-size:110%;
+    position:absolute;
+    background:rgba(0,0,0,0);
+    top:36.5vh;
+    left:5%;
+    width:40%;
+    height:5vh;
+    border-radius:5px;
+}
+#titulo{
+    font-size: 110%;
+    position:absolute;
+    background:white;
+    top:40vh;
+    left:5%;
+    padding-left:2.5%;
+    width:40%;
+    height:5vh;
+    border-radius:5px;
+    /* border:solid 2px black; */
+    display:flex;
+    align-items: center;
+}
+#subtitulo-l{
+    font-family: Arial;
+    font-size:110%;
+    position:absolute;
+    background:rgba(0,0,0,0);
+    top:36.5vh;
+    left:55%;
+    width:40%;
+    height:5vh;
+    border-radius:5px;
+}
+#subtitulo{
+    font-size: 110%;
+    position:absolute;
+    background:white;
+    top:40vh;
+    left:55%;
+    padding-left:2.5%;
+    width:40%;
+    height:5vh;
+    border-radius:5px;
+    /* border:solid 2px black; */
+    display:flex;
+    align-items: center;
+}
+iframe{
+    position:absolute;
+    background:white;
+    top:60%;
+    width:100%;
+    height:60%;
+}
+#imagem-view{
+    position:absolute;
+    background:gray;
+    width:20vh;
+    height:20vh;
+    left:2.5%;
+    top:114vh;
+}
+#imagem{
+    position:absolute;
+    background:white;
+    display:flex;
+    padding-top:1%;
+    padding-left:1%;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    width:30%;
+    height:6.5vh;
+    top:120vh;
+    left:25vh;
+    border:solid 1px gray;
+    border-radius:5px;
+}
+#button{
+    font-family:Arial;
+    font-size:110%;
+    position:absolute;
+    background:black;
+    color:white;
+    top:165vh;
+    width:10%;
+    height:7.5vh;
+    left:1%;
+    border:solid 1px black;
+    border-radius:5px;
+}
+#button:hover{
+    background:white;
+    color:black;
+}
+#m{
+    position:fixed;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background:rgb(0,255,0);
+    color:white;
+    top:10%;
+    width:100%;
+    height:10%;
+}
+.input{
+    outline: none;
+    border:solid 1px gray;
+    /* border:solid 0.5px gray; */
+}
+.input:focus{
+    /* outline: none; */
+    border:solid 1px black;
+}
+textarea{
+    font-family: Arial;
+    font-size:110%;
+    position:absolute;
+    top:60vh;
+    background:white;
+    width:100%;
+    height:40vh;
+
+}
+#dt{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    height:100%;
+    overflow-y: visible;
+}
+#dt.fechado{
+    width:100%;
+}
+#dt.aberto{
+    width:80%;
+    left:20%;
+}
+        </style>
+    </head>
+    <body>
+    <div id="dt" class="fechado">
+    <div id="msg1">Cadastrar notícia</div>
+    <form>
+        <label id="usuario-l">Usuário</label>
+        <div id="usuario" class="input">t</div>
+        <label id="categorias-l">Categorias</label>
+        <select id="categorias"class="input" required>
+            <option value="">Selecione...</option>
+        </select>
+        <label id="destaques-l">Destaques</label>
+        <select id="destaques" class="input" required>
+            <option>Nenhum destaque</option>
+            <option>Slide</option>
+            <option>Manchete</option>
+            <option>Seção Destaques para voçê</option>
+            <option>Seção</option>
+            <option>Seção Assuntos do momento</option>
+            <option>NOTÍCIA URGENTE (por 24 horas)</option>
+        </select>
+        <label id="acessos-l">Acessos</label>
+        <div id="acessos">0</div>
+        <label id="titulo-l">Título</label>
+        <input class="input" id="titulo" placeholder="Insira um título" required>
+        <label id="subtitulo-l">Subtítulo</label>
+        <input class="input" id="subtitulo" placeholder="Insira um subtítulo">
+        <!-- <iframe src="/admin_noticias_cadastro/editor.html"></iframe> -->
+        <textarea></textarea>
+        <img id="imagem-view" src="/static/sem-imagem.jpg">
+        <input type="file" id="imagem" accept="image/jpg, image/jpeg" required>
+        <button type="submit" id="button">Cadastrar</button>
+    </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <script>
+s=document.querySelector("#categorias")
+window.setStyle={elemento:"#noticias_lista",color:"gray"};
+document.querySelector("#usuario").textContent=window.usuario;
+console.log(window.select_options);
+//var opt=JSON.parse(window.select_options);
+var opt=window.select_options;
+//var s2=JSON.parse(opt);
+for (op of opt){
+    var o=document.createElement("option");
+    o.textContent=op.nome;
+    s.appendChild(o);
+}
+var imagem=document.querySelector("#imagem");
+var imagem_view=document.querySelector("#imagem-view");
+var form=document.querySelector("form");
+var imagem_data;
+imagem.addEventListener('change', ()=>{
+    const file = imagem.files[0];
+  
+    if (file) {
+      const leitor = new FileReader();
+  
+      leitor.onload = function (e) {
+        imagem_view.src = e.target.result;
+      };
+  
+      leitor.readAsDataURL(file);
+    } else {
+      // O usuário não selecionou um arquivo
+      imagem_view.src = ''; // Limpa a imagem
+    }
+  });
+async function get_message(){
+  return new Promise((resolve,reject)=>{
+    window.addEventListener("message",(e)=>{
+      resolve(e.data);
+    })
+  })
+}
+form.addEventListener("submit",async (e)=>{
+    e.preventDefault();
+    console.log("enviado")
+    var fd=new FormData();
+    var categoria=document.querySelector("#categorias").value;
+    var destaque=document.querySelector("#destaques").value;
+    var titulo=document.querySelector("#titulo").value;
+    var subtitulo=document.querySelector("#subtitulo").value;
+    var texto=document.querySelector("textarea").value;
+    imagem_data=imagem.files.length>0 ? imagem.files[0] : null;
+    fd.append("tipo","noticias_cadastro");
+    fd.append("usuario",window.name_usuario);
+    fd.append("categoria",categoria);
+    fd.append("destaque",destaque);
+    fd.append("titulo",titulo);
+    subtitulo!="" && fd.append("subtitulo", subtitulo);
+    texto!="" && fd.append("texto",texto);
+    window.edit && fd.append("type","update");
+    window.edit && fd.append("id",window.post_edit[0].id);
+    fd.append("imagem",imagem_data ? imagem_data : window.post_edit[0].imagem);
+    imagem_data && fd.append("imagem_edit",true);
+    document.querySelector("#button").disabled=true;
+    fd.append("_token",window.token);
+    $.ajax({
+        url: "/admin/noticias_cadastro?type="+(window.edit? "edit" : "cadastro"),
+        type:'POST',
+        processData: false, // Não processar dados
+        contentType: false, // Não definir o tipo de conteúdo
+        data:fd,
+        success: function(data) {
+        console.log(data);
+          document.querySelector("#button").disabled=false;
+            data=="true" && sucesso();
+      
+        //   data!="true" && erro(data);
+      }
+    });
+})
+function sucesso(){
+    var m=document.createElement("div");
+    m.id="m";
+    m.textContent=`Notícia ${window.edit ? "alterada" : "cadastrada"} com sucesso.`;
+    document.body.appendChild(m);
+    setTimeout(()=>{
+        m.remove();
+    },1500);
+    document.querySelector("#categorias").value="";
+    document.querySelector("#destaques").value="";
+    document.querySelector("#titulo").value="";
+    document.querySelector("#subtitulo").value="";
+    document.querySelector("textarea").value="";
+    document.querySelector("#destaques").querySelector("option").selected=true;
+    imagem.value="";
+    imagem_view.src="/static/sem-imagem.jpg";
+}
+window.esmagar=()=>{
+  var e=document.querySelector("#dt");
+  e.classList.toggle("fechado");
+  e.classList.toggle("aberto");
+}
+if (window.edit){
+  document.querySelector("#imagem").required=false;
+  document.querySelector("#msg1").textContent="Editar notícia"
+  document.querySelector("button").textContent="Alterar";
+  document.querySelector("#categorias").value=window.post_edit[0].categoria;
+  document.querySelector("#destaques").value=window.post_edit[0].destaque;
+  document.querySelector("#titulo").value=window.post_edit[0].titulo;
+  document.querySelector("#subtitulo").value=window.post_edit[0].subtitulo;
+  document.querySelector("#acessos").textContent=window.post_edit[0].acessos;
+  window.post_edit[0].imagem!="n" ? imagem_view.src="/images/"+window.post_edit[0].imagem : null;
+  window.post_edit[0].texto!="n" ? document.querySelector("textarea").textContent=window.post_edit[0].texto : null;
+}
+    </script>
+    </body>
+</html>

@@ -1,0 +1,142 @@
+@import '../../function.scss';
+#chats-p{
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+}
+#chats-p{
+    a{
+        text-decoration: none;
+    }
+    #chats-list{
+        position: relative;
+        display: block;
+        width: 100%;
+        overflow: auto;
+        height: max-content;
+        max-height:calc(100% - 1.5em);
+        // margin-bottom: 10px;
+    }
+    .chats-item{
+        position: relative;
+        display: flex;
+        width: 100%;
+        height:4.5rem;
+        text-decoration: none;
+        color: black;
+        margin-top: 1vh;
+    }
+    .chats-item:active{
+        opacity: 0.5;
+    }
+    .logo{
+        position: relative;
+        display: inline-flex;
+        width:4.5rem;
+        height:4.5rem;
+        border-radius: calc(4.5rem / 6);
+        font-size: 2rem;
+        justify-content: center;
+        align-items: center;
+        background-color: black;
+        color: white;
+        overflow: hidden;
+    }
+    .logo img{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+    .infos{
+        position: relative;
+        display: inline-flex;
+        height:100%;
+        margin-left:2%;
+        max-width: calc(98% - 4.5rem);
+        flex-direction: column;
+    }
+    .usuario{
+        position: relative;
+        width:100%;
+        height:1.5em;
+        font-size: 150%;
+        color: black;
+    }
+    .texto{
+        color:gray;
+        font-size: 130%;
+        height:1.5em;
+    }
+    .excluir-chat{
+        position: relative;
+        display: flex;
+        height: 100%;
+        align-items: center;
+        margin-left: 20px;
+        cursor: pointer;
+    }
+    .excluir-chat img{
+        width: 20px;
+        height: 20px;
+    }
+    
+    #label-mensagens{
+        position: relative;
+        display: flex;
+        width: 100%;
+        font-weight: bold;
+        justify-content: center;
+        right: calc(var(--div-margin) / 2);
+        color: black;
+        user-select: none;
+    }
+    #chats-div{
+        width:100%;
+        height: 100%;
+    }
+    #messages-div{
+        display: none;
+        overflow: hidden;
+    }
+    #messages-infos{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width:30vw;
+        height:20vh;
+        top:calc((100% - 50px - 20vh) / 2);
+        margin-left: auto;
+        margin-right: auto;
+    }
+    @include pc(){
+        .chats-item{
+            height:4rem;
+        }
+        .logo{
+            width: 4rem;
+            height: 4rem;
+            border-radius: calc(4rem / 6);
+            font-size: 1.75rem;
+        }
+        .infos{
+            max-width: calc(96% - 4rem);
+        }
+        .usuario{
+            font-size:1.5rem;
+        }
+        .texto{
+            font-size: 1.25rem;
+        }
+        #messages-div{
+            display: flex;
+            position: absolute;
+            margin-left: 35%;
+            border-left: solid 1px rgba(128, 128, 128,0.5);
+            width:65%;
+            height: 100%;
+        }
+    }
+}

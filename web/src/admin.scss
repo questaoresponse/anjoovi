@@ -1,0 +1,29 @@
+@import './function.scss';
+$msg1-height:5vh;
+$msg1-height-pc:5vh;
+@mixin admin(){
+    #msg1{
+        // box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+        font-size:200%;
+        position:relative;
+        background:white;
+        margin-top:2%;
+        // padding-left: 2%;
+        width:var(--div-width);
+        margin-left:var(--div-margin);
+        height:$msg1-height;
+        display:flex;
+        align-items: center;
+        border-radius: 2px;
+        @include pc(){
+            height:$msg1-height-pc;
+        }
+        user-select: none;
+    }
+    #dt{
+        position:relative;
+        width:100%;
+        overflow-y: visible;
+        left:0;
+    }
+}

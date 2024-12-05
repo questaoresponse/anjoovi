@@ -1,0 +1,84 @@
+#cmdd{
+    position:relative;
+    background:white;
+    width:60%;
+    height:100vh;
+}
+#cmdn{
+    position:relative;
+    background:white;
+    width:100%;
+    height:20vh;
+}
+#cmd{
+    position: relative;
+    width: 100%;
+    height:80vh;
+    background:white;
+}
+#cmf{
+    position:relative;
+    background:white;
+    width:100%;
+    height:10vh;
+}
+#cmi{
+    position:relative;
+    width:100%;
+    height:5vh;
+    border:0px;
+    border-bottom:solid 1px black;
+    outline:none;
+}
+#cmi:focus{
+    outline: none;
+}
+#cmb{
+    position:relative;
+    width:100%;
+    height:80vh;
+    overflow-y:hidden;
+}
+.ndivc{
+    position:relative;
+    display:flex;
+    width:100%;
+    height:10vh;
+}
+.ndivl{
+    position:relative;
+    display:inline-flex;
+    background: black;
+    color:white;
+    justify-content: center;
+    align-items: center;
+    width:10vh;
+    height:10vh;
+    border-radius: 50%;
+    flex: 0 0 10vh;
+}
+.ndivl img{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.ndivtd{
+    position:relative;
+    display:inline-block;
+    margin-left:2vh;
+    flex:1;
+    height:100%;
+}
+.ndivn{
+    display:inline-block;
+    height:20%;
+    background:white;
+    margin-right:20px;
+}
+.ndivt{
+    width:100%;
+    height:80%;
+    display:block;
+    background:white;
+    color:grey;
+}

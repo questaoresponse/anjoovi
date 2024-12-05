@@ -1,0 +1,33 @@
+@mixin lista(){
+    #pg{
+        position: absolute;
+        top:var(--menu-height);
+        width:100%;
+        background: var(--admin-color);
+    }
+    #top{
+        position:relative;
+        background:white;
+        margin-top:2%;
+        margin-left:var(--div-margin);
+        width:var(--div-width);
+        min-height:85%;
+        overflow: visible;
+        margin-bottom: var(--div-margin);
+
+    }
+    .registros{
+        .n{
+       display:inline-block;
+       font-weight: 900;
+       height:100%;
+       }
+       .p1,.p2{
+           display:inline-block;
+           height:100%;
+       }
+   }
+   .registros,.linha,.line{
+        min-width:200px;
+    }
+}

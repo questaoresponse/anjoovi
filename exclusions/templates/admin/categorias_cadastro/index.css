@@ -1,0 +1,246 @@
+html,body{
+    margin:0px;
+    width:100%;
+    height:145%;
+    background:#f0f0f0;
+    font-family: Arial;
+}
+body::before{
+  content: "";
+  position:relative;
+  display:block;
+  width:100%;
+  height:10vh; /* Altura do espaço em branco */
+  background-color:white; /* Cor de fundo de exemplo */
+}
+#msg1{
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+    font-size:200%;
+    position:relative;
+    background:white;
+    margin-top:2%;
+    left:2%;
+    right:2%;
+    padding-left: 2%;
+    width:94%;
+    height:15vh;
+    display:flex;
+    align-items: center;
+    border-radius: 2px;
+}
+form{
+    font-size:120%;
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+    position:relative;
+    background:white;
+    left:2%;
+    right:2%;
+    margin-top:2%;
+    width:96%;
+    height:160vh;
+    border-radius: 5px;
+    overflow-y: visible;
+}
+form::after{
+    padding-top: 2%;
+    padding-left:2%;
+    font-size: 150%;
+    position: absolute;
+    display:block;
+    content: "Informações";
+    background:white;
+    width:98%;
+    /* margin-top:40vh; */
+    /* padding-top:11%; */
+    height:2vh;
+}
+form::before{
+    padding-left:2%;
+    font-size: 150%;
+    position: absolute;
+    display:block;
+    background:rgba(128, 128, 128,0.5);
+    top:7%;
+    width:98%;
+    height:0.25vh;
+    content:"";
+}
+#nome-l,#descricao-l,#link-l{
+    position:absolute;
+    background:white;
+    width:40vh;
+    height:5vh;
+}
+#nome-l{
+    top:15vh;
+    left:2%;
+}
+#descricao-l{
+    top:15vh;
+    left:60%;
+}
+#link-l{
+    top:25vh;
+    left:2%;
+}
+#nome,#descricao,#link{
+    position:absolute;
+    background:white;
+    width:36%;
+    height:5vh;
+    padding-left:1%;
+    border:solid 0.5px gray;
+    border-radius:5px;
+}
+#nome:focus,#descricao:focus,#link:focus{
+    outline: none;
+    border:solid 0.5px black;
+}
+#nome{
+    top:18.5vh;
+    left:2%;
+}
+#descricao{
+    top:18.5vh;
+    left:60%;
+}
+#link{
+    width:19%;
+    top:30vh;
+    left:60vh;
+}
+#link-c{
+    font-size:90%;
+    position:absolute;
+    background:gray;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    left:2%;
+    top:30vh;
+    width:29.5%;
+    padding-left:0.5%;
+    height:4.5vh;
+    border:solid 0.5px black;
+    border-radius:5px;
+}
+#link-s{
+    position:absolute;
+    background:white;
+    top:31vh;
+    left:35%;
+    height:5vh;
+}
+button{
+    position:absolute;
+    background:black;
+    color:white;
+    font-size: 110%;
+    width:15%;
+    height:5%;
+    top:110%;
+    border-radius:5px;
+}
+button:hover{
+    background:white;
+    color:black;
+}
+#msg2{
+    padding-left: 2%;
+    font-size: 110%;
+    position:relative;
+    background:rgba(0,0,0,0);
+    margin-top:20%;
+    width:98%;
+    height:5%;
+}
+#top2{
+    font-size:110%;
+    position:relative;
+    background:white;
+    left:2%;
+    width:96%;
+    height:40%;
+    border-radius:5px;
+}
+#tabela{
+    position:absolute;
+    background:white;
+    left:5%;
+    width:90%;
+    height:40%;
+    border:solid 0.5px black;
+}
+.linha{
+    margin-top:2vh;
+}
+.linha,.line{
+    width:100%;
+    height:4vh;
+    overflow-x: visible;
+}
+.coluna{
+    position:relative;
+    background:white;
+    padding-left:2%;
+    height:100%;
+    display:inline-block;
+    border:solid 1px black;
+}
+.id{
+    width:8%;
+}
+.nome{
+    width:78%;
+}
+.linha .nome{
+    left:-0.5%;
+}
+.linha .coluna{
+    font-weight: 900;
+}
+.acoes{
+    position:absolute;
+    left:90.5%;
+    right:0px;
+    width:calc(7.5% - 1px);
+    height:4vh;
+    margin:0px;
+}
+.line .acoes{
+    padding:0px;
+    width:calc(9.5% - 1px);
+}
+.edit,.excluir{
+    position:relative;
+    background:white;
+    display:inline-block;
+    width:50%;
+    height:100%;
+}
+#registros{
+    width:100%;
+    height:10%;
+}
+#p1,#n,#p2{
+    margin-top:-10%;
+    display:inline-block;
+    height:100%;
+}
+#n{
+    font-size:100%;
+}
+#dt{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    height:100%;
+    overflow-y: visible;
+}
+#dt.fechado{
+    width:100%;
+}
+#dt.aberto{
+    width:80%;
+    left:20%;
+}

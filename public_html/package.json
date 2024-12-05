@@ -1,0 +1,14 @@
+{
+  "name": "rs",
+  "version": "0.1.0",
+  "files": [
+    "rs_bg.wasm",
+    "rs.js",
+    "rs.d.ts"
+  ],
+  "module": "rs.js",
+  "types": "rs.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+    "root":{
+        "public":"/../../teste/",
+        "server":"/../rp/"
+    }
+}

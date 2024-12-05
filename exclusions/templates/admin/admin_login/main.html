@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+    <head>
+        <!-- <meta charset="UTF-8"> -->
+        <script src="/templates/modify.js"></script>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <!-- <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon"> -->
+        <link rel="icon" href="/static/favicon.png" type="image/png">
+        <title>Login - Anjoovi</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <div id="style">
+            <link rel="stylesheet" type="text/css" href="/templates/admin/admin_login/index.css?v=1.10">
+        </div>
+    </head>
+    <body class="">
+        <div id="page">
+        <div id="pg" class="d-flex justify-content-center align-items-center row m-0 bg-light w-100" style="height:100vh">
+        <div class="col-12 col-md-6 d-flex justify-content-center align-items-center h-100 rounded" id="fd" style="height:100%;bacskground:white">
+        <div class="w-100 form-b" style="background:white;border-radius:10px;border:solid 1px grey;overflow: hidden;">
+        <div id="img-l" class=""><img src="/static/logo-anjoovi.svg" class="position-relative w-100 h-100"></div>
+        <div class="w-100" style="">
+        <div id="cd" style="display:block;">
+            <div class="tt d-flex justify-content-center align-items-center">Criar conta do Anjoovi</div>
+            <form id="cadastro" class="needs-validation" style="display:block" novalidate>
+                <input class="i form-control" name="nome" id="nome" placeholder="Nome" required>
+                <!-- <div class="invalid-feedback if">Insira um nome válido</div> -->
+                <input class="i form-control" name="usuario" id="usuario" placeholder="Nome de usuário" required>
+                <!-- <div class="invalid-feedback if">Insira um nome de usuário válido</div> -->
+                <input type="email" name="email" class="i form-control" id="email" placeholder="E-mail" required>
+                <!-- <div class="invalid-feedback if">Insira um e-mail válido</div> -->
+                <div class="di">
+                <input type="password" name="senha" class="i form-control" id="senha" placeholder="Senha" required>
+                <div class="mp-d position-absolute h-100 d-flex">
+                <i class="mp bi-eye-slash position-relative"></i>
+                </div>
+                <!-- <div class="invalid-feedback if">Insira uma senha válida</div> -->
+                </div>
+                <div id="ifs">Deve conter 8 digitos, caracteres especiais, letras maiúsculas e minúsculas</div>
+                <div class="t" id="t1">Já possui uma conta? Fazer login</div>
+                <button type="submit" class="c disabled btn-valid" name="#cadastro">Próximo</button>
+            </form>
+            <form id="data" class="row" style="display:none">
+                <div class="al" style="display:none">Nome de usuário já existe</div>
+                <div id="m" class="bg-light"><i class="bi-info-circle"></i> Isso não será exibido publicamente. Confirme sua própria idade, mesmo se esta conta for de empresa, de um animal de estimação ou outros.</div>
+                <div id="selects">
+                <select class="date" name="month" id="month" type="number" required>
+                    <option value="" selected>Selecione uma opção</option>
+                </select>
+                <select class="date" name="day" id="day" type="number" required>
+                    <option value="" selected>Selecione uma opção</option>
+                </select>
+                <select class="date" name="year" id="year" type="number" required>
+                    <option value="" selected>Selecione uma opção</option>
+                </select>
+                <div class="invalid-feedback if">Selecione uma data correta</div>
+                <div class="t" id="t1">Já possui uma conta? Fazer login</div>
+                </div>
+                <button type="submit" class="c disabled btn-valid" name="#data">Criar</button>
+            </form>
+        </div>
+        <form id="login" style="display:none;">
+            <div class="tt d-flex justify-content-center align-items-center">Sua conta do Anjoovi</div>
+            <div class="al" style="display:none;">Email ou senha incorreto.</div>
+            <input name="email" class="i form-control" id="email_login" placeholder="Nome de usuário ou e-mail" required>
+            <!-- <div class="invalid-feedback if">Insira um e-mail válido</div> -->
+            <div class="di">
+            <input type="password" name="senha" class="i form-control" id="senha_login" placeholder="Senha" required>
+            <div class="mp-d position-absolute h-100 d-flex">
+            <i class="mp bi-eye-slash position-relative"></i>
+            </div>
+            </div>
+            <!-- <div class="invalid-feedback if">Insira uma senha válida</div> -->
+            <div class="t" id="t2">Não possui uma conta? Fazer cadastro</div>
+            <button type="submit" class="c disabled btn-valid" name="#login">Login</button>
+        </form>
+        </div>
+        </div>
+    </div>
+        </div>
+        </div>
+            <!-- <div id="bc" class="disabled" type="submit">Próximo</div> -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <script src="/scripts/jquery/jquery-3.6.3.min.js"></script>
+        <div id="script">
+            <script src="/templates/admin/admin_login/index.js?v=1.15"></script>
+        </div>  
+    </body>
+</html>

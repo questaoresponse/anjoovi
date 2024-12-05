@@ -1,0 +1,3 @@
+Colocar letras maiúsculas d nomceço das palavras do Canal
+Atualizar o estilo dos botões Inscrito e Mensagem
+Colocar para aparecer o "Carregando..." ao esperar a resposta do servidor após clickar no botão escrever no Canal

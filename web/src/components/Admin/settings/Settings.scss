@@ -1,0 +1,339 @@
+@import '../../../function.scss';
+$number-select:4;
+@mixin selected($number:null){
+    #tipobd.selected#{$number} + #tipot .t#{$number}{
+        background-color: black;
+        color: white;
+    }
+}
+.config{
+    #pg{
+        top:var(--menu-height);
+        position: absolute;
+        width:100%;
+        min-height:90vh;
+        background: var(--admin-color);
+    }
+    .margin{
+        position: relative;
+        display: block;
+        width:var(--div-width);
+        margin-left: var(--div-margin);
+        height: auto;
+    }
+    #tipod{
+        position:relative;
+        height:1.6em;
+        margin-top:12vh;
+        margin-bottom:1vh;
+    }
+    .tipo{
+        position:relative;
+        display: inline-flex;
+        width: fit-content;
+        padding-left: 1ch;
+        padding-right: 1ch;
+        margin-right: 1ch;
+        height:100%;
+        justify-content: center;
+        align-items: center;
+        border-radius:5px;
+        background-color: hsl(0deg,0%,89%);
+        cursor:pointer;
+        white-space: nowrap;
+    }
+    #tipot{
+        position:relative;
+        display: flex;
+        width:100%;
+        height:100%;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+    #tipot::-webkit-scrollbar{
+        display: none;
+    }
+    // #tipobd.selected1{
+    //     @include selected(0);
+    // }
+    // #tipobd.selected2{
+    //     @include selected(1);
+    // }
+    // #tipobd.selected3{
+    //     @include selected(2);
+    // }
+    // #tipobd.selected4{
+    //     @include selected(3);
+    // }
+    @include selected(1);
+    @include selected(2);
+    @include selected(3);
+    @include selected(4);
+    @include selected(5);
+    @include selected(6);
+    .banner-img{
+        position: relative;
+        width:100%;
+        height:calc(512 / 2048) * 100vw;
+    }
+    .logo_c{
+        top:10%;
+        position:relative;
+        overflow: hidden;
+    }
+    .logo img{
+        width:100%;
+        height:100%;
+    }
+    .banner img{
+        width:100%;
+        height:100%;
+    }
+    .btn input{
+        opacity: 0;
+    }
+    .btn-d{
+        position: relative;
+        display: block;
+        width: 50px;
+        height:27px;
+        background-color:rgba(0,0,0,0);
+        border-radius: 25px;
+    }
+    .btn-d::before{
+        content:"";
+        position: absolute;
+        display: block;
+        width:99%;
+        height:75%;
+        top:12.5%;
+        background-color: gray;
+        border-radius: 20px;
+    }
+    .btn-d{
+        .select{
+            position: relative;
+            display: block;
+            width: 27px;
+            height: 27px;
+            background-color:black;
+            pointer-events: none;
+            border-radius: 50%;
+            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        }
+        .i{
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .i:checked + .select{
+            transform: translateX(23px);
+            background-color:#1a73e8;
+        }
+        + .content{
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        + .content.show{
+            opacity: 1;
+            pointer-events: initial;
+        }
+    }
+    #avs{
+        background-color: rgba(255,0,0,0.1);
+        color: red;
+        position: relative;
+        display: flex;
+    }
+    #pesquisa{
+        background-color: white;
+        position: fixed;
+        display: block;
+        top:12.5vh;
+        width:var(--div-width);
+        height:75vh;
+        left:var(--div-margin);
+        border-radius: 5px;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        overflow: hidden;
+        @include pc(){
+            top:8.5%;
+            width:50%;
+            height:90%;
+            left:25%;
+        }
+    }
+    #pesquisa{
+        *{
+            display: inline-block;
+        }
+        #div-pesquisa{
+            background-color: white;
+            position: relative;
+            width:100%;
+            height:10%;
+            margin-top: 10%;
+        }
+        #conteudo{
+            font-size: 120%;
+            background-color: #f0f0f0;
+            position: relative;
+            display: block;
+            width: 100%;
+            height:94%;
+            margin-top: 1%;
+            overflow-y:auto;
+        }
+        #conteudo > .result:last-child{
+            border-bottom:solid 1px grey;
+        }
+        .result{
+            background-color: white;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            height:1.5em;
+            border-top:solid 1px grey;
+        }
+        .result .txt{
+            position: relative;
+            height:1.5em;
+            max-lines: 1;
+            margin: 0;
+            overflow-wrap: normal;
+            display: block;
+            width: fit-content;
+            max-width: 100%;
+            cursor: pointer;
+        }
+        .result .txt:active{
+            opacity: 0.5;
+        }
+        .result .external{
+            margin-left: 10px;
+            width: 16px;
+            height: 16px;
+            color: gray;
+            cursor: pointer;
+        }
+        .result .external:active{
+            opacity: 0.5;
+        }
+        .result .external:hover{
+            color:black;
+        }
+        .x{
+            width: 20px;
+            height: 20px;
+            font-size:150%;
+            top:0;
+            background-color: rgba(0,0,0,0);
+            position: absolute;
+            left:calc(100% - 1.5ch);
+            cursor: pointer;
+        }
+        .x:active{
+            opacity: 0.5;
+        }
+    }
+    .list-item{
+        margin-bottom: 20px;
+    }
+    .imagem-view{
+        position: relative;
+        width:100%;
+        height: initial;
+        aspect-ratio: 16/9;
+        overflow: hidden;
+        @include pc(){
+            background-color: rgba(0,0,0,0);
+            position:relative;
+            display: block;
+            width:20%;
+            border-radius: 1vw;
+        }
+        /* width: ; */
+    }
+    .imagem-content{
+        top:0;
+        position: absolute;
+        width:100%;
+        height:100%;
+    }
+    .select{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 20%;
+        border: solid 1px black;
+        border-radius: 5px;
+        user-select: none;
+        cursor: pointer;
+    }
+    .select:active{
+        opacity: 0.5;
+    }
+    .select.open{
+        background-color: black;
+        color: white;
+    }
+    .logo_c{
+        display: flex;
+        color:white;
+        background:black;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    .logo_c img{
+        width:100%;
+        height:100%;
+    }
+    #text{
+        position: relative;
+        display: block;
+        width: 100%;
+        height:60vh;
+    }
+    #save{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width:fit-content;
+        padding-left: 1ch;
+        padding-right: 1ch;
+        height: 1.6em;
+        background-color: black;
+        color: white;
+        border-radius: 5px;
+        top:2.5vh;
+    }
+    #save.loading{
+        opacity: 0.5;
+    }
+    .card-input-label{
+        position: relative;
+        display: block;
+    }
+    .card-input{
+        position: relative;
+        display: block;
+        width:100%;
+        margin-bottom: 1vh;
+    }
+    .card-div{
+        background-color:white;
+        padding: 4vh;
+        border-radius: 10px;
+    }
+    .description-div{
+        position: relative;
+        background-color:white;
+        padding: 4vh;
+        border-radius: 10px;
+    }
+}

@@ -1,0 +1,107 @@
+@import '../../function.scss';
+#chats-c{
+    display: block;
+    width: var(--div-width);
+    height: calc(100% - var(--menu-height));
+    margin-top: var(--menu-height);
+    margin-left: var(--div-margin);
+    display: flex;
+    flex-direction: row;
+
+    #messages-div{
+        height: calc(100% - var(--menu-height));
+    }
+    #messages-infos{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width:30vw;
+        height:20vh;
+        top:calc((100% - 50px - 20vh) / 2);
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #messages-values{
+        user-select: none;
+    }
+    #chats-p{
+        position: relative;
+        width: 30%;
+        height: 100%;
+    }
+    #chat-p{
+        position: relative;
+        width:70%;
+        height: 100%;
+    }
+    #chat-p:not(.m){
+        border-left: solid 1px rgba(0,0,0,0.2);
+        border-right: solid 1px rgba(0,0,0,0.2);
+    }
+    #chat-p:not(.e){
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #chats-p.m{
+        width: 100%;
+        height: 100%;
+    }
+    #chat-p.m{
+        left:0;
+        width: 100%;
+        height: 100%;
+    }
+    #menu-a{
+        position: fixed;
+        left:0;
+        width: 100%;
+        height:100%;
+        background-color: rgba(100,100,100,0.5);
+    }
+    #menu{
+        position: fixed;
+        align-items: center;
+        justify-content: center;
+        top:calc(50% - 5em);
+        left:10%;
+        width: 80%;
+        height:10em;
+        border-radius: 20px;
+        box-shadow: 1px 1px 5px gray;
+        padding-left: 2ch;
+        padding-right: 2ch;
+        padding-top: 2ch;
+        @include pc(){
+            left:35%;
+            width: 30%;
+        }
+        background-color: white;
+    }
+    #menu-infos{
+        position: relative;
+        display: block;
+        width: fit-content;
+        height: fit-content;
+    }
+    #menu p{
+        display: block;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #menu-btn{
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        width:8ch;
+        height:2em;
+        border: none;
+        border-radius: 5px;
+        background-color: red;
+        background-color: rgb(255,50,50);
+        color: white;
+
+    }
+}

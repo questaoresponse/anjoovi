@@ -1,0 +1,125 @@
+#acc{
+    position:absolute;
+    top:0vh;
+    width:100%;
+    height:90vh;
+    font-size:120%;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--admin-color);
+}
+#acc{
+    div{
+        position: relative;
+    }
+    #password{
+        background:white;
+        outline:none;
+        border:solid 1px black;
+    }
+    #password:focus{
+        outline:none;
+        border:solid 1px black;
+    }
+    #menu-a{
+        position: fixed;
+        display:block;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.5);
+    }
+    .x{
+        position:absolute;
+        font-size:150%;
+        top:0;
+        left:calc(100% - 1.5ch);
+        background:rgba(0,0,0,0);
+        cursor:pointer;
+    }
+    .menu{
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        top:25%;
+        left:25%;
+        width:50%;
+        height:50%;
+        background:white;
+        border-radius:2vh;
+        padding-top: 1vh;
+    }
+    .menu{
+        input{
+            position: relative;
+            display: block;
+            width: 98%;
+            height: 5vh;
+            margin-bottom: 1vh;
+            margin-left: 1%;
+        }
+        button{
+            position: relative;
+            display: block;
+            margin-left: 1%;
+        }
+
+    }
+    .error{
+        color:red;
+    }
+    #loading-div{
+        position: fixed;
+        margin:0;
+        top:0;
+        left:0;
+        width:100%;
+        height:100vh;
+        background-color: rgba(0,0,0,0.5);
+    }
+    #loading .no-loading{
+        transform:rotate(0deg);
+        animation:none;
+    }
+    .openMenu{
+        position: relative;
+        margin-top:1vh;
+        margin-left:12.5vw;
+        width:75vw;
+        height:5vh;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        background:gray;
+        color:white;
+        border-radius:10px;
+        cursor:pointer;
+    }
+    .value{
+        position:relative;
+        background-color: white;
+        margin-left:12.5vw;
+        width:75vw;
+        height:5vh;
+        justify-content: center;
+        align-items: center;
+        display:flex;
+        border-radius: 10px;
+        border: solid 1px black;
+    }
+    #password{
+        width:75vw;
+    }
+    .name{
+        position:relative;
+        background-color: rgba(0,0,0,0);
+        margin-left:12.5vw;
+        width:75vw;
+        height:5vh;
+        display: flex;
+        align-items: center;
+        border-radius: 10px;
+    }
+}

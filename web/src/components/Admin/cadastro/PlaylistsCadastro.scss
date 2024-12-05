@@ -1,0 +1,163 @@
+@import '../../../function.scss';
+@import '../../../admin.scss';
+@import './cadastro.scss';
+
+.pc#pg{
+    position: absolute;
+    top:var(--menu-height);
+    width: 100%;
+    background: var(--admin-color);
+}
+.pc{
+    @include admin();
+    @include cadastro();
+    #titulo{
+        font-size: 110%;
+        position:relative;
+        background:white;
+        padding-left:2%;
+        width:100%;
+        height:5vh;
+        border-radius:5px;
+        display:flex;
+        align-items: center;
+        border:solid 1px black;
+    }
+    #tipo{
+        position: relative;
+        background-color: white;
+        display: block;
+    }
+    #pesquisa{
+        background-color: white;
+        position: fixed;
+        display: block;
+        top:12.5vh;
+        width:var(--div-width);
+        height:75vh;
+        left:var(--div-margin);
+        border-radius: 5px;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        overflow: hidden;
+        @include pc(){
+            top:8.5%;
+            width:50%;
+            height:90%;
+            left:25%;
+        }
+    }
+    #pesquisa{
+        *{
+            display: inline-block;
+        }
+        #div-pesquisa{
+            background-color: white;
+            position: relative;
+            width:100%;
+            height:10%;
+            margin-top: 10%;
+        }
+        #conteudo{
+            font-size: 120%;
+            background-color: #f0f0f0;
+            position: relative;
+            display: block;
+            width: 100%;
+            height:94%;
+            margin-top: 1%;
+            overflow-y:auto;
+        }
+        #conteudo :last-child{
+            border-bottom:solid 1px grey;
+        }
+        .result{
+            background-color: white;
+            display: block;
+            position: relative;
+            width: 100%;
+            height:1.5em;
+            border-top:solid 1px grey;
+        }
+        .result .txt{
+            background-color: white;
+            position: relative;
+            width: 100%;
+            height:1.5em;
+            max-lines: 1;
+            -webkit-line-clamp: 1;
+            margin: 0;
+            overflow-wrap: normal;
+        }
+        .x{
+            font-size:150%;
+            top:0;
+            background-color: rgba(0,0,0,0);
+            position: absolute;
+            left:calc(100% - 1.5ch);
+        }
+    }
+    #list{
+        position: relative;
+        display: block;
+        width:100%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2%;
+    }
+    .item-list{
+        position: relative;
+        display: flex;
+        width: 100%;
+        height: 5vh;
+        background-color: white;
+        border:solid 1px black;
+        border-radius: 5px;
+    }
+    .title-list{
+        position: relative;
+        display: inline-flex;
+        width:calc(100% - 2ch);
+        height: 100%;
+        align-items: center;
+        padding-left: 2%;
+    }
+    .add-list{
+        position: relative;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 150%;
+        width: 2ch;
+        height: 100%;
+        border-left: solid 1px black;
+    }
+    .f{
+        display: none !important;
+    }
+    .a{
+        display: block;
+    }
+    .aviso{
+        position: fixed;
+        align-items: center;
+        justify-content: center;
+        width:100%;
+        height: 7.5vh;
+        top:var(--menu-page-height);
+        padding: 0;
+    }
+    .a.aviso{
+        display: flex;
+    }
+    #error{
+        background-color: rgba(255,200,200);
+        color:red;
+    }
+    .input{
+        outline: none;
+        border:solid 1px gray;
+    }
+    .input:focus{
+        border:solid 1px black;
+    }
+}

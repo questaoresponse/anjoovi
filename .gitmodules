@@ -1,0 +1,11 @@
+[submodule "android"]
+    path = android
+    url = https://www.github.com/questaoresponse/android
+
+[submodule "php-jwt"]
+    path = php-jwt
+    url = https://www.github.com/questaoresponse/php-jwt
+
+[submodule "ffmpeg"]
+    path = scripts/ffmpeg
+    url = https://www.github.com/questaoresponse/ffmpeg

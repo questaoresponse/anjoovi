@@ -1,0 +1,159 @@
+@import '../../../function.scss';
+@mixin cadastro($value:null){
+    #m{
+        position:fixed;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        background:rgb(0,255,0);
+        color:white;
+        top:var(--menu-page-height);
+        width:100%;
+        height:10vh;
+    }
+    #dt > form{
+    //    padding-left: 1.9%; 
+    //    padding-right: 1.9%;
+    }
+    @if ($value==null){
+        #errorImage{
+            position: fixed;
+            top:var(--menu-page-height);
+            width:100%;
+            height:10vh;
+            background:rgb(255, 200, 200);
+            color:red;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding:0;
+        }
+        #errorCadastro{
+            position: fixed;
+            top:var(--menu-page-height);
+            width:100%;
+            height:10vh;
+            background:rgb(255, 200, 200);
+            color:red;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding:0;
+        }
+        #imagem-div{
+            margin-top: 1%;
+            position: relative;
+            background-color: rgba(0,0,0,0);
+            display:flex;
+            flex-direction: column;
+            @include pc(){
+                flex-direction: row;
+            }
+        }
+        #imagem-view{
+            position:relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background:gray;
+            width:100%;
+            aspect-ratio: 16/9;
+            height:initial;
+            @include pc(){
+                width:30vh;
+            }
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #imagem-view img{
+            position: relative;
+            display: block;
+        }
+        #imagem-view .rd{
+            width:100% !important;
+            height:100% !important;
+        }
+        #imagem-view .of{
+            width: 100%;
+            max-height: 100%;
+        }
+        #imagem{
+            position:relative;
+            background:white;
+            display:flex;
+            justify-content: center;
+            align-items: center;
+            padding-top:0.25em;
+            padding-left: 10px;
+            padding-right: 10px;
+            height:2em;
+            margin-bottom: 2%;
+            width:100%;
+            border:solid 1px gray;
+            border-radius:5px;
+        }
+        #imagem div{
+            display: block;
+            width: fit-content;
+        }
+        #imagem-pt{
+            position:relative;
+            background:white;
+            display:flex;
+            flex-direction: column;
+            height:10vh;
+            width:100%;
+            cursor:pointer;
+            @include pc(){
+                left:0.5%;
+                width:30%;
+                margin-top: auto;
+                margin-bottom: auto;
+            }
+        }
+        #original_format{
+            position: relative;
+            display: block;
+            width:100%;
+            height:49%;
+        }
+        #button{
+            font-size:110%;
+            position:relative;
+            background:black;
+            color:white;
+            min-width:150px;
+            height:7.5vh;
+            margin-top: 2.5%;
+            margin-bottom: 2.5%;
+            width:100%;
+            border:solid 1px black;
+            border-radius:5px;
+            @include pc(){
+                width:10%;
+            }
+        }
+        #button:hover{
+            background:white;
+            color:black;
+        }
+        label{
+            margin-top: 2.5%;
+            margin-left: 0.5%;
+        }
+        #dt > form{
+            // box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+            position:relative;
+            background:white;
+            margin-top:2%;
+            width:var(--div-width);
+            margin-left:var(--div-margin);
+            overflow-y: visible;
+            margin-bottom: var(--div-margin);
+            min-height: 54vh;
+        }
+        .file{
+            display:none;
+        }
+    }
+}

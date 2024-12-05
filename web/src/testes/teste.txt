@@ -1,0 +1,21 @@
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { toBlobURL, fetchFile } from "@ffmpeg/util";
+
+const ffmpeg = useRef(new FFmpeg());
+
+await ffmpeg.current.writeFile("input.mp3", await fetchFile(file));
+                        
+console.log("aian2");
+// Executa o corte para os primeiros 15 segundos
+await ffmpeg.current.exec(["-i", "input.mp3","output.aac"]);
+
+console.log("foie");
+// Lê o arquivo de saída
+const data = new Uint8Array(await ffmpeg.current.readFile("output.aac") as ArrayBuffer);
+const newFile = new File([data],file.name, { type: "audio/aac" });
+
+
+// Cria um URL para o vídeo cortado
+const videoBlob = new Blob([data.buffer], { type: "audio/aac" });
+const videoUrl = URL.createObjectURL(videoBlob);
+window.open(videoUrl,"_blank");

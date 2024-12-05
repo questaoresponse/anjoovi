@@ -1,0 +1,138 @@
+@import '../../function.scss';
+html,body{
+    margin:0px;
+    font-family: Arial;
+}
+.pa{
+    position: absolute;
+    background:white;
+    width:100%;
+    min-height:100%;
+}
+.pa{
+    .t-top{
+        position:relative;
+    }
+    .a{
+        text-decoration: none;
+        color:black;
+        margin-top:0%;
+        margin-left:0%;
+    }
+    a:hover{
+        color:black;
+    }
+    @media screen and (min-width:769px){
+    }
+    .progress-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-circle::before {
+        content: '';
+        display: block;
+        padding-top: 100%;
+    }
+
+    .progress-circle .progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        clip: rect(0, 100px, 100px, 50px);
+    }
+    .lp{
+        position: relative;
+        top:10vh;
+        width:10%;
+        animation:teste;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+    }
+    @keyframes teste{
+        0%{
+            transform: rotate(0deg);
+        }
+        100%{
+            transform:rotate(360deg);
+        }
+    }
+    .anunciodiv ins{
+        width:100% !important;
+        height:100% !important;
+    }
+    .anunciodiv{
+        position:relative;
+        display: block;
+        margin-left:var(--div-margin);
+        width:var(--div-width);
+        height:auto;
+    }
+    #tabela .anunciodiv{
+        margin-left:0;
+        width:100%;
+        margin-top:0;
+    }
+    #tabela .anunciodiv ins{
+        width:100%;
+        height:100%;
+    }
+    #tabela_circle{
+        margin-top:3vh;
+    }
+    #posts-div{
+        margin-top:50px;
+        width: 100%;
+        height: auto;
+        display: inline-block;
+        @include pc(){
+            width: calc(100% - 30ch - 30px);
+        }
+    }
+    #altas-div{
+        position: fixed;
+        display: none;
+        top:var(--menu-height);
+        // left: calc(100% - 35ch);
+        right: 30px;
+        width: 30ch;
+        height: calc(100% - var(--menu-height) - 1ch);
+        overflow: hidden;
+        border:solid 2px rgb(210,210,210);
+        border-radius: 20px;
+        padding-top: 1vw;
+        padding-left: 1vw;
+        @include pc(){
+            display: block;
+        }
+    }
+    #altas-div p{
+        font-weight: 900;
+        user-select: none;
+    }
+    .altas-p{
+        display: block;
+        text-decoration: none;
+        color: black;
+    }
+    .colinit{
+        margin-left:1% !important;
+    }
+    #loading{
+        position: relative;
+        width: 30px;
+        height: 30px;
+        margin-left: calc(50% - 15px);
+    }
+    @include pc(){
+        #loading{
+            margin-left: calc(50% - 15ch - 30px);
+        }
+    }
+}

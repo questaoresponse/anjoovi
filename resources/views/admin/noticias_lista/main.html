@@ -1,0 +1,306 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon">
+        <title>Painel - Anjoovi</title>
+        <style>
+html,body{
+    margin:0px;
+    width:100%;
+    height:100%;
+    background:#f0f0f0;
+}
+body::before{
+    content: "";
+    background:white;
+    display:block;
+    width:100%;
+    height:10%;
+}
+#msg1{
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+    font-family: Arial;
+    font-size:200%;
+    position:relative;
+    background:white;
+    margin-top:2%;
+    left:2%;
+    right:2%;
+    padding-left: 2%;
+    width:94%;
+    height:15%;
+    display:flex;
+    align-items: center;
+    border-radius: 2px;
+}
+#top{
+    box-shadow: 0.5px 0.5px 10px rgba(128,128,128,0.5);
+    position:relative;
+    background:white;
+    margin-top:2%;
+    left:1.875%;
+    width: 96.25%;
+    min-height:90%;
+    overflow: visible;
+}
+#div_info{
+    font-family: Arial;
+    font-size: 200%;
+    position:absolute;
+    background:rgba(0,0,0,0);
+    padding-left:2%;
+    top:4%;
+    width:96%;
+    height:10%;
+}
+#top::before{
+    padding-left:2%;
+    position: absolute;
+    display:block;
+    font-family: Arial;
+    background:rgba(128, 128, 128,0.5);
+    top:12.5%;
+    width:98%;
+    height:0.125vh;
+    content:"";
+}
+#tabela{
+    position:relative;
+    background:white;
+    top:20vh;
+    width:80vw;
+    overflow-x: auto;
+}
+.coluna{
+    position:relative;
+    background: white;
+    color:black;
+    display:inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width:18%;
+    height:100%;
+}
+.linha .coluna{
+    padding-left:3%;
+    width:15%;
+    justify-content: normal;
+}
+.id{
+    width:10%;
+    border-left:solid 1px black;
+    border-right:solid 1px black;
+}
+.linha .id{
+    width:7%;
+}
+.linha .coluna.titulo{
+    width:33%;
+}
+.titulo{
+    width:36%;
+    text-decoration: none;
+    color:black;
+}
+a.titulo:hover{
+    text-decoration: underline;
+}
+.titulo,.linha .categoria,.line .div-categoria,.usuario,.acessos,.opcoes{
+    border-right:solid 1px black;
+}
+.edit{
+    margin-left:3%;
+    top:10%;
+    width:4%;
+    height:50%;
+}
+.edit:hover{
+    opacity:0.5;
+}
+.excluir{
+    top:10%;
+    width:4%;
+    height:50%;
+}
+.excluir:hover{
+    opacity:0.5;
+}
+.registros,.linha,.line{
+    min-width:800px;
+}
+.linha,.line{
+    font-family:Arial;
+    position:relative;
+    background:white;
+    width:calc(100% - 3px);
+    height:5vh;
+    border:solid 1px black;
+}
+.linha .coluna{
+    font-weight:900;
+}
+.linha .categoria{
+    display:inline-flex;
+}
+.line .categoria{
+    display:none;
+}
+.linha .div-categoria{
+    display:none;
+}
+.line .div-categoria{
+    display:inline-flex;
+    top:-1px;
+}
+.line .div-categoria span{
+    position:relative;
+    background:black;
+    color:white;
+    border-radius:5px;
+    width:80%;
+    height:60%;
+}
+.coluna.opcoes{
+    width:9.8%;
+    border-right:0px;
+}
+.registros{
+    font-family: Arial;
+    font-size:110%;
+    position:relative;
+    background:white;
+    width:calc(100% - 1px);
+    height:7vh;
+    /* padding-top:-1vh; */
+}
+.registros .n{
+    font-family:Arial;
+    display:inline-block;
+    font-weight: 900;
+    height:100%;
+}
+.registros .p1, .registros .p2{
+    font-family:Arial;
+    display:inline-block;
+    height:100%;
+}
+#dt{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    height:100%;
+    overflow-y: visible;
+}
+#dt.fechado{
+    width:100%;
+}
+#dt.aberto{
+    width:80%;
+    left:20%;
+}
+#tb{
+    position:relative;
+    background:rgba(0,0,0,0);
+    display:flex;
+    justify-content: center;
+}
+        </style>
+    </head>
+    <body>
+        <div id="dt" class="fechado">
+        <div id="msg1">Listar notícias</div>
+        <div id="top">
+            <div id="div_info">Informações</div>
+            <div id="tb">
+            <div id="tabela">
+                <div class="registros">
+                    <p class="p1"></p>
+                    <p class="n"></p>
+                    <p class="p2"></p>
+                </div>
+                <div class="linha">
+                    <div class="coluna id">ID</div>
+                    <a class="coluna titulo">TITULO</a>
+                    <div class="coluna usuario">USUÁRIO</div>
+                    <div class="coluna acessos">ACESSOS</div>
+                    <img class="coluna edit" src="/static/edit-icone.png">
+                    <img class="coluna excluir" src="/static/remove-icone.png">
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+        <script>
+var posts=window.noticias;
+window.setStyle={elemento:"#noticias_lista",color:"gray"};
+var tabela=document.querySelector("#tabela");
+var l=document.querySelector(".linha");
+var l2=l.cloneNode(true);
+window.l=l;
+window.l2=l2;
+window.tabela=tabela;
+l.querySelector(".edit").remove();
+l.querySelector(".excluir").remove();
+var d=document.createElement("div");
+d.className="coluna titulo";
+d.textContent="TÍTULO";
+l.querySelector(".titulo").parentNode.replaceChild(d,l.querySelector(".titulo"));
+var o=document.createElement("div");
+o.textContent="AÇÕES";
+o.classList.add("coluna");
+o.classList.add("opcoes");
+l.appendChild(o);
+function definir_tabela(posts,l){
+    var r=tabela.querySelector(".registros");
+    r.querySelector(".p1").textContent=posts.length>=0 && posts.length<=1 ? "Foi encontrado " : "Foram encontrados ";
+    r.querySelector(".n").textContent=posts.length;
+    r.querySelector(".p2").textContent=posts.length>=0 && posts.length<=1 ? "registro." : "registros."
+    for (post of posts){
+        var c=window.l2.cloneNode(true);
+        c.className="line";
+        var id=c.querySelector(".id");
+        var titulo=c.querySelector(".titulo");
+        var usuario=c.querySelector(".usuario");
+        var acessos=c.querySelector(".acessos");
+        var editar=c.querySelector(".edit");
+        var excluir=c.querySelector(".excluir");
+        id.textContent=post.id;
+        titulo.textContent=post.titulo;
+        titulo.addEventListener("click",((post)=>{ return function(){ window.open("/noticia?id="+post.id)} })(post));
+        usuario.textContent=post.usuario;
+        acessos.textContent=post.acessos;
+        tabela.appendChild(c);
+        editar.addEventListener("click",((post)=>{ return function(){ window.location.href="/admin/noticias_edit?id="+post.id}})(post));
+        excluir.addEventListener("click",((post)=>{
+        return function(){
+            console.log(post.id);
+        var r=window.confirm("Deseja remover este registro? O item será enviado à lixeira.");
+        if (r){
+            $.ajax({
+                url: "/admin/noticias_lista?type=remove",
+                type:'POST',
+                data:{_token:window.token,type:"delete",id:post.id,tipo:"noticias_lista"},
+                success: function(data) {
+                    data.reverse();
+                    console.log(data);
+                    for (e of document.querySelectorAll(".line")){
+                        e.remove();
+                    }
+                    definir_tabela(data,l);
+                }
+            });
+        };
+        }
+        })(post));
+    }
+}
+definir_tabela(posts,l);
+window.esmagar=()=>{
+    var e=document.querySelector("#dt");
+    e.classList.toggle("fechado");
+    e.classList.toggle("aberto");
+}
+    </script>
+    </body>
+</html>

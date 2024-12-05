@@ -1,0 +1,136 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon">
+        <title>Anjoovi</title>
+        <style>
+html,body{
+    margin:0px;
+    font-family: Arial;
+}
+.usuario-p{
+    position:relative;
+    left:2%;
+    display:inline-block;
+    font-size:120%;
+}
+#usuario-1{
+    font-weight: bold;
+
+}
+#titulo{
+    position: relative;
+    left:2%;
+    font-weight: 900;
+    font-size:400%;
+}
+#subtitulo{
+    position: relative;
+    left:2%;
+    font-size:120%;
+}
+#campo-img{
+    position:relative;
+}
+#campo-img img{
+    position:relative;
+    background:white;
+    display:none;
+    width:100%;
+    height:100%;
+}
+#texto{
+    font-size: 110%;
+    position:relative;
+    width:98%;
+    left:2%;
+    height:70%;
+    top:30%;
+    margin-bottom:2%;
+}
+#noticia{
+    position: absolute;
+    background: white;
+    width:100%;
+    top:15%;
+}
+#data_d{
+    position:relative;
+    left:2%;
+}
+.data{
+    display:inline-block;
+}
+#data_a{
+    margin-left:10%;
+}
+        </style>
+    </head>
+    <body>
+        <div id="noticia">
+            <div id="titulo"></div>
+            <p id="subtitulo"></p>
+            <div id="data_d">
+                <p class="data" id="data"></p>
+                <p class="data" id="data_a"></p>
+            </div>
+            <div id="usuario">
+                <p class="usuario-p" id="usuario-1">Por: </p><p class="usuario-p" id="usuario-t"></p>
+            </div>
+            <div id="texto"></div>
+            <div id="campo-img">
+            <img>
+            </div>
+        </div>
+        <img id="rd" style="display:none">
+        <canvas id="cv" style="display:none"></canvas>
+        <script>
+function redimensionar(src,img){
+    return new Promise((r,rj)=>{
+    var imagem = document.getElementById('rd');
+    imagem.src=src;
+    imagem.onload=()=>{
+    var canvas = document.getElementById('cv');
+    var ctx = canvas.getContext('2d');
+    var novaLargura = 1280; // Defina a largura desejada
+    var novaAltura = 720;  // Defina a altura desejada
+    canvas.width = novaLargura;
+    canvas.height = novaAltura;
+    ctx.drawImage(imagem, 0, 0, novaLargura, novaAltura);
+    var imagemRedimensionada = canvas.toDataURL('image/jpeg');
+    img.src = imagemRedimensionada;
+    r();
+    }
+});
+}
+function get_date_s(d){
+    const data = new Date(d); // Data e hora atuais
+    data.setHours(data.getHours() - 3);
+    const dia = data.getDate();
+    const mes = data.getMonth() + 1; // Os meses em JavaScript são base 0 (janeiro é 0, fevereiro é 1, etc.)
+    const ano = data.getFullYear();
+    const hora = data.getHours();
+    var minuto=data.getMinutes();
+    minuto=minuto<10 ? "0"+minuto  : minuto;
+    return `${dia}/${mes}/${ano} às ${hora}h${minuto}`;
+}
+            console.log(window.post);
+            var d=post[0].d;
+            var dj=JSON.parse(d);
+            var d=dj["o"];
+            var data=get_date_s(d);
+            document.querySelector("#titulo").textContent=window.post[0].titulo;
+            window.post[0].subtitulo!="n" ? document.querySelector("#subtitulo").textContent=window.post[0].subtitulo : null;
+            if ("a" in dj){
+                var df=document.querySelector("#data_a");
+                df.textContent=" Atualizada às "+get_date_s(dj["a"]);
+            }
+            document.querySelector("#data").textContent=data;
+            document.querySelector("#usuario-t").textContent=window.post[0].usuario;
+            var texto=document.querySelector("#texto");
+            window.post[0].texto!="n" ? texto.innerHTML=window.post[0].texto : null;
+            var imagem=document.querySelector("img");
+            window.post[0].imagem!="n" ? (()=>{imagem.style.display="block";imagem.src="/static/sem-imagem.jpg";redimensionar("/images/"+window.post[0].imagem,imagem)})() : null;
+        </script>
+    </body>
+</html>

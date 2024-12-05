@@ -1,0 +1,19 @@
+{
+    "name": "anjoovi/pay",
+    "autoload": {
+        "psr-4": {
+            "Anjoovi\\Pay\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "questaoresponse",
+            "email": "eneagonlosamigos@gmail.com"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "^6.9",
+        "firebase/php-jwt": "^6.10",
+        "nikic/fast-route": "^1.3"
+    }
+}

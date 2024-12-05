@@ -1,0 +1,218 @@
+.st#pg{
+    background:white;
+}
+.st{
+    #status_div{
+        top:0%;
+        position:absolute;
+        width:97.5%;
+        height:1.5rem;
+        background:rgba(0,0,0,0);
+    }
+    .status_a{
+        position:relative;
+        background:rgba(0,0,0,0);
+        height:5px;
+        display:inline-block;
+    }
+    .a1{
+        position: absolute;
+        width:100%;
+        height:100%;
+        background:#f0f0f0;
+        border-radius:100px;
+    }
+    .a2{
+        position: absolute;
+        width:0%;
+        height:100%;
+        background:black;
+        border-radius:100px;
+    }
+    .animation{
+        background:black;
+        width:0%;
+        animation-play-state: running;
+        animation: status 10s linear 1;
+    }
+    .end_animation{
+        animation:none;
+        background:black;
+        width:100%;
+    }
+    .init_animation{
+        animation:none;
+        background:gray;
+        width:0%;
+    }
+    @keyframes status{
+        0%{
+            width:0px;
+        }
+        100%{
+            width:100%;
+        }
+        100%{
+            width:100%;
+        }
+    }
+    #content{
+        top:0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    #lds{
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: flex;
+        flex-direction: row;
+    }
+    #ls{
+        position:absolute;
+        background: rgba(0,0,0,0);
+        top:0%;
+        width: 50%;
+        height:100%;
+        cursor:pointer;
+    }
+    #ld{
+        position:absolute;
+        background:rgba(0,0,0,0);
+        top:0%;
+        left:50%;
+        width: 50%;
+        height:100%;
+        cursor:pointer;
+    }
+    #xd{
+        position:absolute;
+        background:rgba(0,0,0,0);
+        top:3%;
+        width:4VW;
+        height:4vw;
+        left:75%;
+        border-radius: 50%;
+        overflow: hidden;
+        color:white;
+    }
+    #xd:hover{
+        cursor:pointer;
+    }
+    #x1{
+        position:relative;
+        background:rgba(0,0,0,0);
+        top:0%;
+        width:100%;
+        height:100%;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #x2{
+        position:relative;
+        display:none;
+        background:rgba(0,0,0,0);
+        top:0%;
+        width:100%;
+        height:100%;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #x{
+        position:absolute;
+        background:rgba(0,0,0,0);
+        color:black;
+        font-size:48px;
+        top:-20px;
+        left:93.75%;
+        width:48px;
+        height:53px;
+        overflow:hidden;
+        margin:0px;
+    }
+    #x:hover{
+        cursor:pointer;
+    }
+    #x .bi-x::before{
+        position:relative;
+    }
+    #x .bi-x{
+        display:block;
+        height:53px;
+    }
+    #filed{
+        position: relative;
+        aspect-ratio: 9/16;
+        background-color: gray;
+        display: flex;
+        align-items: center;
+    }
+    #s_file{
+        width: 100%;
+        height:auto;
+        max-height: 100%;
+        pointer-events: none;
+    }
+    #show-story-a{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: gray;
+    }
+    #menuShowStory{
+        top:0;
+        position: absolute;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background-color: gray;
+        justify-content: center;
+        align-items: center;
+        color: white;
+    }
+    #showStory-label{
+        margin-bottom: 1vh;
+    }
+    #btnShowStory{
+        display: block;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 1vh;
+        padding-left: 3vh;
+        padding-right: 3vh;
+        border: solid 1px white;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+    .ef:active{
+        opacity:0.5;   
+    }
+    @media screen and (max-width:768px){
+        #filed{
+            width:100%;
+        }
+        #x{
+            left:91%;
+            width:48px;
+            height:53px;
+        }
+        .row{
+            --bs-gutter-x:0px;
+            margin:0px;
+        }
+        #ls{
+            width:50%;
+            left:0px;
+        }
+        #ld{
+            width:50%;
+            left:50%;
+        }
+    }
+}

@@ -1,0 +1,362 @@
+html,body{
+    margin:0px;
+    font-family: Arial;
+}
+.fechado{
+    display:none;
+}
+.aberto{
+    display:block;
+}
+#logo{
+    position:absolute;
+    background:white;
+    height:50px;
+    top:calc(4.1vh - 25px);
+    left:10%;
+}
+#bt-menu{
+    position:absolute;
+    background:white;
+    overflow: hidden;
+    top:calc(4.1vh - 1.8vh);
+    left:3.5%;
+    width:5%;
+    height:3vh;
+}
+#b1,#b2,#b3{
+    position:absolute;
+    background:black;
+    width:100%;
+    height:2.5%;
+    border-radius:20px;
+}
+#b1{
+    margin-top:0px;
+}
+#b2{
+    margin-top:35%;
+}
+#b3{
+    margin-top:70%;
+} 
+#c_border{
+    position:absolute;
+    background:white;
+    display:block;
+}
+#c_menu{
+    font-size:120%;
+    position:absolute;
+    background:white;
+    width:25%;
+    height:100vh;
+    padding-top:10vh;
+}
+#menu{
+    position:relative;
+    background:white;
+    width:calc(100% - 4px);
+    height:100%;
+    border-right: solid 4px rgba(100,100,100,0.2);
+} 
+#c_menu.fechado{
+    display:none;
+}   
+#c_menu.aberto{
+    display:block;
+}
+.i-menu{
+    text-decoration: none;
+    padding-left:10%;
+    position:relative;
+    background:white;
+    width:90%;
+    display:flex;
+    align-items: center;
+    height:7.5%;
+    border-bottom:solid 1px rgba(100,100,100,0.2);
+}
+.i-menu:hover{
+    background:rgba(100,100,100,0.2);
+}
+/* .i-menu2{
+    background:rgba(128, 128, 128,0.1);
+    border-bottom:solid 1px rgba(100,100,100,0.2);
+} */
+.i-menu a{
+    color:black;
+    font-family:Arial;
+    text-decoration: none;
+}
+.i-menu-1{
+    top:0.75px;
+    border-top:solid 1px rgba(100,100,100,0.2);
+}
+#logado{
+    position:absolute;
+    background:black;
+    color:white;
+    font-family: Arial;
+    /* display:flex; */
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    border-radius: 50%;
+    top:calc(4.1vh - 2.65vh);
+    left:85%;
+    width:6.3vh;
+    height:6.3vh;
+    overflow:hidden;
+    display:none;
+}
+.nlogado{
+    display:flex;
+}
+#logado img{
+    width:100%;
+    height:100%;
+}
+:root{
+    --p:10%;
+}
+#fp{
+    /* width:100%; */
+    position:absolute;
+    background:rgba(0,0,0,0);
+    height:100%;
+}
+#pesquisa{
+    font-size:110%;
+    position:absolute;
+    background:white;
+    outline: none;
+    border:solid 1px gray;
+    top:calc(4.1vh - 17px);
+    height:40px;
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
+    padding-left: 3vw;
+    padding-right:45px;
+    width:34vw;
+    left:30vw;
+    background-size: 300px 300px;
+    display:none;
+}
+#pl{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    /* width:; */
+    width:30px;
+    height:30px;
+    /* border-radius: 50%; */
+    left:calc(63vw - 30px);
+    cursor:pointer;
+    top:calc(4.1vh - 13px);
+    /* display:none; */
+}
+#pl img{
+    position: absolute;
+    background-color: rgba(0,0,0,0);
+    top:0.5rem;
+    width:100%;
+    height:100%;
+}
+.a-l{
+    color:black;
+    text-decoration: none;
+}
+.a-l:hover{
+    text-decoration: underline;
+}
+#login{
+    font-family: Arial;
+    font-size: 110%;
+    position: absolute;
+    display:none;
+    color:white;
+    background: black;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    top:calc(4.1vh - 2.5vh);
+    left:65%;
+    width:30%;
+    height:5vh;
+    border:solid 1px black;
+    border-radius:5px;
+}
+#login:hover{
+    background:white;
+    color:black;
+}
+.menu-fechado{
+    opacity: 0;
+    display:none;
+}
+.menu-aberto{
+    opacity: 0.5;
+    display:block;
+}
+#menu-a{
+    position:absolute;
+    background:gray;
+    top:0%;
+    left:25%;
+    width:75%;
+    height:100vh;
+}
+/* .l-l{
+    text-decoration-color: none;
+    text-decoration: none;
+}
+.l-l:hover{
+    color:black;
+} */
+#cb{
+    position:fixed;
+    background:white;
+    overflow-y:visible;
+    top:0%;
+    width:100%;
+    height:calc(9vh);
+}
+#voltar{
+    font-size:120%;
+    /* top:2.675vh; */
+    top:calc(4.1vh - 22.5px);
+    position:absolute;
+    background:white;
+    display:none;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    left:0.45rem;
+    /* min-width:25px;
+    min-height:25px; */
+    width:50px;
+    height:50px;
+    /* height:20px;
+    max-width:9vw;
+    max-height:9vw; */
+    cursor:pointer;
+    border-radius: 50%;
+}
+#voltar svg{
+    position: relative;
+    background:rgba(0,0,0,0);
+    top:0%;
+    left:0%;
+    width:80%;
+    height:80%;
+}
+#voltar:hover{
+    background:gray;
+}
+#voltar svg rect{
+    opacity: 0;
+}
+@media screen and (max-width:768px){
+#c_menu{
+    width:60%;
+}
+#menu-a{
+    left:60%;
+    width:40%;
+}
+#pesquisa{
+    width:85vw;
+    left:11.5vw;
+    padding-right: 45px;
+    height:40px;
+}
+#pl{
+    left:50vw;
+    /* width:1.5rem;
+    height:1.5rem; */
+}
+}
+@media screen and (min-width:769px){
+/* .logado{
+    display:flex;
+} */
+#login{
+    width:20%;
+    left:70%;
+}
+}
+#bt-menu img{
+    width:100%;
+    height:100%;
+}
+#filter{
+    position:absolute;
+    top:3.5vh;
+    left:22.5%;
+    width:5%;
+    height:4.1vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background:#f0f0f0;
+    border-radius:100px;
+}
+#filter_menu{
+    position:absolute;
+    top:25%;
+    left:25%;
+    background: #f0f0f0;
+    width:50%;
+    height:50%;
+    border-radius:25px;
+}
+#cf{
+
+}
+#pf{
+
+}
+#filters{
+    position:relative;
+    top:20%;
+    left:20%;
+    width:20%;
+    height:20%;
+    border-radius: 100px;
+}
+.fs{
+    display:inline-flex;
+    justify-content: center;
+    align-items: center;
+    border:solid 1px blue;
+    width:45%;
+    height:25%;
+    border-radius: 100px;
+}
+#bf{
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color:blue;
+    background:white;
+    top:85%;
+    left:45%;
+    width:10%;
+    height:10%;
+    border-radius:5px;
+}
+.selected{
+    background:purple;
+}
+.no-selected{
+    background:#f0f0f0;
+}
+@media screen and (min-width:991px){
+#login{
+    left:80%;
+    width:10%;
+}
+};

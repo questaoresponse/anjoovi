@@ -1,0 +1,65 @@
+function getDayMonth(ano, mes) {
+        // O mês no objeto Date é baseado em zero, então subtrai 1 do número do mês
+        const data = new Date(ano, mes - 1, 1);
+        
+        // Mude para o primeiro dia do próximo mês
+        data.setMonth(data.getMonth() + 1);
+      
+        // Subtrai um dia do primeiro dia do próximo mês para obter o último dia do mês atual
+        data.setDate(data.getDate() - 1);
+      
+        // O método getDate() retorna o dia do mês
+        const numeroDias = data.getDate();
+      
+        return numeroDias;
+    }
+    const isNewDate=(hoje,nd)=>{
+        hoje.setHours(0, 0, 0, 0);
+        const date=new Date(nd);
+        date.setHours(0, 0, 0, 0);
+        return date.getTime() === hoje.getTime();   
+    }
+    const createYear=(year)=>{
+        const valuesMonths={0:[],1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[]};
+        for (var month in valuesMonths){
+            month=Number(month);
+            const days=getDayMonth(year,month+1);
+            const valuesDays=[];
+            for (var i=0;i<days;i++){
+                valuesDays.push(0);
+            }
+            valuesMonths[month]=valuesDays;
+        }
+        return valuesMonths;
+    }
+    const calcMes=useCallback((values)=>{
+        newDate.current=Array.from({length:24},(_,index)=>0);
+        const valuesMonths=[0,0,0,0,0,0,0,0,0,0,0,0];
+        const years={};
+        if (values.hasOwnProperty("posts")){
+            const hoje=new Date();
+            for (var post of values.posts){
+                var datas=JSON.parse(post.acessos_d);
+                if (datas instanceof Array){
+                    for (var datad of datas){
+                        for (var data in datad){
+                            var nd=new Date(data);
+                            const year=nd.getFullYear();
+                            if (!years[year]){
+                                years[year]=createYear(year);
+                            }
+                            nd.setDate(nd.getDate());
+                            valuesMonths[nd.getMonth()]++;
+                            years[year][nd.getMonth()][nd.getDate()]++;
+                            if (isNewDate(hoje,nd)){
+                                newDate.current[nd.getHours()]++;
+                            }
+                        };
+                    }
+                }
+            }
+        }
+        setYear(Object.keys(years)[Object.keys(years).length-1]);
+        setYearContent(Object.keys(years));
+        setFullViews(years);
+    });

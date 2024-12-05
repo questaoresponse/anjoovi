@@ -1,0 +1,13 @@
+.campo-video{
+    .video-controller{
+        display: none;
+    }
+    .campo-video-content:hover + .video-controller, .video-controller:hover{
+        position: absolute;
+        top:80%;
+        width: 100%;
+        height:20%;
+        background-color:rgba(0,0,0,0.75);
+        display: block;
+    }
+}

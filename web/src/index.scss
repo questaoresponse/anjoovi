@@ -1,0 +1,257 @@
+@import "./function.scss";
+:root {
+  line-height: 1.5;
+  font-weight: 400;
+  /* font-size:3vh; */
+  color-scheme: light dark;
+  /* color: rgba(255, 255, 255, 0.87); */
+  /* background-color: #242424; */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  // --admin-color:rgb(240,240,240);
+  --admin-color:white;  
+  --div-width:97%;
+  --div-margin:1.5%;
+  --menu-height:50px;
+
+}
+@media screen and (min-width:769px){
+  :root{
+    --div-width:calc(100% - 60px);
+    --div-margin:30px;
+    --menu-height:50px;
+  }
+}
+#dt{
+  margin-top:0vh !important;
+}
+:root{
+  --menu-page-height:var(--menu-height);
+}
+html,body{
+  font-family:'Roboto';
+  padding:0 !important;
+}
+body{
+  overflow:auto;
+  max-height: 100%;
+}
+body *{
+  font-family: 'Roboto';
+}
+.txt{
+  overflow: hidden;
+  overflow-wrap: break-word;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+.txt-1{
+  overflow: hidden;
+  overflow-wrap: normal;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  white-space:nowrap;
+  max-lines: 1;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+.tag{
+  color:rgb(62, 166, 255) !important;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#tp-link-d{
+  background-color: white;
+  position: fixed;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  height:20%;
+  left:10%;
+  top:40%;
+  border-radius: 10px;
+  box-shadow: 1px 1px 10px rgba(0,0,0,0.54);
+}
+#tp-link-content{
+  position: relative;
+  display: block;
+  width: fit-content;
+  width: 60%;
+}
+#tp-link-t{
+  position: relative;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: fit-content;
+}
+#tp-link-btn{
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  height:4vh;
+}
+#tp-link-confirm, #tp-link-cancel{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 49%;
+  height: 100%;
+  border-radius: 10px;
+  cursor: pointer;
+}
+#tp-link-confirm:hover, #tp-link-cancel:hover{
+  opacity: 0.5;
+}
+#tp-link-confirm{
+  border:solid 1px black;
+}
+#tp-link-cancel{
+  background-color: black;
+  color: white;
+}
+@include pc(){
+  #tp-link-d{
+    width:40%;
+    height:20%;
+    left:30%;
+    top:40%;
+  }
+}
+#s1 > div:active{
+  opacity: 0.5;
+}
+#s1 > div:nth-child(2):active{
+  opacity: 1;
+}
+.anunciodiv{
+  padding-bottom: 20%;
+  // min-height: 287px !important;
+}
+/* a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+} */
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+} */
+
+/* button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+} */
+/* button:hover {
+  border-color: #646cff;
+} */
+/* button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+} */
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  /* a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  } */
+}
+/* body{
+  margin:0;
+  position:absolute;
+  background:rgba(0,0,0,0);
+  width:100%;
+  height:100%;
+
+} */
+#root-pai{
+  position: relative;
+  background:rgba(0,0,0,0);
+  width:100%;
+  /* min-height:100vh !important; */
+  padding-bottom:100vh;
+}
+#root{
+  position: absolute;
+  width:100%;
+  height:100%;
+}
+html,body {
+  margin: 0;
+  width:100%;
+  height:100%;
+}
+
+.ball {
+  width: 50px;
+  height: 50px;
+  background-color: rgba(0,0,0,0);
+  border-radius: 50%;
+  position: absolute;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  top: calc(50% - 25px); 
+  left: calc(50% - 25px);
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  to {
+    transform:rotate(360deg);
+  }
+}
+#loading{
+  width: 50px;
+  height: 50px;
+  animation: loading 1s linear infinite;
+}
+#loading img{
+  width: 100%;
+  height: 100%;
+}
+@keyframes loading{
+  0%{
+      transform: rotateZ(0deg);
+  }
+  100%{
+      transform: rotateZ(360deg);
+  }
+}
+/* #page{
+  flex:1;
+} */
+/* #page{
+  width:100%;
+} */

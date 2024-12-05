@@ -1,0 +1,175 @@
+@import './lista/lista.scss';
+@import '../../admin.scss';
+.us{
+    @include admin();
+    @include lista();
+    #tabelas{
+        min-width:325px;
+    }
+    .opcoesb{
+        position: relative;
+        margin-left: auto;
+        margin-right: auto;
+        width:85px;
+        height:100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .num{
+        position: relative;
+        display: flex;
+        width:50px;
+        height:100%;
+        justify-content: center;
+        align-items: center;
+    }
+    .usuario{
+        position: relative;
+        display: flex;
+        flex:1;
+        height:100%;
+        justify-content: center;
+        align-items: center;
+    }
+    .opcoes{
+        width: 150px;
+    }
+    .excluir{
+        width: 25px;
+        height: 25px;
+    }
+    .menu-a{
+        position: fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    #exclusiond{
+        position: fixed;
+        display:block;
+        left:25%;
+        top:25%;
+        width:50%;
+        height:50%;
+        background:white;
+    }
+    .error{
+        color:red;
+    }
+    #loading{
+        position: fixed;
+        margin:0;
+        top:0;
+        left:0;
+        width:100%;
+        height:100vh;
+        background-color: rgba(0,0,0,0.5);
+    }
+    #loading .no-loading{
+        transform:rotate(0deg);
+        animation:none;
+    }
+    .bttb{
+        position: absolute;
+        top:0;
+        left:0;
+        display: block;
+        background:white;
+        width:20px;
+        height:20px;
+        border-radius: 50%;
+        transition: left 0.25s ease-in-out, background-color 0.25s ease-in-out;
+        pointer-events: none;
+    }
+    .btt{
+        position: relative;
+        display:inline-flex;
+        width:50px;
+        height:20px;
+        background:rgb(0,0,0,0);
+        border-radius: 20px;
+        border:solid 1px black;
+        box-sizing: initial;
+    }
+    .btt{ 
+        input{
+            position: absolute;
+            top:0;
+            width:100%;
+            height:100%;
+            opacity: 0;
+        }
+        .espaco{
+            position: absolute;
+            display: block;
+            width: 100%;
+            height:100%;
+            background:gray;
+            border-radius: 40px;
+            pointer-events: none;
+        }
+        input:checked + .espaco{
+            background: green;
+        }
+        input:checked + .espaco + .content .bttb{
+            left:calc(100% - 20px);
+        }
+        input:hover + .content .aviso{
+            opacity: 1 !important;
+        }
+        input:checked + .content .aviso::before{
+            content:'privado';
+        }
+    }
+    #menu-private{
+        position: fixed;
+        background:white;
+        width:50%;
+        height:50%;
+        left:25%;
+        top:25%;
+        border-radius: 20px;
+        justify-content: center;
+        align-items: center;
+    }
+    #center-menu-private{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: rgba(0,0,0,0);
+        width:auto;
+        height:auto;
+    }
+    .us:not(.loading) .loading-ball{
+        opacity: 0 !important;
+        animation: initial !important;
+        pointer-events: none !important;
+    }
+    .x{
+        font-size: 200%;
+        position:fixed;
+        display: block;
+        width:1.5ch;
+        height:1.5ch;
+        top:calc(var(--menu-height) - 0.6ch);
+        left:calc(100% - 1.3ch);
+        color:white;
+        /* background:rgba(0,0,0,0); */
+    }
+}
+.us .l-l{
+    display:none;
+}
+.us.loading .l-l{
+    display:block;
+}
+.us #loading{
+    display:none;
+}
+.us.loading #loading{
+    display:block;
+}

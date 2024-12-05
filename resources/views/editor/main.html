@@ -1,0 +1,528 @@
+<html>
+    <head>
+        <style>
+html,body{
+    margin:0px;
+}
+#pagina,#preview{
+    position:absolute;
+    background:white;
+    top:10%;
+    width:calc(100% - 2px);
+    height:100%;
+    border:solid 1px black;
+}
+#preview{
+    display:none;
+}
+input,p{
+    position:absolute;
+    margin:0px;
+    font-family:Arial;
+    font-size: 100%;
+    padding:0px;
+}
+input{
+    width:10%;
+    height:2.5%;
+}
+#p1,#p2{
+    position:absolute;
+    background:white;
+    width:10%;
+    height:5%;
+}
+#p1{
+    background:gray;
+}
+#p2{
+    left:10%;
+}
+#texto,#fs,#imagem,#po,#sc{
+    position:absolute;
+    top:5%;
+    background:white;
+    width:5%;
+    height:5%;
+}
+#imagem{
+    left:5%;
+}
+#fs{
+    left:10%;
+}
+.img{
+    position:absolute;
+    background:white;
+    width:20vw;
+    height:auto;
+    overflow: hidden;
+}
+.img img{
+    position: relative;
+    background:white;
+    width:100%;
+    height:100%;
+}
+img{
+    position:absolute;
+}
+.t{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    width:100%;
+    height:100%;
+}
+.q{
+    position:absolute;
+    background:black;
+}
+#qq{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    border:solid 10px black;
+    overflow:visible;
+}
+#s{
+    position:absolute;
+    background:red;
+    width:2vw;
+    height:2vw;
+    top:calc(100% - 1vw);
+    left:calc(100% - 1vw);
+    /* left:105%; */
+}
+#m{
+    position:absolute;
+    background:red;
+    width:2vw;
+    height:2vw;
+    top:calc(100% - 1vw);
+    left:calc(50% - 1vw);
+}
+#l{
+    position:absolute;
+    background:red;
+    width:2vw;
+    height:2vw;
+    top:calc(50% - 1vw);
+    left:calc(100% - 1vw);
+}
+#po{
+    left:15%;
+    background:gray;
+}
+#sc{
+    left:20%;
+}
+        </style>
+    </head>
+    <body>
+        <div id="p1">pagina</div>
+        <div id="p2">preview</div>
+        <div id="texto">Texto</div>
+        <div id="imagem">Imagem</div>
+        <input style="display:none" id="file" type="file" accept="imagee/jpg, image/jpeg">
+        <input id="fs" value="100">
+        <div id="po">position</div>
+        <div id="sc">scale</div>
+        <div id="preview"></div>
+        <div id="pagina">
+            <!-- <div class="q" id="q1"></div>
+            <div class="q" id="q2"></div>
+            <div class="q" id="q3"></div>
+            <div class="q" id="q4"></div> -->
+        </div>
+        <div id="qq">
+            <div id="s"></div>
+            <div id="m"></div>
+            <div id="l"></div>
+        </div>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/interactjs@1.11.10/dist/interact.min.js"></script>
+
+        <button id="iniciarArrastar">Iniciar Arrastar e Soltar</button> -->
+
+        <script>
+// interact("#pagina")
+//   .draggable({
+//     onmove: function (event) {
+//       var target = event.target;
+
+//       // Mova o elemento com o evento
+//       var x = (parseFloat(target.getAttribute("data-x")) || 0) + event.dx;
+//       var y = (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
+
+//       target.style.transform = "translate(" + x + "px, " + y + "px)";
+
+//       // Atualize os atributos de dados para a próxima interação
+//       target.setAttribute("data-x", x);
+//       target.setAttribute("data-y", y);
+//     },
+//   })
+//   .resizable({
+//     edges: { left: true, right: true, bottom: true, top: true },
+//   })
+//   .on("resizemove", function (event) {
+//     var target = event.target;
+//     var x = parseFloat(target.getAttribute("data-x")) || 0;
+//     var y = parseFloat(target.getAttribute("data-y")) || 0;
+
+//     // Redimensione o elemento com o evento
+//     target.style.width = event.rect.width + "px";
+//     target.style.height = event.rect.height + "px";
+
+//     // Atualize os atributos de dados para a próxima interação
+//     target.setAttribute("data-x", x);
+//     target.setAttribute("data-y", y);
+//   });
+
+var p=document.querySelector("#pagina");
+var pr=document.querySelector("#preview");
+var t=document.querySelector("#texto");
+var p1=document.querySelector("#p1");
+var p2=document.querySelector("#p2");
+var fs=document.querySelector("#fs");
+var bt_img=document.querySelector("#imagem");
+var img_i=document.querySelector("#file");
+var q1=document.querySelector("#qq");
+var po=document.querySelector("#po");
+var sc=document.querySelector("#sc");
+var mode="po";
+po.addEventListener("click",()=>{
+    po.style.background="gray";
+    sc.style.background="white";
+    mode="po";
+    q1.querySelector("#s").style.background="blue";
+    q1.querySelector("#m").style.background="blue";
+    q1.querySelector("#l").style.background="blue";
+});
+sc.addEventListener("click",()=>{
+    sc.style.background="gray";
+    po.style.background="white";
+    mode="sc";
+    q1.querySelector("#s").style.background="red";
+    q1.querySelector("#m").style.background="red";
+    q1.querySelector("#l").style.background="red";
+});
+// var q2=document.querySelector("#q2");
+// var q3=document.querySelector("#q3");
+// var q4=document.querySelector("#q4");
+// function tt(img){
+//     var img2=new Image();
+//     img2.src="/anjoovi/public_html/static/sem-imagem.jpg";
+//     img2.onload=()=>{
+//         var width=img2.width;
+//         var height=img2.height;
+//         console.log(height);
+//         var p=img.getBoundingClientRect();
+//         q1.style.width=width+"px";
+//         q1.style.height="1%";
+//         q1.style.top=`calc(${p.top}px - 0.5%)`;
+//         q1.style.left=(p.left) +"px";
+
+//         q2.style.left=`calc(${p.left}px - 0.5%)`;
+//         q2.style.height=`calc(${height}px)`;
+//         q2.style.width="1%";
+//         q2.style.top=(p.top-height/6.25) +"px";
+
+//         q3.style.width=width+"px";
+//         q3.style.height="1%";
+//         q3.style.top=`calc(${p.top+height/1.195}px)`;
+//         q3.style.left=(p.left) +"px";
+
+//         q4.style.left=`calc(${p.left+width/1.012}px)`;
+//         q4.style.height=`${height}`;
+//         q4.style.width="1%";
+//         q4.style.top=(p.top-height/6.25) +"px";
+//     }
+// }
+// var img5=document.createElement("div");
+// var img2=document.createElement("img");
+// var t2=document.createElement("div");
+// img5.className="img";
+// img5.style.left="2%";
+// t2.className="t";
+// img2.src="/anjoovi/public_html/static/sem-imagem.jpg";
+// img5.appendChild(img2);
+// img5.appendChild(t2);
+// var img7=new Image();
+//     img7.src="/anjoovi/public_html/static/sem-imagem.jpg";
+//     img7.onload=()=>{
+//         img5.style.width=img7.width+"px";
+//         img5.style.height=img7.height+"px";
+//     }
+// p.appendChild(img5);
+// tt(img5);
+var fc;
+var fc2;
+var qfc;
+fs.addEventListener("input",()=>{
+    if (fc){
+        var f=fs.value+"%";
+        fc.style.fontSize=f;
+        fc2.style.fontSize=f;
+    }
+});
+p1.addEventListener("click",()=>{
+    p1.style.background="gray";
+    p2.style.background="white";
+    pr.style.display="none";
+    p.style.display="block";
+    q1.style.display="block";
+})
+p2.addEventListener("click",()=>{
+    p1.style.background="white";
+    p2.style.background="gray";
+    pr.style.display="block";
+    p.style.display="none";
+    q1.style.display="none";
+})
+t.addEventListener("click",()=>{
+    var ti=document.createElement("input");
+    ti.contentEditable=false;
+    p.appendChild(ti);
+    var ti2=document.createElement("p");
+    ti2.contentEditable=false;
+    pr.appendChild(ti2);
+    ti.focus();
+    mover();
+    esticar();
+    ti.addEventListener("input",()=>{ ti2.textContent=ti.value});
+    ti.addEventListener("focus",()=>{
+        calcular(ti,ti2)();
+        fc=ti;
+        fc2=ti2;
+    })
+})
+bt_img.addEventListener("click",()=>{ img_i.click() })
+img_i.addEventListener("change",async ()=>{
+    var src=await get_src(img_i);
+    var img=document.createElement("div");
+    var img2=document.createElement("img");
+    var t=document.createElement("div");
+    img.className="img";
+    t.className="t";
+    //var img2=document.createElement("div");
+    var img3=document.createElement("img");
+    //var img4=document.createElement("div");
+    img.appendChild(img2);
+    img.appendChild(t);
+    var img7=new Image();
+    img7.src="/anjoovi/public_html/static/sem-imagem.jpg";
+    img7.onload=()=>{
+        img.style.width=img7.width+"px";
+        img.style.height=img7.height+"px";
+    }
+    p.appendChild(img);
+    //img3.appendChild(img2);
+    // img2.appendChild(img3);
+    pr.appendChild(img3);
+    img.addEventListener("click",()=>{
+        fc=img;
+        fc2=img3;
+        calcular(img,img3)();
+    });
+    img2.src=src;
+    img3.src=src;
+    mover(img,img3);
+});
+function calcular(img,img3){
+    fc=img;
+    fc2=img3;
+    q1.style.display="block";
+    q1.focus();
+    return function(){
+        var p=img.getBoundingClientRect();
+        q1.style.width=p.width+"px";
+        q1.style.height=p.height+"px";
+        q1.style.top=`calc(${p.top}px - 1.5%)`;
+        q1.style.left=`calc(${p.left}px - 1%)`;
+        // var s=document.querySelector("#s");
+        // s.style.top=`calc(${p.top}px - 12%)`;
+        // s.style.left=`calc(${p.left+q1.offsetWidth}px - 1%)`;
+
+        // q2.style.left=`calc(${p.left}px - 0.5%)`;
+        // q2.style.height=`calc(${height}px)`;
+        // q2.style.width="1%";
+        // q2.style.top=(p.top-height/6.25) +"px";
+
+        // q3.style.width=width+"px";
+        // q3.style.height="1%";
+        // q3.style.top=`calc(${p.top+height/1.195}px)`;
+        // q3.style.left=(p.left) +"px";
+
+        // q4.style.left=`calc(${p.left+width/1.012}px)`;
+        // q4.style.height=`${height}`;
+        // q4.style.width="1%";
+        // q4.style.top=(p.top-height/6.25) +"px";
+    }
+}
+document.addEventListener("keydown",(e)=>{
+    console.log(e);
+    console.log(fc,fc2);
+    if (e.key=="Delete"){
+        fc.remove();
+        fc2.remove();
+    }
+})
+function get_src(e){
+    return new Promise((resolve,reject)=>{ const file = e.files[0]; if (file) { const leitor = new FileReader(); leitor.onload = function (e) { resolve(e.target.result); }; leitor.readAsDataURL(file); } else { resolve(''); } });
+}
+function mover(){
+    //const elemento = document.getElementById("elemento");
+var m=document.querySelector("#m");
+let isArrastando = false;
+let isArrastando2=false;
+let offsetX, offsetY;
+let i=null;
+let i2;
+var s=document.querySelector("#l");
+if (fc){
+calcular(fc,fc2)();
+}
+m.addEventListener("mousedown", (e) => {
+    console.log("movendi");
+    isArrastando = true;
+    // offsetX = e.clientX - elemento.getBoundingClientRect().left;
+    // offsetY = e.clientY - elemento.getBoundingClientRect().top;
+    m.style.cursor = "grabbing";
+});
+l.addEventListener("mousedown", (e) => {
+    console.log("movendi");
+    isArrastando2 = true;
+    // offsetX = e.clientX - elemento.getBoundingClientRect().left;
+    // offsetY = e.clientY - elemento.getBoundingClientRect().top;
+    l.style.cursor = "grabbing";
+});
+
+document.addEventListener("mousemove", (e) => {
+    if (!isArrastando && !isArrastando2) return;
+    console.log(isArrastando,isArrastando2)
+    if (isArrastando){
+        const y=e.clientY;
+        fc.style.top=y-fc.offsetHeight/2+"px";
+        fc2.style.top=fc.offsetTop;
+    } else if (isArrastando2) {
+        const x=e.clientX;
+        fc.style.left=x-fc.offsetWidth+"px";
+        fc2.style.left=fc.offsetLeft;
+    }
+
+    // const x = e.clientX - offsetX;
+    // const y = e.clientY - offsetY;
+    // if (!i){
+    //     i=x;
+    //     i2=y;
+    // } 
+    // //else {
+    // //     i=0;
+    // // }
+    // elemento.style.left = (x) + "px";
+    // elemento.style.top = (y) + "px";
+    // elemento2.style.left = (x) + "px";
+    // elemento2.style.top = (y) + "px";
+    if (fc){
+        calcular(fc,fc2)();
+    }
+    // if (elemento==fc){
+    //     calcular(elemento,elemento2)();
+    // } else {
+    //     console.log("a");
+    // }
+});
+
+document.addEventListener("mouseup", () => {
+    isArrastando = false;
+    isArrastando2 = false;
+    i=null
+    if (fc){
+    fc.style.cursor = "grab";
+    };
+});
+}
+ 
+function esticar(){
+    const elemento = document.querySelector("#s");
+let isMovendo = false;
+var x1, y1;
+var x2,y2;;
+var esticado=fc;
+var initialWidth;
+var pc;
+var stx,sty;
+var inicial_top;
+elemento.addEventListener("mousedown", (e) => {
+    isMovendo = true;
+    // if (!pc || !initialWidth){
+    //     pc=
+    //     initialWidth = fc.offsetWidth;
+    // }
+    if (!x1){
+        var r=fc.getBoundingClientRect();
+        stx=r.left;
+        sty=r.top;
+        console.log(stx,sty);
+        x1=r.left;
+        y1=r.top;
+        x2=r.width;
+        y2=r.height;
+        pc=y2/x2;
+    }
+    mouseX = e.clientX;
+    elemento.style.cursor = "col-resize";
+    inicial_top=y1;
+});
+
+document.addEventListener("mousemove", (e) => {
+    if (!isMovendo) return;
+    const mouseX = e.clientX;
+    const mouseY = e.clientY+e.clientY/100*0.1;
+    var p=fc.getBoundingClientRect();
+    // var dx=mouseX-stx;
+    // var dy=mouseY-sty;
+    // var dmx=x2+dx;
+    // var dmy=y2+dy;
+    // var dm=(mouseX+mouseY)/2;
+    var t= p.left<=0 ? p.left : 0;
+    if (mode=="sc"){
+    fc.style.width=(mouseX-p.left)+"px";
+    fc.style.height=(mouseX-p.left)*pc+"px";
+    fc2.style.width=fc.offsetWidth;
+    fc2.style.height=fc.offsetHeight;
+    } else {
+        fc.style.left=(mouseX-p.width)+"px";
+        fc.style.top=(mouseX-p.width)*pc+fc.width+inicial_top+"px";
+        fc2.style.left=fc.offsetLeft;
+        fc2.style.top=fc.offsetTop;
+    }
+    calcular(fc,fc2)();
+    //const newWidth = initialWidth + dx;
+
+    // if (newWidth >= 30) {
+    //     fc.style.width = newWidth + "px";
+    // }
+});
+
+document.addEventListener("mouseup", () => {
+    isMovendo = false;
+    x1=null;
+    y1=null;
+    elemento.style.cursor = "move";
+});
+
+}
+function ds(){
+    q1.style.display="none";
+}
+q1.addEventListener("blur",ds);
+// window.addEventListener("click",(e)=>{
+//     if (fc){
+//         if (event.target!==qq){
+//             console.log(event.target);
+//             qq.style.display="none";
+//         }
+//     }
+// })
+        </script>
+    </body>
+</html>

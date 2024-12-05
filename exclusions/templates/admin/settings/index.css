@@ -1,0 +1,137 @@
+html,body{
+    margin:0px;
+    font-family:Arial;
+}
+#pl{
+    top:10%;
+    font-size:600%;
+    position:relative;
+    background:black;
+    color:white;
+    width:30vh;
+    height:30vh;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 50%;
+    overflow:hidden;
+}
+#pl img{
+    width:100%;
+    height:100%;
+}
+.spd{
+    top:20%;
+    position:absolute;
+    background:white;
+    display:block;
+    width:20%;
+    height:5%;
+    transition: background-color 0.5s;
+}
+.t{
+    position: relative;
+    width:4vh;
+}
+.sp{
+    position: relative;
+    background:white;
+    width:100%;
+    height:1vh;
+}
+.spd:hover{
+    background:black;
+    color:white;
+}
+#bb1{
+    /* background:black; */
+}
+#spd2{
+    left:20%;
+}
+#spd1::before{
+    position: absolute;
+    display:block;
+    background:white;
+    color:black;
+    content:"Logo";
+    top:-3vh;
+}
+#spd2::before{
+    color:black;
+    position: absolute;
+    display:block;
+    background:white;
+    content:"Banner";
+    top:-3vh;
+}
+.p{
+    top:30%;
+    position: absolute;
+    background:white;
+    display:none;
+    width:100%;
+    height:40%;
+}
+#p1{
+    display:block;
+}
+.a{
+    background:black;
+    color:white;
+}
+.f{
+    background:white;
+    color:black;
+}
+.o{
+    position:relative;
+    background:white;
+    top:17.5%;
+    width:75%;
+    height:7.5%;
+}
+.oa{
+    position:relative;
+    display:inline-block;
+    padding-left: 2vw;
+    width:calc(32% - 2vw);
+}
+.ap{
+    position:relative;
+    display:inline-block;
+    color:gray;
+    padding-left:2vw;
+    width:calc(32% - 2vw);
+    height:100%;
+}
+.or{
+    position:relative;
+    display:inline-block;
+    padding-left:2vw;
+    width:calc(32% - 2vw);
+}
+.oa:hover{
+    background:black;
+    color:white;
+}
+.ap:hover{
+    background:black;
+    color:white;
+}
+.or:hover{
+    background:black;
+    color:white;
+}
+#banner{
+    position:relative;
+    background:white;
+    width:100%;
+    height:35vh;
+}
+@media screen and (max-width:768px){
+    .o{
+        width:100%;
+    }
+}

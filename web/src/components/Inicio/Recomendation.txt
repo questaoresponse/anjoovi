@@ -1,0 +1,19 @@
+import Noticia from './Noticia';
+import Imagem from './Imagem';
+import Musica from './Musica';
+import { RefObject } from 'react';
+interface postsInterface{
+    posts:{
+        tipo:string,
+        id:string,
+        get:RefObject<()=>void>,
+        [chave:string]:any,
+    }[], 
+    func:(pathname:string,i:number)=>void,
+}
+function Recomendation({posts}:{posts:postsInterface}){
+    return posts.posts.map((post,index)=>{
+        return post.tipo=="p" ? <Noticia index={index} func={posts.func} id={post.id} notAlgoritmo={true} postAtual={post} key={index}/> : post.tipo=="i" ? <Imagem id={post.id} notAlgoritmo={true} postAtual={post} key={index}/> : <Musica id={post.id} notAlgoritmo={true} postAtual={post} key={index}/>
+    });
+}
+export default Recomendation;

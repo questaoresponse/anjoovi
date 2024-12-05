@@ -1,0 +1,243 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon">
+        <title>Anjoovi</title>
+        <style>
+html,body{
+    margin:0px;
+    font-family:Arial;
+}
+#banner{
+    position:absolute;
+    background:white;
+    display:block;
+    top:15%;
+    width:100%;
+    height:35%;
+}
+#logo_c{
+    font-size:220%;
+    position: absolute;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color:white;
+    border-radius:50%;
+    top:55%;
+    left:5%;
+    width:10vw;
+    height:10vw;
+    overflow:hidden;
+}
+#logo_c img{
+    width:100%;
+    height:100%;
+}
+#num{
+    position:absolute;
+    background:white;
+    color:gray;
+    padding-left:2%;
+    width:50%;
+    height:2vh;
+    top:66vh;
+    left:16%;
+}
+#tabela{
+    top:80%;
+    position:absolute;
+    background:white;
+    left:5%;
+    width:90%;
+    overflow: visible;
+}
+.linha{
+    position:absolute;
+    background:white;
+    display:inline-block;
+    width:calc(23.5% - 8px);
+    height:35vh;
+    border:solid 1px gray;
+}
+.imagem{
+    position:absolute;
+    background:white;
+    width:100%;
+    height:20vh;
+}
+.titulo{
+    position:relative;
+    background:white;
+    top:26vh;
+    left:2%;
+    width:96%;
+    height:9vh;
+}
+.subtitulo{
+    position:absolute;
+    background:white;
+    top:30vh;
+    width:100%;
+    height:10vh;
+}
+.nome{
+    top:20vh;
+    left:2%;
+    font-size: 130%;
+    position:absolute;
+    background:white;
+    width:50%;
+    height:4vh;
+}
+.a{
+    text-decoration: none;
+    color:black;
+}
+.line{
+    position:relative;
+    background:white;
+    width:100%;
+    height:40vh;
+}
+.i1{
+    left:0%;
+}
+.i2{
+    left:25%;
+}
+/* .i2{
+    left:42%;
+} */
+.i3{
+    left:50%;
+}
+.i4{
+    left:75%;
+}
+#c_nome{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    top:58%;
+    width:50%;
+    left:18.25%;
+}
+#c_usuario{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    top:62%;
+    width:50%;
+    left:18.25%;
+}
+@media screen and (max-width:768px){
+    #logo_c{
+        width:17.5vh;
+        height:17.5vh;
+    }
+    #num{
+        top:61vh;
+        font-size:120%;
+        left:37.5vw;
+    }
+    #c_usuario{
+        top:62%;
+        padding-left:2%;
+        font-size:120%;
+        left:37.5vw;
+    }
+    #c_nome{
+        top:57%;
+        padding-left:2%;
+        font-size:120%;
+        left:37.5vw;
+    }
+
+}
+        </style>
+    </head>
+    <body>
+        <img id="banner">
+        <div id="logo_c"></div>
+        <div id="num"></div>
+        <div id="c_nome"></div>
+        <div id="c_usuario"></div>
+        <div id="tabela"></div>
+        <script>
+var banner=document.querySelector("#banner");
+var logo=document.querySelector("#logo_c");
+var num=document.querySelector("#num");
+var c_usuario=document.querySelector("#c_usuario");
+var c_nome=document.querySelector("#c_nome");
+num.textContent=window.n>1 ? window.n+" postagens." : window.n+" postagem."
+window.posts.reverse();
+var posts=window.posts;
+console.log(window.info);
+window.info.logo ? adf("/images/"+window.info.logo) : adt(window.canal.name[0]);
+banner.src=window.info.banner ? "/images/"+window.info.banner : "/static/sem-imagem.jpg";
+c_nome.textContent=window.info.nome;
+c_usuario.textContent="@"+window.info.usuario;
+//banner.src=window.canal.banner && window.canal.banner!="n" ? window.canal.banner : "/static/sem-imagem.jpg";
+console.log()
+var ps=window.posts;
+var t=document.querySelector("#tabela");
+n=0;
+var dt=document.createElement("div");
+dt.className="line";
+t.appendChild(dt);
+    for (var i=0;i<ps.length;i++){
+    if (n==4){
+        n=0;
+        dt=document.createElement("div");
+        dt.className="line";
+        t.appendChild(dt);
+    }
+    n++;
+    var p=ps[i];
+    // var d=document.createElement("div");
+    // d.className="";
+    var d=document.createElement("linha");
+    d.className="coluna"
+    var l=document.createElement("a");
+    // l.className="linha a";
+    var img=document.createElement("img");
+    img.className="imagem";
+    img.src="/images/"+p.imagem;
+    var ti=document.createElement("div");
+    ti.className="titulo";
+    ti.textContent=p.titulo;
+    var nome=document.createElement("div");
+    nome.className="nome";
+    nome.textContent=p.usuario;
+    l.appendChild(img);
+    l.appendChild(ti);
+    l.appendChild(nome);
+    // var l=document.createElement("a");
+    // l.className="a";
+    l.href="/noticia?id="+p.id;
+    //l2.appendChild(l);
+    d.appendChild(l);
+    dt.appendChild(d);
+    l.className=" linha a i"+n;
+    // l.addEventListener("hover",()=>{
+    //     nome.style.background = 'gray';
+    // })
+    // l2.addEventListener('mouseleave',()=>{
+    //     nome.style.background = 'rgb(100,100,100)';
+    // });
+}
+function adf(l){
+        var p=logo;
+        p.textContent="";
+        var a=document.createElement("img");
+        a.src=l;
+        p.appendChild(a);
+}
+function adt(t){
+    var p=logo;
+    p.textContent=t;
+};
+        </script>
+    </body>
+</html>

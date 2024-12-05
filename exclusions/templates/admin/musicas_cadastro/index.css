@@ -1,0 +1,15 @@
+form{
+    position:absolute;
+    top:10%;
+    background: "white";
+}
+#downd{
+    position:fixed;
+    display:none;
+    left:30%;
+    top:40%;
+    width:40%;
+    height:20%;
+    background:white;
+    border:solid 1px black;
+}

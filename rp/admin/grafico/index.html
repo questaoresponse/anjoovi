@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <style>
+html,body{
+    margin:0px;
+}
+#dt{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    height:100%;
+    overflow-y: visible;
+}
+#dt.fechado{
+    width:100%;
+}
+#dt.aberto{
+    width:80%;
+    left:20%;
+}
+#meuGrafico{
+}
+#grafico1{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    top:20%;
+    left:30%;
+    width:50vw;
+    height:40vh;
+    overflow: visible;
+}
+        </style>
+    </head>
+    <body>
+        <div id="dt" class="fechado">
+        <div id="grafico1">
+            <canvas id="meuGrafico"></canvas>
+        </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+var ctx = document.getElementById('meuGrafico').getContext('2d');
+var lista=window.acessos.map(acesso=>acesso.acessos);
+console.log(lista);
+var meuGrafico = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: lista,
+        datasets: [{
+            label: 'Visualizações',
+            data: lista,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+window.esmagar=()=>{
+    var e=document.querySelector("#dt");
+    e.classList.toggle("fechado");
+    e.classList.toggle("aberto");
+}
+        </script>
+    </body>
+</html>

@@ -1,0 +1,120 @@
+
+@import '../../function.scss';
+.tex{
+    position: absolute;
+    background:white;
+    top:var(--menu-height);
+    width:100%;
+    min-height:calc(100vh - var(--menu-height));
+    display: block;
+}
+.tex:not(.playlist) #s1{
+    @include pc(){
+        width:59%;
+        height:auto;
+    }
+}
+.tex{
+    #bottom{
+        position: relative;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        flex-direction: row;
+    }
+    #s1{
+        width:100%;
+        margin-left: 0;
+    }
+    .anunciodiv ins{
+        width:100%;
+        height:50vh;
+    }
+    @include pc(){
+        #s1{
+            margin-left: var(--div-margin);
+        }
+    }
+}
+.texto{
+    display: block;
+    position: relative;
+    background: white;
+    width:var(--div-width);
+    margin-left:var(--div-margin);
+    color:black;
+    text-decoration: none;
+}
+@include pc(){
+    .texto{
+        width:100%;
+        margin-left: 0;
+    }
+}
+.texto {
+
+    // #usuario{
+    //     position:relative;
+    //     display:block;
+    //     width:100%;
+    //     display:flex;
+    //     flex-direction: row;
+    //     width:100%;
+    //     margin-bottom:1rem;
+    // }
+    // #usuario p{
+    //     margin-top:0;
+    //     margin-bottom:5%;
+    // }
+    // .usuario-p{
+    //     position:relative;
+    //     height:10%;
+    //     display:inline-block;
+    //     font-size:120%;
+    // }
+    // #usuario-1{
+    //     display:block;
+    //     font-weight: bold;
+    //     margin:0 !important;
+    // }
+    // #usuario-t{
+    //     width:45%;
+    // }
+    // .campo-img-noticia.wait{
+    //     // background-color: hsl(160%,0%,35%);
+    //     background-color:#28A745;
+
+    // }
+
+    // .campo-img-noticia.wait:after{
+    //     content: "";
+    //     display: block;
+    //     width: 100%;
+    //     height: 100%;
+    //     background-color: rgba(0,0,0,0.1);
+    // }
+    .texto-texto{
+        font-size: 110%;
+        position:relative;
+        width:100%;
+        height:auto;
+        top:30%;
+        margin:0px;
+        line-height: 1.3em;
+    }
+    .texto-texto.resumo{
+        max-height: 2.6em;
+        max-lines: 2;
+        -webkit-line-clamp: 2;
+    }
+    .visualizacoes{
+        font-size:120%;
+    }
+    .usuario-t{
+        color:black;
+        text-decoration: none;
+    }
+    .usuario-t:hover{
+        text-decoration: underline;
+    }
+}

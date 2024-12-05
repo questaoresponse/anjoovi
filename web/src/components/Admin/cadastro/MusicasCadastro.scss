@@ -1,0 +1,179 @@
+@import '../../../function.scss';
+@import '../../../admin.scss';
+@import './cadastro.scss';
+.mc#pg{
+    position: absolute;
+    top:var(--menu-height);
+    width:100%;
+    background: var(--admin-color);
+}
+.mc {
+    @include admin();
+    @include cadastro();
+    #imagem-view{
+        height: initial;
+        aspect-ratio: 1;
+    }
+    #imagem-pt{
+        margin-top: 5px;
+    }
+    #titulo{
+        font-size: 110%;
+        position:relative;
+        background:white;
+        padding-left:2%;
+        width:100%;
+        height:5vh;
+        border-radius:5px;
+        display:flex;
+        align-items: center;
+        border:solid 1px black;
+    }
+    #musica-l{
+        font-size:110%;
+        position:relative;
+        background:rgba(0,0,0,0);
+        width:40%;
+        height:5vh;
+        border-radius:5px;
+    }
+    #musica{
+        font-size:100%;
+        position:relative;
+        background:rgba(0,0,0,0);
+        width:100%;
+        height:7.5vh;
+        border-radius:5px;
+        border:solid 1px black;
+        padding-top:1%;
+        padding-left:1%;
+        @include pc(){
+            left:0.5%;
+            width:40%;
+        }
+    }
+    .input{
+        outline: none;
+        border:solid 1px gray;
+    }
+    .input:focus{
+        border:solid 1px black;
+    }
+    #uploadd{
+        position:fixed;
+        top:0px;
+        display:none;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+    }
+    #uploadbd{
+        position: relative;
+        background: white;
+        width:40vw;
+        height:40vh;
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #add-list-music{
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width:fit-content;
+        padding-left: 1ch;
+        padding-right: 1ch;
+        height:1.6em;
+        background-color: black;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 0.5ch;
+    }
+    .list-music{
+        display: block;
+        width: 100%;
+        height:auto;
+        border: solid 1px black;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .item-music{
+        position: relative;
+        width:100%;
+        height:5vh;
+        display: flex;
+        flex-direction: row;
+        overflow: hidden;
+        border-bottom: solid 1px black;
+    }
+    .item-music:last-child{
+        border-bottom:none;
+    }
+    .input-music{
+        display:none;
+    }
+    .count-music{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 4ch;
+        border-right: solid 1px black;
+    }
+    .title-music{
+        padding-left: 2%;
+    }
+    .title-music, .add-music{
+        position: relative;
+        display:flex;
+        align-items: center;
+        width:calc(100% - 4ch);
+        height:100%;
+        border-right: solid 1px black;
+    }
+    .add-music{
+        position: relative;
+        font-size: 150%;
+        width:2ch;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+    }
+    .list-music.edit .add-music{
+        color:gray;
+        cursor: initial;
+    }
+    .remove-music{
+        position: relative;
+        font-size: 150%;
+        width:2ch;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+    }
+    .item-music.first .remove-music{
+        color: gray;
+        cursor: initial;
+    }
+    .list-music.edit .remove-music{
+        color: gray;
+        cursor: initial;
+    }
+    @media screen and (min-height:769px){
+        #imagem-view{
+            width:30vh;
+        }
+        #imagem-pt{
+            margin-top: 0;
+        }
+    }
+}

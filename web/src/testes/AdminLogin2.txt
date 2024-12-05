@@ -1,0 +1,426 @@
+// Exemplo do componente Contact
+import React, {useState, useEffect, useCallback, memo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useGlobal } from '../Global.tsx';
+import { useAuth } from '../Auth.jsx';
+import './AdminLogin.css';
+import logo from '../static/logo-anjoovi.svg';
+const OptionComponent = ({ values }) => (
+    <>
+      {values.map((value) => (
+        <option key={value}>{value}</option>
+      ))}
+    </>
+  );
+  
+const Meses=memo(()=>{
+    const elementos = Array.from({ length: 12 }, (_, index) => index+1);
+    return <OptionComponent values={elementos}/>
+})
+const Dias=memo(()=>{
+    const elementos = Array.from({ length: 30 }, (_, index) => index+1);
+    return <OptionComponent values={elementos}/>
+})
+const Anos=memo(()=>{
+    const elementos = Array.from({ length: 100 - 17 }, (_, index) => new Date().getFullYear() - 18 - index);
+    return <OptionComponent values={elementos}/>
+})
+function AdminLogin() {
+    const globals = useGlobal();
+    const { server,navigate }=globals;
+    const auth = useAuth();
+    const isLogin=useRef(new URLSearchParams(location.search).get("type")!="cadastro");
+    const get_origin=()=>{
+        var q=new URLSearchParams(location.search);
+        return q.has("origin") ? decodeURIComponent(q.get("origin")!) : "/admin_login";
+    }
+    const trocar_tipo=()=>{
+        var v=isLogin.current==true;
+        navigate!("/admin"+(v ? "?type=cadastro" : ""));
+        isLogin.current=!isLogin.current;
+    }
+const Cadastro=memo(()=>{
+    const [valuesCommon,setValuesCommon]=useState({
+        month:"",
+        day:"",
+        year:"",
+        nome:"",
+        usuario:"",
+        email:"",
+        senha:"",
+    })
+    useEffect(()=>{
+        console.log(valuesCommon);
+    },[valuesCommon]);
+    const [isData,setIsData]=useState(false);
+const Info=memo(()=>{
+    const [values,setValues]=useState({
+        nome:"",
+        usuario:"",
+        email:"",
+        senha:""
+    })
+    useEffect(()=>{
+        console.log(values);
+    },[values]);
+    const refs={
+        nome:useRef<HTMLInputElement>(null),
+        usuario:useRef<HTMLInputElement>(null),
+        email:useRef<HTMLInputElement>(null),
+        senha:useRef<HTMLInputElement>(null)
+    }
+    const validators={
+        nome:useRef<boolean>(false),
+        usuario:useRef<boolean>(false),
+        email:useRef<boolean>(false),
+        senha:useRef<boolean>(false)
+    }
+    const [isRecused,setIsRecused]=useState(false);
+    const [isValid,setIsValid]=useState(false);
+    const [isVisible,setIsVisible]=useState(false);
+    const v=(field)=>{
+        if (isRecused){
+            refs[field].current.className="i form-control "+(refs[field].current.value!="" ? "pass-valid" : "pass-invalid");
+        }
+        validators[field].current=refs[field].current.value!="";
+    }
+    const onChange=(field,e)=>{
+        setValues((prevValues)=>({...prevValues,[field]: e.target.value}));
+    }
+    const valid_senha=()=>{
+        var vs=refs.senha.current!.value;
+        return (/[A-Z]/.test(vs) && /[a-z]/.test(vs) && /[^a-zA-Z0-9]/.test(vs) && /\d/.test(vs) && vs.length>=8);
+    }
+    const onChangeNome=(e)=>{
+        onChange("nome",e);
+        v("nome");
+    }
+    const onChangeUsuario=(e)=>{
+        onChange("usuario",e);
+        v("usuario");
+    }
+    const onChangeEmail=(e)=>{
+        onChange("email",e);
+        var v=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(refs.email.current!.value);
+        if (isRecused){
+            refs.email.current!.className="i form-control "+(v ? "pass-valid" : "pass-invalid");
+        }
+        validators.email.current=v;
+    }
+    const onChangeSenha=(e)=>{
+        onChange("senha",e);
+        const v=valid_senha();
+        if (isRecused){
+            refs.senha.current!.className="i form-control "+(v ? "pass-valid" : "pass-invalid");
+        }
+        validators.senha.current=v;
+    }
+    useEffect(()=>{
+        var v=true;
+        for (var validator in validators){
+            if (!validators[validator].current){
+                v=false;
+            }
+        }
+        setIsValid(v);
+    },[validators]);
+    const InfoValidate=useCallback((e)=>{
+        e.preventDefault();
+        var valid=true;
+        const inputs={
+            nome:false,
+            usuario:false,
+            email:false,
+            senha:false
+        }
+        if (refs.nome.current!.value==""){
+            valid=false;
+        } else {
+            inputs.nome=true;
+        }
+        if (refs.usuario.current!.value==""){
+            valid=false;
+        } else {
+            inputs.usuario=true;
+        }
+        if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(refs.email.current!.value))){
+            valid=false;
+        } else {
+            inputs.email=true;
+        }
+        if (!valid_senha()){
+            valid=false;
+        } else {
+           inputs.senha=true;
+        }
+        for (var input in inputs){
+            refs[input].current.className="i form-control "+(inputs[input] ? "pass-valid" : "pass-invalid");
+        }
+        setIsRecused(!valid);
+        if (!valid) return;
+        setValues((values)=>{
+            auth.post(server+"/admin",{type:"verify",email:values.usuario,usuario:values.usuario}).then(result=>{
+                if (result.data.result=="true"){
+                    setIsData(true);
+                    setValuesCommon((prevValues)=>({...prevValues,...values}));
+                }
+            });
+            return values;
+        });
+    },[]);
+    const changePassword=()=>{
+        setIsVisible((visible)=>(!visible));
+    }
+    return (
+        <form onSubmit={InfoValidate} id="cadastro" style={{display:isData ? "none" : "block"}}>
+            <input ref={refs.nome} value={values.nome} onChange={onChangeNome} className="i form-control" name="nome" id="nome" placeholder="Nome"/>
+            <input ref={refs.usuario} value={values.usuario} onChange={onChangeUsuario} className="i form-control" name="usuario" id="usuario" placeholder="Nome de usuário"/>
+            <input ref={refs.email} value={values.email} onChange={onChangeEmail} type="email" name="email" className="i form-control" id="email" placeholder="E-mail"/>
+            <div className="di">
+            <input ref={refs.senha} value={values.senha} onChange={onChangeSenha} type={isVisible ? "text" : "password"} name="senha" className="i form-control" id="senha" placeholder="Senha"/>
+            <div onClick={changePassword} className="mp-d position-absolute h-100 d-flex">
+            <i className={"mp "+(isVisible ? "bi-eye" : "bi-eye-slash")+" position-relative"}></i>
+            </div>
+            </div>
+            <div id="ifs">Deve conter 8 digitos, caracteres especiais, letras maiúsculas e minúsculas</div>
+            <div className="t" id="t1" onClick={trocar_tipo}>Já possui uma conta? Fazer login</div>
+            <button type="submit" className={"c "+(isValid ? "" : "disabled ")+"btn-valid"} name="#cadastro">Próximo</button>
+        </form>
+    )
+})
+const Data=memo(()=>{
+    const [values,setValues]=useState({
+        month:"",
+        day:"",
+        year:""
+    });
+    const refs={
+        month:useRef<HTMLSelectElement>(null),
+        day:useRef<HTMLSelectElement>(null),
+        year:useRef<HTMLSelectElement>(null)
+    }
+    const validators={
+        month:useRef<boolean>(false),
+        day:useRef<boolean>(false),
+        year:useRef<boolean>(false)
+    }
+    const [isRecused,setIsRecused]=useState(false);
+    const [isValid,setIsValid]=useState(false);
+    const [error,setError]=useState(false);
+    const v=(field)=>{
+        if (isRecused){
+            refs[field].current.className="date "+(refs[field].current.value!="" ? "select-valid" : "select-invalid");
+        }
+        validators[field].current=refs[field].current.value!="";
+    }
+    const onChange=(field,e)=>{
+        setValues((prevValues)=>({...prevValues,[field]: e.target.value}));
+    }
+    const onChangeMonth=(e)=>{
+        onChange("month",e);
+        v("month");
+    }
+    const onChangeDay=(e)=>{
+        onChange("day",e);
+        v("day");
+    }
+    const onChangeYear=(e)=>{
+        onChange("year",e);
+        v("year");
+    }
+    useEffect(()=>{
+        var v=true;
+        for (var validator in validators){
+            if (!validators[validator].current){
+                v=false;
+            }
+        }
+        setIsValid(v);
+    },[validators]);
+    const onSubmitCadastro=useCallback(async ()=>{
+        auth.post(server+"/admin",{
+            type:"option",
+            tipo:"cadastro",
+            ...valuesCommon
+        }).then((result)=>{
+            if (result.error){
+            } else { 
+                if (result.data.result=="true"){
+                    var st=setTimeout(()=>{
+                        globals.setHeader("admin");
+                        navigate!(get_origin());
+                        clearTimeout(st);
+                    },20);
+                } else if (result.data.result=="false"){
+                    setError(true);
+                }
+            }
+        })   
+    },[valuesCommon]);
+    const DataValidate=useCallback((e)=>{
+        e.preventDefault();
+        var valid=true;
+        const inputs={
+            month:false,
+            day:false,
+            year:false
+        }
+        for (var input in inputs){
+            if (refs[input].current.value==""){
+                valid=false
+            } else {
+                inputs[input]=true;
+            }
+            refs[input].current.className=`date ${(inputs[input] ? "select-valid" : "select-invalid")}`;
+        }
+        setIsRecused(!valid);
+        if (!valid) return;
+        setValuesCommon((prevValues)=>({...prevValues,...values}));
+        onSubmitCadastro();
+    },[]);
+    return (
+        <form onSubmit={DataValidate} id="data" className="row" style={{display:isData ? "block" : "none"}}>
+                    <div className="al" style={{display:error ? "block" : "none"}}>Nome de usuário já existe</div>
+                    <div id="m" className="bg-light"><i className="bi-info-circle"></i> Isso não será exibido publicamente. Confirme sua própria idade, mesmo se esta conta for de empresa, de um animal de estimação ou outros.</div>
+                    <div id="selects">
+                    <select ref={refs.month} className="date" name="month" id="month" value={values.month} onChange={onChangeMonth}>
+                        <option value="">Selecione uma opção</option>
+                        <Meses/>
+                    </select>
+                    <select ref={refs.day} className="date" name="day" id="day" value={values.day} onChange={onChangeDay}>
+                        <option value="">Selecione uma opção</option>
+                        <Dias/>
+                    </select>
+                    <select ref={refs.year} className="date" name="year" id="year" value={values.year} onChange={onChangeYear}>
+                        <option value="">Selecione uma opção</option>
+                        <Anos/>
+                    </select>
+                    <div className="invalid-feedback if" style={{display:isRecused ? "flex" : "none"}}>Selecione uma data correta</div>
+                    <div className="t" id="t1" onClick={trocar_tipo}>Já possui uma conta? Fazer login</div>
+                    </div>
+                    <button type="submit" className={"c "+(isValid ? "" : "disabled ")+"btn-valid"} name="#data">Criar</button>
+                </form>
+    )
+})
+    return (
+        <div id="cd" style={{display:"block"}}>
+            <div className="tt d-flex justify-content-center align-items-center">Criar conta do Anjoovi</div>
+            { isData ? <Data/> : <Info/>}
+        </div>
+    )
+});
+const Login=memo(()=>{
+    const [values,setValues]=useState({
+        email:"",
+        senha:""
+    })
+    const refs={
+        email:useRef<HTMLInputElement>(null),
+        senha:useRef<HTMLInputElement>(null),
+        form:useRef<HTMLFormElement>(null)
+    }
+    const validators={
+        email:useRef<boolean>(false),
+        senha:useRef<boolean>(false)
+    }
+    const [isRecused,setIsRecused]=useState(false);
+    const [isValid,setIsValid]=useState(false);
+    const [error,setError]=useState(false);
+    const [isVisible,setIsVisible]=useState(false);
+    const v=(field)=>{
+        if (isRecused){
+            refs[field].current.className="i form-control "+(refs[field].current.value!="" ? "pass-valid" : "pass-invalid");
+        }
+        validators[field].current=refs[field].current.value!="";
+    }
+    useEffect(()=>{
+        var v=true;
+        for (var validator in validators){
+            if (!validators[validator].current){
+                v=false;
+            }
+        }
+        setIsValid(v);
+    },[validators]);
+    const onChange=(field,e)=>{
+        setValues((prevValues)=>({...prevValues,[field]:e.target.value}));
+    }
+    const onChangeEmail=(e)=>{
+        onChange("email",e);
+        v("email");
+    }
+    const onChangeSenha=(e)=>{
+        onChange("senha",e);
+        v("senha");
+    }
+    const onSubmitLogin = useCallback(async ()=>{
+        auth.post(server+"/admin",{type:"option",tipo:"login",...values}).then((result)=>{
+            console.log(result.data);
+
+            if (result.data.result=="true"){
+                //globals.setRedirectTo(encodeURIComponent(globals.location.href));
+                var st=setTimeout(()=>{
+                    globals.setHeader("admin");
+                    navigate!(get_origin());
+                    clearTimeout(st);
+                },20);
+            } else if (result.data.result=="false"){
+                setError(true);
+            }
+        });
+    },[values]);
+    const LoginValidate=(e)=>{
+        e.preventDefault();
+        var valid=true;
+        const inputs={
+            email:false,
+            senha:false
+        }
+        for (var input in inputs){
+            if (refs[input].current.value==""){
+                valid=false
+            } else {
+                inputs[input]=true;
+            }
+            refs[input].current.className=`i form-control ${(inputs[input] ? "pass-valid" : "pass-invalid")}`;
+        }
+        setIsRecused(!valid);
+        if (!valid) return;
+        onSubmitLogin();
+    }
+    const changePassword=()=>{
+        setIsVisible((visible)=>(!visible));
+        refs.senha.current!.type=refs.senha.current!.type=="text" ? "password" : "text";
+    }
+    return (
+            <form ref={refs.form} onSubmit={LoginValidate} id="login" style={{display:"block"}}>
+                <div className="tt d-flex justify-content-center align-items-center">Sua conta do Anjoovi</div>
+                <div className="al" style={{display:error ? "block" : "none"}}>Email ou senha incorreto.</div>
+                <input ref={refs.email} value={values.email} onChange={onChangeEmail} name="email" className="i form-control" id="email_login" placeholder="Nome de usuário ou e-mail"/>
+                <div className="di">
+                <input ref={refs.senha} value={values.senha} onChange={onChangeSenha} type={isVisible ? "text" : "password"} name="senha" className="i form-control" id="senha_login" placeholder="Senha"/>
+                <div onClick={changePassword} className="mp-d position-absolute h-100 d-flex">
+                    <i className={"mp "+(isVisible ? "bi-eye" : "bi-eye-slash")+" position-relative"}></i>
+                </div>
+                </div>
+                <div className="t" id="t2" onClick={trocar_tipo}>Não possui uma conta? Fazer cadastro</div>
+                <button type="submit" className={"c "+(isValid ? "" : "disabled ")+"btn-valid"} name="#login">Login</button>
+            </form>
+    )
+});
+    return (
+        <div id="pg" className="adl d-flex justify-content-center align-items-center row m-0 bg-ligh" style={{width:"100%",height:"100vh"}}>
+            <div className="col-12 col-md-6 d-flex justify-content-center align-items-center h-100 rounded" id="fd" style={{height:"100%",background:"white"}}>
+            <div className="w-100 form-b" style={{background:"white",borderRadius:"10px",border:"solid 1px grey",overflow: "hidden"}}>
+            <div id="img-l">
+                <img src={logo} className="position-relative w-100 h-100" />
+            </div>
+            <div className="w-100">
+                {new URLSearchParams(location.search).get("type")=="cadastro" ? <Cadastro/> : <Login/>}
+            </div>
+            </div>
+            </div>
+        </div>
+    );
+}
+export default AdminLogin;

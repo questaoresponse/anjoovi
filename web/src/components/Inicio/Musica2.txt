@@ -1,0 +1,278 @@
+import React,{ useState, useEffect,startTransition, useRef, memo, createRef, useCallback, useContext, createContext } from 'react';
+import Link from "../Link.tsx";
+import { useGlobal } from '../Global.tsx';
+import { useAuth } from '../Auth.jsx';
+import './Musica.scss';
+import Ads from '../Ads.jsx';
+import Comentarios from './Comentarios.js';
+import Alta from './Alta.jsx';
+import Post from './Post.jsx';
+const MusicaContext=createContext();
+const MusicaProvider=({children})=>{
+    const arquivos=useRef([]);
+    const auth=useAuth();
+    var variables={
+        arquivos,
+        auth,
+    }
+    return <MusicaContext.Provider value={variables}>{children}</MusicaContext.Provider>
+}
+const useMusica=()=>{
+    const context=useContext(MusicaContext);
+    if (context){
+        return context;
+    } else {
+        throw new Error("No context");
+    }
+}
+const MusicaList=(props)=>{
+    const { arquivos, auth }=useMusica();
+    const {musica:musicas,playNew,verifyChangePlay,index}=props;
+    const {musica,ref:audior,changing,isPlaying}=musicas;
+    const ts=musica.split("_").map((mt,i)=>{return i==0 || i==1 ? "" : mt}).join("_").slice(2);
+    const titulo=ts.split(".").map((mt,i)=>{return i==ts.split(".").length-1 ? "" : mt}).slice(0,-1);
+    const refs={
+        audio:audior
+    }
+    const globals=useGlobal();
+    const server=globals.server;
+    const [totalTime,setTotalTime]=useState("00:00");
+    const duration=useRef(0);
+    const [play,setPlay]=useState(true);
+    const isChanging=useRef(false);
+    const [atualTime,setAtualTime]=useState("00:00");
+    const loadedData=useRef(false);
+    const isView=useRef(false);
+    const onLoadedMetadata=()=>{
+        duration.current=refs.audio.current.duration;
+        var m=duration.current/60;
+        m=String(Math.floor(m));
+        var s=String(Math.floor(duration.current)-(m*60));
+        m= m<10 ? "0"+m : m;
+        s= s<10 ? "0"+s : s;
+        setTotalTime(m+":"+s);
+    }
+    const onTimeUpdate=useCallback((e)=>{
+        var atual = refs.audio.current.currentTime;
+        if (atual/duration.current>=0.1 && !isView.current){
+            isView.current=true;
+            var params=new URLSearchParams();
+            params.set("type","view");
+            params.set("index",index);
+            auth.get(server+location.pathname+"?"+params.toString());
+        }
+        atual=Math.floor(refs.audio.current.currentTime);
+        var m=atual/60;
+        m=String(Math.floor(m));
+        var s=String(atual-(m*60));
+        m= m<10 ? "0"+m : m;
+        s= s<10 ? "0"+s : s;
+        if (m+":"+s!=atualTime){
+            setAtualTime(m+":"+s);
+        }
+    },[atualTime,refs.audio.current]);
+    const [audioSrc,setAudioSrc]=useState();
+    const changePlay=(e,notVerify=false,isCallback=false)=>{
+        if (!loadedData.current) {
+            // setAudioSrc(srcs.current[arquivos.current.findIndex(arquivo=>arquivo==musicas.musica)]);
+            setAudioSrc(server+"/musics/"+encodeURIComponent(props.musica.musica));
+            // setAudioSrc(server+"/musics/"+encodeURIComponent(musica));
+            return;
+        } else {
+            ((!notVerify && !isPlaying.current) || isCallback) && verifyChangePlay(musica);
+        }
+        isPlaying.current=!isPlaying.current;
+        isChanging.current=true;
+        isPlaying.current ? refs.audio.current.play() : refs.audio.current.pause();
+                
+    };
+    const setChange=()=>{
+        isChanging.current=false;
+        setPlay(play=>!play);
+    }
+    const onLoadedData=()=>{
+        if (loadedData.current) return;
+        loadedData.current=true;
+        changePlay({},false,true);
+    }
+    useEffect(()=>{
+        changing.current=changePlay;
+    },[]);
+    const t=useRef(0);
+    useEffect(()=>{
+        if (t.current>0){
+            console.log("saiu");
+            if (isPlaying.current){
+                changePlay({});
+            }
+            setAudioSrc();
+            loadedData.current=false;
+            setTotalTime("00:00");
+            setAtualTime("00:00");
+            duration.current=0;
+        }
+        t.current++;
+    },[props]);
+    console.log(props);
+    const end=()=>{
+        isPlaying.current=false;
+        isChanging.current=false;
+        setPlay(true);
+    }
+    return (
+        <div className="audiop">
+            {audioSrc ? <audio onEnded={()=>{playNew(musica);end()}} onCanPlayThrough={onLoadedData} ref={refs.audio} src={audioSrc} onPlay={setChange} onPause={setChange} onTimeUpdate={onTimeUpdate} onLoadedMetadata={onLoadedMetadata} id="audiod" style={{display:"none"}}></audio> : null}
+            <div className="audiopd">
+                <div className="audioc">
+                    <div onClick={changePlay} id="change">
+                        <i className={`i1 ${play ? "d-flex" : "d-none"} bi-play-fill`}></i>
+                        <i className={`i2 ${play ? "d-none" : "d-flex"} bi-pause-fill`}></i>
+                    </div>
+                    <div className="atual_t">{atualTime}</div>
+                    <div className="progress txt">{titulo}</div>
+                    <div className="total_t">{totalTime}</div>
+                </div>
+            </div>
+        </div>
+    )
+}
+function Musica(){
+    const globals=useGlobal();
+    const server=globals.server;
+    const auth=useAuth();
+    const location=useLocation();
+    const pathname=useRef(location.pathname);
+    const { arquivos }=useMusica();
+    const [src,setSrc]=useState({
+        audio:"",
+        imagem:null,
+        titulo:"",
+        usuario:"",
+        zip:null,
+        downloads:0,
+    })
+    const [infos,setInfos]=useState({
+        musicas:[],
+        alta:[]
+    });
+    const isLoaded=useRef();
+    const get=async (initial=false)=>{
+        if (initial && isLoaded.current) return;
+        if (initial && !isLoaded.current) isLoaded.current=true;
+        var result=await auth.get(server+window.location.pathname+"?c=1");
+        // if (infos.musicas.length>0){
+        //     for (var musica of infos.musicas){
+        //         !musica.ref.current.paused && musica.ref.current.pause();
+        //         musica.isPlaying.current && musica.changing.current();
+        //     }
+        // }
+        if (result.error){
+            globals.setRedirectError(result.error);
+        } else {
+            var musicasl=[];
+            arquivos.current=JSON.parse(result.data.arquivo);
+            try {
+                musicasl=arquivos.current.map((musica,index)=>{return {musica:musica,ref:createRef(),changing:createRef(false),isPlaying:createRef(false)}});
+
+            } catch (e){
+                musicasl.push({musica:result.data.arquivo,ref:createRef(),changing:createRef(false),isPlaying:createRef(false)});
+            }
+            document.title=result.data.titulo;
+            setInfos({musicas:musicasl,alta:result.data.alta});
+            setSrc({
+                audio:server+"/musics/"+encodeURIComponent(result.data.arquivo),
+                imagem:server+"/images/"+encodeURIComponent(result.data.imagem),
+                titulo:result.data.titulo,
+                usuario:result.data.usuario_musica,
+                zip:result.data.zip,
+                downloads:result.data.downloads,
+                visualizacoes:result.data.visualizacoes
+            })
+            // descompactarArquivoZIP(result.data.zip);
+        }
+    }
+    get(true);
+    useEffect(()=>{
+        location.pathname!=pathname.current && get();
+        // async function descompactarArquivoZIP(urlArquivoZIP) {
+        //     try {
+        //       const resposta = await fetch(server+"/zips/"+urlArquivoZIP);
+        //       const dadosZIP = await resposta.blob();
+        //       const zip = await JSZip.loadAsync(dadosZIP);
+        //       zip.forEach(async function (nomeArquivo, arquivo) {
+        //         if (nomeArquivo.endsWith('.mp3')) {
+        //           const urlBlob = URL.createObjectURL(await arquivo.async('blob'));
+        //           srcs.current.push(urlBlob);
+        //         //   const audio = new Audio(urlBlob);
+        //         //   audio.controls = true;
+        //         //   document.body.appendChild(audio);
+        //         }
+        //       });
+        //     } catch (erro) {
+        //       console.error('Erro ao descompactar o arquivo ZIP:', erro);
+        //     }
+        //   }
+        globals.isRender();
+    },[location.pathname]);
+    const playNew=(musica)=>{
+        const o=infos.musicas.findIndex(musicaitem=>musicaitem.musica==musica);
+        if (o+1==infos.musicas.length) return;
+        infos.musicas[o+1].changing.current({},true);
+    }
+    const verifyChangePlay=(musica)=>{
+        const o=infos.musicas.findIndex(musicaitem=>musicaitem.isPlaying.current && musicaitem.musica!=musica);
+        if (o!=-1){
+            infos.musicas[o].changing.current({},true);
+        }
+    }
+    const Download=()=>{
+        let s=new URLSearchParams(location.search);
+        var params=new URLSearchParams();
+        params.set("type","download");
+        params.set("id",location.pathname.split("/")[2]);
+        auth.get(server+location.pathname+"?"+params.toString());
+    }
+    return (
+        <div id="pg" className='mu' style={{width: "100%",minHeight:"100%"}}>
+            <div id="s1">
+                <Ads slot="9127512411"/>
+                {/* <audio onCanPlayThrough={onLoadedData} ref={audioRef} src={src.audio} onPlay={setChange} onPause={setChange} onTimeUpdate={onTimeUpdate} onLoadedMetadata={onLoadedMetadata} id="audiod" style={{display:"none"}}></audio> */}
+                <div id="musica">
+                    <div id="top">
+                        <div id="imagemd">{src.imagem ? <img id="imagem" src={src.imagem}/> : <></>}</div>
+                        <div id="top2">
+                            <div id="titulo" className='txt'>{src.titulo}</div>
+                            <div id="usuario">
+                                <Link to={"/@"+src.usuario} className='txt'>{src.usuario}</Link>
+                            </div>
+                            <a id="download" onClick={Download} href={server+"/zips/"+encodeURIComponent(src.zip)} download={src.titulo+".zip"}>Download</a>
+                            <div id="infos">
+                                <div id="downloads">Downloads:{src.downloads}</div>
+                                <div id="visualizacoes">Visualizações:{src.visualizacoes}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        {infos.musicas.map((musica,index)=>{
+                            return (
+                                <MusicaList musica={musica} playNew={playNew} verifyChangePlay={verifyChangePlay} index={index} key={index}/>
+                            )
+                        })}
+                    </div>
+                </div>
+                <Comentarios/>
+                <Ads slot="6039740766"/>
+                { globals.mobile && <Post globals={globals}  posts={infos.alta}/>}
+            </div>
+            {!globals.mobile && <Alta server={server} posts={infos.alta} /> }
+        </div>
+    )
+}
+function MusicaComponent(){
+    return (
+        <MusicaProvider>
+            <Musica></Musica>
+        </MusicaProvider>
+    )
+}
+export default memo(MusicaComponent);

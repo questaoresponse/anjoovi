@@ -1,0 +1,167 @@
+@import "../../function.scss";
+.cld{
+    #tabelad{
+        width:100%;
+        top:0vh;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    #tabela{
+        position: relative;
+        background:white;
+        width:100%;
+        height:auto;
+        overflow: auto;
+    }
+    #tabelas{
+        position:relative;
+        background:white;
+        min-width: 625px;
+        width:100%;
+        box-sizing: border-box;
+    }
+    #header *{
+        font-weight: 900;
+        user-select: none;
+    }
+    .linha, #header{
+        position: relative;
+        display: flex;
+        width: 100%;
+        height: 5vh;
+        flex-direction: row;
+        border-bottom:solid 1px black;
+    }
+    .linha > *, #header > *{
+        border-right: solid 1px black;
+    }
+    .linha > div:first-child, #header > div:first-child{
+        border-left: solid 1px black;
+    }
+    #header{
+        border-top: solid 1px black;
+    }
+    .id{
+        position: relative;
+        display:flex;
+        width:100px;  
+        height: 100%;  
+    }
+    .titulo{
+        position: relative;
+        display: flex;
+        flex:1;
+        min-width: 75px;
+        height: 100%;
+        align-items: center;
+        padding-left:1%;
+    }
+    .data{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width:200px;
+        height:100%;
+    }
+    .acessos{
+        position: relative;
+        display: flex;
+        width:100px;
+        height:100%;
+        align-items: center;
+    }
+    .opcoes{
+        position: relative;
+        display: flex;
+        width: 150px;
+        height:100%;
+    }
+    .id, .acessos, .opcoes{
+        justify-content: center;
+        align-items: center;
+    }
+    #btndiv{
+        margin-top: 40px;
+        position:relative;
+        display:flex;
+        width:90%;
+        background:white;
+    }
+    .btnb{
+        width:2em;
+        height:2em;
+        border:solid 1px black;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        margin-right: 10px;
+        user-select: none;
+    }
+    .btnb:active{
+        opacity: 0.5;
+    }
+    #top-table{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-top:5.5vh;
+    }
+    .registros{
+        font-size:110%;
+        position:relative;
+        background:white;
+        width:100%;
+        min-width:785px;
+    }
+    #pesquisad{
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        background:rgba(0,0,0,0);
+        width:350px;
+        height:30px;
+    }
+    .registros p{
+        display:inline-block;
+    }
+    a{
+        text-decoration: none;
+        color:black;
+    }
+    #tb{
+        margin-top:0;
+        position:relative;
+        width:100%;
+        height:auto;
+        background:rgba(0,0,0,0);
+        display:flex;
+        justify-content: center;
+    }
+    .pesquisabd{
+        position: relative;
+        display:block;
+        background:white;
+        width:50%;
+        height:100%;
+        outline: none;
+        border:solid 1px black;
+        padding:0;
+        margin:0;
+        user-select: none;
+    }
+    #input-pesquisa{
+        width:250px;
+        padding-left: 10px;
+    }
+    button.pesquisabd{
+        width:100px;
+    }
+    @include pc(){
+        #top-table{
+            flex-direction: row-reverse;
+        }
+    }
+}

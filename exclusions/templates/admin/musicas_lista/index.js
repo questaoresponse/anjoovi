@@ -1,0 +1,12 @@
+window.common.na.pi=()=>{
+    window.common.na.m=true;
+    window.common.na.n=false;
+    window.common.na.msg1="teste";
+    window.common.na.msg2="teste2";
+    window.common.na.src1="/static/edit-icone.png";
+    window.common.na.src2="/static/remove-icone.png";
+    window.common.na.url1="/teste";
+    window.common.na.url2="/admin/musicas_lista";
+    window.setStyle={elemento:"#musicas_lista",color:"gray"};
+    window.common.na.init();
+}

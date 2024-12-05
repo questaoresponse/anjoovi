@@ -1,0 +1,34 @@
+html,body{
+    margin:0px;
+}
+#pg{
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+}
+#fala{
+    left:40%;
+    display: block;
+    position:relative;
+    background:white;
+    width:30%;
+    height:auto;
+}
+#emoji{
+    left:20%;
+    width:30%;
+    position:relative;
+    background:white;
+}
+/* h1{
+    position:absolute;
+    background:rgba(0,0,0,0);
+    width:20vw;
+    height:30vh;
+    font-size:3vw;
+    top:2.5vw;
+    left:47.5%;
+} */

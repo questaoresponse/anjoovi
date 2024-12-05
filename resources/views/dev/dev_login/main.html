@@ -1,0 +1,443 @@
+<html>
+    <head>
+        <!-- <meta charset="UTF-8"> -->
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <!-- <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon"> -->
+        <link rel="icon" href="/static/favicon.png" type="image/png">
+        <title>Login - Anjoovi</title>
+        <style>
+html,body{
+    margin: 0px;
+    font-family: Arial;
+    background:#f0f0f0;
+    position:absolute;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+}
+#cd,#login{
+    position:relative;
+    background:white;
+    display:block;
+    overflow-y: auto;
+    overflow-x:hidden;
+}
+.i{
+    position:relative;
+    background:white;
+    display:block;
+    font-size:110%;
+    margin-top:2vh;
+    margin-left:15%;
+    padding-left:5%;
+    width:70%;
+    height:7.5vh;
+    border-radius:5px;
+}
+@media screen and (max-width:768px){
+html,body{
+    font-size:100%;
+}
+#cd,#login{
+    width:80%;
+    height:40%;
+}
+#cadastro{
+    top:10vh;
+}
+#cadastro,#data{
+    height:25vh;
+}
+.i{
+    height:3.5vh;
+}
+#data {
+    top:5vh;
+}
+}
+@media screen and (min-width:769px){
+    html,body{
+    font-size:130%;
+}
+#cd,#login{
+    max-width:750px;
+    width:60%;
+    height:90%;
+}
+#cadastro,#data{
+    top:10vh;
+    height:50vh;
+}
+}
+#nome-l{
+    position:absolute;
+    background:white;
+    width:100%;
+    height:10%;
+}
+/* #nome{
+    top:10%;
+    position:absolute;
+    background:white;
+    width:20%;
+    height:10%;
+    border:0px;
+    outline: 0px;
+} */
+#nome:focus{
+    outline:none;
+}
+#nome-a{
+    transition:left 0.5s, width 0.5s;
+    position:absolute;
+    background: black;
+    top:20%;
+    height:1%;
+}
+#nome-a.aberto{
+    left:0%;
+    width:30%;
+}
+#nome-a.fechado{
+    left:15%;
+    width:0%;
+}
+/* #usuario{
+    position:absolute;
+    background:white;
+    width:80%;
+    height:5vh;
+    position:absolute;
+}
+#email{
+    position:relative;
+    background:white;
+} */
+#data{
+    position:relative;
+    background:white;
+    display:none;
+    width:100%;
+    height:70%;
+}
+.date{
+    position:relative;
+    background:white;
+    font-size: 100%;
+    margin-top:5%;
+    left:5%;
+    width:20%;
+    height:10%;
+}
+#m{
+    position:relative;
+    background:white;
+    margin-top:4%;
+    font-size: 90%;
+}
+#bc{
+    position:relative;
+    background:black;
+    color:white;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width:50%;
+    height:5vh;
+    margin-top:10%;
+    margin-bottom:10%;
+    opacity:1;
+}
+#bc:hover{
+    background:white;
+    color:black;
+}
+#bc.disabled{
+    opacity:0.5;
+}
+.t{
+    position:relative;
+    background:white;
+    display:block;
+    color:blue;
+    text-decoration: none;
+    margin-top:10%;
+    width:100%;
+    height:10%;
+}
+#cd .t{
+    margin-top:0%;
+}
+.t:hover{
+    text-decoration: underline;
+}
+.c{
+    font-size:110%;
+    position:relative;
+    background: black;
+    color:white;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width:40%;
+    left:30%;
+}
+.disabled{
+    opacity:0.5;
+}
+#cadastro .c{
+    margin-top:10%;
+}
+#data .c{
+    margin-top:10%;
+}
+#login .c{
+    margin-top:0%;
+}
+.m{
+    position:relative;
+    background:salmon;
+    color:red;
+    left:-40%;
+    width:calc(140% - 2px);
+    height:10%;
+    border:solid 1px red;
+    overflow:hidden;
+}
+#data .m{
+    margin-top:-8%;
+}
+        </style>
+    </head>
+    <body>
+        <div id="cd">
+            <div class="tt">Cadastro</div>
+            <form id="cadastro" style="display:block">
+                <input class="i" name="nome" id="nome" placeholder="Nome" required>
+                <input class="i" name="usuario" id="usuario" placeholder="Nome de usuário" required>
+                <input type="email" name="email" class="i" id="email" placeholder="E-mail" required>
+                <input type="password" name="senha" class="i" id="senha" placeholder="Senha" required>
+                <button type="submit" class="c disabled">Próximo</button>
+            </form>
+        <form id="data" style="display:none">
+            <div class="m" style="display:none">Nome de usuário já existe</div>
+            <div id="m">Isso não será exibido publicamente. Confirme sua própria idade, mesmo se esta conta for de empresa, de um animal de estimação ou outros.</div>
+            <select class="date" name="month" id="month" type="number" required>
+                <option value="" selected>Selecione uma opção</option>
+            </select>
+            <select class="date" name="day" id="day" type="number" required>
+                <option value="" selected>Selecione uma opção</option>
+            </select>
+            <select class="date" name="year" id="year" type="number" required>
+                <option value="" selected>Selecione uma opção</option>
+            </select>
+            <button type="submit" class="c disabled">Cadastrar</button>
+        </form>
+        <div class="t" id="t1">Já possui uma conta? Fazer login</div>
+        </div>
+        <form id="login" style="display:none;">
+            <div class="tt">Login</div>
+            <div class="m" style="display:none">Email ou senha incorreto.</div>
+            <input type="email" name="email" class="i" id="email_login" placeholder="E-mail" required>
+            <input type="password" name="senha" class="i" id="senha_login" placeholder="Senha" required>
+            <div class="t" id="t2">Não possui uma conta? Fazer cadastro</div>
+            <button type="submit" class="c disabled">Cadastrar</button>
+        </form>
+            <!-- <div id="bc" class="disabled" type="submit">Próximo</div> -->
+        <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+        <script>
+function add(s,r1,r2){
+    function t(n){
+    var o=document.createElement("option");
+    o.textContent=n;
+    s.appendChild(o);
+    }
+    for (var i=0;i<r2;i++){
+        var e=r1-i;
+        t(e);
+    }
+}
+var t1=document.querySelector("#month");
+add(t1,12,12);
+var t2=document.querySelector("#day");
+add(t2,30,30);
+var t3=document.querySelector("#year");
+add(t3,2023,121);
+var tipo="cadastro";
+var inputs=document.querySelector("#cadastro").querySelectorAll('input');
+function trocar_tipo(){
+    tipo=tipo=="cadastro" ? "login" : "cadastro"; 
+    var c=document.querySelector("#cd");
+    var l=document.querySelector("#login");
+    var p=tipo=="cadastro" ? true : false;
+    c.style.display=p ? "block" : "none";
+    l.style.display=p ? "none" : "block";
+    // var text=document.querySelector("#t");
+    // var cad=document.querySelector("#cadastro");
+    // var data=document.querySelector("#data");
+    // var n = document.querySelector("#nome");
+    // var u=document.querySelector("#usuario");
+    // var ca=document.querySelector("#cadastro .c");
+    // text.textContent=p ? "Já possui uma conta? Fazer login." : "Não possui uma conta? Cadastrar";
+    // data.style.display="none";
+    // n.style.display=p ? "block" : "none";
+    // u.style.display=p ? "block" : "none";
+    // cad.style.display="block";
+    // ca.textContent=p ? "Próximo" : "Entrar";
+    // //ca.style.display=p ? "none" : "block";
+    // var cd=document.querySelectorAll(".date");    
+    // var p=tipo=="cadastro" ? true : false;
+    // for (var c of cd){
+    //     c.required=p;
+    // }
+    // var e=document.querySelector("#nome");
+    // var s=document.querySelector("#usuario");
+    // e.required=p;
+    // s.required=p;
+    //bc.style.display=p ? "flex" : "none";
+    //p ? bc.textContent="Próximo" : null;
+}
+var c=document.querySelector("#cadastro");
+var d=document.querySelector("#data");
+var bt=document.querySelector("#cadastro .c");
+//var ca=document.querySelector("#c");
+var tr1=document.querySelector("#cd");
+var tr2=document.querySelector("#login");
+var cd=document.querySelector("#cadastro");
+var cc=document.querySelector("#data");
+function ir(){
+    cd.style.display="none";
+    cc.style.display="block";
+    // document.querySelector("#data .c").style.display="flex";
+}
+function voltar(){
+    cd.style.display="block";
+    cc.style.display="none";
+    // document.querySelector("#cadastro .c").style.display="flex";
+}
+var btd;
+// bt.addEventListener("click",()=>{
+//     console.log(bt.className);
+//     tipo=="cadastro" && bt.className=="c" ? c.style.display=="block" ? ir() : voltar() : null;
+// });
+document.querySelectorAll(".t").forEach(t=>{ t.addEventListener("click",trocar_tipo) });
+document.querySelector("#cadastro").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    ir();
+});
+document.querySelector("#login").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    login();
+});
+document.querySelector("#data").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    document.querySelector("#cadastro").checkValidity() ? cadastro() : null;
+})
+var i1=document.querySelector("nome");
+var i2=document.querySelector("#usuario");
+var i3=document.querySelector("email");
+var i4=document.querySelector("#senha");
+document.querySelector("#cadastro").querySelectorAll("input").forEach(input => {
+  input.addEventListener('input',()=> {
+    console.log(document.querySelector("#cadastro").checkValidity());
+    document.querySelector("#cadastro .c").className=document.querySelector("#cadastro").checkValidity() ? "c" : "c disabled";
+    // checkFormValidity();
+  });
+});
+document.querySelector("#login").querySelectorAll("input").forEach(input=>{
+    input.addEventListener('input',()=> {
+    console.log(document.querySelector("#login").checkValidity());
+    document.querySelector("#login .c").className=document.querySelector("#login").checkValidity() ? "c" : "c disabled";
+    });
+})
+function checkFormValidity() {
+  let isFormValid = true;
+
+  inputs.forEach(input => {
+    if (!input.checkValidity() && tipo=="cadastro") {
+      isFormValid = false;
+    }
+  });
+
+  if (isFormValid) {
+    // Todos os campos do formulário são válidos
+    // Você pode habilitar o botão de envio ou realizar outras ações
+    bt.className="";
+  } else {
+    console.log("t");
+    // Pelo menos um campo não é válido
+    // Você pode desabilitar o botão de envio ou realizar outras ações
+    bt.className="disabled";
+  }
+}
+function verify_s(){
+    var ca=document.querySelector("#data .c");
+    var ss=document.querySelectorAll("select");
+    ss.forEach(s=>{
+        s.addEventListener("change",()=>{
+            ca.className=document.querySelector("#data").checkValidity() ? "c" : "c disabled";
+        })
+    })
+}
+verify_s();
+function login(){
+    var l=document.querySelector("#login");
+    var md=l.querySelector(".m");
+    var e=document.querySelector("#email_login");
+    var s=document.querySelector("#senha_login");
+    var ev=e.value;
+    var sv=s.value;
+    $.ajax({
+        url: "/dev",
+        type:'POST',
+        data:{type:"login",email:ev,senha:sv,_token:window.token},
+        // headers: {
+        // 'X-CSRF-TOKEN': token // Configure o token CSRF nos cabeçalhos
+        //  },
+        success: function(data) {
+            console.log(data);
+          data=="true" ? window.location.href="/dev" : erro(md);
+      }
+    });
+}
+function cadastro(){
+    var c=document.querySelector("#data");
+    var md=c.querySelector(".m");
+    var n=document.querySelector("#nome");
+    var u=document.querySelector("#usuario");
+    var e=document.querySelector("#email");
+    var s=document.querySelector("#senha");
+    var m=document.querySelector("#month");
+    var d=document.querySelector("#day");
+    var y=document.querySelector("#year");
+    var nv=n.value;
+    var uv=u.value;
+    var ev=e.value;
+    var sv=s.value;
+    var mv=m.value;
+    var dv=d.value;
+    var yv=y.value;
+    $.ajax({
+        url: "/dev",
+        type:'POST',
+        // headers: {
+        // 'X-CSRF-TOKEN': token // Configure o token CSRF nos cabeçalhos
+        //  },
+        data:{type:"cadastro",nome:nv,usuario:uv,email:ev,senha:sv,month:mv,day:dv,year:yv,_token:window.token},
+        success: function(data) {
+            console.log(data);
+          data=="true" ? window.location.href="/dev" : erro(md);
+      }
+    });
+}
+function erro(m){
+    m.style.display="block";
+}
+        </script>
+    </body>
+</html>

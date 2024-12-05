@@ -1,0 +1,317 @@
+html,body{
+    /* margin: 0px;
+    font-family: Arial;
+    background:white;
+    position:absolute;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center; */
+}
+#cd,#login{
+    position:relative;
+    background:white;
+    display:block;
+    overflow-y: auto;
+    overflow-x:hidden;
+    height:60vh;
+    /* width:100%;
+    height:70%; */
+}
+.i{
+    position:relative;
+    background:white;
+    display:block;
+    font-size:110%;
+    margin-top:1rem;
+    margin-left:2.5%;
+    padding-left:5%;
+    width:95%;
+    height:2.5rem;
+    border-radius:5px;
+}
+#nome-l{
+    position:absolute;
+    background:white;
+    width:100%;
+    height:10%;
+}
+/* #nome{
+    top:10%;
+    position:absolute;
+    background:white;
+    width:20%;
+    height:10%;
+    border:0px;
+    outline: 0px;
+} */
+#nome:focus{
+    outline:none;
+}
+#nome-a{
+    transition:left 0.5s, width 0.5s;
+    position:absolute;
+    background: black;
+    top:20%;
+    height:1%;
+}
+#nome-a.aberto{
+    left:0%;
+    width:30%;
+}
+#nome-a.fechado{
+    left:15%;
+    width:0%;
+}
+/* #usuario{
+    position:absolute;
+    background:white;
+    width:80%;
+    height:5vh;
+    position:absolute;
+}
+#email{
+    position:relative;
+    background:white;
+} */
+#data{
+    position:relative;
+    background:white;
+    display:none;
+    width:100%;
+    height:70%;
+}
+#selects{
+    position:relative;
+    left:0px;
+    width:90%;
+    margin-top:5%;
+    margin-left:6.25%;
+    height:10%;
+    padding:0;
+}
+.date{
+    position:relative;
+    display:inline-block;
+    background:white;
+    font-size: 100%;
+    /* margin-top:5%; */
+    /* left:5%;
+    width:20%; */
+    margin-left:2.5%;
+    height:100%;
+    width:30%;
+}
+#m{
+    position:relative;
+    background:rgb(14, 14, 14);
+    margin-top:4%;
+    margin-left:2%;
+    font-size: 90%;
+}
+#bc{
+    position:relative;
+    background:black;
+    color:white;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width:50%;
+    height:5vh;
+    margin-top:10%;
+    margin-bottom:10%;
+    opacity:1;
+}
+#bc:hover{
+    background:white;
+    color:black;
+}
+#bc.disabled{
+    opacity:0.5;
+}
+.t{
+    position:relative;
+    background:white;
+    display:block;
+    color:blue;
+    text-decoration: none;
+    margin-top:2.5%;
+    width:100%;
+    left:2.5%;
+}
+#ifs{
+    padding-left:2%;
+    color:red;
+    font-size:12px;
+}
+#data .t{
+    margin-top:2%;
+}
+#t1{
+    margin-top:0px;
+}
+.t:hover{
+    text-decoration: underline;
+}
+.c{
+    font-size:110%;
+    position:relative;
+    background: black;
+    color:white;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width:40%;
+    left:30%;
+}
+.disabled{
+    opacity:0.5;
+}
+#cadastro .c{
+    margin-top:5%;
+}
+#data .c{
+    margin-top:21.75%;
+}
+#login .c{
+    margin-top:28.25%;
+}
+.al{
+    position:relative;
+    background:salmon;
+    color:red;
+    width:calc(95% - 2px);
+    left:2.5%;
+    height:5%;
+    border:solid 1px red;
+    overflow:hidden;
+    align-items: center;
+}
+#data .al{
+    margin-top:-8%;
+}
+#img-l{
+    position: relative;
+    left:30%;
+    width:40%;
+    height:4rem;
+}
+.tt{
+    font-size:140%;
+}
+.di{
+    position:relative;
+    background:white;
+    display:block;
+    /* font-size:110%; */
+    margin-top:1rem;
+    /* margin-left:1.25%; */
+    padding-left:2.5%;
+    width:97.5%;
+    height:2.5rem;
+    border-radius:5px;
+}
+.di .i{
+    left:0px;
+    width: 100%;
+    height:100%;
+    margin:0px;
+    padding-right:18%;
+}
+.di .d-flex{
+    /* top:calc(1rem - 5px);
+    position:absolute;
+    height:100%; */
+}
+.mp-d{
+    top:calc(50% - 12px);
+    left:86.25%;
+    width:16px;
+    height:40px;
+}
+.mp{
+    width:100%;
+    height:100%;
+    /* left:2450% !important;
+    margin-top:calc(50% - 10px); */
+}
+@media screen and (max-width:768px){
+    html,body{
+        font-size:100%;
+    }
+    #cd,#login{
+        /* width:80%;
+        height:40%; */
+    }
+    #cadastro{
+        /* top:10vh; */
+    }
+    #cadastro,#data{
+        /* height:25vh; */
+    }
+    .i{
+        /* height:3.5vh; */
+    }
+    #data {
+        top:5vh;
+    }
+    #img-l{
+        left:25%;
+        width:50%;
+        height:4.5rem;
+    }
+}
+@media screen and (min-width:769px){
+        html,body{
+        /* font-size:130%; */
+    }
+    #cd,#login{
+        /* max-width:750px;
+        width:60%;
+        height:90%; */
+    }
+    #cadastro,#data{
+        /* top:10vh;
+        height:50vh; */
+    }
+}
+#fd{
+    position: relative;
+    max-width:500px;
+    /* width:100%; */
+}
+.if{
+    margin-left:2.5%;
+}
+.form-b{
+    height:calc();
+    max-height:calc(607px *0.7);
+}
+input[name='senha'].form-control:valid{
+    background-image:none;
+    border-color:#ced4da;
+}
+input[name='senha'].form-control:invalid{
+    background-image:none;
+    border-color:#ced4da;
+}
+.pass-valid{
+    border-color: #198754 !important;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+.pass-invalid{
+    border-color: #dc3545 !important;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}

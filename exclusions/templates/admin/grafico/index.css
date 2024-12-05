@@ -1,0 +1,34 @@
+html,body{
+    margin:0px;
+    font-family: Arial;
+}
+#pg-h{
+    position: absolute;
+    /* justify-content: center; */
+    /* align-items: center; */
+    top:20%;
+    width: 100%;
+    height: 100%;
+}
+/* #pg-h div{
+    position: relative;
+    width:100%;
+} */
+#divi{
+    position:relative;
+    width:100%;
+    height:20%;
+}
+#divg{
+    position:relative;
+    width:100%;
+    overflow: hidden;
+}
+#grafico{
+    position:relative;
+
+}
+#grafico2{
+    position:relative;
+    width:60%;
+}

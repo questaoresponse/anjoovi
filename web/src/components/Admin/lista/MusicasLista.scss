@@ -1,0 +1,60 @@
+@import '../../../admin.scss';
+@import './lista.scss';
+.ml {
+    @include admin();
+    @include lista();
+    a.titulo:hover{
+        text-decoration: underline;
+    }
+    .registros,.linha,.line{
+        min-width:200px;
+    }
+    .editard{
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+    }
+    .edit{
+        width:25px;
+        height:25px;
+        margin-right: 0.5ch;
+    }
+    .edit:hover{
+        opacity:0.5;
+    }
+    .edit-avs{
+        display: none;
+        position: absolute;
+        width: 7ch;
+        height:0.75em;
+        top:-0.75em;
+        right:1.25ch;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+    }
+    .edit:hover + .edit-avs{
+        display: flex;
+    }
+    .excluir{
+        margin-left:0.5%;
+        width:25px;
+        height:25px;
+    }
+    .excluir-avs{
+        display: none;
+        position: absolute;
+        width: 7ch;
+        height:0.75em;
+        top:-0.75em;
+        left:1.5ch;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+    }
+    .excluir:hover + .excluir-avs{
+        display: flex;
+    }
+}

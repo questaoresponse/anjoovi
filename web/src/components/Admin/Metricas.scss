@@ -1,0 +1,134 @@
+@import '../../function.scss';
+@mixin selected($number:null){
+    .select.selected#{$number} + #tipod .t#{$number}{
+        background-color: black;
+        color: white;
+    }
+}
+.met#dt{
+    position:absolute;
+    background: var(--admin-color);
+    width:100%;
+    top:var(--menu-height);
+    left:0;
+}
+canvas{
+    width:100%;
+}
+.met{
+    #pg{
+        position:relative;
+    }
+    #tipo{
+        height:1.6em;
+        margin-left: var(--div-margin);
+        margin-right: var(--div-margin);
+        user-select: none;
+    }
+    #tipo{ 
+        #tipod{
+            position: relative;
+            width:100%;
+            height:100%;
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+        }
+        #tipod::-webkit-scrollbar{
+            display: none;
+        }
+        .tipo{
+            width:fit-content;
+            height:100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor:pointer;
+            background-color: hsl(0deg,0%,89%);
+            border-radius: 5px;
+            padding-left: 1ch;
+            padding-right: 1ch;
+            margin-right: 1ch;
+            white-space: nowrap;
+        }
+    }
+    @include selected(1);
+    @include selected(2);
+    @include selected(3);
+    @include selected(4);
+    @include selected(5);
+    @include selected(6);
+    @include selected(7);
+
+    .label-name{
+        color:black;
+        margin-top: 2vh;
+        position: relative;
+        display: block;
+        width: auto;
+        border-bottom: solid 1px gray;
+        margin-left: var(--div-margin);
+        margin-right: var(--div-margin);
+        user-select: none;
+    }
+    #options{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin-bottom: 5vh;
+        @include pc(){
+            flex-direction: row;
+        }
+    }
+    .option{
+        position: relative;
+        display: block;
+        margin-left: var(--div-margin);
+        width:var(--div-width);
+        height:100%;
+    }
+    .option *{
+        position: relative;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:100%;
+    }
+    .option div{
+        padding-left: 2%;
+    }
+    #soma-total{
+        font-weight: bold;
+    }
+    #option2, #option3{
+        margin-left: 0;
+        width: calc(var(--div-width) / 2);
+    }
+    #option3{
+        margin-left: auto;
+    }
+    #interval-div{
+        display: flex;
+        flex-direction: row;
+        margin-left: var(--div-margin);
+        width: var(--div-width);
+    }
+    select{
+        height: 2em !important;
+    }
+    @include pc(){
+        #interval-div{
+            width: 50%;
+        }
+        .option{
+            width: calc(100% / 4);
+        }
+        #option2, #option3{
+            width: 50%;
+        }
+        .option *{
+            width: 75%;
+        }
+    }
+}

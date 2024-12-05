@@ -1,0 +1,248 @@
+:root{
+    --pg-t-w:calc((100vw / 12 * 9) / 2048 * 512);
+}
+html,body{
+    margin:0px;
+    font-family:Arial;
+}
+.inscrever{
+    border-radius:100px;
+    cursor: pointer;
+}
+.n_inscritos{
+    position:relative;
+    padding-left: 2%;
+    top:2vh;
+}
+.dl{
+    position: relative;
+    display:inline-block;
+    height:35%;
+}
+#dl1{
+    width:calc((100vw / 12 * 3) - 20px);
+    height:var(--pg-t-w);
+}
+#dl2{
+    top:-5vh;
+}
+.di{
+    top:-2vh;
+    left:2%;
+}
+#dl2 .di{
+    top:3vh;
+}
+#dl2 .logo_c{
+    width:20vw;
+    height:20vw;
+}
+#banner{
+    position:relative;
+    background:white;
+    display:none;
+    margin-left:-2px;
+    /* width:100%;*/
+    width:100%;
+    height:calc(100vh / 2048 * 512);
+    top:-7.5vh;
+}
+.logo_c{
+    font-size:220%;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color:white;
+    border-radius:50%;
+    left:5%;
+    width:10vw;
+    height:9.75vw;
+    overflow:hidden;
+}
+.logo_c img{
+    width:100%;
+    height:100%;
+}
+#tabela{
+    display:none;
+    /* top:35%; */
+    position:relative;
+    background:white;
+    /* left:5.75%; */
+    width:90%;
+    overflow: visible;
+}
+.linha{
+    position:relative;
+    background:white;
+    display:inline-block;
+    /* width:calc(24% - 2px); */
+    /* height:40vh; */
+    border:solid 1px gray;
+    overflow:hidden;
+    width:calc(100% - 2px);
+}
+.titulo{
+    overflow-wrap: break-word;
+    position:relative;
+    background:white;
+    margin-top:2%;
+    left:2%;
+    width:96%;
+    height:8vh;
+    cursor:pointer;
+}
+.subtitulo{
+    position:absolute;
+    background:white;
+    top:30vh;
+    width:100%;
+    height:10vh;
+}
+.nome{
+    margin-top:2%;
+    left:2%;
+    font-size: 130%;
+    position:relative;
+    background:white;
+    width:calc(98% - 6px);
+    height:4vh;
+    cursor:pointer;
+}
+.a{
+    text-decoration: none;
+    color:black;
+    margin-top:0%;
+    margin-left:0%;
+}
+.a:hover{
+    color:black;
+}
+.line{
+    position:relative;
+    background:white;
+    width:100%;
+    /* height:45vh; */
+    margin-bottom:4%;
+}
+.c_nome{
+    display:flex;
+    align-items: center;
+    position:relative;
+    background:rgba(0,0,0,0);
+    padding-left:2%;
+    width:100%;
+    background:#f0f0f0;
+}
+.c_usuario{
+    position:relative;
+    background:rgba(0,0,0,0);
+    padding-left:2%;
+    width:100%;
+}
+.num{
+    position:relative;
+    background:white;
+    color:gray;
+    padding-left:2%;
+    width:100%;
+    height:2vh;
+}
+#tipod{
+    /* position:absolute;
+    top:60%; */
+    position:relative;
+    width:100%;
+    height:5vh;
+    margin-top:45vh;
+}
+.tipo{
+    position:relative;
+    display: inline-flex;
+    width:7.5%;
+    height:80%;
+    justify-content: center;
+    margin:0px;
+    cursor:pointer;
+}
+#tipot{
+    position:relative;
+    width:100%;
+    height:85%;
+}
+#tipob{
+    position:relative;
+    width:100%;
+    height:15%;
+}
+#tipobd{
+    position:relative;
+    display:none;
+    left:0%;
+    width:7.5%;
+    height:100%;
+    background:black;
+    border-radius: 10px;
+}
+#pg-t{
+    margin:0px;
+    padding: 0px;
+    position:absolute;
+    width:100%;
+    height:var(--pg-t-w);
+    margin-top:10vh;
+}
+#tipobd.selected1{
+    left:0%;
+}
+#tipobd.selected2{
+    left:7.5%;
+}
+@media screen and (max-width:768px){
+    #tipod{
+        /* margin-le; */
+        margin-top:65vh;
+        margin-bottom:25px;
+    }
+    .tipo{
+        width:20%;
+    }
+    #tipobd{
+        width:20%;
+    }
+    #tipobd.selected2{
+        left:20%;
+    }
+    #pg-t{
+        height:calc(var(--pg-t-w) + 30vh);
+    }
+}
+@media screen and (min-width:769px){
+    #banner{
+        width:calc((100vw / 12 * 9));
+        height:100%;
+    }
+    #tipod{
+        /* margin-top:50px; */
+        padding:0px;
+    }
+    #tabela{
+        margin-top:5vh;
+    }
+}
+.imagem{
+    width:100%;
+    height:100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.imagemd{
+    width:100%;
+    height:0;
+    padding-bottom:calc(100% / 1280 * 720);
+    background:gray;
+    position:relative;
+}

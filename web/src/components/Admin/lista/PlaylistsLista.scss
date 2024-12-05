@@ -1,0 +1,32 @@
+@import '../../../admin.scss';
+@import './lista.scss';
+
+#root #pl:not(#root * #pl){
+    margin-top: var(--menu-height);
+}
+#root #pl:not(#root * #pl){
+    @include admin();
+    @include lista();
+    .excluir{
+        margin-left:0.5%;
+        width:25px;
+        height:25px;
+    }
+    .titulo{
+        width:77.5%;
+    }
+    .excluir-avs{
+        display: none;
+        position: absolute;
+        width: 7ch;
+        height:0.75em;
+        top:-0.75em;
+        left:4.75ch;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+    }
+    .excluir:hover + .excluir-avs{
+        display: flex;
+    }
+}

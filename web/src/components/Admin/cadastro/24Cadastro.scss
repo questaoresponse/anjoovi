@@ -1,0 +1,85 @@
+@import '../../../function.scss';
+@import '../../../admin.scss';
+@import './cadastro.scss';
+
+.c24#pg{
+    position:absolute;
+    top:var(--menu-height);
+    width:100%;
+    min-height:90vh;
+    background:var(--admin-color);
+}
+.c24{
+    @include admin();
+    @include cadastro();
+    #titulo{
+        font-size: 110%;
+        position:relative;
+        background:white;
+        padding-left:2%;
+        width:100%;
+        height:5vh;
+        border-radius:5px;
+        display:flex;
+        align-items: center;
+    }
+    .input{
+        outline: none;
+        border:solid 1px black;
+    }
+    .input:focus{
+        border:solid 1px black;
+    }
+    textarea{
+        font-size:110%;
+        position:absolute;
+        top:60vh;
+        background:white;
+        width:100%;
+        height:40vh;
+    }
+    #imagem-view{
+        display: flex;
+        padding-bottom: initial;
+        // justify-content: initial;
+        align-items: center;
+        width:100%;
+        height: initial;
+        aspect-ratio: 9/16;
+        @include pc(){
+            width:calc(30vh * 0.5625);
+            padding-bottom: initial;
+        }
+    }
+    #imagem-view img{
+        position: absolute;
+        width:100%;
+        height:initial;
+        left: initial;
+        right: initial;
+        top: auto;
+    }
+    #imagem-view img.rd{
+        height: 100%;
+    }
+    #uploadd{
+        position:fixed;
+        top:0px;
+        display:none;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+    }
+    #uploadbd{
+        position: relative;
+        background: white;
+        width:40vw;
+        height:40vh;
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

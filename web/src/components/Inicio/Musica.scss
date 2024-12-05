@@ -1,0 +1,293 @@
+@import '../../function.scss';
+.mu#pg{
+    position:relative;
+    display:block;
+    width:100% !important;
+    height:auto !important;
+    top:var(--menu-height);
+    min-height: calc(100vh - var(--menu-height));
+    height:100%;
+}
+.mu:not(.playlist) #s1{
+    @include pc(){
+        width:59%;
+        margin-left: var(--div-margin);
+        height:auto;
+    }
+}
+.mu{
+    #den{
+        position: relative !important;
+        left:0,
+    }
+    #bottom{
+        position: relative;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        flex-direction: row;
+    }
+    #s1{
+        width:100%;
+        margin-left: 0;
+    }
+    .anunciodiv{
+        height:30vh;
+    }
+    .anunciodiv ins{
+        position:relative;
+        display:block;
+        background:rgba(0,0,0,0);
+        width:100%;
+        height:100%;
+    }
+    #alta{
+        background: rgba(0,0,0,0);
+        width:35%;
+        height:100%;
+        display:flex;
+    }
+    @include pc(){
+        #s1{
+            margin-left: var(--div-margin);
+        }
+        #pg{
+            flex-direction: row;
+        }
+    }
+}
+.musica{
+    position:relative;
+    display:flex;
+    width:var(--div-width) !important;
+    margin-left:var(--div-margin) !important;
+    background:white;
+    margin-bottom:20vh;
+    flex-direction: column;
+    color: black;
+    text-decoration: none;
+}
+@include pc(){
+    .musica{
+        width:100% !important;
+        margin-left:0 !important;
+    }
+}
+.musica{
+    .top{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width:100%;
+    }
+    .top2{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width:100%;
+        height:100%;
+    }
+    .imagemd{
+        position:relative;
+        display:block;
+        margin-left: auto;
+        margin-right: auto;
+        height:0;
+        width:100%;
+        padding-bottom: 100%;
+        border-radius: calc(80% / 12);
+        overflow:hidden;
+    }
+    .imagem-musica{
+        position: absolute;
+        width:100%;
+        height:100%;
+    }
+    .audiop{
+        position:relative;
+        display:block;
+        width:100%;
+        height:2em;
+        padding-bottom:calc(720 / 1280 * 10%);
+    }
+    .audiopd{
+        position:absolute;
+        width:100%;
+        height:100%;
+        display: block;
+    }
+    .usuario-musica{
+        font-size:150%;
+        font-weight: 500;
+        position:relative;
+        display:block;
+        padding-left:2%;
+        width:fit-content;
+        height:2em;
+        text-decoration: none;
+        color: black;
+    }
+    .usuario-musica:hover{
+        text-decoration: underline;
+    }
+    .titulo-musica{
+        font-size:160%;
+        font-weight:600;
+        position:relative;
+        padding-left:2%;
+        width:100%;
+        max-height:1.2em;
+        display:box;
+        display: -webkit-box;
+        align-items: center;
+        max-lines: 2;
+        -webkit-line-clamp: 2;
+    }
+    .audioc{
+        position:relative;
+        background:white;
+        width:100%;
+        height:100%;
+        border-bottom:solid 1px black;
+        display:flex;
+        align-items: start;
+        overflow: hidden;
+    }
+    .change{
+        position: relative;
+        display:inline-block;
+        width:10%;
+        font-size: 32px;
+        margin-top: auto;
+        margin-bottom: auto;
+        cursor: pointer;
+    }
+    .chance:active{
+        opacity: 0.5;
+    }
+    .progress{
+        position:relative;
+        display:block;
+        width:55%;
+        margin-top:auto;
+        margin-bottom: auto;
+        background:white;
+        font-size:120%;
+        height:1.5em;
+        max-height: 1.5em;
+    }
+    .atual_t,.total_t{
+        position:relative;
+        display:inline-flex;
+        align-items: center;
+        width:15%;
+        height:100%;
+        margin:0px;
+    }
+    .audioc div{
+        top:0;
+        left:0;
+    }
+    .audioc .change i{
+        position: absolute;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .download{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: black;
+        width:96%;
+        height:2em;
+        border-radius:10px;
+        color:white;
+        text-decoration: none;
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+    .infos{
+        position: relative;
+        display: flex;
+        flex-direction: row;
+    }
+    .downloads{
+        padding-left: 5%;
+        padding-right: 2%;
+    }
+    .downloads,.visualizacoes{
+        font-size:120%;
+    }
+    .views{
+        // width:50%;
+        padding-left: 2%;
+    }
+    .group{
+        position: relative;
+        display: flex;
+        width: 100%;
+        height: 50%;
+        flex-direction: row;
+    }
+    .visualizacoes{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+    }
+    .visualizacoes p{
+        margin: 0;
+        padding: 0;
+    }
+    // .inscrever{
+    //     font-size: 120%;
+    //     position: relative;
+    //     display: flex;
+    //     background-color: black;
+    //     color: white;
+    //     border-radius: 20px;
+    //     justify-content: center;
+    //     align-items: center;
+    //     width:10ch;
+    //     height:1.5em;
+    //     margin-bottom: 0.2em;
+    //     margin-left: 1ch;
+    // }
+    @keyframes play {
+        from {
+            transform: scaleX(0)
+        }
+        to {
+            transform: scaleX(1);
+        }
+    }
+    @include pc(){   
+        .top2{
+            width:73%;
+        }
+        #divs{
+            position: relative;
+            display: block;
+            width:48%;
+        }
+        .imagemd{
+            margin-right:initial;
+            margin-left: initial;
+            width:25%;
+            padding-bottom:25%;
+            border-radius: calc(25% / 6);
+        }
+        .top{
+            flex-direction: row;
+        } 
+    }
+}
+

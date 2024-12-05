@@ -1,0 +1,256 @@
+html,body{
+    margin:0px;
+    font-family: Arial;
+}
+#tabela{
+    position:relative;
+    background:white;
+    /* left:5.75%; */
+    width:90%;
+    overflow: visible;
+}
+.linha{
+    position:relative;
+    background:white;
+    display:inline-block;
+    /* right:2%;
+    bottom:2%; */
+    border:solid 1px gray;
+    overflow: hidden;
+    width:calc(100% - 2px);
+}
+.titulo{
+    /* display:-webkit-box;
+    -webkit-box-orient:vertical; */
+    display: block;
+    position:relative;
+    background:white;
+    margin-top:2%;
+    left:2%;
+    width:96%;
+    height:3em;
+    max-height:3em;
+    overflow: hidden;
+    cursor:pointer;
+    /* text-overflow: ellipsis;
+    white-space: nowrap;
+    -webkit-line-clamp: 2; */
+}
+.subtitulo{
+    position:absolute;
+    background:white;
+    top:30vh;
+    width:100%;
+    height:10vh;
+}
+.nome{
+    margin-top:2%;
+    left:2%;
+    font-size: 130%;
+    position:relative;
+    background:white;
+    width:calc(98% - 6px);
+    height:4vh;
+    cursor:pointer;
+}
+/* #i7{
+    position:absolute;
+    top:2%;
+} */
+.line{
+    position:relative;
+    background:white;
+    width:100%;
+    margin-bottom: 4%;
+    /* height:40vh; */
+}
+.cs{
+    position:relative;
+    background:white;
+    display:inline-flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    width:12.5vh;
+    height:12.5vh;
+    border-radius:50%;
+    margin-left:1vw;
+    border:solid 4px black;
+    /* overflow-x:scroll; */
+
+}
+#tabela_circle{
+    white-space: nowrap;
+    position: relative;
+    background: relative;
+    left:5%;
+    margin-top:10%;
+    width:90%;
+    height:17.5vh;
+    overflow-x:auto;
+    /* scrollbar-width:thin; */
+}
+#tabela_circle::-webkit-scrollbar{
+    /* height:auto; */
+    background:white;
+    color:gray;
+    height:5px;
+}
+#tabela_circle::-webkit-scrollbar-thumb{
+    background:gray;
+}
+.cs2{
+    font-size:150%;
+    user-select: none;
+    position:relative;
+    display:flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    border-radius: 50%;
+    width:95%;
+    height:95%;
+    background:black;
+    color:white;
+    overflow:hidden;
+}
+.cs2 img{
+    position:relative;
+    background:white;
+    width:100%;
+    height:100%;
+    user-select: none;
+}
+.t-top{
+    position:relative;
+}
+.a{
+    text-decoration: none;
+    color:black;
+    margin-top:0%;
+    margin-left:0%;
+}
+a:hover{
+    color:black;
+}
+@media screen and (max-width:768px){
+.imagem{
+    position:relative;
+    background:gray;
+    width:100%;
+    min-width:50%;
+    /* max-width:512px;
+    min-width:256px; */
+    /* max-height:288px;
+    min-height: 144px; */
+    /* height:20vh; */
+    user-select: none;
+}
+#x1,#x2{
+    display:none;
+}
+#x{
+    top:1%;
+}
+/* .cs2{
+    top:2.75%;
+    left:2.5%;
+} */
+.linha{
+    width:100%;
+    display:block;
+    /* padding-bottom:10%; */
+    position:relative;
+}
+#x{
+    left:92.5%;
+}
+#status img{
+    left:0%;
+    width:100%;
+}
+#ls{
+    top:0%;
+    position:absolute;
+    background:rgba(0,0,0,0);
+    width:25%;
+    height:100%;
+}
+#ld{
+    top:0%;
+    position:absolute;
+    background:rgba(0,0,0,0);
+    left:75%;
+    width:25%;
+    height:100%;
+}
+}
+@media screen and (min-width:769px){
+.cs{
+    width:11.5vh;
+    height:11.5vh;
+    min-width:77.5px;
+    min-height:77.5px;
+}
+#tabela_circle{
+    margin-top:7.5%;
+}
+}
+.progress-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-circle::before {
+    content: '';
+    display: block;
+    padding-top: 100%;
+  }
+
+  .progress-circle .progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    clip: rect(0, 100px, 100px, 50px);
+  }
+.lp{
+    position: relative;
+    top:10vh;
+    width:10%;
+    animation:teste;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+}
+@keyframes teste{
+    0%{
+        transform: rotate(0deg);
+    }
+    100%{
+        transform:rotate(360deg);
+    }
+}
+.imagem{
+    width:100%;
+    height:100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.imagemd{
+    width:100%;
+    height:0;
+    padding-bottom:calc(100% / 1280 * 720);
+    background:gray;
+    position:relative;
+    cursor:pointer;
+}
+.anunciodiv ins{
+    width:100% !important;
+    height:100% !important;
+}

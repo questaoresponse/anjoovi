@@ -1,0 +1,1 @@
+window.setStyle={elemento:"#inicio",color:"gray"};

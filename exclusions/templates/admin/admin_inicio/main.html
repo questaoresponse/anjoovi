@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <script src="/templates/modify.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon">
+        <title>Painel - Anjoovi</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css">
+        <div id="style">
+            <link type="text/css" rel="stylesheet" href="/templates/admin/admin_inicio/main.css?v=1.12">
+        </div>
+    </head>
+    <body>
+        <div id="page">
+        <div id="cb" class="d-block">
+            <a onclick="window.location.trocar('/admin')"><img id="logo" src="/static/logo-anjoovi.svg"></a>
+            <svg id="bt-menu">
+                <path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z"></path>
+            </svg>
+            <div id="c_menu" class="fechado">
+                <a onclick="window.location.trocar('/admin')"><div class="i-menu-1 i-menu" id="inicio" >Inicio</div></a>
+                <div class="i-menu" id="bt-noticias"><p id="nn">Publicar</p><p class="v fechado">^</p></div>
+                <div class="n-menu fechado-noticia" id="noticias">
+                    <a onclick="window.location.trocar('/admin/noticias_cadastro')"><div class="i-menu2" id="noticias_cadastro" >Enviar texto</div></a>
+                    <a onclick="window.location.trocar('/admin/noticias_lista')"><div class="i-menu2" id="noticias_lista" >Listar textos</div></a>
+                    <a onclick="window.location.trocar('/admin/24_cadastro')"><div class="i-menu2" id="cadastro_24" >Enviar 24 hora</div></a>
+                    <a onclick="window.location.trocar('/admin/24_lista')"><div class="i-menu2" id="lista_24" >Listar 24 horas</div></a>
+                    <a onclick="window.location.trocar('/admin/musicas_cadastro')"><div class="i-menu2" id="musicas_cadastro" >Enviar músicas</div></a>
+                    <a onclick="window.location.trocar('/admin/musicas_lista')"><div class="i-menu2" id="musicas_lista" >Listar músicas</div></a>
+                </div>
+                <a onclick="window.location.trocar('/admin/grafico')"><div class="i-menu" id="grafico">Gráficos</div></a>
+                <a onclick="window.location.trocar('/admin/settings')"><div class="i-menu" id="settings">Conta</div></a>
+                <a onclick="window.location.trocar('/admin/sair')"><div class="i-menu" id="sair">Sair</div></a>
+            </div>
+            <img id="lupa" src="/static/lupa.png">
+            <a name="nome_usuario" onclick="window.location.trocar('/admin/settings')"><div name="nome_usuario"></div></a>
+        </div>
+        </div>
+
+        <div id="script">
+            <script src="/templates/admin/admin_inicio/main.js?v=1.1"></script>
+        </div>
+    </div>
+    </body>
+</html>
