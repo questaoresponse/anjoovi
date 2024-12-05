@@ -24,28 +24,28 @@ function get_token($dados){
     return $token;
 }
 try{
-// $emailContent = file_get_contents("php://stdin");
+$emailContent = file_get_contents("php://stdin");
 
 // Opcional: Salva o e-mail em um arquivo para depuração
 
 // Processa o e-mail
-if (true) {
+if ($emailContent) {
     // // Divida o conteúdo em cabeçalhos e corpo
-    // list($headers, $body) = explode("\r\n\r\n", $emailContent, 2);
+    list($headers, $body) = explode("\r\n\r\n", $emailContent, 2);
 
-    // // Captura o remetente
-    // preg_match('/^From: (.*)$/mi', $headers, $matches);
-    // $from = isset($matches[1]) ? trim($matches[1]) : '';
+    // Captura o remetente
+    preg_match('/^From: (.*)$/mi', $headers, $matches);
+    $from = isset($matches[1]) ? trim($matches[1]) : '';
 
-    // // Captura o assunto
-    // preg_match('/^Subject: (.*)$/mi', $headers, $matches);
-    // $subject = isset($matches[1]) ? trim($matches[1]) : '';
+    // Captura o assunto
+    preg_match('/^Subject: (.*)$/mi', $headers, $matches);
+    $subject = isset($matches[1]) ? trim($matches[1]) : '';
 
     // Exibe as informações capturadas
     // echo "De: $from\n";
     // echo "Assunto: $subject\n";
     // echo "Corpo:\n$body\n";
-    if (true){
+    if ($subject=="Restore" || $body=="Restore"){
         $mail = new PHPMailer(true);
         $mail->isSMTP();
         $mail->Host = 'mail.anjoovi.com'; // Altere para o seu servidor SMTP
