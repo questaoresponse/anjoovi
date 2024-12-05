@@ -78,5 +78,5 @@ if ($emailContent) {
     file_put_contents(__DIR__ . "/log.txt","not");
 }
 } catch (Exception $e){
-    file_put_contents(__DIR__ . "/log.txt",$e->getMessage());
+    file_put_contents(__DIR__ . "/log.txt",$e->getMessage() . $GLOBALS["scriptKey"]);
 }
