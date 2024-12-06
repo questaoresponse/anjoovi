@@ -133,10 +133,7 @@ function MusicasCadastro(){
         setIsUploading(true);
         setPorcentagem(pct);
     }
-    const Cadastrar=useCallback(async (e:any)=>{
-        e.preventDefault();
-        if (!isAdd) showErrorCadastro();
-        if (!isAdd) return;
+    const finalizeCadastro=(files?:string[])=>{
         var fd=new FormData();
         const imagem_data=refs.imagem.current!.files![0];
         fd.append("type","option");
@@ -144,32 +141,7 @@ function MusicasCadastro(){
         imagem_data && fd.append("imagem",imagem_data);
         imagem_data && fd.append("imagens_edit",(true).toString());
         fd.append("titulo",refs.titulo.current!.value);
-        if (!edit.current){
-            for (const musica of musicas){
-                const file=musica.input.current!.files![0];
-                if (file.type=="audio/x-m4a"){
-                    onProgress({ progress:1 });
-                    fd.append("arquivos[]",file,file.name.split(".").slice(0,-1).join(".")+".m4a");
-                } else {
-                    const input="input"+file.name.split(".").slice(-1).join(".");
-                    await ffmpeg.current.writeFile(input, await fetchFile(file));
-                    console.log("aian2");
-                    // Executa o corte para os primeiros 15 segundos
-                    await ffmpeg.current.exec(["-i", input,"-vn","-c:a","aac","output.m4a"]);
-                    console.log("foie");
-                    // Lê o arquivo de saída
-                    const data = new Uint8Array(await ffmpeg.current.readFile("output.m4a") as ArrayBuffer);
-                    await ffmpeg.current.deleteFile(input);
-                    await ffmpeg.current.deleteFile("output.m4a");
-                    // Cria um URL para o vídeo cortado
-                    const videoBlob = new Blob([data.buffer], { type: "audio/m4a" });
-                    // const videoUrl = URL.createObjectURL(videoBlob);
-                    // window.open(videoUrl,"_blank");
-                    fd.append("arquivos[]",videoBlob,file.name.split(".").slice(0,-1).join(".")+".m4a");
-                }
-            }
-            progress.current.executed=true;
-        }
+        files && fd.append("files",JSON.stringify(files));
         auth.post(server+"/admin/musicas_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,edit.current ? {arquivo:true} : {arquivo:true,porcentagem:VerifyUpload}).then((result)=>{
             if (result.error){
                 globals.setRedirectError(result.error);
@@ -198,7 +170,85 @@ function MusicasCadastro(){
                 setMusicas([{titulo:"",input:createRef()}]);
                 setDimensions(null);
             }
-        })
+        });
+    }
+    const Cadastrar=useCallback(async (e:any)=>{
+        e.preventDefault();
+        if (!isAdd) showErrorCadastro();
+        if (!isAdd) return;
+        const musicFiles:{ file:File | Blob, name:string }[]=[];
+        var currentMusic=0;
+        async function uploadMusic(music:{ file:File | Blob, name:string }){
+            const file=music.file;
+            const chunkSize = 1024 * 1024; // 1 MB por chunk
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            // Função para enviar cada chunk
+            for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                const fd = new FormData();
+                const start = chunkIndex * chunkSize;
+                const end = Math.min((chunkIndex + 1) * chunkSize, file.size);
+                const chunk = file.slice(start, end);
+                fd.append("totalChunks",totalChunks.toString());
+                fd.append("currentChunk",(chunkIndex).toString());
+                fd.append("type","chunk");
+                fd.append("filename", music.name);
+                fd.append('file', chunk, music.name);
+                await auth.post(server+"/admin/musicas_cadastro?type=chunk",fd,{arquivo:true});
+            }
+            currentMusic+=1;
+            if (currentMusic==musicFiles.length){
+                finalizeCadastro(musicFiles.map(music=>music.name));
+            }
+        }
+         setIsUploading(true);
+        if (!edit.current){
+            for (const musica of musicas){
+                const file=musica.input.current!.files![0];
+                if (file.type=="audio/x-m4a"){
+                    onProgress({ progress:1 });
+                    musicFiles.push({file,name:file.name.split(".").slice(0,-1).join(".")+".m4a"});
+                } else {
+                    const input="input"+file.name.split(".").slice(-1).join(".");
+                    await ffmpeg.current.writeFile(input, await fetchFile(file));
+                    console.log("aian2");
+                    // Executa o corte para os primeiros 15 segundos
+                    await ffmpeg.current.exec(["-i", input,"-vn","-c:a","aac","output.m4a"]);
+                    console.log("foie");
+                    // Lê o arquivo de saída
+                    const data = new Uint8Array(await ffmpeg.current.readFile("output.m4a") as ArrayBuffer);
+                    await ffmpeg.current.deleteFile(input);
+                    await ffmpeg.current.deleteFile("output.m4a");
+                    // Cria um URL para o vídeo cortado
+                    const videoBlob = new Blob([data.buffer], { type: "audio/m4a" });
+                    // const videoUrl = URL.createObjectURL(videoBlob);
+                    // window.open(videoUrl,"_blank");
+                    musicFiles.push({file:videoBlob,name:file.name.split(".").slice(0,-1).join(".")+".m4a"});
+                }
+            }
+            progress.current.executed=true;
+            for (const music of musicFiles){
+                uploadMusic(music);
+                  // Enviando chunk via Fetch API
+                //   await fetch('/upload', {
+                //     method: 'POST',
+                //     body: formData,
+                //   })
+                //     .then((response) => response.json())
+                //     .then((data) => {
+                //       console.log('Chunk enviado com sucesso!', data);
+                //     })
+                //     .catch((error) => {
+                //       console.error('Erro ao enviar o chunk:', error);
+                //     });
+            
+                  // Limpar FormData após cada chunk
+            }
+        } else {
+            finalizeCadastro();
+        }
+        // setUploading(true);
+
+        
     },[musicas,isAdd]);
     const onProgress=useCallback(({ progress:progressValue }:{ progress:number }) => {
         if (progress.current.finished==-1){

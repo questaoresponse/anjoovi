@@ -21,6 +21,8 @@ conf/
 
 pay/routes
 
+server/chunks/
+
 public_html/zips/
 public_html/images/
 public_html/musics/

@@ -1355,7 +1355,57 @@ Route::post("/admin/musicas_cadastro",function(){
     $usuario=get_user();
     if ($usuario){
         $type=$_GET["type"];
-        if (request("type")=="info" && ($type=="cadastro" || $type=="edit")){
+        if (request("type")=="chunk"){
+            $targetDir=__DIR__ . "/chunks/";
+            $filename = $_POST['filename']; // Nome do arquivo original
+            $totalChunks = $_POST['totalChunks']; // Total de chunks
+            $currentChunk = $_POST['currentChunk']; // Chunk atual
+
+            // Criar um diretório temporário para armazenar os chunks se não existir
+            if (!file_exists($targetDir)) {
+                mkdir($targetDir, 0777, true);
+            }
+
+            // Caminho do arquivo temporário
+            $tempFile = $targetDir . $filename . ".part" . $currentChunk;
+
+            // Receber o chunk e salvá-lo
+            if (isset($_FILES['file'])) {
+                $file = $_FILES['file'];
+                
+                // Mover o chunk para o diretório temporário
+                move_uploaded_file($file['tmp_name'], $tempFile);
+                
+                // Verificar se todos os chunks foram enviados
+                $allChunksReceived = true;
+                for ($i = 0; $i < $totalChunks; $i++) {
+                    if (!file_exists($targetDir . $filename . ".part" . $i)) {
+                        $allChunksReceived = false;
+                        break;
+                    }
+                }
+
+                // Se todos os chunks foram recebidos, juntar os arquivos
+                if ($allChunksReceived) {
+                    $finalFile = fopen($targetDir . $filename, "wb");
+
+                    for ($i = 0; $i < $totalChunks; $i++) {
+                        $chunkFile = $targetDir . $filename . ".part" . $i;
+                        $chunkData = file_get_contents($chunkFile);
+                        fwrite($finalFile, $chunkData);
+                        unlink($chunkFile); // Apagar o chunk após a escrita
+                    }
+
+                    fclose($finalFile);
+                    
+                    echo json_encode(["success" => true, "message" => "Arquivo enviado e juntado com sucesso"]);
+                } else {
+                    echo json_encode(["success" => true, "message" => "Chunk enviado com sucesso, aguardando outros chunks"]);
+                }
+            } else {
+                echo json_encode(["success" => false, "message" => "Erro ao enviar o chunk"]);
+            }
+        } else if (request("type")=="info" && ($type=="cadastro" || $type=="edit")){
             response()->json([]);
         } else if (request("type")=="option"){
             ["titulo"=>$titulo]=$_POST;
@@ -1368,10 +1418,12 @@ Route::post("/admin/musicas_cadastro",function(){
             $acessos_d=[];
             $durations=[];
             $zip;
+            $files=null;
             $imagem=null;
             $id=null;
             $d=null;
             if ($isCadastro){
+                $files=json_decode($_POST["files"],true);
                 $id=intval(p($conn->query("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM post_musica"))[0]["id"]);
             } else {
                 $id=$_POST["id"];
@@ -1402,11 +1454,10 @@ Route::post("/admin/musicas_cadastro",function(){
                 try {
                     $zip_archive=new ZipArchive();
                     if ($zip_archive->open($zip_name, ZipArchive::CREATE) === TRUE) {
-                        if (request()->has("arquivos")) {
-                            $files = $_FILES["arquivos"];
+                        if (request()->has("files")) {
                             $isUploaded=$files;
-                            foreach ($files["name"] as $index => $name){
-                                $file=$files["tmp_name"][$index];
+                            foreach ($files as $name){
+                                $file=__DIR__ . "/chunks/" . $name;
                                 // Salvar a imagem em um diretório
                                 $arquivo=$id . "_m_m_" . $idi . "_" . $name;
                                 $zip_archive->addFile($file,$arquivo);
@@ -1428,9 +1479,9 @@ Route::post("/admin/musicas_cadastro",function(){
                 }
                 if ($isUploaded){
                     $idi=0;
-                    foreach ($files["name"] as $index => $name){
-                        $file=$files["tmp_name"][$index];
-                        move_uploaded_file($file,__DIR__ . '/../public_html/musics/' . $arquivos[$index]);
+                    for ($i=0;$i<count($files);$i++){
+                        $file=$files[$i];
+                        rename(__DIR__ . "/chunks/" . $file,__DIR__ . '/../public_html/musics/' . $arquivos[$i]);
                         $idi++;
                     }
                 }
