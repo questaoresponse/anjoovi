@@ -1607,29 +1607,29 @@ Route::post("/musica/{id}",function($id){
     // }
 });
 Route::get("/texto/{id}",function($id){
-    if (is_js()){
-        $usuario=get_user();
-        $id=intval($id);
-        $conn = new sqli("anjoov00_posts");
-        $result=null;
-        if ($usuario){
-            $result=$conn->prepare("SELECT 
-            (SELECT CASE 
-                    WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
-                    ELSE 'false' 
-                END 
-            AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
-            CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-            p2.logo,p2.nome,
-            id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",['"' . $usuario . '"', "$." . $usuario,$id]);
-        } else {
-            $result=$conn->prepare("SELECT 'false' AS inscrito,
-            CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-            p2.logo,p2.nome,
-            id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",[$id]); 
-        }
-        $r=[];
-        if ($result->num_rows>0){
+    $usuario=get_user();
+    $id=intval($id);
+    $conn = new sqli("anjoov00_posts");
+    $result=null;
+    if ($usuario){
+        $result=$conn->prepare("SELECT 
+        (SELECT CASE 
+                WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
+                ELSE 'false' 
+            END 
+        AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
+        CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+        p2.logo,p2.nome,
+        id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",['"' . $usuario . '"', "$." . $usuario,$id]);
+    } else {
+        $result=$conn->prepare("SELECT 'false' AS inscrito,
+        CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+        p2.logo,p2.nome,
+        id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",[$id]); 
+    }
+    $r=[];
+    if ($result->num_rows>0){
+        if (is_js()){
             $r=p($result)[0];
             $r["acessos"]++;
             $acessos=$r["acessos"];
@@ -1644,46 +1644,50 @@ Route::get("/texto/{id}",function($id){
             $algoritmo=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
             response()->json(["result"=>"true","usuario"=>$usuario,"post"=>$r,"posts"=>$algoritmo,"alta"=>get_posts($conn)]);
         } else {
-            r404g();
+            include(__DIR__ . "/texto.php");
+            client();
         }
     } else {
-        client();
+        r404g();
     }
+
 });
 Route::get("/video/{id}",function($id){
-    if (is_js()){
-        $user=get_user();
-        $id=intval($id);
-        $conn = new sqli("anjoov00_posts");
-        $result=null;
-        if ($user){
-            $result=$conn->prepare("SELECT 
-            (SELECT CASE 
-                    WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
-                    ELSE 'false' 
-                END 
-            AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
-            CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-            p2.logo,p2.nome,
-            id,acessos,p.usuario,titulo,JSON_ARRAY(video,imagem) AS imagem,texto,d,views_id,'v' AS tipo FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",['"' . $user . '"', "$." . $user,$id]);
-        } else {
-            $result=$conn->prepare("SELECT 'false' AS inscrito,
-            CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-            p2.logo,p2.nome,
-            id,acessos,p.usuario,titulo,JSON_ARRAY(video,imagem) AS imagem,texto,d,views_id,'v' AS tipo FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",[$id]); 
-        }
-        $r=[];
-        if ($result->num_rows>0){
+    $user=get_user();
+    $id=intval($id);
+    $conn = new sqli("anjoov00_posts");
+    $result=null;
+    if ($user){
+        $result=$conn->prepare("SELECT 
+        (SELECT CASE 
+                WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
+                ELSE 'false' 
+            END 
+        AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
+        CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+        p2.logo,p2.nome,
+        id,acessos,p.usuario,titulo,JSON_ARRAY(video,imagem) AS imagem,texto,d,views_id,'v' AS tipo FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",['"' . $user . '"', "$." . $user,$id]);
+    } else {
+        $result=$conn->prepare("SELECT 'false' AS inscrito,
+        CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+        p2.logo,p2.nome,
+        id,acessos,p.usuario,titulo,JSON_ARRAY(video,imagem) AS imagem,texto,d,views_id,'v' AS tipo FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",[$id]); 
+    }
+    $r=[];
+    if ($result->num_rows>0){
+        if (is_js()){
             $r=p($result)[0];
             $views_id=$r["views_id"];
             $algoritmo=getAlgoritmoNoticia(false,$conn,$user,$views_id,0,24);
             response()->json(["result"=>"true","usuario"=>$user,"post"=>$r,"posts"=>$algoritmo,"alta"=>get_posts($conn)]);
         } else {
-            r404g();
+            include(__DIR__ . "/video.php");
+            client();
         }
     } else {
-        client();
+        r404g();
     }
+    
 });
 Route::post("/video/{id}",function($id){
     $user=get_user();
