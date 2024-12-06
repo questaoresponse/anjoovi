@@ -29,18 +29,20 @@ function VideosCadastro(){
         imagem_view:useRef<HTMLDivElement>(null),
         image_element:useRef<HTMLImageElement>(null),
     }
-    const [videoName,setVideoName]=useState("Upload");
-    const [imageName,setImageName]=useState("Upload");
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
-    const [videoInfos,setVideoInfos]=useState<{file?:File | Blob,name:string,type:string,src:string,width:string | number,height:string | number}>({
+    const [videoInfos,setVideoInfos]=useState<{isFile:boolean,file?:File | Blob,name:string,src:string,width:string | number,height:string | number}>({
+        isFile:false,
         name:"",
-        type:"jpeg",
         src:sem_imagem,
         width:"100%",
         height:"100%",
     });
-    const [imageInfos,setImageInfos]=useState<{src:string,width:string | number,height:string | number}>({
+    const frameImage=useRef<{file:Blob,name:string,src:string,width:string | number,height:string | number} | null>();
+    const [imageInfos,setImageInfos]=useState<{isFile:boolean,isVideoFrame:boolean,file?:File | Blob,name:string,src:string,width:string | number,height:string | number}>({
+        isFile:false,
+        isVideoFrame:false,
+        name:"",
         src:sem_imagem,
         width:"100%",
         height:"100%",
@@ -49,52 +51,75 @@ function VideosCadastro(){
     const [porcentagem,setPorcentagem]=useState(0);
     const ffmpeg = useRef(new FFmpeg());
 
-    const setDimensions=(file:File | Blob | undefined=undefined,name:string, src:any,isVideo:boolean,type:any)=>{
-        if (typeof src=="string"){
-            if (type=="mp4"){
-                const video = document.createElement("video");
-                video.onloadedmetadata = () => {
-                    const width=refs.video_view.current!.offsetWidth;
-                    const height=refs.video_view.current!.offsetHeight;
-                    var widthImage = video.videoWidth;
-                    var heightImage = video.videoHeight;
-                    if (width / widthImage * heightImage>height){
-                        widthImage=height / heightImage * widthImage;
-                        heightImage=height;
-                    } else {
-                        heightImage=height;
-                        widthImage=width;
-                    }
-                    setVideoInfos({type:"mp4", file, name, src, width: widthImage, height: heightImage});
+    const setDimensions=(videoOptions?:{file?:Blob,name:string,url:string},frameOptions?:{file:Blob,name:string,url:string},imageOptions?:{file?:File | Blob,name:string,url:string})=>{
+        if (videoOptions){
+            const video = document.createElement("video");
+            video.onloadedmetadata = () => {
+                const width=refs.video_view.current!.offsetWidth;
+                const height=refs.video_view.current!.offsetHeight;
+                var widthImage = video.videoWidth;
+                var heightImage = video.videoHeight;
+                if (width / widthImage * heightImage>height){
+                    widthImage=height / heightImage * widthImage;
+                    heightImage=height;
+                } else {
+                    heightImage=height;
+                    widthImage=width;
                 }
-                    // console.log(`Width: ${width}, Height: ${height}`);
-                video.src = src;
-
-                // Aqui você pode atualizar o estado ou fazer algo com as dimensões da imagem
-            } else {
-                const img = new Image();
-                img.onload = () => {
-                    const width=refs.imagem_view.current!.offsetWidth;
-                    const height=refs.imagem_view.current!.offsetHeight;
-                    var widthImage = img.width;
-                    var heightImage = img.height;
-                    if (width / widthImage * heightImage>height){
-                        widthImage=height / heightImage * widthImage;
-                        heightImage=height;
-                    } else {
-                        heightImage=width / widthImage * heightImage;
-                        widthImage=width;
-                    }
-                    isVideo ? setVideoInfos({ type:"mp4", file, name, src, width: widthImage, height: heightImage }) : setImageInfos({ src, width: widthImage, height: heightImage });
-                    // console.log(`Width: ${width}, Height: ${height}`);
-                }
-                img.src = src;
+                setVideoInfos({ isFile:true, file:videoOptions.file, name:videoOptions.name, src:videoOptions.url, width: widthImage, height: heightImage});
             }
+                // console.log(`Width: ${width}, Height: ${height}`);
+            video.src = videoOptions.url;
+        }
+        if (frameOptions){
+            const img = new Image();
+            img.onload = () => {
+                const width=refs.imagem_view.current!.offsetWidth;
+                const height=refs.imagem_view.current!.offsetHeight;
+                var widthImage = img.width;
+                var heightImage = img.height;
+                if (width / widthImage * heightImage>height){
+                    widthImage=height / heightImage * widthImage;
+                    heightImage=height;
+                } else {
+                    heightImage=width / widthImage * heightImage;
+                    widthImage=width;
+                }
+                frameImage.current={ file:frameOptions.file, name: frameOptions.name, src:frameOptions.url, width:widthImage, height: heightImage };
+                setImageInfos((imageInfos)=>{
+                    if (imageInfos.isFile && !imageInfos.isVideoFrame){
+                        return imageInfos;
+                    };
+                    return { isFile:true, isVideoFrame:true, file:frameOptions.file, name:frameOptions.name, src:frameOptions.url, width: widthImage, height: heightImage }
+                });
+                // console.log(`Width: ${width}, Height: ${height}`);
+            }
+            img.src = frameOptions.url;
+        }
+        if (imageOptions && !frameOptions){
+            const img = new Image();
+            img.onload = () => {
+                const width=refs.imagem_view.current!.offsetWidth;
+                const height=refs.imagem_view.current!.offsetHeight;
+                var widthImage = img.width;
+                var heightImage = img.height;
+                if (width / widthImage * heightImage>height){
+                    widthImage=height / heightImage * widthImage;
+                    heightImage=height;
+                } else {
+                    heightImage=width / widthImage * heightImage;
+                    widthImage=width;
+                }
+                setImageInfos({ isFile:true, isVideoFrame:false, file:imageOptions.file, name:imageOptions.name, src:imageOptions.url, width: widthImage, height: heightImage });
+                // console.log(`Width: ${width}, Height: ${height}`);
+            }
+            img.src = imageOptions.url;
         }
     }
-    const resetDimensions=(video:boolean,image:boolean)=>{
-        video && setVideoInfos({type:"jpeg",name:"", src:sem_imagem, width:"100%", height:"100%"});
-        image && setImageInfos({src:sem_imagem, width:"100%", height:"100%"});
+    const resetDimensions=()=>{
+        setVideoInfos({ isFile:false, name:"", src:sem_imagem, width:"100%", height:"100%" });
+        frameImage.current=null;
+        setImageInfos({ isFile:false ,isVideoFrame:false, name:"", src:sem_imagem, width:"100%", height:"100%" });
     }
     const onImagemChange=(e:any)=>{
         const file = e.target.files[0];
@@ -120,19 +145,30 @@ function VideosCadastro(){
                     }
                 }
                 if (fileType=="jpeg"){
-                    setImageName(file.name);
                     const reader2=new FileReader();
                     reader2.onloadend=()=>{
-                        setDimensions(file, file.name, reader2.result,false,fileType);
+                        setDimensions(undefined,undefined,{ file, name:file.name, url:reader2.result as string });
                     }
                     reader2.readAsDataURL(file);
                 } else {
-                    resetDimensions(false,true);
+                    setImageInfos(()=>{
+                        if (frameImage.current){
+                            return { isFile: true, isVideoFrame:true, file:frameImage.current.file, name:frameImage.current.name, src: frameImage.current.src, width: frameImage.current.width, height:frameImage.current.height };
+                        }
+                        return { isFile: false, isVideoFrame:false, name:"", src:sem_imagem, width:"100%", height:"100%" };
+                    });
                     e.target.value="";
                     showError();
                 }
             }
             reader.readAsArrayBuffer(file);
+        } else {
+            setImageInfos(()=>{
+                if (frameImage.current){
+                    return { isFile: true, isVideoFrame:true, file:frameImage.current.file, name:frameImage.current.name, src: frameImage.current.src, width: frameImage.current.width, height:frameImage.current.height };
+                }
+                return { isFile: false, isVideoFrame:false, name:"", src:sem_imagem, width:"100%", height:"100%" };
+            });
         }
     }
     const onChangeVideo=(e:any)=>{
@@ -151,27 +187,55 @@ function VideosCadastro(){
                     'isom', 'iso2', 'mp41', 'mp42', 'avc1', 'iso5'
                 ];
                 
-                let fileType:string | null = null;
 
                 if (type === 'ftyp' && validMp4Signatures.includes(String.fromCharCode(...uint8Array.slice(8, 12)))) {
                     ffmpeg.current.writeFile(file.name,await fetchFile(file));
                     const output="output."+file.name.split(".").slice(-1);
                     ffmpeg.current.exec(["-i",file.name,"-t","00:01:00","-c","copy",output]);
+                    ffmpeg.current.exec(['-i', file.name,'-vf', 'select=eq(n\\,0)','-q:v', '3','-frames:v', '1','output.jpg']);
+                 
                     const data=new Uint8Array(await ffmpeg.current.readFile(output) as ArrayBuffer);
+                    const fileData=new Uint8Array(await ffmpeg.current.readFile("output.jpg") as ArrayBuffer);
                     await ffmpeg.current.deleteFile(file.name);
                     await ffmpeg.current.deleteFile(output);
-                    const videoBlob=new Blob([data.buffer],{ type:"audio/"+file.name.split(".").slice(-1) });
+                    await ffmpeg.current.deleteFile("output.jpg");
+                    const videoBlob=new Blob([data.buffer],{ type:"video/"+file.name.split(".").slice(-1) });
                     const videoUrl=URL.createObjectURL(videoBlob);
-                    fileType="mp4";
-                    setVideoName(file.name);
-                    setDimensions(videoBlob,file.name,videoUrl,true,fileType);
+                    const imageBlob=new Blob([fileData.buffer],{ type:"image/jpg" });
+                    const imageUrl=URL.createObjectURL(imageBlob);
+                    setDimensions({
+                        file:videoBlob,
+                        name:file.name,
+                        url:videoUrl,
+                    },
+                    {
+                        file:imageBlob,
+                        name:file.name,
+                        url:imageUrl
+                    });
                 } else {
-                    resetDimensions(true,false);
+                    setVideoInfos({ isFile:false, name:"", src:sem_imagem, width:"100%", height:"100%" });
+                    frameImage.current=null;
+                    setImageInfos((imageInfos)=>{ 
+                        if (imageInfos.isVideoFrame){
+                            return {isFile:false, isVideoFrame:false, name:"", src:sem_imagem, width:"100%", height:"100%" };
+                        };
+                        return imageInfos;
+                    });
                     e.target.value="";
                     showError();
                 }
             }
             reader.readAsArrayBuffer(file);
+        } else {
+            setVideoInfos({ isFile:false, name:"", src:sem_imagem, width:"100%", height:"100%" });
+            frameImage.current=null;
+            setImageInfos((imageInfos)=>{ 
+                if (imageInfos.isVideoFrame){
+                    return {isFile:false, isVideoFrame:false, name:"", src:sem_imagem, width:"100%", height:"100%" };
+                };
+                return imageInfos;
+            });
         }
     }
     const VerifyUpload=(p:any)=>{
@@ -184,12 +248,12 @@ function VideosCadastro(){
         var fd=new FormData();
         const titulo=refs.titulo.current!.value;
         const video_file=videoInfos.file!;
-        const imagem_data=refs.file.current!.files![0];
+        const imagem_file=imageInfos.file;
         const original_format:boolean=JSON.parse(refs.original_format.current!.value);
         fd.append("type","option");
         edit.current && fd.append("id",post_edit.current!.id.toString());
-        imagem_data && fd.append("imagem",imagem_data);
-        imagem_data && fd.append("imagens_edit",(true).toString());
+        imagem_file && fd.append("imagem",imagem_file,imageInfos.name);
+        imagem_file && fd.append("imagens_edit",(true).toString());
         fd.append("titulo",titulo);
         if (!edit.current){
             fd.append("video",video_file,videoInfos.name);
@@ -222,9 +286,7 @@ function VideosCadastro(){
                 refs.titulo.current!.value="";
                 refs.file.current!.value="";
                 refs.original_format.current!.value="true";
-                setImageName("Upload");
-                setVideoName("Upload");
-                resetDimensions(true,true);
+                resetDimensions();
             }
         }
     };
@@ -235,20 +297,18 @@ function VideosCadastro(){
             clearTimeout(st);
         },2000);
     }
-    const onResize=()=>{
-        const tituloWidth=refs.titulo.current!.getBoundingClientRect().width;
-        refs.video_view.current!.style.height=(tituloWidth / 1280 * 720)+"px";
-        if (globals.mobile){
-            refs.imagem_view.current!.style.height=(tituloWidth/ 720 * 1280)+"px";
-        } else {
-            refs.imagem_view.current!.style.height=(window.innerHeight * 0.3)+"px";
-        }
-    };
+    // const onResize=()=>{
+        // const tituloWidth=refs.titulo.current!.getBoundingClientRect().width;
+        // refs.video_view.current!.style.height=(tituloWidth / 1280 * 720)+"px";
+        // if (globals.mobile){
+        //     refs.imagem_view.current!.style.height=(tituloWidth/ 720 * 1280)+"px";
+        // } else {
+        //     refs.imagem_view.current!.style.height=(window.innerHeight * 0.3)+"px";
+        // }
+    // };
     edit.current=location.pathname=="/admin/videos_edit";
     useEffect(()=>{
-        onResize();
         globals.setSelected("publicar");
-        document.addEventListener("resize",onResize);
         if (edit.current){
             auth.post(server+"/admin/videos_edit"+location.search,{type:"info"}).then((result:resultInterface)=>{
                 if (result.data.result=="true"){
@@ -256,8 +316,33 @@ function VideosCadastro(){
                     const post=result.data.post_edit[0];
                     post_edit.current=post;
                     refs.titulo.current!.value=post.titulo;
-                    setDimensions(undefined,post.video.split("_").slice(4).join("_"),server+"/videos/"+encodeURIComponent(post.video),true,"mp4");
-                    post.imagem && setDimensions(undefined,post.imagem.split("_").slice(4).join("_"),server+"/images/"+encodeURIComponent(post.imagem),false,"jpeg");
+                    setDimensions({
+                        name:post.video.split("_").slice(3).join("_"),
+                        url:server+"/videos/"+encodeURIComponent(post.video)
+                    },
+                    undefined,
+                    post.imagem ? {
+                        name:post.imagem.split("_").slice(3).join("_"),
+                        url:server+"/images/"+encodeURIComponent(post.imagem)
+                    } : undefined);
+                    !post.imagem && setTimeout(async ()=>{
+                        const img=await (await fetch(server+"/videos/"+encodeURIComponent(post.video))).arrayBuffer();
+                        const name=post.video.split("_").slice(3).join("_");
+                        ffmpeg.current.writeFile(name, new Uint8Array(img));
+                        ffmpeg.current.exec(['-i', name,'-vf', 'select=eq(n\\,0)','-q:v', '3','-frames:v', '1','output.jpg']);
+                     
+                        const fileData=new Uint8Array(await ffmpeg.current.readFile("output.jpg") as ArrayBuffer);
+                        await ffmpeg.current.deleteFile(name);
+                        await ffmpeg.current.deleteFile("output.jpg");
+                        const imageBlob=new Blob([fileData.buffer],{ type:"image/jpg" });
+                        const imageUrl=URL.createObjectURL(imageBlob);
+                        setDimensions(undefined,
+                        {
+                            file:imageBlob,
+                            name:name.split(".").slice(0,-1).join(".")+".jpg",
+                            url:imageUrl
+                        });
+                    },2000);
                 }
             });
         }
@@ -282,9 +367,6 @@ function VideosCadastro(){
             });
             console.log("carregado");
         })();
-        return ()=>{
-            document.removeEventListener("resize",onResize);
-        }
     },[]);
     const ChangeOriginalFormat=()=>{
         const values=["rd","of"];
@@ -299,23 +381,23 @@ function VideosCadastro(){
                 <form onSubmit={Cadastrar}>
                     <label>Título</label>
                     <textarea ref={refs.titulo} className="input" id="titulo"/>
-                    <label>Video</label>
                     <div id="video-div">
+                        <label>Video</label>
                         <div ref={refs.video_view} id="video-view">
-                            {videoInfos.type=="mp4" ? <video style={{width:"100%",height:"100%"}} src={videoInfos.src} controls={true}/> : <img style={{width:videoInfos.width,height:videoInfos.height}} src={videoInfos.src}/>}
+                            {videoInfos.isFile ? <video style={{width:"100%",height:"100%"}} src={videoInfos.src} controls={true}/> : <img style={{width:"100%",height:"100%"}} src={sem_imagem}/>}
                         </div>
                         <input className="file" ref={refs.video_input} type='file' accept='video/mp4' onChange={onChangeVideo}></input>
-                        <div id="video-filename" onClick={()=>refs.video_input.current!.click()}>{videoName}</div>
+                        <div id="video-filename" className={edit.current ? "disabled" : ""} onClick={()=>!edit.current && refs.video_input.current!.click()}>{videoInfos.name=="" ? "Upload" : videoInfos.name}</div>
                     </div>
-                    <label>Capa</label>
                     <div id="imagem-div">
+                        <label>Capa</label>
                         <div ref={refs.imagem_view} id="imagem-view" className="col-12 col-md-6">
-                            <img ref={refs.image_element} style={{width:imageInfos.width,height:imageInfos.height}} src={imageInfos.src}/>
+                            <img className='of' ref={refs.image_element} style={{width:imageInfos.width,height:imageInfos.height}} src={imageInfos.src}/>
                         </div>
                         <input className="file" ref={refs.file} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg"/>
                         <div id="imagem-pt">
                             <div id="imagem" onClick={()=>{refs.file.current!.click()}}>
-                                <div className="txt-1">{imageName}</div>
+                                <div className="txt-1">{imageInfos.name=="" ? "Upload" : imageInfos.name}</div>
                             </div>
                             <select defaultValue="true" onChange={ChangeOriginalFormat} ref={refs.original_format} id="original_format">
                                 <option value="true">Formato original</option>

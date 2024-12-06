@@ -43,7 +43,7 @@ const Years=forwardRef(({setYear,date}:{ref:RefObject<HTMLSelectElement>,setYear
         </select>
     },[]);
 });
-const Cadastro1=({server,auth,setType,values}:{server:string,auth:any,setType:(value:string)=>void,values:valuesInterface})=>{
+const Cadastro1=({mobile,server,auth,setType,values}:{mobile:boolean,server:string,auth:any,setType:(value:string)=>void,values:valuesInterface})=>{
     const [note,setNote]=useState(false);
     const valid=useRef(observable.box(false));
     const checkInputs=useRef(false);
@@ -128,11 +128,11 @@ const Cadastro1=({server,auth,setType,values}:{server:string,auth:any,setType:(v
         {note && <div className='note'>Nome de usuário já existe.</div>}
         <input className='i pass-unchecked' ref={refs.name} onChange={()=>verify("name")} placeholder='Nome'/>
         <input className='i pass-unchecked n-margin' ref={refs.user} onChange={()=>verify("user")} placeholder='Nome de usuário'/>
-        <div className='link' onClick={()=>setType("login")}>Já possui uma conta? Fazer login</div>
+        <div className='link' onClick={()=>setType("login")}>{mobile ? "Fazer login" : "Já possui uma conta? Fazer login"}</div>
         <Comp></Comp>
     </form>
 }
-const Cadastro2=({server,auth,setType,values}:{server:string,auth:any,setType:(value:string)=>void,values:valuesInterface})=>{
+const Cadastro2=({mobile,server,auth,setType,values}:{mobile:boolean,server:string,auth:any,setType:(value:string)=>void,values:valuesInterface})=>{
     const [note,setNote]=useState(false);
     const valid=useRef(observable.box(false));
     const checkInputs=useRef(false);
@@ -254,11 +254,11 @@ const Cadastro2=({server,auth,setType,values}:{server:string,auth:any,setType:(v
             <i className={'div-i '+(passHidden2 ? 'bi-eye-slash' : 'bi-eye')} onClick={()=>setPassHidden2(passHidden2=>!passHidden2)}></i>
         </div>
         <div className='pass-note'>Deve conter 8 digitos, caracteres especiais, letras maiúsculas e minúsculas</div>
-        <div className='link' onClick={()=>setType("login")}>Já possui uma conta? Fazer login</div>
+        <div className='link' onClick={()=>setType("login")}>{mobile ? "Fazer login" : "Já possui uma conta? Fazer login"}</div>
         <Comp></Comp>
     </form>
 }
-const Cadastro3=({get_origin,globals,auth,setType,values}:{get_origin:()=>string,globals:GlobalContextInterface,auth:any,setType:(value:string)=>void,values:valuesInterface})=>{
+const Cadastro3=({mobile,get_origin,globals,auth,setType,values}:{mobile:boolean,get_origin:()=>string,globals:GlobalContextInterface,auth:any,setType:(value:string)=>void,values:valuesInterface})=>{
     const { server, navigate, setHeader }=globals;
     const date=useRef(new Date());
     const [month,setMonth]=useState(-1);
@@ -324,7 +324,7 @@ const Cadastro3=({get_origin,globals,auth,setType,values}:{get_origin:()=>string
             <Days ref={refs.day} month={month} setDay={setDay} year={year}></Days>
             <Years ref={refs.year} setYear={setYear} date={date}></Years>
         </div>
-        <div className='link' onClick={()=>setType("login")}>Já possui uma conta? Fazer login</div>
+        <div className='link' onClick={()=>setType("login")}>{mobile ? "Fazer login" : "Já possui uma conta? Fazer login"}</div>
         <Comp></Comp>
     </form>
 }
@@ -360,7 +360,7 @@ const Login=({get_origin,globals,auth,setType}:{get_origin:()=>string,globals:Gl
             <input className='i pass-unchecked pass n-margin' ref={refs.password} placeholder='Senha' type={passHidden ? 'password' : 'text'}/>
             <i className={'div-i '+(passHidden ? 'bi-eye-slash' : 'bi-eye')} onClick={()=>setPassHidden(passHidden=>!passHidden)}></i>
         </div>
-        <div className='link' onClick={()=>setType("cadastro1")}>Não possui uma conta? Fazer cadastro</div>
+        <div className='link' onClick={()=>setType("cadastro1")}>{globals.mobile ? "Criar conta" : "Não possui uma conta? Fazer cadastro"}</div>
         <button className="btnd valid">Entrar</button>
     </form>
 }
@@ -388,7 +388,7 @@ function AdminLogin(){
             <div id="logo">
                 <LogoAnjoovi id={"logo-img"}/>
             </div>
-            {type=="login" ? <Login get_origin={get_origin} globals={globals} auth={auth} setType={setType} ></Login> : type=="cadastro1" ? <Cadastro1 server={server} auth={auth} setType={setType} values={values}></Cadastro1> : type=="cadastro2" ? <Cadastro2 server={server} auth={auth} setType={setType} values={values}></Cadastro2> : <Cadastro3 get_origin={get_origin} globals={globals} auth={auth} setType={setType} values={values}></Cadastro3>}
+            {type=="login" ? <Login get_origin={get_origin} globals={globals} auth={auth} setType={setType} ></Login> : type=="cadastro1" ? <Cadastro1 mobile={globals.mobile} server={server} auth={auth} setType={setType} values={values}></Cadastro1> : type=="cadastro2" ? <Cadastro2 mobile={globals.mobile} server={server} auth={auth} setType={setType} values={values}></Cadastro2> : <Cadastro3 mobile={globals.mobile} get_origin={get_origin} globals={globals} auth={auth} setType={setType} values={values}></Cadastro3>}
         </div>
     </div>
 }

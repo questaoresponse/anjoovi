@@ -199,7 +199,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post}:{isPlaylist?:any,id?:nu
                     </>
                 })}</div>
                 <div className="campo-video">
-                    {post.srcVideo ? <video className='campo-video-content' src={post.srcVideo}/> : <></>}
+                    {post.srcImagem ? <img className='campo-video-content' src={post.srcImagem}></img> : post.srcVideo ? <video className='campo-video-content' src={post.srcVideo}/> : <></>}
                 </div>
                 {/* <div className={"texto-video txt " + (!isMain ? " resumo" : "")}>{post.text.map((line:string[],i:number)=>{
                     return <>

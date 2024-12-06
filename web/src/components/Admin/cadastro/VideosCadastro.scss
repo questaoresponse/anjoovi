@@ -25,12 +25,27 @@
         width: 100%;
         height:40vh;
     }
+    #video-div{
+        position: relative;
+        display: block;
+        width: 100%;
+        // aspect-ratio: 16/9;
+    }
+    #imagem-div{
+        position: relative;
+        display: block;
+        width: 100%;
+        // aspect-ratio: 16/9;
+    }
     #video-view{
         display: flex;
         padding-bottom: initial;
         align-items: center;
         width: 100%;
         background-color: gray;
+        aspect-ratio: 16/9;
+        border-radius: 10px;
+        overflow: hidden;
     }
     #imagem-view{
         display: flex;
@@ -38,11 +53,8 @@
         // justify-content: initial;
         align-items: center;
         width:100%;
-        @include pc(){
-            width:calc(30vh / 1280 * 720);
-            height:30vh;
-            padding-bottom: initial;
-        }
+        height: 100%;
+        aspect-ratio: 16/9;
     }
     #imagem-view img{
         position: absolute;
@@ -67,6 +79,10 @@
         border: solid 1px black;
         cursor: pointer;
     }
+    #video-filename.disabled{
+        opacity: 0.75;
+        cursor: initial;
+    }
     #uploadd{
         position:fixed;
         top:0px;
@@ -86,5 +102,45 @@
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+    #imagem-pt{
+        margin-top: 5px;
+        height: auto;
+    }
+    #imagem{
+        padding-top: 0;
+        border: solid 1px black;
+        margin-bottom: 5px;
+    }
+    #original_format{
+        border: solid 1px black;
+        border-radius: 5px;
+        height: 2em;
+    }
+    @include pc(){
+        #video-div{
+            display: inline-block;
+            width: 49.5%;
+        }
+        #imagem-div{
+            display: inline-block;
+            width:49.5%;
+            margin-left: 1%;
+        }
+        #imagem-view{
+            padding-bottom: initial;
+        }
+        #imagem-pt{
+            width: 100%;
+            flex-direction: row;
+        }
+        #imagem{
+            width: 49.5%;
+        }
+        #original_format{
+            margin-left: 1%;
+            width: 49.5%;
+            height: 2em;
+        }
     }
 }
