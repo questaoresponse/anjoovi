@@ -52,7 +52,7 @@ if ($valid){
             }
         }
     } else {
-        $commands=["git fetch origin","git checkout origin/main ../server","git checkout origin/main ../public_html"];
+        $commands=["git fetch origin","git checkout origin/main ../server","rm -rf public_html/assets/","git checkout origin/main ../public_html"];
         foreach ($commands as $command){
             // Array para armazenar a saída
             $output = [];
