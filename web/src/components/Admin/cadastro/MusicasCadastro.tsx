@@ -147,15 +147,15 @@ function MusicasCadastro(){
         if (!edit.current){
             for (const musica of musicas){
                 const file=musica.input.current!.files![0];
-                if (file.type=="audio/m4a"){
+                if (file.type=="audio/x-m4a"){
                     onProgress({ progress:1 });
                     fd.append("arquivos[]",file,file.name.split(".").slice(0,-1).join(".")+".m4a");
                 } else {
-                    const input=file.name+file.name.split(".").slice(-1).join(".");
+                    const input="input"+file.name.split(".").slice(-1).join(".");
                     await ffmpeg.current.writeFile(input, await fetchFile(file));
                     console.log("aian2");
                     // Executa o corte para os primeiros 15 segundos
-                    await ffmpeg.current.exec(["-i", input, "output.m4a"]);
+                    await ffmpeg.current.exec(["-i", input,"-vn","-c:a","aac","output.m4a"]);
                     console.log("foie");
                     // Lê o arquivo de saída
                     const data = new Uint8Array(await ffmpeg.current.readFile("output.m4a") as ArrayBuffer);
