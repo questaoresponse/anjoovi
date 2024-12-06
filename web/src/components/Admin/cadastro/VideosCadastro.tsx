@@ -387,7 +387,9 @@ function VideosCadastro(){
                             {videoInfos.isFile ? <video style={{width:"100%",height:"100%"}} src={videoInfos.src} controls={true}/> : <img style={{width:"100%",height:"100%"}} src={sem_imagem}/>}
                         </div>
                         <input className="file" ref={refs.video_input} type='file' accept='video/mp4' onChange={onChangeVideo}></input>
-                        <div id="video-filename" className={edit.current ? "disabled" : ""} onClick={()=>!edit.current && refs.video_input.current!.click()}>{videoInfos.name=="" ? "Upload" : videoInfos.name}</div>
+                        <div id="video-filename" className={edit.current ? " disabled" : ""} onClick={()=>!edit.current && refs.video_input.current!.click()}>
+                            <div className='txt-1'>{videoInfos.name=="" ? "Upload" : videoInfos.name}</div>
+                        </div>
                     </div>
                     <div id="imagem-div">
                         <label>Capa</label>
