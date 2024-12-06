@@ -151,14 +151,15 @@ function MusicasCadastro(){
                     onProgress({ progress:1 });
                     fd.append("arquivos[]",file,file.name.split(".").slice(0,-1).join(".")+".m4a");
                 } else {
-                    await ffmpeg.current.writeFile(file.name, await fetchFile(file));
+                    const input=file.name+file.name.split(".").slice(-1).join(".");
+                    await ffmpeg.current.writeFile(input, await fetchFile(file));
                     console.log("aian2");
                     // Executa o corte para os primeiros 15 segundos
-                    await ffmpeg.current.exec(["-i", file.name, "output.m4a"]);
+                    await ffmpeg.current.exec(["-i", input, "output.m4a"]);
                     console.log("foie");
                     // Lê o arquivo de saída
                     const data = new Uint8Array(await ffmpeg.current.readFile("output.m4a") as ArrayBuffer);
-                    await ffmpeg.current.deleteFile(file.name);
+                    await ffmpeg.current.deleteFile(input);
                     await ffmpeg.current.deleteFile("output.m4a");
                     // Cria um URL para o vídeo cortado
                     const videoBlob = new Blob([data.buffer], { type: "audio/m4a" });
