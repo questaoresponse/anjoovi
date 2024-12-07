@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
     setcookie("token", $valorVazio,[ 
         "expires"=>$expiracaoPassada,
         "path"=>"/",
-        "domain"=>".anjoovi.com", 
+        "domain"=>"www.anjoovi.com", 
         "secure"=>true,
         "httponly"=>true,
         "samesite"=>"None"]);
