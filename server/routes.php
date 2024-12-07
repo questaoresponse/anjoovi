@@ -11,7 +11,7 @@ if (isset($_SERVER["HTTP_ORIGIN"])) {
     }
     $GLOBALS["domain_cookie"] = $server;
 } else if (isset($_SERVER["HTTP_HOST"])){
-    $GLOBALS["domain_cookie"] = "." . implode(".",array_slice(explode(".",$_SERVER["HTTP_HOST"]),1));
+    $GLOBALS["domain_cookie"] = "." . $_SERVER["HTTP_HOST"];
 } else {
     // if ($_SERVER["REQUEST_METHOD"]=="POST"){
         // header("Location: /anj" . $_SERVER["REQUEST_URI"]);
