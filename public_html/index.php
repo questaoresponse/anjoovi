@@ -14,7 +14,9 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
         "secure"=>true,
         "httponly"=>true,
         "samesite"=>"None"]);
-        echo $_SERVER["HTTP_ORIGIN"];
+        echo $_SERVER["HTTP_REFERER"] . "-";
+        echo $_SERVER["HTTP_HOST"] . "-";
+        echo $_SERVER["HTTP_ORIGIN"] . "-";
         echo json_encode($_COOKIE);
 } else if (cm("/noticia") || cm("/imagem") || cm("/musica") || cm("/texto") || cm("/video")){
     include(__DIR__ . '/../server/routes.php');
