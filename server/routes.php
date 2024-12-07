@@ -1,5 +1,4 @@
 <?php 
-session_start();
 $GLOBALS["isSecure"]=isset($_SERVER["HTTP_ORIGIN"]) ? str_starts_with($_SERVER["HTTP_ORIGIN"],"https://") : true;
 
 // Verifique se a URL contém um host
@@ -11,8 +10,9 @@ if (isset($_SERVER["HTTP_ORIGIN"])) {
         $server="." . implode(".",array_slice(explode(".",$server),-2));
     }
     $GLOBALS["domain_cookie"] = $server;
+} else if (isset($_SERVER["HTTP_HOST"])){
+    $GLOBALS["domain_cookie"] = "." . implode(".",array_slice(explode(".",$_SERVER["HTTP_HOST"]),1));
 } else {
-    $GLOBALS["domain_cookie"] = ".anjoovi.com";
     // if ($_SERVER["REQUEST_METHOD"]=="POST"){
         // header("Location: /anj" . $_SERVER["REQUEST_URI"]);
         // // response()->json(["header_location"=>$_SERVER["REQUEST_URI"]]);
