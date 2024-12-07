@@ -22,7 +22,7 @@ if (isset($_SERVER["HTTP_ORIGIN"])) {
         // header('HTTP/1.1 400');
         // echo "Access denied: Invalid Host header.";
         // die();
-    }
+    // }
 }
 require __DIR__ . '/../google/auth/guzzlehttp/promises/src/Is.php';
 require __DIR__ . '/../google/auth/guzzlehttp/promises/src/PromiseInterface.php';
