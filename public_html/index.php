@@ -20,7 +20,4 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
 } else {
     include(__DIR__ . '/index.html');
 }
-echo "<script>
-localStorage.removeItem('lg');
-</script>";
 ?>
