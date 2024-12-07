@@ -12,7 +12,7 @@ if (isset($_SERVER["HTTP_ORIGIN"])) {
     }
     $GLOBALS["domain_cookie"] = $server;
 } else {
-    $GLOBALS["domain_cookie"] = ".anjoovi.com";
+    $GLOBALS["domain_cookie"] = "www.anjoovi.com";
     // if ($_SERVER["REQUEST_METHOD"]=="POST"){
         // header("Location: /anj" . $_SERVER["REQUEST_URI"]);
         // // response()->json(["header_location"=>$_SERVER["REQUEST_URI"]]);
