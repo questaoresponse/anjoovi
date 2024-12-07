@@ -1476,77 +1476,47 @@ Route::get("/ajeitar2",function(){
 });
 Route::get("/musica/{id}",function($id){
     $usuario=get_user();
-    if (!isset($_GET["type"])){
-        $conn=new sqli("anjoov00_posts");
-        $id=intval($id);
-        $result=null;
-        if ($usuario){
-            $result=$conn->prepare("SELECT 
-            (SELECT CASE 
-                    WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
-                    ELSE 'false' 
-                END 
-            AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
-            CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-            p2.logo,p2.nome,
-            id,downloads,duration,acessos,titulo,p.usuario,imagem,views_id,arquivo,zip,'m' AS tipo FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false'",['"' . $usuario . '"', "$." . $usuario,$id]);
-        } else {
-            $result=$conn->prepare("SELECT 'false' AS inscrito, 
-            CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-            p2.logo,p2.nome,
-            id,downloads,duration,acessos,titulo,p.usuario,imagem,views_id,arquivo,zip,'m' AS tipo FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false'",[$id]); 
-        }
-        if ($result->num_rows>0){
-            $result=p($result)[0];
-            $acessos=0;
-            $views_id=$result["views_id"];
-            // $conn->prepare("UPDATE post_musica SET acessos=? WHERE id=? AND privado='false'",[$acessos,$id]);
-            // $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=?",[$views_id]))[0]["acessos_d"],true);
-            // $d=get_updated_date();
-            if (is_js()){
-                $post=$result;
-                $algoritmo=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
-                response()->json(["result"=>"true","post"=>$post,"posts"=>$algoritmo,"alta"=>get_posts($conn),"usuario"=>$usuario]);
-                // client();
-            } else {
-                include(__DIR__ . "/musica.php");
-                client();
-            }
-        } else {
-            r404();
-        }
-    } else if (isset($_GET["type"]) && $_GET["type"]=="download"){
-        $id=request()->query("id");
-        if ($id){
-            $id=intval($id);
-            // $id=request("id");
-            $conn=new sqli("anjoov00_posts");
-            $conn->prepare("UPDATE post_musica SET downloads=downloads+1 WHERE id=?",[$id]);
-            response()->json(["result"=>"true","usuario"=>$usuario]);
-        } else {
-            response()->json(["result"=>"false"]);
-        }
-        // response()->json(file_get_contents(__DIR__ . '/../public_html/templates/musica/main.html'));
-    } else if (isset($_GET["type"]) && $_GET["type"]=="view"){
-        $id=intval($id);
-        $index=intval(request()->query("index"));
-        $conn=new sqli("anjoov00_posts");
-        $result=p($conn->prepare("SELECT views_id,acessos,acessos_parcial,acessos_d,(SELECT d2 FROM views WHERE id=p.views_id) AS d2 FROM post_musica p WHERE id=? ",[$id]))[0];
-        $acessos=$result["acessos"]+1;
-        $acessos_parcial=json_decode($result["acessos_parcial"]);
-        $acessos_d=json_decode($result["acessos_d"]);
-        $acessos_parcial[$index]=$acessos_parcial[$index]+1;
+    $conn=new sqli("anjoov00_posts");
+    $id=intval($id);
+    $result=null;
+    if ($usuario){
+        $result=$conn->prepare("SELECT 
+        (SELECT CASE 
+                WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
+                ELSE 'false' 
+            END 
+        AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
+        CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+        p2.logo,p2.nome,
+        id,downloads,duration,acessos,titulo,p.usuario,imagem,views_id,arquivo,zip,'m' AS tipo FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false'",['"' . $usuario . '"', "$." . $usuario,$id]);
+    } else {
+        $result=$conn->prepare("SELECT 'false' AS inscrito, 
+        CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+        p2.logo,p2.nome,
+        id,downloads,duration,acessos,titulo,p.usuario,imagem,views_id,arquivo,zip,'m' AS tipo FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false'",[$id]); 
+    }
+    if ($result->num_rows>0){
+        $result=p($result)[0];
+        $acessos=0;
         $views_id=$result["views_id"];
-        $d=get_updated_date();
-        $json=[];
-        $json[$d]=$usuario;
-        $acessos_d[$index][]=$json;
-        $d2=is_array($acessos_parcial) ? update_acessos_d($usuario,json_decode($result["d2"],true),$index,count($acessos_parcial)) : "{}";
-        $acessos_parcial=json_encode($acessos_parcial);
-        $acessos_d=json_encode($acessos_d);
-        $conn->prepare("UPDATE post_musica SET acessos=?,acessos_parcial=?,acessos_d=? WHERE id=?",[$acessos,$acessos_parcial,$acessos_d,$id]);
-        $conn->prepare("UPDATE views SET d2=? WHERE id=? AND excluido='false'",[$d2,$views_id]);
-        response()->json(["result"=>"true","usuario"=>$usuario]);
+        // $conn->prepare("UPDATE post_musica SET acessos=? WHERE id=? AND privado='false'",[$acessos,$id]);
+        // $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=?",[$views_id]))[0]["acessos_d"],true);
+        // $d=get_updated_date();
+        if (is_js()){
+            $post=$result;
+            $algoritmo=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
+            response()->json(["result"=>"true","post"=>$post,"posts"=>$algoritmo,"alta"=>get_posts($conn),"usuario"=>$usuario]);
+            // client();
+        } else {
+            include(__DIR__ . "/musica.php");
+            client();
+        }
+    } else {
+        if (is_js()){
+            r404();
+        } else {
+            r404g();
+        }
     }
     // } else {
     //     response()->json(["header_location"=>"/admin"]);
@@ -1648,10 +1618,64 @@ Route::get("/texto/{id}",function($id){
             client();
         }
     } else {
-        r404g();
+        if (is_js()){
+            r404();
+        } else {
+            r404g();
+        }
     }
 
 });
+// Route::post("/texto/{id}",function($id){
+//     $usuario=get_user();
+//     $id=intval($id);
+//     $conn = new sqli("anjoov00_posts");
+//     $result=null;
+//     if ($usuario){
+//         $result=$conn->prepare("SELECT 
+//         (SELECT CASE 
+//                 WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
+//                 ELSE 'false' 
+//             END 
+//         AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
+//         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+//         p2.logo,p2.nome,
+//         id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",['"' . $usuario . '"', "$." . $usuario,$id]);
+//     } else {
+//         $result=$conn->prepare("SELECT 'false' AS inscrito,
+//         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+//         p2.logo,p2.nome,
+//         id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",[$id]); 
+//     }
+//     $r=[];
+//     if ($result->num_rows>0){
+//         if (is_js()){
+//             $r=p($result)[0];
+//             $r["acessos"]++;
+//             $acessos=$r["acessos"];
+//             $views_id=$r["views_id"];
+//             $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=? AND tipo='post_texto'",[$views_id]))[0]["d2"],true);
+//             $acessos_d=update_acessos_d($usuario,$acessos_d);
+//             $conn->prepare("UPDATE post_texto SET acessos=? WHERE id=? AND privado='false' AND lixeira='false'",[$acessos,$id]);
+//             $conn->prepare("UPDATE views SET d2=? WHERE id=? AND tipo='post_texto'",[$acessos_d,$views_id]);
+//             unset($r["views"]);
+//             unset($r["acessos"]);
+//             unset($r["views_id"]);
+//             $algoritmo=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
+//             response()->json(["result"=>"true","usuario"=>$usuario,"post"=>$r,"posts"=>$algoritmo,"alta"=>get_posts($conn)]);
+//         } else {
+//             include(__DIR__ . "/texto.php");
+//             client();
+//         }
+//     } else {
+//         if (is_js()){
+//             r404();
+//         } else {
+//             r404g();
+//         }
+//     }
+
+// });
 Route::get("/video/{id}",function($id){
     $user=get_user();
     $id=intval($id);

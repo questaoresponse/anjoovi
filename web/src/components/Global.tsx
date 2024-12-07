@@ -4,6 +4,11 @@ import PlayerClass from './PlayerClass.ts';
 interface loadedInfosInterface{
   loaded:boolean
 }
+interface loginInterface{
+  usuario:string | null,
+  isLoged:string | null,
+  logo:string | null
+}
 interface OptionsNavigate{
   changeURL:boolean,
   lookTop:boolean,
@@ -15,16 +20,9 @@ interface GlobalContextInterface {
   setHeader:Dispatch<SetStateAction<string | boolean>>
   mobile:boolean,
   renderAds:(remove?:boolean)=>void,
-  login:{
-    usuario:string | null,
-    isLoged:string | null,
-    logo:string | null
-  },
-  setLogin:Dispatch<SetStateAction<{
-    usuario:string | null,
-    isLoged:string | null,
-    logo:string | null
-  }>>,
+  login:loginInterface,
+  setLogin:Dispatch<SetStateAction<loginInterface>>,
+  currentLogin:MutableRefObject<loginInterface>,
   selected:string | undefined,
   setSelected:Dispatch<SetStateAction<string | undefined>>,
   inicioSelected:string | undefined,
@@ -173,6 +171,11 @@ const GlobalProvider = ({ children }:{children:any}) => {
       isLoged:lg && lg.usuario ? "true" : "false",
       logo:lg && lg.lsrc ? descript(lg.lsrc) : null
     });
+    const currentLogin=useRef<loginInterface>({
+      usuario:lg && lg.usuario ? lg.usuario : null,
+      isLoged:lg && lg.usuario ? "true" : "false",
+      logo:lg && lg.lsrc ? descript(lg.lsrc) : null
+    });
     const [mobile,setMobile]=useState(window.innerWidth < 769 ? true : false);
     const [homeInfo,setHomeInfo]=useState();
     const [isAds,setIsAds]=useState<boolean>();
@@ -190,12 +193,6 @@ const GlobalProvider = ({ children }:{children:any}) => {
     const player=useRef(new PlayerClass);
     const serviceChannel=useRef<MessageChannel>(new MessageChannel());
     const get=useRef<((initial?:boolean)=>void) | undefined>(undefined);
-    interface currentInterface{
-      usuario:string,
-      token:string,
-      lsrc:string,
-    }
-    const currentLogin=useRef<currentInterface>();
     const isLoadedPage=useRef(true);
     const loadedInfos=useRef<loadedInfosInterface>({loaded:false});
     const firstEvents=useRef<any[]>([]);
@@ -213,7 +210,7 @@ const GlobalProvider = ({ children }:{children:any}) => {
       } else {
         value=f;
       }
-      if (!currentLogin.current || (currentLogin.current.usuario!=value.usuario || currentLogin.current.token!=value.token || currentLogin.current.lsrc!=value.lsrc)){
+      if (!currentLogin.current || (currentLogin.current.usuario!=value.usuario || currentLogin.current.logo!=value.lsrc)){
         setLoginState(value);
         currentLogin.current=value;
       };
@@ -272,6 +269,7 @@ const GlobalProvider = ({ children }:{children:any}) => {
       myStorage,
       login,
       setLogin,
+      currentLogin,
       isLoadedPage,
       encode,
       player,

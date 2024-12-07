@@ -178,6 +178,7 @@ function MusicasCadastro(){
         if (!isAdd) return;
         const musicFiles:{ file:File | Blob, name:string }[]=[];
         var currentMusic=0;
+        var currentPercentage:{[key:string]:any}={};
         async function uploadMusic(music:{ file:File | Blob, name:string }){
             const file=music.file;
             const chunkSize = 1024 * 1024; // 1 MB por chunk
@@ -194,6 +195,8 @@ function MusicasCadastro(){
                 fd.append("filename", music.name);
                 fd.append('file', chunk, music.name);
                 await auth.post(server+"/admin/musicas_cadastro?type=chunk",fd,{arquivo:true});
+                currentPercentage[music.name]=(chunkIndex+1)/totalChunks;
+                VerifyUpload(musicFiles.map(v=>currentPercentage[v.name]).reduce((a,b)=>a+b,0) * 100 / musicFiles.length);
             }
             currentMusic+=1;
             if (currentMusic==musicFiles.length){
@@ -227,6 +230,7 @@ function MusicasCadastro(){
             }
             progress.current.executed=true;
             for (const music of musicFiles){
+                currentPercentage[music.name]=0;
                 uploadMusic(music);
                   // Enviando chunk via Fetch API
                 //   await fetch('/upload', {

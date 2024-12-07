@@ -164,7 +164,7 @@ const AuthProvider = ({ children }:{children:any}) => {
         return new Promise(async (r,j)=>{
           axios.put(url)
           .then((result:any)=>{
-            r(result);
+            a(result,r);
           })
           .catch ((err)=>{
             errorRequest(err);

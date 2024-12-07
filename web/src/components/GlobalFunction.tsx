@@ -7,23 +7,23 @@ function GlobalFunction(){
     const location=useLocation();
     const auth=useAuth();
     const navigatess=useNavigate();
-    const { player, setHeader, loadedInfos,serviceChannel,server,navigate,navigateClass,setMobile,verifyStories,login,modules,redirectTo,redirectError,isLoadedPage,peer, cargo }=useGlobal();
+    const { player, setHeader, loadedInfos,serviceChannel,server,navigate,navigateClass,setMobile,verifyStories,currentLogin,modules,redirectTo,redirectError,isLoadedPage,peer, cargo }=useGlobal();
     
     function gtag(..._:any){window.dataLayer.push(arguments);}
     const verifyHeader=(pathname:string)=>{
         if (pathname=="/admin"){
             player.current.page_id!=-1 && player.current.reset();
-            if (login.isLoged=="true"){
+            if (currentLogin.current.isLoged=="true"){
                 setHeader("admin");
-            } else if (login.isLoged=="false") {
+            } else if (currentLogin.current.isLoged=="false") {
                 setHeader(false);
             }
 
         } else if (pathname.startsWith("/admin")){
             player.current.page_id!=-1 && player.current.reset();
-            if (login.isLoged=="true"){
+            if (currentLogin.current.isLoged=="true"){
                 setHeader("admin");
-            } else if (login.isLoged=="false") {
+            } else if (currentLogin.current.isLoged=="false") {
                 setHeader(false);
             }
         } else {
@@ -63,7 +63,7 @@ function GlobalFunction(){
         }
         window.addEventListener("resize",handleSize);
         const verifyStoriesFn=(route:any)=>{
-            navigate!(login.isLoged=="true" ? route : "/admin?origin="+encodeURIComponent(route));
+            navigate!(currentLogin.current.isLoged=="true" ? route : "/admin?origin="+encodeURIComponent(route));
         }
         verifyStories.current=verifyStoriesFn;
         
@@ -166,8 +166,8 @@ function GlobalFunction(){
                 navigator.serviceWorker.controller!.postMessage({origin:"new"},[serviceChannel.current.port2]);
                 send({type:"data",server,tipo:tipo_usuario});
                 // Envia uma mensagem para o Service Worker
-                if (login.usuario){
-                    peer.current.init(login.usuario!);
+                if (currentLogin.current.usuario){
+                    peer.current.init(currentLogin.current.usuario!);
                     peer.current.post=auth.post;
                     peer.current.server=server;
                     peer.current.on('open', ({id}:{id:string}) => {
@@ -181,7 +181,7 @@ function GlobalFunction(){
                 //     auth.post(server+"/view",{type:"info",tipo:tipo_usuario,operator:out ? "delete" : hidden ? "modify" : "new",peer_id:peer_id});
                 // }
                 // function newSend(type:number){
-                //     if (login.usuario){
+                //     if (currentLogin.current.usuario){
                 //         auth.post(server+"/view",{type:"info",tipo:tipo_usuario,operator:type==0 ? "delete" : type==1 ? "modify" : "new",peer_id:peer_id});
                 //     }       
                 // }

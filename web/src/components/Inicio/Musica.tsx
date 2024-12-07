@@ -276,44 +276,38 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/musica/"+post.id,post.id)}} to={"/musica/"+post.id} className="musica disabled">
                 <Conteudo auth={auth} globals={globals} infos={post as { nome: string; usuario: string; logo: string | null; visualizacoes: number; inscrito: boolean | null; }}></Conteudo>
                 <div className="top">
-                        <div className="imagemd">{post.imagem ? <img className="imagem" src={post.imagem}/> : <></>}</div>
-                        <div className="top2">
-                            <div className="titulo-musica txt">{post.titulo.map((texto:string,index:number)=>{
-                                return texto.length>1 && texto[0]=="@" ? <Link className='tag' key={index} to={"/@"+encodeURIComponent(texto.slice(1,-1))}>{texto + ( post.titulo.length-1>index ? " " : "" )}</Link> : texto + ( post.titulo.length-1>index ? " " : "" )
-                            })}</div>
-                            <a className="download" onClick={Download} href={server+"/zips/"+encodeURIComponent(post.zip!)} download={post.titulo+".zip"}>Download</a>
-                            <div className="infos">
-                                <div className="downloads">Downloads:{post.downloads}</div>
-                                { post.visualizacoes!=-1 ? <div className="visualizacoes"><p>{post.visualizacoes}</p><i className="bi-eye"></i></div> : null }
-                                {!isMain && <div className='n_comment'>
-                                    <p>{post.n_comment}</p>
-                                    <i className='bi-chat-dots'></i>
-                                </div>} 
-                                <Denuncia tipo="musica"></Denuncia>
-                            </div>
-                        </div>
+                    <div className="titulo-musica txt">{post.titulo.map((texto:string,index:number)=>{
+                        return texto.length>1 && texto[0]=="@" ? <Link className='tag' key={index} to={"/@"+encodeURIComponent(texto.slice(1,-1))}>{texto + ( post.titulo.length-1>index ? " " : "" )}</Link> : texto + ( post.titulo.length-1>index ? " " : "" )
+                    })}</div>
+                    <div className="imagemd">{post.imagem ? <img className="imagem" src={post.imagem}/> : <></>}</div>
+                    <a className="download" onClick={Download} href={server+"/zips/"+encodeURIComponent(post.zip!)} download={post.titulo+".zip"}>Download</a>
+                    <div className="infos">
+                        <div className="downloads">Downloads:{post.downloads}</div>
+                        { post.visualizacoes!=-1 ? <div className="visualizacoes"><p>{post.visualizacoes}</p><i className="bi-eye"></i></div> : null }
+                        {!isMain && <div className='n_comment'>
+                            <p>{post.n_comment}</p>
+                            <i className='bi-chat-dots'></i>
+                        </div>} 
+                        <Denuncia tipo="musica"></Denuncia>
                     </div>
-                    <div>
-                        {musics.map((music,index)=>{
-                            return <MusicaList music={music} onClickMusic={player.current.onClickMusic} getTime={player.current.getTime} getData={getData} index={index} key={index}/>
-                        })}
+                </div>
+                <div>
+                    {musics.map((music,index)=>{
+                        return <MusicaList music={music} onClickMusic={player.current.onClickMusic} getTime={player.current.getTime} getData={getData} index={index} key={index}/>
+                    })}
                 </div>
             </Link> : <div className="musica">
                 <Conteudo auth={auth} globals={globals} infos={post as { nome: string; usuario: string; logo: string | null; visualizacoes: number; inscrito: boolean | null; }}></Conteudo>
                 <div className="top">
+                    <div className="titulo-musica txt">{post.titulo.map((texto:string,index:number)=>{
+                            return texto.length>1 && texto[0]=="@" ? <Link className='tag' key={index} to={"/@"+encodeURIComponent(texto.slice(1,-1))}>{texto + ( post.titulo.length-1>index ? " " : "" )}</Link> : texto + ( post.titulo.length-1>index ? " " : "" )
+                    })}</div>
                     <div className="imagemd">{post.imagem ? <img className="imagem-musica" src={post.imagem}/> : <></>}</div>
-                    <div className="top2">
-                        <div className="titulo-musica txt">{post.titulo.map((texto:string,index:number)=>{
-                                return texto.length>1 && texto[0]=="@" ? <Link className='tag' key={index} to={"/@"+encodeURIComponent(texto.slice(1,-1))}>{texto + ( post.titulo.length-1>index ? " " : "" )}</Link> : texto + ( post.titulo.length-1>index ? " " : "" )
-                        })}</div>
-                        <div id="divs">
-                            <a className="download" onClick={Download} href={server+"/zips/"+encodeURIComponent(post.zip!)} download={post.titulo+".zip"}>Download</a>
-                            <div className="infos">
-                                <div className="downloads">Downloads:{post.downloads}</div>
-                                { post.visualizacoes!=-1 ? <div className="visualizacoes"><p>{post.visualizacoes}</p><i className="bi-eye"></i></div> : null }
-                                <Denuncia tipo="musica"></Denuncia>
-                            </div>
-                        </div>
+                    <a className="download" onClick={Download} href={server+"/zips/"+encodeURIComponent(post.zip!)} download={post.titulo+".zip"}>Download</a>
+                    <div className="infos">
+                        <div className="downloads">Downloads:{post.downloads}</div>
+                        { post.visualizacoes!=-1 ? <div className="visualizacoes"><p>{post.visualizacoes}</p><i className="bi-eye"></i></div> : null }
+                        <Denuncia tipo="musica"></Denuncia>
                     </div>
                 </div>
                 <div>

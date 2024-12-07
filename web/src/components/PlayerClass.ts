@@ -38,6 +38,7 @@ class PlayerClass{
         this.animate=this.animate.bind(this);
         this.changeState=this.changeState.bind(this);
         this.End=this.End.bind(this);
+        this.reset=this.reset.bind(this);
     }
     reset(){
         if (!this.paused){
