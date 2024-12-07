@@ -6,8 +6,6 @@ if (isset($_SERVER["HTTP_ORIGIN"])) {
     $server=implode("/",array_slice(explode("/",$_SERVER["HTTP_ORIGIN"]),-1));
     if (substr_count($server,":")>0){
         $server=implode(":",array_slice(explode(":",$server),0,-1));
-    } else {
-        $server="." . implode(".",array_slice(explode(".",$server),-2));
     }
     $GLOBALS["domain_cookie"] = $server;
 } else if (isset($_SERVER["HTTP_HOST"])){
