@@ -1,6 +1,6 @@
 <?php 
 session_start();
-$GLOBALS["isSecure"]=str_starts_with($_SERVER["HTTP_ORIGIN"],"https://");
+$GLOBALS["isSecure"]=isset($_SERVER["HTTP_ORIGIN"]) ? str_starts_with($_SERVER["HTTP_ORIGIN"],"https://") : true;
 
 // Verifique se a URL contém um host
 if (isset($_SERVER["HTTP_ORIGIN"])) {
