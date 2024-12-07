@@ -12,15 +12,16 @@ if (isset($_SERVER["HTTP_ORIGIN"])) {
     }
     $GLOBALS["domain_cookie"] = $server;
 } else {
-    if ($_SERVER["REQUEST_METHOD"]=="POST"){
-        header("Location: /anj" . $_SERVER["REQUEST_URI"]);
-        // response()->json(["header_location"=>$_SERVER["REQUEST_URI"]]);
-        // response()->json(["400"=>"Access denied: Invalid Host header."]);
-        die();
-    } else {
-        header('HTTP/1.1 400');
-        echo "Access denied: Invalid Host header.";
-        die();
+    $GLOBALS["domain_cookie"] = ".anjoovi.com";
+    // if ($_SERVER["REQUEST_METHOD"]=="POST"){
+        // header("Location: /anj" . $_SERVER["REQUEST_URI"]);
+        // // response()->json(["header_location"=>$_SERVER["REQUEST_URI"]]);
+        // // response()->json(["400"=>"Access denied: Invalid Host header."]);
+        // die();
+    // } else {
+        // header('HTTP/1.1 400');
+        // echo "Access denied: Invalid Host header.";
+        // die();
     }
 }
 require __DIR__ . '/../google/auth/guzzlehttp/promises/src/Is.php';
