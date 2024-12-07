@@ -1398,12 +1398,12 @@ Route::post("/admin/musicas_cadastro",function(){
 
                     fclose($finalFile);
                     
-                    echo json_encode(["success" => true, "message" => "Arquivo enviado e juntado com sucesso"]);
+                    echo json_encode(["result"=>"true"]);
                 } else {
-                    echo json_encode(["success" => true, "message" => "Chunk enviado com sucesso, aguardando outros chunks"]);
+                    echo json_encode(["result"=>"true","type"=>"partial"]);
                 }
             } else {
-                echo json_encode(["success" => false, "message" => "Erro ao enviar o chunk"]);
+                echo json_encode(["result"=>"false","type"=>"errorChunk"]);
             }
         } else if (request("type")=="info" && ($type=="cadastro" || $type=="edit")){
             response()->json([]);
