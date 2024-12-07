@@ -196,7 +196,7 @@ function MusicasCadastro(){
                 fd.append('file', chunk, music.name);
                 await auth.post(server+"/admin/musicas_cadastro?type=chunk",fd,{arquivo:true});
                 currentPercentage[music.name]=(chunkIndex+1)/totalChunks;
-                VerifyUpload(musicFiles.map(v=>currentPercentage[v.name]).reduce((a,b)=>a+b,0) * 100 / musicFiles.length);
+                VerifyUpload({loaded:musicFiles.map(v=>currentPercentage[v.name]).reduce((a,b)=>a+b,0) * 100 / musicFiles.length,total:100});
             }
             currentMusic+=1;
             if (currentMusic==musicFiles.length){

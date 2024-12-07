@@ -10,11 +10,15 @@
 .mc {
     @include admin();
     @include cadastro();
+    #imagem-div{
+        flex-direction: column;
+    }
     #imagem-view{
         height: initial;
         aspect-ratio: 1;
     }
     #imagem-pt{
+        left: 0;
         margin-top: 5px;
     }
     #titulo{
@@ -168,12 +172,9 @@
         color: gray;
         cursor: initial;
     }
-    @media screen and (min-height:769px){
+    @media screen and (min-width:769px){
         #imagem-view{
-            width:30vh;
-        }
-        #imagem-pt{
-            margin-top: 0;
+            width:30%;
         }
     }
 }
