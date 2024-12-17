@@ -70,7 +70,7 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlayli
     function get_date_s(d:any){
         const [datePart, timePart] = new Date(d + ' -03:00').toLocaleString().split(', ');
         const [day, month, year] = datePart.split('/');
-        const data:any = new Date(`${year}-${month}-${day}T${timePart}`); // Data e hora atuais
+        const data:any = new Date(`${year}-${month}-${day}T${timePart}`);
         const dia = zero(data.getDate());
         const mes = zero(data.getMonth() + 1); // Os meses em JavaScript são base 0 (janeiro é 0, fevereiro é 1, etc.)
         const ano = data.getFullYear();

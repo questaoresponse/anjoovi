@@ -60,7 +60,9 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist
         return Number(number) < 10 ? "0"+number : String(number);
     }
     function get_date_s(d:any){
-        const data:Date = new Date(d + ' -03:00'); // Data e hora atuais
+        const [datePart, timePart] = new Date(d + ' -03:00').toLocaleString().split(', ');
+        const [day, month, year] = datePart.split('/');
+        const data:any = new Date(`${year}-${month}-${day}T${timePart}`);
         data.setHours(data.getHours()-3);
         const dia = zero(data.getDate());
         const mes = zero(data.getMonth() + 1); // Os meses em JavaScript são base 0 (janeiro é 0, fevereiro é 1, etc.)

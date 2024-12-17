@@ -302,9 +302,9 @@ function Metricas(){
         get_year_array(year:number){
             var limit:number[];
             if ((year % 4 === 0 && year % 100 !==0) || (year % 400 === 0)){
-                limit=[0,31,60,91,121,152,182,213,244,274,305,335,367];
+                limit=[0,31,60,91,121,152,182,213,244,274,305,335,366];
             } else {
-                limit=[0,31,59,90,120,151,181,212,243,273,304,334,366];
+                limit=[0,31,59,90,120,151,181,212,243,273,304,334,365];
             }
             return Array.from({length:12},(_,i)=>Array.from({length:limit[i+1]-limit[i]},()=>0));
         }
@@ -410,8 +410,8 @@ function Metricas(){
             }
             console.time("aian");
             const monthLimits = {
-                leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 367],
-                normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 366],
+                leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
+                normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
             };
             const year_arrays:{[key:string]:any}={};
             const dt=new Date();
@@ -872,12 +872,12 @@ function Metricas(){
     const option2 = {
         tooltip: { trigger: 'item', formatter: function({value}:{_:any,value:any}) {
             const monthLimits = {
-                leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 367],
-                normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 366],
+                leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
+                normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
             };
             const i=value[0];
             const limit=(year! % 4 === 0 && year! % 100 !==0) || (year! % 400 === 0) ? monthLimits.leap : monthLimits.normal;
-            const m=limit.findIndex((_,m)=>i>=limit[m] && i<limit[m+1]);
+            const m=limit.findIndex((_,m)=>i>=limit[m] && i<=limit[m+1]);
             const d=(Math.floor(i)-limit[m]);
             const n=value[1];
             const name=months[currentIntervals.current[0]+m];
@@ -917,12 +917,12 @@ function Metricas(){
     const option3 = {
         tooltip: { trigger: 'item', formatter: function({value}:{_:any,value:any}) {
             const monthLimits = {
-                leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 367],
-                normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 366],
+                leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
+                normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
             };
             const i=value[0];
             const limit=(year! % 4 === 0 && year! % 100 !==0) || (year! % 400 === 0) ? monthLimits.leap : monthLimits.normal;
-            const m=limit.findIndex((_,m)=>i>=limit[m] && i<limit[m+1]);
+            const m=limit.findIndex((_,m)=>i+1>limit[m] && i+1<=limit[m+1]);
             const d=(Math.floor(i)-limit[m]);
             const n=value[1];
             const name=months[currentIntervals.current[0]+m];
