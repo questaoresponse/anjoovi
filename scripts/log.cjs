@@ -6,4 +6,3 @@ axios.post("https://www.anjoovi.com/functions", {key:"7894j96~-[njd98n705yfhq´-
 }}).then(r=>{
     console.log(r);
 });
-
