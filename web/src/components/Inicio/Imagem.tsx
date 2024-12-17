@@ -54,7 +54,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
         return Number(number) < 10 ? "0"+number : String(number);
     }
     function get_date_s(d:any){
-      const data = new Date(d); // Data e hora atuais
+      const data = new Date(d + ' -03:00'); // Data e hora atuais
       data.setHours(data.getHours()-3);
       const dia = zero(data.getDate());
       const mes = zero(data.getMonth() + 1); // Os meses em JavaScript são base 0 (janeiro é 0, fevereiro é 1, etc.)

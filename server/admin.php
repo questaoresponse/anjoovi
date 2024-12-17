@@ -1995,7 +1995,7 @@ Route::post("/admin/playlists_cadastro",function(){
                         $id=intval(p($conn->query("SELECT COALESCE(MAX(id)+1,1) AS id FROM playlist"))[0]["id"]);
                         $conn->prepare("INSERT INTO playlist(usuario,views_id,id,titulo,d,tipo,posts) VALUES(?,?,?,?,?,?,?)",[$usuario,$views_id,$id,$titulo,$d,$data_type,$posts]);
                         insert_views($conn,$usuario,"playlist",$views_id,$id);
-                        add_n_posts($conn,$usuario);
+                        add_n_posts($usuario,$conn);
                         response()->json(["result"=>"true"]);
                     } else {
                     response()->json(["result"=>"false"]);

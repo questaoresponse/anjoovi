@@ -1,0 +1,14 @@
+{
+  "name": "busca",
+  "version": "0.1.0",
+  "files": [
+    "busca_bg.wasm",
+    "busca.js",
+    "busca.d.ts"
+  ],
+  "module": "busca.js",
+  "types": "busca.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
