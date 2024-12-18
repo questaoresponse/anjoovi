@@ -167,7 +167,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
         }
     }
     const Nt=({post}:{post:postInterface})=>{
-      return <div>
+      return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/imagem/"+post.id,post.id)}} to={"/imagem/"+post.id} className="imagem disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo> 
                 <div className={(post.usuario!="" ? "" : " wait ") + "descricao-imagem txt " + (!isMain ? "resumo" : "")} ref={refs.descricao}>{post.text.map((line:string[],i:number)=>{
@@ -191,7 +191,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
                     </div>}
                     <Denuncia tipo="noticia"></Denuncia>
                 </div>
-            </Link> : <div className="imagem">
+            </Link> : <div className="posts-div imagem">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo> 
                 {summarized ? <div className='descricao-resumo-imagem'><div className="descricao-imagem txt overflow" ref={refs.descricao}>{post.text.map((line:string[],i:number)=>{
                     return <>

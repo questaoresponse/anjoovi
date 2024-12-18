@@ -272,7 +272,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
     }
     const Nt=({post}:{post:postInterface,musics:musicInterface[]})=>{
         // const [comentarios,setComentarios]=useState<boolean>(false);
-        return <div>
+        return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/musica/"+post.id,post.id)}} to={"/musica/"+post.id} className="musica disabled">
                 <Conteudo auth={auth} globals={globals} infos={post as { nome: string; usuario: string; logo: string | null; visualizacoes: number; inscrito: boolean | null; }}></Conteudo>
                 <div className="top">
@@ -300,7 +300,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
                         return <MusicaList music={music} onClickMusic={player.current.onClickMusic} getTime={player.current.getTime} getData={getData} index={index} key={index}/>
                     })}
                 </div>
-            </Link> : <div className="musica">
+            </Link> : <div className="posts-div musica">
                 <Conteudo auth={auth} globals={globals} infos={post as { nome: string; usuario: string; logo: string | null; visualizacoes: number; inscrito: boolean | null; }}></Conteudo>
                 <div className="top">
                     <div className="titulo-musica txt">{post.titulo.map((texto:string,index:number)=>{

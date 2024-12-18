@@ -164,7 +164,7 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist
         }
     }
     const Nt=({post}:{post:postInterface})=>{
-        return <div>
+        return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/texto/"+post.id,post.id)}} to={"/texto/"+post.id} className="texto disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className={"texto-texto txt " + (!isMain ? " resumo" : "")}>{post.text.map((line:string[],i:number)=>{
@@ -185,7 +185,7 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist
                     </div>}
                     <Denuncia tipo="texto"></Denuncia>
                 </div>
-            </Link> : <div className="texto">
+            </Link> : <div className="posts-div texto">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className={"texto-texto txt " + (!isMain ? " resumo" : "")}>{post.text.map((line:string[],i:number)=>{
                     return <>

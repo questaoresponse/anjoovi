@@ -51,8 +51,8 @@ export default defineConfig({
       port: 3001
     },
     headers: {
-      "Cross-Origin-Opener-Policy": "same-origin",
-      "Cross-Origin-Embedder-Policy": "require-corp",
+      // "Cross-Origin-Opener-Policy": "same-origin",
+      // "Cross-Origin-Embedder-Policy": "require-corp",
       // 'Access-Control-Allow-Origin': 'https://192.168.18.113:9000',
     }
   },

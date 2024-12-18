@@ -198,7 +198,7 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlayli
         }
     }
     const Nt=({post}:{post:postInterface})=>{
-        return <div>
+        return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/noticia/"+post.id,post.id)}} to={"/noticia/"+post.id} className="noticia disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className="titulo-noticia">{post.titulo.map((titulo,index)=>{
@@ -228,7 +228,7 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlayli
                     </div>}
                     <Denuncia tipo="noticia"></Denuncia>
                 </div>
-            </Link> : <div className={"noticia"+(!postAtual.isLoaded ? " loading" : "")}>
+            </Link> : <div className={"posts-div noticia "+(!postAtual.isLoaded ? " loading" : "")}>
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className="titulo-noticia">{post.titulo.map((titulo,index)=>{
                     return titulo.length>0 && titulo[0]=="@" ? <Link className='tag' key={index} to={"/@"+encodeURIComponent(titulo.slice(1))}>{titulo + ( post.titulo.length-1>index ? " " : "" )}</Link> : titulo + ( post.titulo.length-1>index ? " " : "" )

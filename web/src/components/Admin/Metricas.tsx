@@ -161,17 +161,11 @@ function Metricas(){
     //     // grafico41:useRef(),
     // }
     // const [fullViews,setFullViews]=useState(false);
-    // const [interval1,setInterval1]=useState(0);
-    // const [interval2,setInterval2]=useState(11);
     const [intervals,setIntervals]=useState([0,11]);
     const currentIntervals=useRef([0,11]);
-    const setInterval1=(v:any)=>{
-        setIntervals((intervals)=>[v,intervals[1]]);
-        currentIntervals.current[0]=v;
-    }
-    const setInterval2=(v:any)=>{
-        setIntervals((intervals)=>[intervals[0],v]);
-        currentIntervals.current[1]=v;
+    const setIntervalValues=(v:number[])=>{
+        setIntervals(v);
+        currentIntervals.current=v;
     }
     const [yearContent,setYearContent]=useState<number[]>([]);
     const [selected,setSelected]=useState<string | null>();
@@ -425,6 +419,8 @@ function Metricas(){
                     const pub_date=new Date(JSON.parse(post.d).o);
                     const pub_y=String(pub_date.getFullYear());
                     const pub_m=pub_date.getMonth();
+                    const dp=pub_date.getDate();
+                    pub_date.setDate(dp-1)
                     const pub_d=pub_date.getDate();
                     if (!(pub_y in year_arrays)){
                         year_arrays[pub_y]=this.get_year_array(Number(pub_y));
@@ -784,10 +780,10 @@ function Metricas(){
         }
     },[intervals,year]);
     const onChangeInterval1=(e:any)=>{
-        setInterval1(Number(e.target.value));
+        setIntervalValues([Number(e.target.value),intervals[1]].sort())
     }
     const onChangeInterval2=(e:any)=>{
-        setInterval2(Number(e.target.value));
+        setIntervalValues([intervals[0],Number(e.target.value)].sort());
     }
     const onChangeYear=(e:any)=>{
         setYear(Number(e.target.value));
@@ -823,19 +819,19 @@ function Metricas(){
                 contents[0].push({name:i,value:[dv + pv * (j+1),dados.grafico3.data[i][j]]});
             }
         }
-        const d2=31;
+        const monthLimits = {
+            leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
+            normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
+        };
+        const limit=(year! % 4 === 0 && year! % 100 !==0) || (year! % 400 === 0) ? monthLimits.leap : monthLimits.normal;
         for (var i=0;i<dados.grafico4.data.length;i++){
-            var pv=d2/dados.grafico4.data[i].length;
-            var dv=d2 * (i);
             for (var j=0;j<dados.grafico4.data[i].length;j++){
-                contents[1].push({name:months[i],value:[dv + pv * (j+1),dados.grafico4.data[i][j]]});
+                contents[1].push({name:months[i],value:[limit[i]+j+1,dados.grafico4.data[i][j]]});
             }
         }
         for (var i=0;i<dados.grafico5.data.length;i++){
-            var pv=d2/dados.grafico5.data[i].length;
-            var dv=d2 * (i);
             for (var j=0;j<dados.grafico5.data[i].length;j++){
-                contents[2].push({name:months[i],value:[dv + pv * (j+1),dados.grafico5.data[i][j]]});
+                contents[2].push({name:months[i],value:[limit[i]+j+1,dados.grafico5.data[i][j]]});
             }
         }
         // const max=Math.max(dados.grafico4.data.map((data:any)=>Math.max(data)));
@@ -922,7 +918,7 @@ function Metricas(){
             };
             const i=value[0];
             const limit=(year! % 4 === 0 && year! % 100 !==0) || (year! % 400 === 0) ? monthLimits.leap : monthLimits.normal;
-            const m=limit.findIndex((_,m)=>i+1>limit[m] && i+1<=limit[m+1]);
+            const m=limit.findIndex((_,m)=>i>limit[m] && i<limit[m+1]+1);
             const d=(Math.floor(i)-limit[m]);
             const n=value[1];
             const name=months[currentIntervals.current[0]+m];

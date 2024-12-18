@@ -1,7 +1,5 @@
-import{ useEffect, useState } from "react";
+import{ useEffect, useRef, useState } from "react";
 import "./Premium.scss";
-import logo_src from '../static/logo-anjoovi.svg';
-import Link from "../Link";
 declare global{
     interface Window{
         edz:any,
@@ -13,7 +11,7 @@ interface valuesInterface{
     step:number,
     plan:number,
 }
-const Prices=({buy}:{buy:(type:number,e:any)=>void})=>{
+const Prices=({buy}:{buy:(type:number)=>void})=>{
     return <div id="margin">
             <div id="msg">Faça upgrade para Premium</div>
             <div id="blocks">
@@ -25,7 +23,7 @@ const Prices=({buy}:{buy:(type:number,e:any)=>void})=>{
                         <p>Acesso a conteúdo sem publicidade.</p>
                         <p>Duração de 30 dias após a compra da licença.</p>
                     </div>
-                    <div className="buyBtn" onClick={(e)=>buy(1,e)}>Assinar</div>
+                    <div className="buyBtn" onClick={()=>buy(1)}>Assinar</div>
                 </div>
                 <div className="block">
                     <div className="title">PREMIUM PRO</div>
@@ -35,7 +33,7 @@ const Prices=({buy}:{buy:(type:number,e:any)=>void})=>{
                         <p>Acesso a conteúdo sem publicidade.</p>
                         <p>Duração de 60 dias após a compra da licença.</p>
                     </div>
-                    <div className="buyBtn" onClick={(e)=>buy(2,e)}>Assinar</div>
+                    <div className="buyBtn" onClick={()=>buy(2)}>Assinar</div>
                 </div>
                 <div className="block">
                     <div className="title">PREMIUM PLUS</div>
@@ -45,7 +43,7 @@ const Prices=({buy}:{buy:(type:number,e:any)=>void})=>{
                         <p>Acesso a conteúdo sem publicidade.</p>
                         <p>Duração de 90 dias após a compra da licença.</p>
                     </div>
-                    <div className="buyBtn" onClick={(e)=>buy(3,e)}>Assinar</div>
+                    <div className="buyBtn" onClick={()=>buy(3)}>Assinar</div>
                 </div>
                 <div className="block">
                     <div className="title">PREMIUM ULTRA</div>
@@ -55,11 +53,11 @@ const Prices=({buy}:{buy:(type:number,e:any)=>void})=>{
                         <p>Acesso a conteúdo sem publicidade.</p>
                         <p>Duração de 360 dias após a compra da licença.</p>
                     </div>
-                    <div className="buyBtn" onClick={(e)=>buy(4,e)}>Assinar</div>
+                    <div className="buyBtn" onClick={()=>buy(4)}>Assinar</div>
                 </div>
             </div>
             <div id="note">
-                    A conta premium entrega ao usuário o conteúdo de terceiros com base nos <a href="https://policies.anjoovi.com/servico" style={{color:"black"}}>Termos de Serviço</a> e <a href="https://policies.anjoovi.com/privacidade" style={{color:"black"}}>Política de Privacidade</a>  do Anjoovi, sem aparecer anúncios propagados/pagos (anúncios de usuários dentro de suas postagens ou páginas, continuam sendo apresentados pois a própria publicação pode ser uma oferta ou anúncio, porém não propagado/pago no Anjoovi).
+                    A conta premium entrega ao usuário o conteúdo de terceiros com base nos <a href="https://policies.anjoovi.com/servico" style={{color:"black"}}>Termos de Serviço</a> e <a href="https://policies.anjoovi.com/privacidade" style={{color:"black"}}>Política de Privacidade</a>  do Anjoovi.
             </div>
             <div id="footer">
                 <p>Você tem alguma dúvida? <a href="https://www.support.anjoovi.com/premium" style={{color:"black"}}>Central de Ajuda</a></p>
@@ -339,26 +337,41 @@ const Prices=({buy}:{buy:(type:number,e:any)=>void})=>{
 function Premium(){
     // const server=import.meta.env.DEV ? "http://pay.anjoovi.com" : "https://pay.anjoovi.com";
     const [values,setValues]=useState<valuesInterface>({step:1,plan:-1});
-    const buy=(type:number,e:any)=>{
+    const [isPaying,setIsPaying]=useState(false);
+    const refs={
+        premium:useRef<HTMLDivElement>(null),
+        iframe:useRef<HTMLIFrameElement>(null)
+    }
+    const buy=(type:number)=>{
         const ids=[2415251,2416145,2416726,2431416];
-        Eduzz('Widget', { id: ids[type-1] },e);
+        refs.iframe.current!.contentWindow!.postMessage(JSON.stringify({type:"click",id:ids[type-1]}));
         setValues({step:1,plan:type});
+        setIsPaying(true);
     };
     // function  () {
-    window.EdzLs = [];
-    const Eduzz = (t:any, a:any, c:any)=>{
-        window.EdzLs.push({type: t, args: a, caller: c});
-        if (window.edz) window.edz();
-    };
+    // window.EdzLs = [];
+    // const Eduzz = (t:any, a:any, c:any)=>{
+    //     window.EdzLs.push({type: t, args: a, caller: c});
+    //     if (window.edz) window.edz();
+    // };
     useEffect(()=>{
-        document.title="Anjoovi Pay"
-        var s = document.createElement("script");
-        s.type = "text/javascript";
-        s.async = true;
-        s.defer = true;
-        s.src = "https://sun.eduzz.com/widget/main.js";
-        window.edzScript = s;
-        document.body.appendChild(s);
+        document.title="Anjoovi Premium"
+        window.addEventListener("message",(event)=>{
+            const data=JSON.parse(event.data);
+            if (data.type=="close"){
+                setIsPaying(false);
+            }
+        });
+        // var s = document.createElement("script");
+        // s.type = "text/javascript";
+        // // s.async = true;
+        // // s.defer = true;
+        // // s.src = "https://sun.eduzz.com/widget/main.js";
+        // window.edzScript = s;
+        // fetch("https://sun.eduzz.com/widget/main.js").then(response=>response.text()).then(response=>{
+        //     s.textContent=response;
+        //     document.body.appendChild(s);
+        // });
         // auth.get("https://api64.ipify.org?format=json").then((r:resultInterface)=>console.log(r.data));
     },[]);
 
@@ -369,20 +382,20 @@ function Premium(){
         // if (!x) x = document.getElementsByTagName("body")[0].firstChild();
         // x.parentNode.insertBefore(s, x);
     //   }
-    return <div>
-        <div id="header">
+    return <div className={isPaying ? "paying" : ""} ref={refs.premium} id="premium">
+        {/* <div id="header">
             <Link to="/">
                 <img id="logo" src={logo_src}></img>
             </Link>
+        </div> */}
+        {/* <script type="text/javascript">()();
+        <button type="button"
+        onClick={}>Comprar agora!</button> */}
+        <div id="content">
+            {values.step==1 ? <Prices buy={buy}></Prices> : <></>}
         </div>
-        <div id="premium">
-            {/* <script type="text/javascript">()();
-            <button type="button"
-            onClick={}>Comprar agora!</button> */}
-            {values.step==1 ? <Prices buy={buy}></Prices> : <></>};
-
-            {/* {values.step==1 ? <Prices buy={buy}></Prices> :  <Infos values={values} auth={auth} server={server}></Infos>} */}
-        </div>
+        {/* {values.step==1 ? <Prices buy={buy}></Prices> :  <Infos values={values} auth={auth} server={server}></Infos>} */}
+        <iframe style={{display:isPaying ? "block" : "none"}} ref={refs.iframe} className="iframe" src="/iframe.html" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
 };
 export default Premium;

@@ -291,14 +291,14 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
         </div>
     };
     const Nt=({post}:{post:postInterface})=>{
-        return <div>
+        return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/playlist/"+post.id+"?v=0",post.id)}} to={"/playlist/"+post.id+"?v=0"} id="plist disabled">
                 <div id="bottom">
                     <div id="content">
                         {value}
                     </div>
                 </div>
-            </Link> : <div id="plist">
+            </Link> : <div id="plist" className='posts-div'>
                 <div id="bottom">
                     <div id="content">
                             {value}

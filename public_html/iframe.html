@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://sun.eduzz.com/widget/main.js" defer="true"></script>
+    <button style="display: none;"></button>
+    <script>
+window.EdzLs=[];
+if (window.self!==window.top){
+    function verifyJson(json){
+        try {
+            return JSON.parse(json);
+        } catch (e){
+            return false;
+        }
+    }
+    const button=document.querySelector("button");
+    window.addEventListener('message', function(event) {
+        if (event.data=="EdzWidgetClose"){
+            parent.postMessage(JSON.stringify({type:"close"}),document.referrer);
+            window.location.reload();
+        } else {
+            const data=verifyJson(event.data);
+            if (data){
+            if (data.type=="click"){
+                id=data.id;
+                button.click();
+            }
+            }
+        }
+    });
+    button.addEventListener("click",(e)=>{
+        window.EdzLs.push({type: 'Widget', args: { id }, caller: e});
+        if (window.edz) window.edz();
+    });
+}
+    </script>
+</body>
+</html>
