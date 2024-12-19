@@ -19,10 +19,6 @@ AddType application/wasm .wasm
     Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
     Header set Cross-Origin-Opener-Policy "same-origin"
     Header set Cross-Origin-Embedder-Policy "require-corp"
-    <Files "iframe.html">
-        Header unset Cross-Origin-Opener-Policy
-        Header unset Cross-Origin-Embedder-Policy
-    </Files>
     Header set Access-Control-Allow-Origin %{HTTP_ORIGIN}e env=ORIGIN_MATCH
 </IfModule>
 

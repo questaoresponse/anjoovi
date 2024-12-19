@@ -344,7 +344,8 @@ function Premium(){
     }
     const buy=(type:number)=>{
         const ids=[2415251,2416145,2416726,2431416];
-        refs.iframe.current!.contentWindow!.postMessage(JSON.stringify({type:"click",id:ids[type-1]}));
+        window.open("https://sun.eduzz.com/"+ids[type-1]);
+        // Eduzz("Widget",ids[type-1],e);
         setValues({step:1,plan:type});
         setIsPaying(true);
     };
@@ -356,18 +357,19 @@ function Premium(){
     // };
     useEffect(()=>{
         document.title="Anjoovi Premium"
-        window.addEventListener("message",(event)=>{
-            const data=JSON.parse(event.data);
-            if (data.type=="close"){
-                setIsPaying(false);
-            }
-        });
+        // window.addEventListener("message",(event)=>{
+        //     const data=JSON.parse(event.data);
+        //     if (data.type=="close"){
+        //         setIsPaying(false);
+        //     }
+        // });
         // var s = document.createElement("script");
         // s.type = "text/javascript";
-        // // s.async = true;
-        // // s.defer = true;
-        // // s.src = "https://sun.eduzz.com/widget/main.js";
+        // s.async = true;
+        // s.defer = true;
+        // s.src = "https://sun.eduzz.com/widget/main.js";
         // window.edzScript = s;
+        // document.body.appendChild(s);
         // fetch("https://sun.eduzz.com/widget/main.js").then(response=>response.text()).then(response=>{
         //     s.textContent=response;
         //     document.body.appendChild(s);
@@ -395,7 +397,6 @@ function Premium(){
             {values.step==1 ? <Prices buy={buy}></Prices> : <></>}
         </div>
         {/* {values.step==1 ? <Prices buy={buy}></Prices> :  <Infos values={values} auth={auth} server={server}></Infos>} */}
-        <iframe style={{display:isPaying ? "block" : "none"}} ref={refs.iframe} className="iframe" src="/iframe.html" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
 };
 export default Premium;
