@@ -185,7 +185,7 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist
                     </div>}
                     <Denuncia tipo="texto"></Denuncia>
                 </div>
-            </Link> : <div className="posts-div texto">
+            </Link> : <div className="texto">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className={"texto-texto txt " + (!isMain ? " resumo" : "")}>{post.text.map((line:string[],i:number)=>{
                     return <>

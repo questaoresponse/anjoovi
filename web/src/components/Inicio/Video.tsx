@@ -220,7 +220,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post}:{isPlaylist?:any,id?:nu
                     </div>}
                     <Denuncia tipo="video"></Denuncia>
                 </div>
-            </Link> : <div className="posts-div video">
+            </Link> : <div className='video'>
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className="titulo-video">{post.titulo.map((line,i)=>{
                     return <>

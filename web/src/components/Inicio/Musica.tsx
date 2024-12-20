@@ -300,7 +300,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
                         return <MusicaList music={music} onClickMusic={player.current.onClickMusic} getTime={player.current.getTime} getData={getData} index={index} key={index}/>
                     })}
                 </div>
-            </Link> : <div className="posts-div musica">
+            </Link> : <div className="musica">
                 <Conteudo auth={auth} globals={globals} infos={post as { nome: string; usuario: string; logo: string | null; visualizacoes: number; inscrito: boolean | null; }}></Conteudo>
                 <div className="top">
                     <div className="titulo-musica txt">{post.titulo.map((texto:string,index:number)=>{

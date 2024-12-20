@@ -191,7 +191,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
                     </div>}
                     <Denuncia tipo="noticia"></Denuncia>
                 </div>
-            </Link> : <div className="posts-div imagem">
+            </Link> : <div className="imagem">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo> 
                 {summarized ? <div className='descricao-resumo-imagem'><div className="descricao-imagem txt overflow" ref={refs.descricao}>{post.text.map((line:string[],i:number)=>{
                     return <>

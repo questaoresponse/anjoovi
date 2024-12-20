@@ -298,7 +298,7 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
                         {value}
                     </div>
                 </div>
-            </Link> : <div id="plist" className='posts-div'>
+            </Link> : <div className="plist">
                 <div id="bottom">
                     <div id="content">
                             {value}

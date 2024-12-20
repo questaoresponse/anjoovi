@@ -4,14 +4,14 @@
         @content;
     }
 }
-#plist{
+.plist{
     position: relative;
     display: block;
     margin-top:var(--menu-height);
     width: 100%;
     height: 100%;
 }
-#plist{
+.plist{
     #bottom{
         position: relative;
         display: flex;

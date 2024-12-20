@@ -1,4 +1,4 @@
-import { memo,useState,useEffect, useCallback, useRef } from 'react';
+import { memo,useState,useEffect, useCallback, useRef, MutableRefObject } from 'react';
 import { useLocation } from 'react-router-dom';
 import Link from '../Link.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -9,7 +9,8 @@ import sem_imagem from "../static/sem-imagem.jpg";
 import Logop from '../Logop.jsx';
 import Post from './Post.jsx';
 import X from '../X.tsx';
-const Content1=memo(({showAbout,initChat,showCard,option,globals,values,navigate,inscrever}:{showAbout:()=>void,initChat:()=>void,option:string | null,showCard:()=>void,globals:GlobalContextInterface,values:any,navigate:(url:string)=>void,inscrever:(event:any)=>void})=>{
+//pc
+const Content1=memo(({showAbout,initChat,showCard,option,globals,values,navigate,inscrever,onStart, onMove, onEnd,btnsRef}:{showAbout:()=>void,initChat:()=>void,option:string | null,showCard:()=>void,globals:GlobalContextInterface,values:any,navigate:(url:string)=>void,inscrever:(event:any)=>void,onStart:(e:any)=>void,onMove:(e:any)=>void,onEnd:(e:any)=>void,btnsRef:MutableRefObject<HTMLDivElement | null>})=>{
     const server=globals.server;
     const post=option ? values.destaques[option] : null;
     var option_correct;
@@ -51,7 +52,7 @@ const Content1=memo(({showAbout,initChat,showCard,option,globals,values,navigate
                         </div>
                     </div>
                     <div id="group-mobile">
-                        <div id="group-btns">
+                        <div ref={btnsRef} id="group-btns" onMouseDown={onStart} onTouchStart={onStart} onMouseMove={onMove} onTouchMove={onMove} onMouseUp={onEnd} onMouseLeave={onEnd} onTouchEnd={onEnd}>
                             <div onClick={inscrever} className="inscrever group-btn-item">{values.isInscrito ? "Seguindo" : "Seguir"}</div>
                             <div className="mensagem group-btn-item" onClick={initChat}>Mensagem</div>
                             <div className="card group-btn-item" onClick={showCard}>Card</div>
@@ -65,7 +66,8 @@ const Content1=memo(({showAbout,initChat,showCard,option,globals,values,navigate
             </div>
         );
 });
-const Content2=memo(({showAbout,initChat,showCard,option,globals,values,navigate,inscrever}:{showAbout:()=>void,initChat:()=>void,option:string | null,showCard:()=>void,globals:GlobalContextInterface,values:any,navigate:(url:string)=>void,inscrever:(event:any)=>void})=>{
+//mobile
+const Content2=memo(({showAbout,initChat,showCard,option,globals,values,navigate,inscrever,onStart, onMove, onEnd,btnsRef}:{showAbout:()=>void,initChat:()=>void,option:string | null,showCard:()=>void,globals:GlobalContextInterface,values:any,navigate:(url:string)=>void,inscrever:(event:any)=>void,onStart:(e:any)=>void,onMove:(e:any)=>void,onEnd:(e:any)=>void,btnsRef:MutableRefObject<HTMLDivElement | null>})=>{
     const server=globals.server;
     const post=option ? values.destaques[option] : null;
     var option_correct;
@@ -110,7 +112,7 @@ const Content2=memo(({showAbout,initChat,showCard,option,globals,values,navigate
                             <div className="num">{values.num+(values.num>1 ? " postagens" : " postagem")}</div>
                         </div>
                         <div id='group-mobile'>
-                            <div id='group-btns'>
+                            <div ref={btnsRef} id='group-btns' onMouseDown={onStart} onTouchStart={onStart} onMouseMove={onMove} onTouchMove={onMove} onMouseUp={onEnd} onMouseLeave={onEnd} onTouchEnd={onEnd}>
                                 <div onClick={inscrever} className="inscrever group-btn-item">{values.isInscrito ? "Seguindo" : "Seguir"}</div>
                                 <div className="mensagem group-btn-item" onClick={initChat}>Mensagem</div>
                                 <div className="card group-btn-item" onClick={showCard}>Card</div>
@@ -424,12 +426,26 @@ function Canal(){
     useEffect(()=>{
         updateSearch();
     },[location.pathname]);
+    const btnsRef=useRef<HTMLDivElement | null>(null);
+    const x=useRef<number | null>(null);
+    const onStart=(e:any)=>{
+        x.current=e.clientX || e.touches[0].x;
+    }
+    const onMove=(e:any)=>{
+        if (!x.current) return;
+        const pointY=e.clientX || e.touches[0].x;
+        btnsRef.current!.scrollLeft-=pointY - x.current;
+        x.current=pointY;
+    }
+    const onEnd=(_:any)=>{
+        x.current=null;
+    }
     return (
         <>
         { privado ? <div id="private">Esse usuário foi suspenso.</div> :
             <div ref={refs.pai} className="row top-25 p-0 m-0 can d-block" style={{width:"100%"}}>
-                {globals.mobile ? <Content1 showAbout={showAbout} initChat={initChat} showCard={showCard} option={state.option} inscrever={inscrever} globals={globals} values={values} navigate={navigate!}/>
-                : <Content2 showAbout={showAbout} initChat={initChat} showCard={showCard} option={state.option} inscrever={inscrever} globals={globals} values={values} navigate={navigate!}/>}
+                {globals.mobile ? <Content1 showAbout={showAbout} initChat={initChat} showCard={showCard} option={state.option} inscrever={inscrever} globals={globals} values={values} navigate={navigate!} onStart={onStart} onMove={onMove} onEnd={onEnd} btnsRef={btnsRef}/>
+                : <Content2 showAbout={showAbout} initChat={initChat} showCard={showCard} option={state.option} inscrever={inscrever} globals={globals} values={values} navigate={navigate!} onStart={onStart} onMove={onMove} onEnd={onEnd} btnsRef={btnsRef}/>}
                 <div id="meio">
                     {/* <div id="meiomargin"></div> */}
                     <div id="meiob">

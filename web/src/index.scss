@@ -125,10 +125,10 @@ body *{
     top:40%;
   }
 }
-#s1 > .posts-div:active{
+#s1 > .posts-div > a:active{
   opacity: 0.5;
 }
-#s1 > .posts-div:first-child:active{
+#s1 > .posts-div > div:active{
   opacity: 1;
 }
 .anunciodiv{

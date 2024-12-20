@@ -49,7 +49,8 @@ html,body{
         flex-direction: column;
         // width:calc(100% - $infos-height);
         height:100%;
-        left:30%;
+        width:70%;
+        margin-left:30%;
     }
     .di > div{
         margin-left: 10px;
@@ -83,7 +84,7 @@ html,body{
     #group-mobile{
         position: relative;
         display: flex;
-        width: 100%;
+        width: calc(100% - 10px);
         margin-top:5px;
         // margin-bottom: 1vh;
         // display: flex;
@@ -94,18 +95,19 @@ html,body{
         position: relative;
         display: flex;
         flex-direction: row;
-        overflow-y: hidden;
+        overflow:hidden;
         user-select: none;
     }
     #group-btns::-webkit-scrollbar{
         display: none;
     }
     .group-btn-item{
-        font-size: 1.8ch;
+        font-size: 16px;
         height: 100%;
         max-height: 25px;
         padding-left: 5px;
         padding-right: 5px;
+        flex-shrink: 0;
     }
     .group-btn-item:active{
         opacity: 0.5;
@@ -115,7 +117,7 @@ html,body{
         color: white;
         position: relative;
         display: inline-flex;
-        width:10ch;
+        width:80px;
         border-radius: 5px;
         cursor: pointer;
         justify-content: center;
@@ -126,8 +128,8 @@ html,body{
         color: white;
         position: relative;
         display: inline-flex;
-        width:12ch;
-        margin-left: 1%;
+        width:108px;
+        margin-left: 5px;
         border-radius: 5px;
         cursor: pointer;
         justify-content: center;
@@ -138,8 +140,8 @@ html,body{
         color: white;
         position: relative;
         display: inline-flex;
-        width:10ch;
-        margin-left: 1%;
+        width:80px;
+        margin-left: 5px;
         border-radius: 5px;
         cursor: pointer;
         justify-content: center;
@@ -150,8 +152,8 @@ html,body{
         color: white;
         position: relative;
         display: inline-flex;
-        width:10ch;
-        margin-left: 1%;
+        width:80px;
+        margin-left: 5px;
         border-radius: 5px;
         cursor: pointer;
         justify-content: center;
@@ -413,14 +415,13 @@ html,body{
         padding-top: 15px;
         padding-bottom:1.9vw;
         @include pc(){
-            width: fit-content;
+            width: 100%;
             height: 85px;
             padding-bottom: 0;
         }
     }
     @media screen and (max-width:768px){
         .di{
-            width:calc(100% - 30%);
             font-size:120%;
         }
         .tipo{
@@ -471,7 +472,8 @@ html,body{
             // width: ;
         }
         .di{
-            left:67.5px;
+            width: calc(100% - 67.5px);
+            margin-left:67.5px;
         }
         .nomed, .infosd{
             flex-direction: row;

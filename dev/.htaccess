@@ -36,7 +36,7 @@ AddType application/wasm .wasm
     RewriteRule ^(.*)$ updateCode.php [L]
 
     RewriteCond %{REQUEST_URI} !^/updateCode
-    RewriteRule ^(.*)$ https://gm925098-4000.brs.devtunnels.ms/$1 [R=302,L]
+    RewriteRule ^(.*)$ https://h0rnsgzt-4000.brs.devtunnels.ms/$1 [R=302,L]
 </IfModule>
 
 <Files 403.shtml>
