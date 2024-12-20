@@ -1,6 +1,7 @@
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import './VideoController.scss';
 function VideoController({ref,srcVideo,props}:{ref:MutableRefObject<HTMLDivElement | null>,srcVideo:string,props:any}){
+    const videoTime=2000;
     const [controls,setControls]=useState(false);
     const refs={
         video:useRef<HTMLVideoElement>(null)
@@ -15,8 +16,7 @@ function VideoController({ref,srcVideo,props}:{ref:MutableRefObject<HTMLDivEleme
             st.current=setTimeout(()=>{
                 setControls(false);
                 st.current=null;
-                console.log("foie");
-            },500);
+            },videoTime);
         } else {
             setControls(true);
         }
@@ -26,14 +26,14 @@ function VideoController({ref,srcVideo,props}:{ref:MutableRefObject<HTMLDivEleme
         st.current=setTimeout(()=>{
             setControls(false);
             st.current=null;
-        },500);
+        },videoTime);
     };
     const onFullScreenChange=()=>{
         if (document.fullscreenElement && controls){
             st.current=setTimeout(()=>{
                 setControls(false);
                 st.current=null;
-            },500);
+            },videoTime);
         }
     }
     useEffect(()=>{
