@@ -31,7 +31,7 @@ interface postInterface{
 }
 function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any}) {
     const globals = useGlobal();
-    const { server, navigate, navigateClass }=globals;
+    const { server, navigate }=globals;
     const auth = useAuth();
     // axios.post("http://www.teste.com",{type:"info"}).then((result)=>{
     //     posts=JSON.parse(result);
