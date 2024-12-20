@@ -411,7 +411,7 @@ function Metricas(){
             const dt=new Date();
             const y=dt.getFullYear();
             const limit=(y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0) ? monthLimits.leap : monthLimits.normal;
-            const d=limit[dt.getMonth()]+dt.getDate();
+            const d=limit[dt.getMonth()]+dt.getDate()-1;
             // const yea
             for (const post of this.posts){
                 try{
@@ -420,7 +420,7 @@ function Metricas(){
                     const pub_y=String(pub_date.getFullYear());
                     const pub_m=pub_date.getMonth();
                     const dp=pub_date.getDate();
-                    pub_date.setDate(dp-1)
+                    pub_date.setDate(dp-1);
                     const pub_d=pub_date.getDate();
                     if (!(pub_y in year_arrays)){
                         year_arrays[pub_y]=this.get_year_array(Number(pub_y));
