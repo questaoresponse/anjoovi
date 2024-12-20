@@ -11,7 +11,7 @@ interface commentInterface{
     texto:string,
     loading:boolean
 }
-function Comentarios({previousRequest, ...values}:{previousRequest:MutableRefObject<(string | boolean)[]>,playlistComponent?:any,tipo?:any,postAtual?:any,values?:any}){
+function Comentarios({previousRequest, ...values}:{previousRequest?:MutableRefObject<(string | boolean)[]>,playlistComponent?:any,tipo?:any,postAtual?:any,values?:any}){
     const PlaylistComponent=values.playlistComponent || null;
     const globals=useGlobal();
     const { server, navigate, navigateClass }=globals;
@@ -37,11 +37,11 @@ function Comentarios({previousRequest, ...values}:{previousRequest:MutableRefObj
         });
     };
     const update=(pathname:string)=>{
-        if (!previousRequest.current[1] || previousRequest.current[0]!=pathname){
-            infos.tipo.current=location.pathname.split("/")[1];
+        if (pathname!=""){
+
+            infos.tipo.current=pathname.split("/")[1];
             infos.id.current=Number(pathname.split("/")[2]);
             get();
-            previousRequest.current=[pathname,true];
         }
     }
     useEffect(()=>{

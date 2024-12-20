@@ -109,7 +109,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
     },[post]);
     useEffect(()=>{
         if (isMain && !isReal){
-            navigate("",{changeURL:false,lookTop:true});
+            navigate("",{changeURL:false,lookTop:true,callHandle:false});
             setIsReal(true);
         }
     },[isReal]);

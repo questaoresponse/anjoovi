@@ -15,46 +15,100 @@ const reducer=(_:any,action:any)=>{
 }
 function Busca(){
     const globals=useGlobal();
+    const { server, navigate, renderAds }=globals;
     const auth=useAuth();
     const location=useLocation();
-    const server=globals.server;
     const [selected,setSelected]=useState(0);
     const [filter,setFilter]=useState(false);
-    const filterInfos=useRef({canal:false});
+    const filterInfos=useRef<{[key:string]:boolean,canal:boolean}>({canal:false});
     const [state,dispatch]=useReducer(reducer,{
         isLoaded:false,
         posts:{"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]},
         canals:[],
         registros:0,
     });
-    useEffect(()=>{
-        async function get(){
-            var result=await auth.post(server+"/busca"+location.search,{type:"info",filter:JSON.stringify(filterInfos.current)});
+    const get=()=>{
+        auth.post(server+"/busca"+location.search,{type:"info",filter:JSON.stringify(filterInfos.current)}).then(result=>{
             var data=result.data;
             const posts=data.posts;
             dispatch({type:'setValues',values:{
                 isLoaded:true,
                 registros:data.n_registros,
-                posts:{
+                posts:filterInfos.current.canal ? {
+                    "0":[],
+                    "1":[],
+                    "2":[],
+                    "3":[],
+                    "4":[],
+                    "5":[],
+                    "6":[]
+                } : {
                     "0":posts.slice(0,16),
                     "1":posts.filter((post:any)=>post.tipo=="p"),
                     "2":posts.filter((post:any)=>post.tipo=="i"),
                     "3":posts.filter((post:any)=>post.tipo=="m"),
                     "4":posts.filter((post:any)=>post.tipo=="t"),
                     "5":posts.filter((post:any)=>post.tipo=="v"),
-                    "6":posts.filter((post:any)=>post.tipo=="pl"),
+                    "6":posts.filter((post:any)=>post.tipo=="pl")
                 },
                 canals:data.canals
             }});
+        });
+    }
+    const searchForFilterChange=useRef(false);
+    useEffect(()=>{
+        if (searchForFilterChange.current){
+            searchForFilterChange.current=false;
+        } else {
+            const params=new URLSearchParams(location.search);
+            if (params.has("filters") && params.get("filters")){
+                try{
+                    const filters:string[]=JSON.parse(params.get("filters")!);
+                    const filtersMap:{[key:string]:boolean}={};
+                    filters.map(filter=>{filtersMap[filter]=true});
+                    if (Array.isArray(filters)){
+                        for (const filter in filterInfos.current){
+                            if (filter in filtersMap){
+                                filterInfos.current[filter]=true;
+                            }
+                        }
+                    }
+                } catch (e){
+                }
+            } else {
+                for (const filter in filterInfos.current){
+                    filterInfos.current[filter]=false;
+                }
+            }
+            dispatch({type:'setValues',values:{isLoaded:false, posts:{"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]}, canals:[],registros:0}});
+            get();
         }
-        get();
-        dispatch({type:'setValues',values:{isLoaded:false, posts:{"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]}, canals:[],registros:0}});
     },[location.search]);
     useEffect(()=>{
-        globals.renderAds();
+        renderAds();
     },[]);
     const updateSelect=(tipo:number)=>{
         setSelected(tipo);
+    }
+    const filterSearch=(type:number)=>{
+        const types=["canal"];
+        for (const filter in filterInfos.current){
+            filterInfos.current[filter]=filter==types[type];
+        }
+        const params=new URLSearchParams(location.search);
+        const filters=[];
+        for (const filter in filterInfos.current){
+            if (filterInfos.current[filter]){
+                filters.push(filter);
+            }
+        }
+        params.set("filters",JSON.stringify(filters));
+        if (location.search!="?"+params.toString()){
+            searchForFilterChange.current=true;
+            navigate(location.pathname+"?"+params.toString());
+        }
+        get();
+        setFilter(false);
     }
     return <div className="busca">
         <div className="bu">
@@ -97,8 +151,12 @@ function Busca(){
             <Post isLoaded={state.isLoaded} globals={globals} posts={state.posts[String(selected)]}/>
         </div>
         <div id="filter-a" onClick={()=>setFilter(false)} style={{display:filter ? "block" : "none"}}></div>
-        <div id="filter" style={{display:filter ? "flex" : "none"}}>
+        <div id="filter" style={{display:filter ? "block" : "none"}}>
             <X className="x" onClick={()=>{setFilter(false)}}></X>
+            <div id="filter-msg">Filtros de pesquisa</div>
+            <div id="filter-opts">
+                <div className="filter-opt" onClick={()=>filterSearch(0)}>Canal</div>
+            </div>
         </div>
     </div>
 }

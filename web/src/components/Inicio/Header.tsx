@@ -85,9 +85,11 @@ const Header = () => {
   
     const pesquisar = (e:any=null) => {
       e && e.preventDefault();
-      isChangeSearch.current=true;
-      navigate!("/busca?q=" + encodeURIComponent(refs.pesquisa.current!.value.replace(/%20/g, "+")));
-      Voltar();
+      if (refs.pesquisa.current!.value.trim()!=""){
+        isChangeSearch.current=true;
+        navigate!("/busca?q=" + encodeURIComponent(refs.pesquisa.current!.value.replace(/%20/g, "+")));
+        Voltar();
+      }
     };
     const clearValue=()=>{
       refs.pesquisa.current!.value="";

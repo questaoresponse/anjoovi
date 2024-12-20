@@ -84,11 +84,13 @@ function Types(){
         }
     };
     const waitingUpdate=useRef(false);
+    const postChanged=useRef(false);
     const updatePosts=(pathname:string,i:number)=>{
         id.current=i;
         window && navigate(pathname,{changeURL:false,lookTop:false});
         get(false,pathname);
         waitingUpdate.current=true;
+        postChanged.current=true;
     }
     useEffect(()=>{
         if (waitingUpdate.current){
@@ -97,11 +99,15 @@ function Types(){
         }
     });
     const changeId=(pathname:string)=>{
-        if (pathname.split("/").length>=3){
-            id.current=Number(pathname.split("/")[2]);
-            window && navigate(pathname,{changeURL:false,lookTop:false,callHandle:false});
-            get(false,pathname);
-            waitingUpdate.current=true;
+        if (postChanged.current){
+            postChanged.current=false;
+        } else {
+            if (pathname.split("/").length>=3){
+                id.current=Number(pathname.split("/")[2]);
+                window && navigate(pathname,{changeURL:false,lookTop:false,callHandle:false});
+                get(false,pathname);
+                waitingUpdate.current=true;
+            }
         }
     }
     get(true,"/"+window.location.pathname.split("/")[1]+"/"+window.location.pathname.split("/")[2]);

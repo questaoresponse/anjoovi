@@ -10,8 +10,8 @@ interface loginInterface{
   logo:string | null
 }
 interface OptionsNavigate{
-  changeURL:boolean,
-  lookTop:boolean,
+  changeURL?:boolean,
+  lookTop?:boolean,
   callHandle?:boolean,
 }
 interface GlobalContextInterface {
@@ -77,6 +77,15 @@ class NavigateClass{
   }
 
   navigate(pathname:string,options:OptionsNavigate={changeURL:true,lookTop:true,callHandle:true}):void{
+    if (!("changeURL" in options)){
+      options.changeURL=true;
+    }
+    if (!("lookTop" in options)){
+      options.lookTop=true;
+    }
+    if (!("callHandle" in options)){
+      options.callHandle=true;
+    }
     if (pathname!=this.pathname && options.callHandle){
       this.pathname=pathname;
       this.listeners.forEach(fn=>fn(pathname));

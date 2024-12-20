@@ -162,7 +162,7 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
     },[post]);
     useEffect(()=>{
         if (isMain && !isReal){
-            navigate("",{changeURL:false,lookTop:true});
+            navigate("",{changeURL:false,lookTop:true,callHandle:false});
             setIsReal(true);
         }
     },[isReal]);

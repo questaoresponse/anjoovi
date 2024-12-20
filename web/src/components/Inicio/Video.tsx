@@ -133,7 +133,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post}:{isPlaylist?:any,id?:nu
     },[post]);
     useEffect(()=>{
         if (isMain && !isReal){
-            navigate("",{changeURL:false,lookTop:true});
+            navigate("",{changeURL:false,lookTop:true,callHandle:false});
             setIsReal(true);
         }
     },[isReal]);

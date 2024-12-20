@@ -117,43 +117,30 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlayli
             ajeitar(post);
         }
     }
-    const [isReal,setIsReal]=useState(false);
-    const p=useRef(window.location.pathname);
-    const c=useRef(0);
-    const waiting=useRef(false);
-    useEffect(()=>{
-        get();
-        if (c.current>0) {
-            if (isMain){
-                waiting.current=true;
-                setIsReal(false);
-            }
-        }
-        c.current++;
-    },[post]);
-    useEffect(()=>{
-        if (isMain && !isReal){
-            setIsReal(true);
-            navigate("",{changeURL:false,lookTop:true});
-        }
-    },[isReal]);
-    const update=(pathname:string)=>{
-        if (waiting.current){
-            if (p.current!=pathname){
-                waiting.current=false;
-                p.current=pathname;
-            }
-        }
-    }
+useEffect(()=>{
+    get();
+},[post]);
+    // useEffe
+    //     if (c.current>0) {
+    //         if (isMain){
+    //             waiting.current=true;
+    //             setIsReal(false);
+    //         }
+    //     }
+    //     c.current++;
+    // },[post]);
+    // useEffect(()=>{
+    //     if (isMain && !isReal){
+    //         setIsReal(true);
+    //     }
+    // },[isReal]);
+    const postAtualChange=useRef(false);
     useEffect(()=>{
         if (isMain){
-            navigateClass.current.addListener(update);
-            return ()=>{
-                navigateClass.current.addListener(update);
-            }
+            console.log("updated");
+            postAtualChange.current=true;
         }
-    },[]);
-    const previousRequest=useRef(["",false]);
+    },[postAtual]);
     // useEffect(()=>{
     //     if (isMain){
     //         console.log("mudanca",globals.mobile);
@@ -198,6 +185,15 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlayli
         }
     }
     const Nt=({post}:{post:postInterface})=>{
+        useEffect(()=>{
+            if (isMain){
+                if (postAtualChange.current){
+                    postAtualChange.current=false;
+                    navigate("",{changeURL:false,lookTop:true,callHandle:false});
+                    console.log(postAtual);
+                }
+            }
+        },[]);
         return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/noticia/"+post.id,post.id)}} to={"/noticia/"+post.id} className="noticia disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
@@ -254,7 +250,7 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlayli
                     <Denuncia tipo="noticia"></Denuncia>
                 </div>
             </div>}
-            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios previousRequest={previousRequest}/> : <></>}
+            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios/> : <></>}
             {/* <Ads slot="7693763089"/> */}
             {/* {!props.id && globals.mobile && <Post globals={globals} posts={infos.alta}/>} */}
         </div>
@@ -266,10 +262,10 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlayli
                 <div id="s1">
                     {post.id ? <Ads slot="7693763089"/> : <></>}
                     <Nt post={postAtual}></Nt>
-                    {isReal ? <Elements></Elements> : <></>}
+                    <Elements></Elements>
                 </div>
                 {!globals.mobile && <Ads slot="7577017868"/>}
-                {!globals.mobile && !isPlaylist ? <Comentarios previousRequest={previousRequest}/> : <></> }
+                {!globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
 
                 {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}
             </div>
