@@ -1,5 +1,5 @@
 // Exemplo do componente Contact
-import { useState, useEffect, useRef, memo } from 'react';
+import { memo } from 'react';
 import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -31,151 +31,7 @@ interface postInterface{
 }
 function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any}) {
     const globals = useGlobal();
-    const { server, navigate }=globals;
     const auth = useAuth();
-    // axios.post("http://www.teste.com",{type:"info"}).then((result)=>{
-    //     posts=JSON.parse(result);
-    // })
-
-    const [postAtual,setPostAtual]=useState<postInterface>({
-        isLoaded:false,
-        srcImagem:"",
-        titulo:[],
-        subtitulo:[],
-        logo:null,
-        nome:"",
-        usuario:"",
-        dataText:"",
-        dataUpdateText:"",
-        visualizacoes:-1,
-        inscrito:null,
-        text:[],
-        id:-1,
-        tipo:"",
-        n_comment:0,
-    });
-    // const updatePosts:(pathname:string,i:number)=>void=(pathname:string,i:number)=>{
-    //     if (isMain){
-    //         func(pathname,i);
-    //         // console.log(isMain,posts.current.posts,posts.current.posts[i]);
-    //     } else {
-    //         console.log(pathname,i,isMain,posts.current.posts,posts.current.posts[i]);
-    //         navigate!(pathname);
-    //         // posts.current.posts[i].get.current && posts.current.posts[i].get.current!();
-    //     }
-    // };
-    function zero(number:string | number){
-        return Number(number) < 10 ? "0"+number : String(number);
-    }
-    function get_date_s(d:any){
-        const [datePart, timePart] = new Date(d + ' -03:00').toLocaleString().split(', ');
-        const [day, month, year] = datePart.split('/');
-        const data:any = new Date(`${year}-${month}-${day}T${timePart}`);
-        const dia = zero(data.getDate());
-        const mes = zero(data.getMonth() + 1); // Os meses em JavaScript são base 0 (janeiro é 0, fevereiro é 1, etc.)
-        const ano = data.getFullYear();
-        const hora = zero(data.getHours());
-        const minuto=zero(data.getMinutes());
-
-        return `${dia}/${mes}/${ano} às ${hora}h${minuto}`;
-    }
-    const isLoaded=useRef<boolean>();
-    // const escapeHtml=(unsafe:any)=>{
-    //     return unsafe
-    //         .replace(/&/g, "&amp;")
-    //         .replace(/</g, "&lt;")
-    //         .replace(/>/g, "&gt;")
-    //         .replace(/"/g, "&quot;")
-    //         .replace(/'/g, "&#039;");
-    // }
-    const ajeitar=async (post:any)=>{
-        var dj=JSON.parse(post.d);
-        var d=dj.o;
-        const texto=(post.texto || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []);
-        setPostAtual({
-            isLoaded:true,
-            srcImagem:server+"/images/"+encodeURIComponent(post.imagem),
-            titulo:(post.titulo || "").split(" "),
-            subtitulo:(post.subtitulo || "").split(" "),
-            logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
-            nome:post.nome,
-            usuario:post.usuario,
-            dataText:get_date_s(d),
-            dataUpdateText:dj.a ? "Editado" : "",
-            visualizacoes:post.visualizacoes,
-            inscrito:JSON.parse(post.inscrito),
-            text:texto,
-            id:post.id,
-            tipo:post.tipo,
-            n_comment:post.n_comment,
-        });
-    }
-    const get=(initial=false)=>{
-        if (initial && isLoaded.current) return;
-        if (initial && !isLoaded.current) isLoaded.current=true;
-        if (post){
-            ajeitar(post);
-        }
-    }
-useEffect(()=>{
-    get();
-},[post]);
-    // useEffe
-    //     if (c.current>0) {
-    //         if (isMain){
-    //             waiting.current=true;
-    //             setIsReal(false);
-    //         }
-    //     }
-    //     c.current++;
-    // },[post]);
-    // useEffect(()=>{
-    //     if (isMain && !isReal){
-    //         setIsReal(true);
-    //     }
-    // },[isReal]);
-    const postAtualChange=useRef(false);
-    useEffect(()=>{
-        if (isMain){
-            console.log("updated");
-            postAtualChange.current=true;
-        }
-    },[postAtual]);
-    // useEffect(()=>{
-    //     if (isMain){
-    //         console.log("mudanca",globals.mobile);
-    //     }
-    // });
-    // faz com que o get seja chamado apenas após uma real modificação
-    // verifica se a modificação no pathname ocorreu devido a mudança no id
-
-    // const c=useRef<number[]>([0,0,0]);
-    // useEffect(()=>{
-    //   // veriifca se a chamada não é pela montagem do componente
-    //   // verifica se a modificação no pathname ocorreu devido a mudança no id
-    //   if (c.current[0]>0){
-    //     // if (location.pathname!=pathname.current){
-    //       get();
-
-    //       // verifica se foi a primeira mudança, pois o anuncio só precisa ser carregado uma vez por tipo de página
-    //       if (c.current[0]==1){
-    //       globals.isRender();
-    //       }
-    //     // }
-    //   }
-    //   if (c.current[2]==1) c.current[2]=0;
-
-    //   c.current[0]++;
-    // },[location.pathname]);
-
-    // useEffect(()=>{
-    //   // veriifca se a chamada não é pela montagem do componente
-    //   if (c.current[1]>0){
-    //       get();
-    //   }
-    //   c.current[1]++;
-    //   c.current[2]=1;
-    // },[props.id]);
     const isValidURL=(str:any)=>{
         try {
           const url=new URL(str);
@@ -185,15 +41,6 @@ useEffect(()=>{
         }
     }
     const Nt=({post}:{post:postInterface})=>{
-        useEffect(()=>{
-            if (isMain){
-                if (postAtualChange.current){
-                    postAtualChange.current=false;
-                    navigate("",{changeURL:false,lookTop:true,callHandle:false});
-                    console.log(postAtual);
-                }
-            }
-        },[]);
         return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/noticia/"+post.id,post.id)}} to={"/noticia/"+post.id} className="noticia disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
@@ -224,7 +71,7 @@ useEffect(()=>{
                     </div>}
                     <Denuncia tipo="noticia"></Denuncia>
                 </div>
-            </Link> : <div className={"noticia "+(!postAtual.isLoaded ? " loading" : "")}>
+            </Link> : <div className={"noticia "+(false ? " loading" : "")}>
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className="titulo-noticia">{post.titulo.map((titulo,index)=>{
                     return titulo.length>0 && titulo[0]=="@" ? <Link className='tag' key={index} to={"/@"+encodeURIComponent(titulo.slice(1))}>{titulo + ( post.titulo.length-1>index ? " " : "" )}</Link> : titulo + ( post.titulo.length-1>index ? " " : "" )
@@ -255,13 +102,13 @@ useEffect(()=>{
             {/* {!props.id && globals.mobile && <Post globals={globals} posts={infos.alta}/>} */}
         </div>
     };
-    return !isMain ? <Nt post={postAtual}/> : (
+    return !isMain ? <Nt post={post}/> : (
         <div>
         <div id="pg" className={'no cont' + (id ? " playlist" : "")}> 
             <div id="bottom">
                 <div id="s1">
                     {post.id ? <Ads slot="7693763089"/> : <></>}
-                    <Nt post={postAtual}></Nt>
+                    <Nt post={post}></Nt>
                     <Elements></Elements>
                 </div>
                 {!globals.mobile && <Ads slot="7577017868"/>}

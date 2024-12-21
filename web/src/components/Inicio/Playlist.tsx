@@ -39,7 +39,7 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
         },
         set search(newSearch){
             currentId.current=Number(new URLSearchParams(newSearch).get("v") || 0);
-            get(true);
+            get();
             this._search=newSearch;
         }
     });
@@ -49,7 +49,6 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
     },[locationTrue.pathname,locationTrue.search]);
 
     const currentId=useRef<number>(Number(new URLSearchParams(location.current.search).get("v") || 0));
-    const isLoaded=useRef(false);
     const [values,setValues]=useState<{infos:infosInterface,currentInfos:{post:any,posts:any}}>({
         infos:{    
             tipo:"",
@@ -62,111 +61,96 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
             posts:[]
         }
     });
-    const [postAtual,setPostAtual]=useState<postInterface>({
-        id:-1,
-        titulo:[],
-        tipo:"",
-    });
-    const ajeitar=(post:any)=>{
-        setPostAtual({
-            id:post.id,
-            titulo:(post.titulo || "").split(" "),
-            tipo:post.tipo
-        });
-        const playlists:{imagem:string,titulo:string,post:number}[]=[];
-        const imagens=JSON.parse(post.imagem);
-        const titulos=JSON.parse(post.titulos);
-        
-        //keep the ids in order
-        const posts:number[]=JSON.parse(post.posts);
-        const idd=JSON.parse(post.idd);
-        const orderIds:number[]=[];
-        for (var post_children of posts){
-            orderIds.push(idd.findIndex((id:string)=>Number(id)==post_children));
-        }
-        posts.forEach((post,i) => {
-            const index=orderIds[i];
-            playlists.push({
-                imagem:imagens[index],
-                titulo:titulos[index],
-                post:post
-            })
-        });
-        if (!isMain){
+    const [postId,setPostId]=useState(0);
+    function zero(number:string | number){
+        return Number(number) < 10 ? "0"+number : String(number);
+    }
+    function get_date_s(d:any){
+        const [datePart, timePart] = new Date(d + ' -03:00').toLocaleString().split(', ');
+        const [day, month, year] = datePart.split('/');
+        const data:any = new Date(`${year}-${month}-${day}T${timePart}`);
+        const dia = zero(data.getDate());
+        const mes = zero(data.getMonth() + 1); // Os meses em JavaScript são base 0 (janeiro é 0, fevereiro é 1, etc.)
+        const ano = data.getFullYear();
+        const hora = zero(data.getHours());
+        const minuto=zero(data.getMinutes());
 
-        } else {
-            const types:{[chave:string]:string}={
-                "post":"noticia",
-                "imagem":"imagem",
-                "post_musica":"musica"
+        return `${dia}/${mes}/${ano} às ${hora}h${minuto}`;
+    }
+    const analyze=(post:any)=>{
+        switch (post.tipo){
+            case "p":
+                var dj=post.d ? JSON.parse(post.d) : { o:"2024-01-01 00:00:00" };
+                var d=dj.o;
+                var texto=(post.texto || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []);
+                return {
+                    isLoaded:true,
+                    srcImagem:server+"/images/"+encodeURIComponent(post.imagem),
+                    titulo:(post.titulo || "").split(" "),
+                    subtitulo:(post.subtitulo || "").split(" "),
+                    logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
+                    nome:post.nome,
+                    usuario:post.usuario,
+                    dataText:get_date_s(d),
+                    dataUpdateText:dj.a ? "Editado" : "",
+                    visualizacoes:post.visualizacoes,
+                    inscrito:JSON.parse(post.inscrito),
+                    text:texto,
+                    id:post.id,
+                    tipo:post.tipo,
+                    n_comment:post.n_comment,
+                };
+            case "i":
+                var dj=JSON.parse(post.d);
+                var d=dj.o;
+                var texto=(post.descricao || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []);
+                return {
+                    alta:[],
+                    srcImagem:server+"/images/"+encodeURIComponent(post.imagem),
+                    logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
+                    nome:post.nome,
+                    usuario:post.usuario,
+                    dataText:get_date_s(d),
+                    dataUpdateText:dj.a ? "Editado" : "",
+                    visualizacoes:post.visualizacoes,
+                    inscrito:JSON.parse(post.inscrito),
+                    text:texto,
+                    id:post.id,
+                    n_comment:post.n_comment,
+                    tipo:post.tipo
+                };
+        }
+    }
+    const get=()=>{
+        const types:{[chave:string]:string}={
+            "post":"noticia",
+            "imagem":"imagem",
+            "post_musica":"musica"
+        }
+        console.log(post.post_tipo);
+        auth.get(server+"/"+types[post.post_tipo]+"/"+post.posts[currentId.current]+"?c=1").then(result=>{
+            if (result.data.result=="true"){
+                
+                setValues({
+                    infos:{
+                        tipo:post.post_tipo,
+                        imagem:post.playlists[currentId.current].imagem,
+                        titulo:post.playlists[currentId.current].titulo,
+                        posts:post.playlists
+                    },
+                    currentInfos:{
+                        post:analyze(result.data.post),
+                        posts:result.data.posts
+                    }
+                });
             }
-            auth.get(server+"/"+types[post.post_tipo]+"/"+posts[currentId.current]+"?c=1").then(result=>{
-                if (result.data.result=="true"){
-                    setValues({
-                        infos:{
-                            tipo:post.post_tipo,
-                            imagem:playlists[currentId.current].imagem,
-                            titulo:playlists[currentId.current].titulo,
-                            posts:playlists
-                        },
-                        currentInfos:{
-                            post:result.data.post,
-                            posts:result.data.posts
-                        }
-                    })
-                } else {
-
-                }
-            }); 
-        }
+        }); 
     }
-    const get=(value:boolean=false)=>{
-        if (!value && isLoaded.current) return;
-        if (!value && !isLoaded.current) isLoaded.current=true;
-        ajeitar(post);
-        // auth.post(globals.server+location.pathname,{type:"info"}).then(result=>{
-        //     if (result.data.result=="true"){
-        //         const playlist_value:infosInterface[]=[];
-        //         const imagens=JSON.parse(playlist.imagem);
-        //         const titulos=JSON.parse(playlist.titulos);
-        //         const posts:number[]=JSON.parse(playlist.posts);
-        //         const idd=JSON.parse(playlist.idd);
-        //         const order:number[]=[];
-        //         for (var post of posts){
-        //             order.push(idd.findIndex((id:string)=>Number(id)==post));
-        //         }
-        //         posts.forEach((post,i) => {
-        //             const index=order[i];
-        //             playlist_value.push({
-        //                 imagem:imagens[index],
-        //                 titulo:titulos[index],
-        //                 post:post
-        //             })
-        //         });
-        //         setInfos(playlist_value);
-        //         setDados({tipo:playlist.tipo,id:Number(posts[postId.current as number]),titulo:playlist.titulo});
-        //     }
-        // });
-    }
-    const [isReal,setIsReal]=useState(false);
-    const c=useRef(0);
     useEffect(()=>{
-        get();
-        if (c.current>0) {
-            if (isMain){
-                // console.log("ai2");
-                setIsReal(false);
-            }
+        if (isMain){
+            get();
         }
-        c.current++;
     },[post]);
-    useEffect(()=>{
-        if (isMain && !isReal){
-            navigate("",{changeURL:false,lookTop:true,callHandle:false});
-            setIsReal(true);
-        }
-    },[isReal]);
-    const previousRequest=useRef(["",false]);
     // useEffect(()=>{
     //     if (c.current>0){
     //         get(true);
@@ -181,10 +165,7 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
     // },[location.pathname]);
 
     const go=(id:number,index:number)=>{
-        setPostAtual(postAtual=>{
-            postAtual!.id=Number(id);
-            return postAtual;
-        });
+        setPostId(id);
         const u=new URLSearchParams(location.current.search);
         u.set("v",index.toString());
         const search="?"+u.toString();
@@ -210,13 +191,13 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
     if (values.infos && values.currentInfos.post){
         switch (values.infos.tipo){
             case 'post':
-                value=<Noticia isPlaylist={true} isMain={false} id={postAtual!.id} post={values.currentInfos.post} onLinkClick={onLinkClick}/>
+                value=<Noticia isPlaylist={true} isMain={false} id={postId} post={values.currentInfos.post} onLinkClick={onLinkClick}/>
                 break;
             case 'post_imagem':
-                value=<Imagem isPlaylist={true} isMain={false} id={postAtual!.id} post={values.currentInfos.post} onLinkClick={onLinkClick}/>
+                value=<Imagem isPlaylist={true} isMain={false} id={postId} post={values.currentInfos.post} onLinkClick={onLinkClick}/>
                 break;
             default:
-                value=<Musica isPlaylist={true} isMain={false} id={postAtual!.id} post={values.currentInfos.post} onLinkClick={onLinkClick}/>
+                value=<Musica isPlaylist={true} isMain={false} id={postId} post={values.currentInfos.post} onLinkClick={onLinkClick}/>
                 break;
         }
     }
@@ -261,14 +242,13 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
         // // refs.scroll.current!.style.transform="translateX("+(currentScroll.current * -21)+"vw)";
     // });
     const playlistComponent=({postAtual,values}:{postAtual:any,values:any})=>{
-        console.log(postAtual);
         return <div id="right">
             <div id="titulo-playlist" className='txt'>{postAtual ? postAtual.titulo : ""}</div>
             <div id="posts">
                 {/* <div id="pts" ref={refs.scroll}> */}
                     {values.infos.posts.map((info:any,index:number)=>{
                         return (
-                            <div className={'post'+(postAtual && info.post==postAtual.id ? " selected" : "")} key={index} onClick={()=>{go(info.post,index)}}>
+                            <div className={'post'+(info.post==postId ? " selected" : "")} key={index} onClick={()=>{go(info.post,index)}}>
                                 <div className='div_imagem'>
                                     <img src={globals.server+"/images/"+encodeURIComponent(info.imagem)} alt="" />
                                 </div>
@@ -307,16 +287,16 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
             </div>}
         </div>
     }
-    return !isMain ? <Nt post={postAtual}/> : (
+    return !isMain ? <Nt post={post}/> : (
         <div>
             <div id="pg" className={'no cont playlist'}> 
             {id ? <Ads solt="7693763089"/> : <></>}
                 <div id="bottom">
                     <div id="s1">
-                        <Nt post={postAtual}></Nt>
+                        <Nt post={post}></Nt>
                         <Elements></Elements>
                     </div>
-                    {!globals.mobile ? <Comentarios values={values} postAtual={postAtual} playlistComponent={playlistComponent} tipo={postAtual.tipo} previousRequest={previousRequest}/> : <></> }
+                    {!globals.mobile ? <Comentarios values={values} postAtual={post} playlistComponent={playlistComponent} tipo={post.tipo}/> : <></> }
                     {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}
                 </div>
             </div>

@@ -27,7 +27,6 @@ interface postInterface{
 function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any}) {
     onLinkClick !="";
   const globals = useGlobal();
-  const { server, navigate }=globals;
   const auth = useAuth();
     // axios.post("http://www.teste.com",{type:"info"}).then((result)=>{
     //     posts=JSON.parse(result);
@@ -35,85 +34,10 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
     const refs={
       descricao:useRef<HTMLDivElement>(null),
     }
-    const [postAtual,setPostAtual]=useState<postInterface>({
-      alta:[],
-      srcImagem:null,
-      logo:null,
-      nome:"",
-      usuario:"",
-      dataText:"",
-      dataUpdateText:"",
-      visualizacoes:-1,
-      inscrito:null,
-      text:[],
-      id:-1,
-      tipo:"",
-      n_comment:0,
-    });
-    function zero(number:string | number){
-        return Number(number) < 10 ? "0"+number : String(number);
-    }
-    function get_date_s(d:any){
-        const [datePart, timePart] = new Date(d + ' -03:00').toLocaleString().split(', ');
-        const [day, month, year] = datePart.split('/');
-        const data:any = new Date(`${year}-${month}-${day}T${timePart}`);
-        const dia = zero(data.getDate());
-        const mes = zero(data.getMonth() + 1); // Os meses em JavaScript são base 0 (janeiro é 0, fevereiro é 1, etc.)
-        const ano = data.getFullYear();
-        const hora = zero(data.getHours());
-        const minuto=zero(data.getMinutes());
-
-      return `${dia}/${mes}/${ano} às ${hora}h${minuto}`;
-    }
-    const isLoaded=useRef<boolean>();
-    const [summarized,setSummarized]=useState(false);
-    const ajeitar=(post:any)=>{
-        var dj=JSON.parse(post.d);
-        var d=dj.o;
-        const texto=(post.descricao || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []);
-        texto.length>2 && setSummarized(true);
-        setPostAtual({
-            alta:[],
-            srcImagem:server+"/images/"+encodeURIComponent(post.imagem),
-            logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
-            nome:post.nome,
-            usuario:post.usuario,
-            dataText:get_date_s(d),
-            dataUpdateText:dj.a ? "Editado" : "",
-            visualizacoes:post.visualizacoes,
-            inscrito:JSON.parse(post.inscrito),
-            text:texto,
-            id:post.id,
-            tipo:"imagem",
-            n_comment:post.n_comment,
-        })
-    }
-    const get=(initial=false)=>{
-        if (initial && isLoaded.current) return;
-        if (initial && !isLoaded.current) isLoaded.current=true;
-        if (post){
-            ajeitar(post);
-        }
-    }
-    const [isReal,setIsReal]=useState(false);
-    const c=useRef(0);
+    const [summarized,setSummarized]=useState(post.text.length>2);
     useEffect(()=>{
-        get();
-        if (c.current>0) {
-            if (isMain){
-                // console.log("ai2");
-                setIsReal(false);
-            }
-        }
-        c.current++;
+        setSummarized(post.text.length>2);
     },[post]);
-    useEffect(()=>{
-        if (isMain && !isReal){
-            navigate("",{changeURL:false,lookTop:true,callHandle:false});
-            setIsReal(true);
-        }
-    },[isReal]);
-    const previousRequest=useRef(["",false]);
     // const update=(pathname:string)=>{
     //     console.log("ai");
     //     if (waiting.current){
@@ -221,20 +145,20 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
             </div>}
             {/* {comentarios && <Comentarios id_comment={post.id}/>} */}
 
-            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios previousRequest={previousRequest}/> : <></>}
+            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios/> : <></>}
 
             {/* <Ads slot="7693763089"/> */}
             {/* {!props.id && globals.mobile && <Post globals={globals} posts={infos.alta}/>} */}
         </div>
     }
-    return !isMain ? <Nt post={postAtual}/> : (
+    return !isMain ? <Nt post={post}/> : (
         <div id="pg" className={'im cont' + (id ? " playlist" : "")}> 
             <div id="bottom">
                 <div id="s1">
                     {post.id ? <Ads solt="7693763089"/> : <></>}
-                    <Nt post={postAtual}/>
+                    <Nt post={post}/>
                     <Elements></Elements>
-                    {!globals.mobile && !isPlaylist ? <Comentarios previousRequest={previousRequest}/> : <></> }
+                    {!globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
                     {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}
                 </div>
             </div>

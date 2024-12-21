@@ -30,24 +30,24 @@ interface postInterface{
     tipo:string,
     n_comment:number,
 }
-interface postInterface2{
-    audio:string,
-    imagem:string | null,
-    titulo:string,
-    logo:string | null,
-    nome:string,
-    usuario:string,
-    zip:string | null,
-    downloads:number,
-    visualizacoes:number,
-    inscrito:string,
-    id:number,
-    tipo:string,
-    usuario_musica:string,
-    arquivo:string,
-    duration:string,
-    n_comment:number,
-}
+// interface postInterface2{
+//     audio:string,
+//     imagem:string | null,
+//     titulo:string,
+//     logo:string | null,
+//     nome:string,
+//     usuario:string,
+//     zip:string | null,
+//     downloads:number,
+//     visualizacoes:number,
+//     inscrito:string,
+//     id:number,
+//     tipo:string,
+//     usuario_musica:string,
+//     arquivo:string,
+//     duration:string,
+//     n_comment:number,
+// }
 const MusicaList=({music,onClickMusic,getTime,getData,index}:{music:musicInterface,onClickMusic:(index:number,{page_id,musics}:{user:string,page_id:number,musics:musicInterface[]})=>void,getTime:(value:number)=>string,getData:()=>{user:string,page_id:number,musics:musicInterface[]},index:number})=>{
     const refs={
         currentTime:useRef<HTMLDivElement>(null),
@@ -86,97 +86,19 @@ const MusicaList=({music,onClickMusic,getTime,getData,index}:{music:musicInterfa
 function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any}){
     onLinkClick !="";
     const globals=useGlobal();
-    const { server, player, navigate }=globals;
+    const { server, player }=globals;
     const auth=useAuth();
     const location=useLocation();
     // const { arquivos, musicasl, id }=useMusica();
     const arquivos=useRef([]);
     // const [musicasl,setMusicaslState]=useState<musicaslInterface[]>([]);
-    const musicsRef=useRef<musicInterface[]>([]);
-    const [musics,setMusics]=useState<musicInterface[]>([]);
-    const [postAtual,setPostAtual]=useState<postInterface>({
-        audio:"",
-        imagem:null,
-        titulo:[],
-        logo:null,
-        nome:"",
-        usuario:"",
-        zip:null,
-        downloads:0,
-        visualizacoes:-1,
-        inscrito:null,
-        id:-1,
-        tipo:"",
-        n_comment:0,
-    })
-    const getMusicName=(name:any)=>{
-        const ts=name.split("_").slice(4).join("_");
-        return ts.split(".").slice(0,-1);
-    }
-    const ajeitar=(post:postInterface2)=>{
-        const isCurrentMusic=player.current.page_id==post.id;
-        arquivos.current=JSON.parse(post.arquivo);
-        const durations=JSON.parse(post.duration);
-        var musics;
-        if (isCurrentMusic){
-            musics=player.current.musics;
-        } else {
-            musics=arquivos.current.map((musica:any,index:number)=>{
-                return { 
-                    name:getMusicName(musica),
-                    src:server+"/musics/"+encodeURIComponent(musica),
-                    currentTime:isCurrentMusic ? player.current.musics[index].currentTime : 0,
-                    duration: isCurrentMusic ? player.current.musics[index].duration : durations[index],
-                    isView:false,
-                    setCurrentTime:null,
-                    setPlay:null,
-                }
-            });
-        }
-        musicsRef.current=musics;
-        setMusics(musics);
-        setPostAtual({
-            audio:server+"/musics/"+encodeURIComponent(post.arquivo),
-            imagem:server+"/images/"+encodeURIComponent(post.imagem!),
-            titulo:(post.titulo || "").split(" "),
-            logo:server+"/images/"+encodeURIComponent(post.logo!),
-            nome:post.nome,
-            usuario:post.usuario,
-            zip:post.zip,
-            downloads:post.downloads,
-            visualizacoes:post.visualizacoes,
-            inscrito:JSON.parse(post.inscrito!),
-            id:post.id,
-            tipo:"musica",
-            n_comment:post.n_comment,
-        });
-    };
-    const isLoaded=useRef(false);
-    const get=(initial=false)=>{
-        if (initial && isLoaded.current) return;
-        if (initial && !isLoaded.current) isLoaded.current=true;
-        if (post){
-            ajeitar(post);
-        }
-    }
-    const [isReal,setIsReal]=useState(false);
-    const c=useRef(0);
+    const musicsRef=useRef<musicInterface[]>(post.musics);
+    const [musics,setMusics]=useState<musicInterface[]>(post.musics);
     useEffect(()=>{
-        get();
-        if (c.current>0) {
-            if (isMain){
-                setIsReal(false);
-            }
-        }
-        c.current++;
+        arquivos.current=post.arquivos;
+        musicsRef.current=post.musics;
+        setMusics(post.musics);
     },[post]);
-    useEffect(()=>{
-        if (isMain && !isReal){
-            navigate("",{changeURL:false,lookTop:true});
-            setIsReal(true);
-        }
-    },[isReal]);
-    const previousRequest=useRef(["",false]);
     const updateMusic=(musics:musicInterface[])=>{
         if (player.current.page_id==post.id){
             musicsRef.current=musics;
@@ -199,71 +121,6 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
         }
         return {user:post.usuario,page_id:post.id,musics:musicsRef.current};
     }
-    // const get=async (initial=false)=>{
-
-    //     if (initial && isLoaded.current) return;
-    //     if (initial && !isLoaded.current) isLoaded.current=true;
-    //     // update();
-    //     id.current=Number(props.id || location.pathname.split("/")[2]);
-    //     if (isMain){
-    //         ajeitar(props.postAtual);
-    //     } else {
-    //         var params:URLSearchParams=new URLSearchParams(location.search);
-    //         params.set("c","1");
-    //         params.set("isMain",isMain ? "true" : "false");
-    //         var result=await auth.get(server+"/musica/"+id.current+"?"+params.toString());
-    //         if (result.error){
-    //             setRedirectError(result.error);
-    //         } else {
-    //             document.title=result.data.post.titulo;
-    //             // setPosts(result.data.posts);
-    //             if (posts.length>0){
-    //                 setPosts([]);
-    //                 setTimeout(()=>{
-    //                     setPosts(result.data.posts);
-    //                 },100);
-    //             } else {
-    //                 setPosts(result.data.posts);
-    //             }
-    //             ajeitar(result.data.post);
-    //             // descompactarArquivoZIP(result.data.zip);
-    //         }
-    //     }
-    // }
-    // get(true);
-    // const c=useRef<number[]>([0,0,0]);
-    // useEffect(()=>{
-    //   // veriifca se a chamada não é pela montagem do componente
-    //   // verifica se a modificação no pathname ocorreu devido a mudança no id
-    //   if (c.current[0]>0){
-    //     // if (location.pathname!=pathname.current){
-    //         get();
-    //             music.current && get();
-    //         // }
-    //         // verifica se foi a primeira mudança, pois o anuncio só precisa ser carregado uma vez por tipo de página
-    //         if (c.current[0]==1){
-    //             isRender();
-    //         }
-    //     // }
-    //   }
-    //   if (c.current[2]==1) c.current[2]=0;
-    //   c.current[0]++;
-    //   return ()=>{
-    //     player.current.alterar_player=null;
-    //     player.current.setTime=null;
-    //   }
-    // },[location.pathname]);
-
-    // useEffect(()=>{
-
-    //     // veriifca se a chamada não é pela montagem do componente
-    //     if (c.current[1]>0){
-    //         get();
-    //         music.current && get();
-    //     }
-    //     c.current[1]++;
-    //     c.current[2]=1;
-    // },[props.id]);
     const Download=()=>{
         var params=new URLSearchParams();
         params.set("type","download");
@@ -326,21 +183,21 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
             </div>}
             {/* {!comentarios ? <div className='comment' onClick={()=>{setComentarios(true)}}>Comentários</div> : <></>} */}
             {/* {comentarios && <Comentarios id_comment={post.id}/>} */}
-            {globals.mobile && !isPlaylist ? <Comentarios previousRequest={previousRequest}/> : <></> }
+            {globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
             {/* <Ads slot="7693763089"/> */}
             {/* {!props.id && globals.mobile && <Post globals={globals}  posts={infos}/>} */}
         </div>
     }
-    return !isMain ? <Nt post={postAtual} musics={musics}/> : (
+    return !isMain ? <Nt post={post} musics={musics}/> : (
         <div id="pg" className={'mu cont' + (id ? " playlist" : "")} style={{width: "100%",minHeight:"100%"}}>
             <div id="bottom">
                 <div id="s1">
                     {post.id ? <Ads solt="7693763089"/> : <></>}
                     {/* <audio onCanPlayThrough={onLoadedData} ref={audioRef} src={src.audio} onPlay={setChange} onPause={setChange} onTimeUpdate={onTimeUpdate} onLoadedMetadata={onLoadedMetadata} id="audiod" style={{display:"none"}}></audio> */}
-                    <Nt post={postAtual} musics={musics}/>
+                    <Nt post={post} musics={musics}/>
                     <Elements></Elements>
                 </div>
-                {!globals.mobile && !isPlaylist ? <Comentarios previousRequest={previousRequest}/> : <></> }
+                {!globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
                 {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos} /> } */}
             </div>
         </div>

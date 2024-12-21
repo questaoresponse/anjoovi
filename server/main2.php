@@ -1206,7 +1206,7 @@ Route::get("/playlist/{id}",function($id){
     $usuario=get_user();
     $id=intval($id);
     $conn=new sqli("anjoov00_posts");
-    $playlist=$conn->prepare("SELECT p.*, (SELECT CONCAT('[\"',GROUP_CONCAT(p2.titulo SEPARATOR '\",\"'),'\"]') 
+    $r=$conn->prepare("SELECT p.*, (SELECT CONCAT('[\"',GROUP_CONCAT(p2.titulo SEPARATOR '\",\"'),'\"]') 
         FROM (
                 SELECT id AS id1, NULL AS id2, NULL AS id3, titulo FROM post
                 UNION
@@ -1238,10 +1238,10 @@ Route::get("/playlist/{id}",function($id){
         ) AS idd,
         'pl' AS tipo, tipo AS post_tipo
     FROM playlist p WHERE id=? AND privado='false'",[$id]);
-    if ($playlist->num_rows>0){
-        $playlist=p($playlist)[0];
-        $algoritmo=getAlgoritmoNoticia(false,$conn,$usuario,$playlist["views_id"]);
-        response()->json(["result"=>"true","post"=>$playlist,"posts"=>$algoritmo]);
+    if ($r->num_rows>0){
+        $r=p($r)[0];
+        $algoritmo=getAlgoritmoNoticia(false,$conn,$usuario,$r["views_id"]);
+        response()->json(["result"=>"true","post"=>$r,"posts"=>$algoritmo]);
     } else {
         r404();
     }
