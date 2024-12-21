@@ -24,7 +24,7 @@ interface postInterface{
   tipo:string,
   n_comment:number,
 }
-function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any}) {
+function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any,onLoaded?:()=>void}) {
     onLinkClick !="";
   const globals = useGlobal();
   const auth = useAuth();
@@ -91,7 +91,10 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
         }
     }
     const Nt=({post}:{post:postInterface})=>{
-      return <div className='posts-div'>
+        useEffect(()=>{
+            isMain && onLoaded!();
+        },[]);
+        return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/imagem/"+post.id,post.id)}} to={"/imagem/"+post.id} className="imagem disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo> 
                 <div className={(post.usuario!="" ? "" : " wait ") + "descricao-imagem txt " + (!isMain ? "resumo" : "")} ref={refs.descricao}>{post.text.map((line:string[],i:number)=>{

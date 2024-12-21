@@ -1,5 +1,5 @@
 // Exemplo do componente Contact
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -25,7 +25,7 @@ interface postInterface{
   get?:()=>void,
 //   get?:MutableRefObject<(initial?:boolean)=>void>,
 }
-function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any}) {
+function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any,onLoaded?:()=>void}) {
     const globals = useGlobal();
     const auth = useAuth();
     const isValidURL=(str:any)=>{
@@ -37,6 +37,9 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist
         }
     }
     const Nt=({post}:{post:postInterface})=>{
+        useEffect(()=>{
+            isMain && onLoaded!();
+        },[]);
         return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/texto/"+post.id,post.id)}} to={"/texto/"+post.id} className="texto disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>

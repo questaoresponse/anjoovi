@@ -23,6 +23,7 @@ class PlayerClass{
     setPlay:Dispatch<SetStateAction<boolean>> | null=null;
     viewRequest:(()=>void) | null=null;
     getInfos:(()=>void) | null=null;
+    updatePosts:((pathname:string,i:number)=>void) | null=null;
     timeListeners:((time:string)=>void)[]=[];
     paused=true;
     duration=-1;
@@ -120,6 +121,7 @@ class PlayerClass{
       this.changeState();
     }
     onTimeUpdate(){
+        if (this.page_id==-1) return;
         const atual_time = this.refs.audio.current!.currentTime;
         var v=false;
         if (this.musics[this.music_index].currentTime<atual_time){

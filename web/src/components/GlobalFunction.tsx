@@ -45,7 +45,6 @@ function GlobalFunction(){
           // document.querySelector("html")!.scrollIntoView
             
           // },1000);
-          window.scrollTo({top:0,behavior:"instant"});
     };
     useEffect(()=>{
         function navigateFn(pathname:string,changeURL?:boolean,lookTop?:boolean){

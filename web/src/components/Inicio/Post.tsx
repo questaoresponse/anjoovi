@@ -23,7 +23,7 @@ function Post({isLoaded,globals,posts,verifyScroll,adsRender,slot}:{isLoaded:any
                     var playlist=post.tipo=="pl";
                     if (playlist){
                         const imgs=JSON.parse(post.imagem);
-                        cm=JSON.parse(post.posts).map((post:any)=>imgs.filter((img:any)=>post in img)[0][post]);
+                        cm=JSON.parse(post.posts).map((post:any)=>imgs.filter((img:any)=>post in img)[0][post])[0];
                     } else if (v){
                         cm=JSON.parse(post.imagem);
                         if (cm[1]){

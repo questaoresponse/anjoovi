@@ -249,8 +249,10 @@ function Types(){
     get(true,"/"+window.location.pathname.split("/")[1]+"/"+window.location.pathname.split("/")[2]);
     useLayoutEffect(()=>{
         navigateClass.current.addListener(changeId);
+        player.current.updatePosts=updatePosts;
         return ()=>{
             navigateClass.current.removeListener(changeId);
+            player.current.updatePosts=null;
         }
     },[]);
     const onLinkClick=(link:string)=>{
@@ -260,14 +262,17 @@ function Types(){
         setLink([false,""]);
         window.open((link[1]!).toString(),"_blank");
     };
+    const onLoaded=()=>{
+        navigate("",{changeURL:false,lookTop:true,callHandle:false});
+    }
     return <>
         {posts.postAtual ?
-            posts.postAtual.tipo=="p" ? <Noticia post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick}/> :
-            posts.postAtual.tipo=="i" ? <Imagem post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick}/> :
-            posts.postAtual.tipo=="m" ? <Musica post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick}/> :
-            posts.postAtual.tipo=="t" ? <Texto post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick}/> :
-            posts.postAtual.tipo=="v" ? <Video post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)}/> :
-            posts.postAtual.tipo=="pl" ? <Playlist post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick}/> :
+            posts.postAtual.tipo=="p" ? <Noticia post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick} onLoaded={onLoaded}/> :
+            posts.postAtual.tipo=="i" ? <Imagem post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick} onLoaded={onLoaded}/> :
+            posts.postAtual.tipo=="m" ? <Musica post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick} onLoaded={onLoaded}/> :
+            posts.postAtual.tipo=="t" ? <Texto post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick} onLoaded={onLoaded}/> :
+            posts.postAtual.tipo=="v" ? <Video post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLoaded={onLoaded}/> :
+            posts.postAtual.tipo=="pl" ? <Playlist post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick} onLoaded={onLoaded}/> :
             null : null}
         <div id="tp-link-d" style={{display:link[0] ? "flex" : "none"}}>
             <div id="tp-link-content">

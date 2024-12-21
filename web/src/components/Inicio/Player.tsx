@@ -49,9 +49,13 @@ function Player(){
         player.current.animate(0,true);
         // changeProgress(number);
     }
+    const navigateToMusic=(e:any)=>{
+        e.preventDefault();
+        player.current.updatePosts && player.current.updatePosts("/musica/"+player.current.page_id,player.current.page_id);
+    }
     return (
         <div draggable={false} id="player" style={{display:exists ? "block" : "none"}}>
-            <Link to={"/musica/"+player.current.page_id} id='player-name' className='txt-1'>{infos.name}</Link>
+            <Link to={"/musica/"+player.current.page_id} onClick={navigateToMusic} id='player-name' className='txt-1'>{infos.name}</Link>
             <div id='player-user'><Link to={"@"+infos.user} className='txt-1'>Por: {infos.user}</Link></div>
             <div id="player-infos">
                 <div id='player-controller'>

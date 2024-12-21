@@ -1,5 +1,5 @@
 // Exemplo do componente Contact
-import { useRef, memo } from 'react';
+import { useRef, memo, useEffect } from 'react';
 import Link from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -30,7 +30,7 @@ interface postInterface{
     get?:()=>void,
 //   get?:MutableRefObject<(initial?:boolean)=>void>,
 }
-function Video({isPlaylist,id,func,isMain,Elements,post}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any}) {
+function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLoaded?:()=>void}) {
     const globals = useGlobal();
     const { server }=globals;
     const auth = useAuth();
@@ -46,6 +46,9 @@ function Video({isPlaylist,id,func,isMain,Elements,post}:{isPlaylist?:any,id?:nu
         }
     };
     const Nt=({post}:{post:postInterface})=>{
+        useEffect(()=>{
+            isMain && onLoaded!();
+        },[]);
         return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:any)=>{e.preventDefault();func("/video/"+post.id,post.id)}} to={"/video/"+post.id} className="video disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
@@ -109,19 +112,19 @@ function Video({isPlaylist,id,func,isMain,Elements,post}:{isPlaylist?:any,id?:nu
     }
     return !isMain ? <Nt post={post}/> : (
         <div>
-        <div id="pg" className={'vi cont' + (id ? " playlist" : "")}> 
-            <div id="bottom">
-                <div id="s1">
-                    {post.id ? <Ads slot="7693763089"/> : <></>}
-                    <Nt post={post}></Nt>
-                    <Elements></Elements>
-                </div>
-                {!globals.mobile && <Ads slot="7577017868"/>}
-                {!globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
+            <div id="pg" className={'vi cont' + (id ? " playlist" : "")}> 
+                <div id="bottom">
+                    <div id="s1">
+                        {post.id ? <Ads slot="7693763089"/> : <></>}
+                        <Nt post={post}></Nt>
+                        <Elements></Elements>
+                    </div>
+                    {!globals.mobile && <Ads slot="7577017868"/>}
+                    {!globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
 
-                {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}
+                    {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}
+                </div>
             </div>
-        </div>
         </div>
     );
 }

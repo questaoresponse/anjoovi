@@ -1240,10 +1240,19 @@ Route::get("/playlist/{id}",function($id){
     FROM playlist p WHERE id=? AND privado='false'",[$id]);
     if ($r->num_rows>0){
         $r=p($r)[0];
-        $algoritmo=getAlgoritmoNoticia(false,$conn,$usuario,$r["views_id"]);
-        response()->json(["result"=>"true","post"=>$r,"posts"=>$algoritmo]);
+        if (is_js()){
+            $algoritmo=getAlgoritmoNoticia(false,$conn,$usuario,$r["views_id"]);
+            response()->json(["result"=>"true","post"=>$r,"posts"=>$algoritmo]);
+        } else {
+            include(__DIR__ . "/playlist.php");
+            client();
+        }
     } else {
-        r404();
+        if (is_js()){
+            r404();
+        } else {
+            r404g();
+        }
     }
 });
 Route::post("/canal",function(){

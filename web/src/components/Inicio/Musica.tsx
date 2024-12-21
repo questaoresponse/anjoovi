@@ -83,7 +83,7 @@ const MusicaList=({music,onClickMusic,getTime,getData,index}:{music:musicInterfa
         </div>
     )
 }
-function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any}){
+function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any,onLoaded?:()=>void}){
     onLinkClick !="";
     const globals=useGlobal();
     const { server, player }=globals;
@@ -128,6 +128,9 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylis
         auth.get(server+"/musica/"+id+"?"+params.toString());
     }
     const Nt=({post}:{post:postInterface,musics:musicInterface[]})=>{
+        useEffect(()=>{
+            isMain && onLoaded!();
+        },[]);
         // const [comentarios,setComentarios]=useState<boolean>(false);
         return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/musica/"+post.id,post.id)}} to={"/musica/"+post.id} className="musica disabled">

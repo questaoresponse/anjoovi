@@ -20,7 +20,7 @@ interface postInterface{
     titulo:string[],
     tipo:string
 }
-function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any}){
+function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any,onLoaded?:()=>void}){
     const globals=useGlobal();
     const { navigate, server }=globals;
     const auth=useAuth();
@@ -127,7 +127,6 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
             "imagem":"imagem",
             "post_musica":"musica"
         }
-        console.log(post.post_tipo);
         auth.get(server+"/"+types[post.post_tipo]+"/"+post.posts[currentId.current]+"?c=1").then(result=>{
             if (result.data.result=="true"){
                 
@@ -151,18 +150,6 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
             get();
         }
     },[post]);
-    // useEffect(()=>{
-    //     if (c.current>0){
-    //         get(true);
-    //     }
-    //     c.current++;
-    //     const u=new URLSearchParams(location.search);
-    //     u.set("v","0");
-    //     isNavigate.current=true;
-    //     navigate!(location.pathname+"?"+u.toString());
-    //     update the scroll
-    //     refs.scroll.current!.style.transform="translateX("+(currentScroll.current * -21)+"vw)";
-    // },[location.pathname]);
 
     const go=(id:number,index:number)=>{
         setPostId(id);
@@ -171,21 +158,6 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
         const search="?"+u.toString();
         location.current.search=search;
         navigate!(location.current.pathname+search,{changeURL:false,lookTop:true});
-        // update the scroll
-
-        // currentScroll.current=index;
-
-        // if (currentScroll.current > 0){
-        //     refs.previous.current!.classList.replace("h","v");
-        // } else {
-        //     refs.previous.current!.classList.replace("v","h");
-        // }
-        // if (currentScroll.current < values.infos.posts.length-1){
-        //     refs.next.current!.classList.replace("h","v");
-        // } else {
-        //     refs.next.current!.classList.replace("v","h");
-        // }
-        
     }
     let value:any;
     if (values.infos && values.currentInfos.post){
@@ -271,6 +243,9 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick}:{id?:number,func?:a
         </div>
     };
     const Nt=({post}:{post:postInterface})=>{
+        useEffect(()=>{
+            isMain && onLoaded!();
+        },[]);
         return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/playlist/"+post.id+"?v=0",post.id)}} to={"/playlist/"+post.id+"?v=0"} id="plist disabled">
                 <div id="bottom">

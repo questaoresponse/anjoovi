@@ -1,5 +1,5 @@
 // Exemplo do componente Contact
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -29,7 +29,7 @@ interface postInterface{
     get?:()=>void,
 //   get?:MutableRefObject<(initial?:boolean)=>void>,
 }
-function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any}) {
+function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any,onLoaded?:()=>void}) {
     const globals = useGlobal();
     const auth = useAuth();
     const isValidURL=(str:any)=>{
@@ -41,6 +41,9 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick}:{isPlayli
         }
     }
     const Nt=({post}:{post:postInterface})=>{
+        useEffect(()=>{
+            isMain && onLoaded!();
+        },[]);
         return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/noticia/"+post.id,post.id)}} to={"/noticia/"+post.id} className="noticia disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
