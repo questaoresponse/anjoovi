@@ -8,6 +8,7 @@ import Musica from "./Musica";
 import Texto from "./Texto";
 import Playlist from "./Playlist";
 import Video from "./Video";
+import Product from "./Product";
 const Elements=(posts:any,func:any,onLinkClick:any)=>{
     return ()=>{
         return posts.map((post:any,index:number)=>{
@@ -24,6 +25,8 @@ const Elements=(posts:any,func:any,onLinkClick:any)=>{
                     return <Video post={post} key={index} func={func} isMain={false}/>
                 case "pl":
                     return <Playlist post={post} key={index} func={func} isMain={false} onLinkClick={onLinkClick}/>
+                case "pd":
+                    return <Product post={post} key={index} func={func} isMain={false} onLinkClick={onLinkClick}/>
             }
         });
     }
@@ -198,6 +201,25 @@ function Types(){
                     posts:posts,
                     playlists:playlists
                 };
+            case "pd":
+                var dj=JSON.parse(post.d);
+                var d=dj.o;
+                var texto=(post.descricao || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []);
+                return {
+                    alta:[],
+                    srcImagem:server+"/images/"+encodeURIComponent(post.imagem),
+                    logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
+                    nome:post.nome,
+                    usuario:post.usuario,
+                    dataText:get_date_s(d),
+                    dataUpdateText:dj.a ? "Editado" : "",
+                    visualizacoes:post.visualizacoes,
+                    inscrito:JSON.parse(post.inscrito),
+                    text:texto,
+                    id:post.id,
+                    n_comment:post.n_comment,
+                    tipo:post.tipo
+                };
         }  
     }
     const get=async (initial:boolean,pathname:string)=>{
@@ -273,6 +295,7 @@ function Types(){
             posts.postAtual.tipo=="t" ? <Texto post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick} onLoaded={onLoaded}/> :
             posts.postAtual.tipo=="v" ? <Video post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLoaded={onLoaded}/> :
             posts.postAtual.tipo=="pl" ? <Playlist post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick} onLoaded={onLoaded}/> :
+            posts.postAtual.tipo=="pd" ? <Product post={posts.postAtual} isMain={true} Elements={Elements(posts.posts,updatePosts,onLinkClick)} onLinkClick={onLinkClick} onLoaded={onLoaded}/> :
             null : null}
         <div id="tp-link-d" style={{display:link[0] ? "flex" : "none"}}>
             <div id="tp-link-content">

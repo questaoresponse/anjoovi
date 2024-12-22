@@ -11,13 +11,13 @@ import { resultInterface } from '../../Auth.tsx';
 function ImagemLista(){
     const globals=useGlobal();
     const Opcoes=(props:any)=>{
-        const [isChecked,setIsChecked]=useState(props.post.lixeira=="true");
+        const [isChecked,setIsChecked]=useState((props.post.privado & 2)==2 || (props.post.privado & 4)==4);
         const auth=props.auth;
         const server=props.globals.server;
         const location=props.location;
         const onPublicChange=useCallback((e:any)=>{
             auth.post(server+"/admin/imagens_lista"+location.search,{type:"option",id:props.post.id,operation:e.target.checked ? "privado":"publico"}).then((_:resultInterface)=>{
-            setIsChecked(isChecked ? false : true);
+                setIsChecked(isChecked ? false : true);
             });
         },[isChecked]);
         const Excluir=useCallback(()=>{

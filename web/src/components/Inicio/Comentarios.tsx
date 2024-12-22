@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, useRef, memo, MutableRefObject } from
 import Link from "../Link.tsx";
 import { useGlobal } from "../Global.tsx";
 import { useAuth } from "../Auth.jsx";
+import excluirSrc from '../static/remove-icone.png';
 import './Comentarios.scss';
 import { useLocation } from "react-router-dom";
 
@@ -21,6 +22,7 @@ function Comentarios({previousRequest, ...values}:{previousRequest?:MutableRefOb
     const [logos,setLogos]=useState([]);
     const [count,setCount]=useState(0);
     const [loading,setLoading]=useState(false);
+    const [optionsShow,setOptionsShow]=useState(-1);
     const refs={
         input:useRef<HTMLInputElement>(null),
         btn:useRef<HTMLButtonElement>(null),
@@ -107,6 +109,7 @@ function Comentarios({previousRequest, ...values}:{previousRequest?:MutableRefOb
             setCount(count => count + 1);
         }
         });
+        setOptionsShow(-1);
     }, [comentarios, loading]);
     const verifyInput=(e:any)=>{
         refs.btn.current!.disabled=e.target.value.trim()==""; 
@@ -131,7 +134,12 @@ function Comentarios({previousRequest, ...values}:{previousRequest?:MutableRefOb
                                     <div className="ndivt txt">{comment.texto.map((texto:string,index:number)=>{
                                         return texto.length >0 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={index} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( comment.texto.length-1>index ? " " : "" )}</Link> : texto + ( comment.texto.length-1>index ? " " : "" )
                                     })}</div>
-                                    {globals.login.isLoged=="true" && globals.login.usuario==comment.usuario ? <div onClick={Excluir} className="ndivx" data-id={comment.id}>{comment.loading ? "": "excluir"}</div> : ""}
+                                </div>
+                                <svg onClick={()=>setOptionsShow(index)} className="ndivopts-btn" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                </svg>
+                                <div className="ndivopts" style={{display:optionsShow==index ? "block" : "none"}}>
+                                    {globals.login.isLoged=="true" && globals.login.usuario==comment.usuario ? <div onClick={Excluir} className={"ndivopt"+(comment.loading ? " disabled" : "")} data-id={comment.id}><img className="delete-img" src={excluirSrc}></img><div className="delete-div">Excluir</div></div> : <></>}
                                 </div>
                             </div>
                         )

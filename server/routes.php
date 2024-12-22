@@ -381,30 +381,6 @@ use \Firebase\JWT\JWT;
 use \Firebase\JWT\KEY;
 
 $chaveSecreta=$GLOBALS["jwtKey"];
-function generate_number(){
-    // String aleatória de 1000 caracteres
-    $randomString = generateRandomString(1000);
-
-    // Calcula o tamanho em bytes da string
-    $bytes = strlen($randomString);
-
-    echo "Tamanho da string em bytes: " . $bytes . " bytes\n";
-
-    // Função para gerar uma string aleatória de comprimento especificado
-    function generateRandomString($length) {
-        // Caracteres ASCII imprimíveis (33-126)
-        $chars = array_merge(range('!', '~')); // Array contendo os caracteres ASCII imprimíveis
-        
-        $randomString = '';
-        $maxIndex = count($chars) - 1;
-
-        // Gerar a string aleatória
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $chars[random_int(0, $maxIndex)];
-        }
-        return $randomString;
-    }
-}
 function jwt_verify($token){
     $chaveSecreta=$GLOBALS["jwtKey"];
     try {
@@ -416,11 +392,6 @@ function jwt_verify($token){
 }
 function get_token($dados){
     $chaveSecreta=$GLOBALS["jwtKey"];
-    // $configuracaoToken=[
-    //     'iss' => 'http://localhost:3000',
-    //     'iat' => time(),
-    //     'exp' => strtotime('+1 year') // Adiciona um ano ao timestamp atual
-    // ];
     $payload = [
         'iat' => time(),
         'exp' => strtotime('+1 year'), // time in the past

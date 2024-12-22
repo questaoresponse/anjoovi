@@ -164,7 +164,7 @@
     //     overflow: hidden;
 
     // }
-    #s1 > div > div:last-child::after,#s1 > div > a:last-child:after{
+    #s1 > div > div:last-child:not(#cmd):after,#s1 > div > a:last-child:not(#cmd):after{
         content:"";
         position: relative;
         display: block;

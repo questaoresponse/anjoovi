@@ -496,7 +496,7 @@ Route::post("/admin/noticias_cadastro", function(){
                     }
                 }
                 $texto=isset($dados["texto"]) ? $dados["texto"] : null;
-                // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT, lixeira TEXT)");
+                // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
                 if (($isCadastro || isset($dados["imagens_edit"])) && request()->has("imagem")) {
                     $file = request()->file("imagem");
                     if (mime_content_type(request()->file("imagem")->file["tmp_name"]) === 'image/jpeg'){
@@ -526,11 +526,10 @@ Route::post("/admin/noticias_cadastro", function(){
                     $conn = new sqli("anjoov00_posts");
                     $result=p($conn->prepare("SELECT nome,privado FROM user WHERE usuario=?",[$usuario]))[0];
                     $nome=$result["nome"];
-                    $privado=$result["privado"];
-                    $lixeira="false";
+                    $privado=0 | intval($result["privado"]);
                     $d=get_d();
                     $views_id=get_views_id($conn);
-                    $conn->prepare("INSERT INTO post(nome,usuario,titulo,subtitulo,texto,imagem,acessos,views_id,id,lixeira,d,privado) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",[$nome,$usuario,$titulo,$subtitulo,$texto,$imagem,$acessos,$views_id,$id,$lixeira,$d,$privado]);
+                    $conn->prepare("INSERT INTO post(nome,usuario,titulo,subtitulo,texto,imagem,acessos,views_id,id,d,privado) VALUES (?,?,?,?,?,?,?,?,?,?,?)",[$nome,$usuario,$titulo,$subtitulo,$texto,$imagem,$acessos,$views_id,$id,$d,$privado]);
                     insert_views($conn,$usuario,"post",$views_id,$id);
                     add_n_posts($usuario,$conn);
                 } else {
@@ -593,18 +592,18 @@ Route::post("/admin/noticias_lista",function(){
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
             if($cargo==1){
                 if ($type=="pesquisa"){
-                    $s=$conn->prepare("SELECT id,titulo,usuario,acessos,lixeira,d FROM post WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
+                    $s=$conn->prepare("SELECT id,titulo,usuario,acessos,d,privado FROM post WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search,$search,$search]);
                 } else {
-                    $s=$conn->query("SELECT id,titulo,usuario,acessos,lixeira,d FROM post ORDER BY id DESC LIMIT $n,10");
+                    $s=$conn->query("SELECT id,titulo,usuario,acessos,d,privado FROM post ORDER BY id DESC LIMIT $n,10");
                     $num=$conn->query("SELECT COUNT(*) AS num FROM post");
                 }
             } else {
                 if ($type=="pesquisa"){
-                    $s=$conn->prepare("SELECT id,titulo,acessos,lixeira,d FROM post WHERE usuario=? AND LOWER(titulo) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$usuario,$search,$search]);
+                    $s=$conn->prepare("SELECT id,titulo,acessos,d,privado FROM post WHERE usuario=? AND LOWER(titulo) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$usuario,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post WHERE usuario=? AND LOWER(titulo) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$usuario,$search,$search]);
                 } else {
-                    $s=$conn->prepare("SELECT id,titulo,acessos,lixeira,d FROM post WHERE usuario=? ORDER BY id DESC LIMIT $n,10",[$usuario]);
+                    $s=$conn->prepare("SELECT id,titulo,acessos,d,privado FROM post WHERE usuario=? ORDER BY id DESC LIMIT $n,10",[$usuario]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post WHERE usuario=?",[$usuario]);
                 }
             }
@@ -620,18 +619,19 @@ Route::post("/admin/noticias_lista",function(){
                 $id=request("id");
                 $operation=request("operation") ? request("operation") : null;
                 $conn = new sqli("anjoov00_posts");
-                //$s=$conn->prepare("SELECT * FROM post WHERE usuario=? AND lixeira='false'",[$usuario]);
+                //$s=$conn->prepare("SELECT * FROM post WHERE usuario=?AND privado=0",[$usuario]);
                 // unlink(__DIR__ . "/../images/" . p($result)[0]["imagem"]);
                 //$s=$conn->prepare("DELETE FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
                 if ($operation){
                     $user=null;
-                    $li=$operation=="privado" ? "true" : "false";
-                    $sum=$li=="true" ? -1 : 1;
+                    $li=$operation=="privado";
+                    $case=$li ? "privado | 1" : "privado & ~1"; 
+                    $sum=$li ? -1 : 1;
                     if ($cargo==1){
-                        $result=$conn->prepare("UPDATE post SET lixeira='$li' WHERE id=?",[$id]);
+                        $result=$conn->prepare("UPDATE post SET privado=$case WHERE id=?",[$id]);
                         $user=p($conn->prepare("SELECT usuario FROM post WHERE id=?",[$id]))[0]["usuario"];
                     } else {
-                        $result=$conn->prepare("UPDATE post SET lixeira='$li' WHERE usuario=? AND id=?",[$usuario,$id]);
+                        $result=$conn->prepare("UPDATE post SET privado=$case WHERE usuario=? AND id=?",[$usuario,$id]);
                         $user=$usuario;
                     }
                     $sum_str=$sum== 1 ? " + 1" : " - 1";
@@ -794,142 +794,6 @@ Route::post("/admin/24_lista",function(){
         login();
     }
 });
-// Route::post("/admin/24_cadastro",function(){
-//     include(__DIR__. '/../public_html/templates/admin/24_lista/index.php');
-// });
-// Route::get("/admin/noticias_lixeira",function(){
-//     get_user() : header("location:/admin");
-//     include(__DIR__ . '/../public_html/templates/main/main.html');
-// });
-// Route::post("/admin/noticias_lixeira",function(){
-    
-//     $usuario=get_user();
-//     if ($usuario){
-//         $cargo=cargo($usuario);
-//         function gpa(){
-//             $usuario=get_user();
-//             $cargo=cargo($usuario);
-//             $conn=new sqli("anjoov00_posts");
-//             $s;
-//             $num;
-//             $pg=isset($_GET["pg"]) ? request()->query("pg") : null;
-//             if($cargo==1){
-//                 if ($pg){
-//                     $n=($pg-1)*10;
-//                     $s=$conn->query("SELECT id,titulo,usuario,acessos FROM post WHERE lixeira='true' ORDER BY id DESC LIMIT $n,10");
-//                 } else {
-//                     $s=$conn->query("SELECT id,titulo,usuario,acessos FROM post WHERE lixeira='true' ORDER BY id DESC LIMIT 10");
-//                 }
-//                 $num=$conn->query("SELECT COUNT(*) AS num FROM post WHERE lixeira='true'");
-//             } else {
-//                 if ($pg){
-//                     $n=($pg-1)*10;
-//                     $s=$conn->query("SELECT id,titulo,acessos FROM post WHERE usuario='$usuario' AND lixeira='true' ORDER BY id DESC LIMIT $n,10");
-//                 } else {
-//                     $s=$conn->query("SELECT id,titulo,acessos FROM post WHERE usuario='$usuario' AND lixeira='true' ORDER BY id DESC LIMIT 10");
-//                 }
-//                 $num=$conn->query("SELECT COUNT(*) AS num FROM post WHERE usuario='$usuario' AND lixeira='true'");
-//             }
-//             $r=p($s);
-//             $num=p($num)[0]["num"];
-//             response()->json(["noticias"=>$r,"n_registros"=>$num]);
-//         }
-//         if (request("type")=="info"){
-//         gpa();
-//         //return view("admin.noticias_lixeira.index",compact("r","usuario"));
-//     } else if (request("type")=="option"){
-//     $dados=request()->all();
-//     $type=request()->query("type");
-//     $cargo=cargo($usuario);
-//     if ($type=="repor"){
-//         $id=$dados["id"];
-//         $id=intval($id);
-//         $conn = new sqli("anjoov00_posts");
-//         if ($cargo==1){
-//             $result=$conn->prepare("UPDATE post SET lixeira='false' WHERE id=?",[$id]);
-//         } else {
-//             $result=$conn->prepare("UPDATE post SET lixeira='true' WHERE usuario=? AND id=?",[$usuario,$id]);
-//         }
-//         $conn = new sqli("anjoov00_users_conteudo");
-//         $rs=$conn->prepare("SELECT n_posts FROM user WHERE usuario=?",[$usuario]);
-//         $n=p($rs)[0]["n_posts"]+1;
-//         $rs=$conn->prepare("UPDATE user SET n_posts=? WHERE usuario=?",[$n,$usuario]);
-//         gpa();
-//     }
-//     if ($type=="remove"){
-//         $id=$dados["id"];
-//         $id=intval($id);
-//         $conn = new sqli("anjoov00_posts");
-//         $views_id=p($conn->prepare("SELECT views_id FROM post WHERE id=? AND usuario=?",[$id,$usuario]))[0]["views_id"];
-//         $s=$conn->prepare("DELETE FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
-//         $conn->prepare("UPDATE views SET excluido='true' WHERE excluido='false' AND id=?",[$views_id]);
-//         gpa();
-//     }
-//     } else {
-//         response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/noticias_lixeira/' . ($cargo==1 ? "admin.html" : "main.html")));
-//     }
-//     } else {
-//         login();
-//     }
-// });
-// Route::get("/admin/categorias_cadastro",function(){
-    
-//     include(__DIR__ . '/../admin_v.php');
-//     $usuario=get_user();
-//     if(include(__DIR__ . "/require.php")) return;
-//     $cargo=cargo($usuario);
-//     $conn = new sqli("anjoov00_config");
-//     $result=$conn->query("SELECT * FROM categorias");
-//     $r=p($result);
-//     return view("admin.categorias_cadastro.index",compact("r","usuario","cargo"));
-// });
-// Route::post("/admin/categorias_cadastro",function(){
-    
-//     if (!session()->has("key")) return;
-//     $dados=request()->all();
-//     if ($dados["type"]=="cadastro"){
-//         $nome=$dados["nome"];
-//         $descricao=$dados["descricao"];
-//         $link=$dados["link"];
-//         $conn = new sqli("anjoov00_config");
-//         $conn->query("CREATE TABLE IF NOT EXISTS categorias(id INT,nome TEXT,descricao TEXT,link TEXT)");
-//         $result=$conn->query("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM categorias");
-//         $id=p($result)[0]["id"];
-//         $s=$conn->prepare("INSERT INTO categorias(id,nome,descricao,link) VALUES(?,?,?,?)",[$id,$nome,$descricao,$link]);
-//         $result=$conn->query("SELECT * FROM categorias");
-//         $r=p($result);
-//         response()->json($r);
-//     } else if ($dados["type"]=="remove"){
-//         $id=request()->query("id");
-//         $id=intval($id);
-//         $conn = new sqli("anjoov00_config");
-//         $s=$conn->prepare("DELETE FROM categorias WHERE id=?",[$id]);
-//         $result=$conn->query("SELECT * FROM categorias");
-//         $r=p($result);
-//         response()->json($r);
-//     }
-// });
-// Route::get("/admin/categorias_edit",function(){
-    
-//     include(__DIR__ . '/../admin_v.php');
-//     $usuario=get_user();
-//     if(include(__DIR__ . "/require.php")) return;
-//     $cargo=cargo($usuario);
-//     $id=request()->query("id");
-//     $id=intval($id);
-//     $conn = new sqli("anjoov00_config");
-//     $result=$conn->query("SELECT * FROM categorias");
-//     $all=[];
-//     if ($result->num_rows>0){
-//         while ($row = $result->fetch_assoc()) { $all[] = $row; }
-//     } else {
-//         return view("erro.404");
-//     }
-//     $conn = new sqli("anjoov00_config");
-//     $result=$conn->prepare("SELECT * FROM categorias WHERE id=?",[$id]);
-//     $r=p($result);
-//     return view("admin.categorias_edit.index",compact("all","r","usuario","cargo"));
-// });
 Route::post("/admin/denuncias_lista",function(){
     $usuario=get_user();
     if ($usuario){
@@ -963,7 +827,7 @@ Route::post("/admin/denuncias_lista",function(){
                     $cargo=cargo($usuario);
                     $id=intval(request("id"));
                     $conn = new sqli("anjoov00_posts");
-                    //$s=$conn->prepare("SELECT * FROM post WHERE usuario=? AND lixeira='false'",[$usuario]);
+                    //$s=$conn->prepare("SELECT * FROM post WHERE usuario=?AND privado=0",[$usuario]);
                     // unlink(__DIR__ . "/../images/" . p($result)[0]["imagem"]);
                     //$s=$conn->prepare("DELETE FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
                     if ($cargo==1){
@@ -1178,7 +1042,7 @@ Route::post("/admin/imagens_cadastro", function(){
                 $original_format=isset($dados["original_format"]);
                 $id=$isCadastro ? null : $dados["id"];
                 $descricao=isset($dados["descricao"]) ? $dados["descricao"] : null;
-                // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT, lixeira TEXT)");
+                // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
                 $id=null;
                 $imagem=null;
                 $d=null;
@@ -1218,11 +1082,10 @@ Route::post("/admin/imagens_cadastro", function(){
                     $conn = new sqli("anjoov00_posts");
                     $result=p($conn->prepare("SELECT nome,privado FROM user WHERE usuario=?",[$usuario]))[0];
                     $nome=$result["nome"];
-                    $privado=$result["privado"];
-                    $lixeira="false";
+                    $privado=0 | intval($result["privado"]);
                     $d=get_d();
                     $views_id=get_views_id($conn);
-                    $conn->prepare("INSERT INTO post_imagem(nome,usuario,descricao,imagem,acessos,views_id,id,lixeira,d,privado) VALUES (?,?,?,?,?,?,?,?,?,?)",[$nome,$usuario,$descricao,$imagem,$acessos,$views_id,$id,$lixeira,$d,$privado]);
+                    $conn->prepare("INSERT INTO post_imagem(nome,usuario,descricao,imagem,acessos,views_id,id,d,privado) VALUES (?,?,?,?,?,?,?,?,?)",[$nome,$usuario,$descricao,$imagem,$acessos,$views_id,$id,$d,$privado]);
                     insert_views($conn,$usuario,"post_imagem",$views_id,$id);
                     add_n_posts($usuario,$conn);
                 } else {
@@ -1248,9 +1111,9 @@ Route::post("/admin/imagens_edit",function(){
         $conn=new sqli("anjoov00_posts");
         $result=null;
         if (cargo($usuario)=="admin"){
-            $result=$conn->prepare("SELECT imagem,descricao,id FROM post_imagem WHERE id=? AND privado='false'",[$id]);
+            $result=$conn->prepare("SELECT imagem,descricao,id FROM post_imagem WHERE id=? AND privado=0",[$id]);
         } else {
-            $result=$conn->prepare("SELECT imagem,descricao,id FROM post_imagem WHERE id=? AND usuario=? AND privado='false'",[$id,$usuario]);
+            $result=$conn->prepare("SELECT imagem,descricao,id FROM post_imagem WHERE id=? AND usuario=? AND privado=0",[$id,$usuario]);
         }
         if ($result->num_rows>0){
             $result=p($result)[0];
@@ -1278,18 +1141,18 @@ Route::post("/admin/imagens_lista",function(){
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
             if($cargo==1){
                 if ($type=="pesquisa"){
-                    $s=$conn->prepare("SELECT id,descricao AS titulo,usuario,acessos,lixeira,d FROM post_imagem WHERE LOWER(descricao) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
+                    $s=$conn->prepare("SELECT id,descricao AS titulo,usuario,acessos,d,privado FROM post_imagem WHERE LOWER(descricao) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_imagem WHERE LOWER(descricao) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search,$search,$search]);
                 } else {
-                    $s=$conn->query("SELECT id,descricao AS titulo,usuario,acessos,lixeira,d FROM post_imagem ORDER BY id DESC LIMIT $n,10");
+                    $s=$conn->query("SELECT id,descricao AS titulo,usuario,acessos,d,privado FROM post_imagem ORDER BY id DESC LIMIT $n,10");
                     $num=$conn->query("SELECT COUNT(*) AS num FROM post_imagem");
                 }
             } else {
                 if ($type=="pesquisa"){
-                    $s=$conn->prepare("SELECT id,descricao AS titulo,acessos,lixeira,d FROM post_imagem WHERE usuario=? AND LOWER(descricao) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$usuario,$search,$search]);
+                    $s=$conn->prepare("SELECT id,descricao AS titulo,acessos,d,privado FROM post_imagem WHERE usuario=? AND LOWER(descricao) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$usuario,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_imagem WHERE usuario=? AND LOWER(descricao) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$usuario,$search,$search]);
                 } else {
-                    $s=$conn->prepare("SELECT id,descricao AS titulo,acessos,lixeira,d FROM post_imagem WHERE usuario=? ORDER BY id DESC LIMIT $n,10",[$usuario]);
+                    $s=$conn->prepare("SELECT id,descricao AS titulo,acessos,d,privado FROM post_imagem WHERE usuario=? ORDER BY id DESC LIMIT $n,10",[$usuario]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_imagem WHERE usuario=?",[$usuario]);
                 }
             }
@@ -1305,18 +1168,19 @@ Route::post("/admin/imagens_lista",function(){
                 $id=request("id");
                 $operation=request("operation") ? request("operation") : null;
                 $conn = new sqli("anjoov00_posts");
-                //$s=$conn->prepare("SELECT * FROM post WHERE usuario=? AND lixeira='false'",[$usuario]);
+                //$s=$conn->prepare("SELECT * FROM post WHERE usuario=?AND privado=0",[$usuario]);
                 // unlink(__DIR__ . "/../images/" . p($result)[0]["imagem"]);
                 //$s=$conn->prepare("DELETE FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
                 if ($operation){
                     $user=null;
-                    $li=$operation=="privado" ? "true" : "false";
-                    $sum=$li=="true" ? -1 : 1;
+                    $li=$operation=="privado";
+                    $case=$li ? "privado | 1" : "privado & ~1"; 
+                    $sum=$li ? -1 : 1;
                     if ($cargo==1){
-                        $result=$conn->prepare("UPDATE post_imagem SET lixeira='$li' WHERE id=?",[$id]);
+                        $result=$conn->prepare("UPDATE post_imagem SET privado=$case WHERE id=?",[$id]);
                         $user=p($conn->prepare("SELECT usuario FROM post_imagem WHERE id=?",[$id]))[0]["usuario"];
                     } else {
-                        $result=$conn->prepare("UPDATE post_imagem SET lixeira='$li' WHERE usuario=? AND id=?",[$usuario,$id]);
+                        $result=$conn->prepare("UPDATE post_imagem SET privado=$case WHERE usuario=? AND id=?",[$usuario,$id]);
                         $user=$usuario;
                     }
                     $sum_str=$sum== 1 ? " + 1" : " - 1";
@@ -1503,7 +1367,7 @@ Route::post("/admin/musicas_cadastro",function(){
                 $acessos_parcial=json_encode($acessos_parcial);
                 $acessos_d=json_encode($acessos_d);
                 $arquivos_json=json_encode($arquivos);
-                $privado=p($conn->prepare("SELECT privado FROM user WHERE usuario=?",[$usuario]))[0]["privado"];
+                $privado=0 | intval(p($conn->prepare("SELECT privado FROM user WHERE usuario=?",[$usuario]))[0]["privado"]);
                 $durations=json_encode($durations);
                 $conn->prepare("INSERT INTO post_musica(usuario,titulo,imagem,arquivo,acessos_parcial,acessos_d,views_id,id,d,privado,duration,zip) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",[$usuario,$titulo,$imagem,$arquivos_json,$acessos_parcial,$acessos_d,$views_id,$id,$d,$privado,$durations,$zip]);
                 insert_views($conn,$usuario,"post_musica",$views_id,$id);
@@ -1656,10 +1520,10 @@ Route::post("/admin/textos_cadastro",function(){
             }
             if ($isCadastro){
                 $d=get_d();
-                $conn->prepare("INSERT INTO post_texto(nome,usuario,texto,acessos,views_id,id,lixeira,d,privado) 
+                $conn->prepare("INSERT INTO post_texto(nome,usuario,texto,acessos,views_id,id,d,privado,privado) 
                     SELECT nome, usuario,? AS texto, 0 AS acessos, ? AS views_id, 
-                    ? AS id, 'false' AS lixeira,
-                    ? AS d, privado FROM user WHERE usuario=?",[$texto,$views_id,$id,$d,$user]);
+                    ? AS id,
+                    ? AS d, (0 | privado) AS privado  FROM user WHERE usuario=?",[$texto,$views_id,$id,$d,$user]);
                 // }
                 insert_views($conn,$user,"post_texto",$views_id,$id);
                 add_n_posts($user,$conn);
@@ -1710,18 +1574,18 @@ Route::post("/admin/textos_lista",function(){
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
             if($cargo==1){
                 if ($type=="pesquisa"){
-                    $s=$conn->prepare("SELECT id,texto AS titulo,usuario,acessos,lixeira,d FROM post_texto WHERE LOWER(texto) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
+                    $s=$conn->prepare("SELECT id,texto AS titulo,usuario,acessos,d,privado FROM post_texto WHERE LOWER(texto) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_texto WHERE LOWER(texto) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(texto) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search,$search,$search]);
                 } else {
-                    $s=$conn->query("SELECT id,texto AS titulo,usuario,acessos,lixeira,d FROM post_texto ORDER BY id DESC LIMIT $n,10");
+                    $s=$conn->query("SELECT id,texto AS titulo,usuario,acessos,d,privado FROM post_texto ORDER BY id DESC LIMIT $n,10");
                     $num=$conn->query("SELECT COUNT(*) AS num FROM post_texto");
                 }
             } else {
                 if ($type=="pesquisa"){
-                    $s=$conn->prepare("SELECT id,texto AS titulo,acessos,lixeira,d FROM post_texto WHERE usuario=? AND LOWER(texto) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$usuario,$search,$search]);
+                    $s=$conn->prepare("SELECT id,texto AS titulo,acessos,d,privado FROM post_texto WHERE usuario=? AND LOWER(texto) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$usuario,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_texto WHERE usuario=? AND LOWER(texto) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$usuario,$search,$search]);
                 } else {
-                    $s=$conn->prepare("SELECT id,texto AS titulo,acessos,lixeira,d FROM post_texto WHERE usuario=? ORDER BY id DESC LIMIT $n,10",[$usuario]);
+                    $s=$conn->prepare("SELECT id,texto AS titulo,acessos,d,privado FROM post_texto WHERE usuario=? ORDER BY id DESC LIMIT $n,10",[$usuario]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_texto WHERE usuario=?",[$usuario]);
                 }
             }
@@ -1737,7 +1601,7 @@ Route::post("/admin/textos_lista",function(){
                 $id=request("id");
                 $operation=request("operation") ? request("operation") : null;
                 $conn = new sqli("anjoov00_posts");
-                //$s=$conn->prepare("SELECT * FROM post WHERE usuario=? AND lixeira='false'",[$usuario]);
+                //$s=$conn->prepare("SELECT * FROM post WHERE usuario=?AND privado=0",[$usuario]);
                 // unlink(__DIR__ . "/../images/" . p($result)[0]["imagem"]);
                 //$s=$conn->prepare("DELETE FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
                 if ($operation){
@@ -1745,10 +1609,10 @@ Route::post("/admin/textos_lista",function(){
                     $li=$operation=="privado" ? "true" : "false";
                     $sum=$li=="true" ? -1 : 1;
                     if ($cargo==1){
-                        $conn->prepare("UPDATE post_texto SET lixeira='$li' WHERE id=?",[$id]);
+                        $conn->prepare("UPDATE post_texto SET privado=$case WHERE id=?",[$id]);
                         $username=p($conn->prepare("SELECT usuario FROM post_texto WHERE id=?",[$id]))[0]["usuario"];
                     } else {
-                        $conn->prepare("UPDATE post_texto SET lixeira='$li' WHERE usuario=? AND id=?",[$user,$id]);
+                        $conn->prepare("UPDATE post_texto SET privado=$case WHERE usuario=? AND id=?",[$user,$id]);
                         $username=$user;
                     }
                     $sum_str=$sum== 1 ? " + 1" : " - 1";
@@ -1853,8 +1717,8 @@ Route::post("/admin/videos_cadastro",function(){
             if ($isCadastro){
                 $d=get_d();
                 $views_id=get_views_id($conn);
-                $conn->prepare("INSERT INTO post_video(nome,usuario,titulo,texto,video,imagem,acessos,views_id,id,lixeira,d,privado)
-                    SELECT nome, usuario, ? AS titulo, ? AS texto, ? AS video, ? AS imagem, 0 AS acessos, ? AS views_id, ? AS id, 'false' AS lixeira, ? AS d, privado FROM user WHERE usuario=?",[$titulo,$texto,$video,$imagem,$views_id,$id,$d,$user]);
+                $conn->prepare("INSERT INTO post_video(nome,usuario,titulo,texto,video,imagem,acessos,views_id,id,d,privado)
+                    SELECT nome, usuario, ? AS titulo, ? AS texto, ? AS video, ? AS imagem, 0 AS acessos, ? AS views_id, ? AS id, ? AS d, (0 | privado) AS privado FROM user WHERE usuario=?",[$titulo,$texto,$video,$imagem,$views_id,$id,$d,$user]);
                 insert_views($conn,$user,"post_video",$views_id,$id); 
                 add_n_posts($user,$conn);
             } else {
@@ -1963,15 +1827,15 @@ Route::post("/admin/playlists_cadastro",function(){
                 if ($search!=""){
                     $search="%". $search . "%";
                     if ($data_type=="post" || $data_type=="post_imagem"){
-                        $result=p($conn->prepare("SELECT id,$titulo FROM $data_type WHERE usuario=? AND privado='false' AND lixeira='false' AND LOWER($titulo) LIKE LOWER(?)",[$usuario,$search]));
+                        $result=p($conn->prepare("SELECT id,$titulo FROM $data_type WHERE usuario=? AND privado=0 AND LOWER($titulo) LIKE LOWER(?)",[$usuario,$search]));
                     } else {
-                        $result=p($conn->prepare("SELECT id,titulo FROM $data_type WHERE usuario=? AND privado='false' AND LOWER($titulo) LIKE LOWER(?)",[$usuario,$search]));
+                        $result=p($conn->prepare("SELECT id,titulo FROM $data_type WHERE usuario=? AND privado=0 AND LOWER($titulo) LIKE LOWER(?)",[$usuario,$search]));
                     }
                 } else {
                     if ($data_type=="post" || $data_type=="post_imagem"){
-                        $result=p($conn->prepare("SELECT id,$titulo AS titulo FROM $data_type WHERE usuario=? AND privado='false' AND lixeira='false'",[$usuario]));
+                        $result=p($conn->prepare("SELECT id,$titulo AS titulo FROM $data_type WHERE usuario=? AND privado=0",[$usuario]));
                     } else {
-                        $result=p($conn->prepare("SELECT id,titulo FROM $data_type WHERE usuario=? AND privado='false'",[$usuario]));
+                        $result=p($conn->prepare("SELECT id,titulo FROM $data_type WHERE usuario=? AND privado=0",[$usuario]));
                     }
                 }
                 response()->json(["result"=>"true","posts"=>$result]);
@@ -2082,6 +1946,189 @@ Route::post("/admin/playlists_lista",function(){
         login();
     }
 });
+Route::post("/admin/products_cadastro", function(){
+    $usuario=get_user();
+    if ($usuario){
+        $type=$_GET["type"];
+        if (request("type")!="get"){
+            $cargo=cargo($usuario);
+            if ($cargo==1){
+                r404();
+            } else if ($type=="cadastro" || $type=="edit"){
+                $isCadastro=$type=="cadastro";
+                $conn = new sqli("anjoov00_posts");
+                // if (!session()->has("key")) return;
+                $dados=request()->all();
+                // if (strlen($titulo)==0) return;
+                $acessos=0;
+                $imagem=null;
+                $original_format=isset($dados["original_format"]);
+                $id=$isCadastro ? null : $dados["id"];
+                $descricao=isset($dados["descricao"]) ? $dados["descricao"] : null;
+                // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
+                $id=null;
+                $imagem=null;
+                $d=null;
+                if ($isCadastro){
+                    $id=intval(p($conn->query("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM post_product"))[0]["id"]);
+                } else {
+                    $id=$_POST["id"];
+                    $result=$conn->prepare("SELECT imagem,d FROM post_product WHERE usuario=? AND id=?",[$usuario,$id]);
+                    if ($result->num_rows>0){
+                        ["imagem"=>$imagem,"d"=>$d]=p($result)[0];
+                    } else {
+                        return response()->json(["result"=>"false","type"=>"id"]);
+                    }
+                }
+                if (($isCadastro || isset($dados["imagens_edit"])) && request()->has("imagem")) {
+                    $caminhoDestino = __DIR__ . "/../public_html/images/";
+                    if ($imagem){
+                        unlink($caminhoDestino . $imagem);
+                    }
+                    $file = request()->file("imagem");
+                    // Salvar a imagem em um diretório
+                    $imagem = $file->getClientOriginalName("webp");
+                    $imagem=$id . "_i_" . $imagem;
+                    $file->createwebp($caminhoDestino,$imagem);
+                    $img=imagem($caminhoDestino.$imagem);
+                    if ($original_format){
+                        $img->resize(null,720);
+                    } else {
+                        $img->resize(1280,720);
+                    }
+                } else {
+                    if ($isCadastro){
+                        return response()->json(["result"=>"false","type"=>"image"]);
+                    }
+                }
+                if ($isCadastro){
+                    $conn = new sqli("anjoov00_posts");
+                    $result=p($conn->prepare("SELECT nome,privado FROM user WHERE usuario=?",[$usuario]))[0];
+                    $nome=$result["nome"];
+                    $privado=0 | intval($result["privado"]);
+                    $d=get_d();
+                    $views_id=get_views_id($conn);
+                    $conn->prepare("INSERT INTO post_product(nome,usuario,descricao,imagem,acessos,views_id,id,d,privado) VALUES (?,?,?,?,?,?,?,?,?)",[$nome,$usuario,$descricao,$imagem,$acessos,$views_id,$id,$d,$privado]);
+                    insert_views($conn,$usuario,"post_product",$views_id,$id);
+                    add_n_posts($usuario,$conn);
+                } else {
+                    $d=json_decode($d,true);
+                    $d["a"]=get_updated_date();
+                    $d=json_encode($d);
+                    $conn->prepare("UPDATE post_product SET descricao=?,imagem=?,d=? WHERE usuario=? AND id=?",[$descricao,$imagem,$d,$usuario,$id]);
+                }
+                response()->json(["result"=>"true","usuario"=>$usuario]);
+            }
+        } else {
+            response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/noticias_cadastro/main.html'));
+        }
+    }else{
+        login();
+    }
+});
+Route::post("/admin/products_edit",function(){
+    $usuario=get_user();
+    if ($usuario){
+        $id=request()->query("id");
+        $id=intval($id);
+        $conn=new sqli("anjoov00_posts");
+        $result=null;
+        if (cargo($usuario)=="admin"){
+            $result=$conn->prepare("SELECT imagem,descricao,id FROM post_product WHERE id=? AND privado=0",[$id]);
+        } else {
+            $result=$conn->prepare("SELECT imagem,descricao,id FROM post_product WHERE id=? AND usuario=? AND privado=0",[$id,$usuario]);
+        }
+        if ($result->num_rows>0){
+            $result=p($result)[0];
+            response()->json(["result"=>"true","post_edit"=>$result]);
+        } else {
+            r404();
+        }
+    } else {
+        r404();
+    }
+});
+Route::post("/admin/products_lista",function(){
+    $usuario=get_user();
+    if ($usuario){
+        $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
+        function gpa($type){
+            $type=isset($_GET["search"]) ? "pesquisa" : "normal";
+            $usuario=get_user();
+            $cargo=cargo($usuario);
+            $conn=new sqli("anjoov00_posts");
+            $s=null;
+            $num=null;
+            $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
+            $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
+            $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
+            if($cargo==1){
+                if ($type=="pesquisa"){
+                    $s=$conn->prepare("SELECT id,descricao AS titulo,usuario,acessos,privado,d FROM post_product WHERE LOWER(descricao) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
+                    $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_product WHERE LOWER(descricao) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search,$search,$search]);
+                } else {
+                    $s=$conn->query("SELECT id,descricao AS titulo,usuario,acessos,privado,d FROM post_product ORDER BY id DESC LIMIT $n,10");
+                    $num=$conn->query("SELECT COUNT(*) AS num FROM post_product");
+                }
+            } else {
+                if ($type=="pesquisa"){
+                    $s=$conn->prepare("SELECT id,descricao AS titulo,acessos,d,privado FROM post_product WHERE usuario=? AND LOWER(descricao) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$usuario,$search,$search]);
+                    $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_product WHERE usuario=? AND LOWER(descricao) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$usuario,$search,$search]);
+                } else {
+                    $s=$conn->prepare("SELECT id,descricao AS titulo,acessos,d,privado FROM post_product WHERE usuario=? ORDER BY id DESC LIMIT $n,10",[$usuario]);
+                    $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_product WHERE usuario=?",[$usuario]);
+                }
+            }
+            $r=p($s);
+            $num=p($num)[0]["num"];
+            response()->json(["result"=>"true","posts"=>$r,"n_registros"=>$num,"usuario"=>$usuario]);
+        }
+        if (request("type")=="info"){
+            gpa($tipo);
+        } else if (request("type")=="option"){
+            if ($tipo=="normal"){
+                $cargo=cargo($usuario);
+                $id=request("id");
+                $operation=request("operation") ? request("operation") : null;
+                $conn = new sqli("anjoov00_posts");
+                //$s=$conn->prepare("SELECT * FROM post WHERE usuario=?AND privado=0",[$usuario]);
+                // unlink(__DIR__ . "/../images/" . p($result)[0]["imagem"]);
+                //$s=$conn->prepare("DELETE FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
+                if ($operation){
+                    $user=null;
+                    $li=$operation=="privado";
+                    $case=$li ? "privado | 1" : "privado & ~1"; 
+                    $sum=$li ? -1 : 1;
+                    if ($cargo==1){
+                        $result=$conn->prepare("UPDATE post_product SET privado=$case WHERE id=?",[$id]);
+                        $user=p($conn->prepare("SELECT usuario FROM post_product WHERE id=?",[$id]))[0]["usuario"];
+                    } else {
+                        $result=$conn->prepare("UPDATE post_product SET privado=$case WHERE usuario=? AND id=?",[$usuario,$id]);
+                        $user=$usuario;
+                    }
+                    $sum_str=$sum== 1 ? " + 1" : " - 1";
+                    $s=$conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts" . $sum_str . ",0) WHERE usuario=? ORDER BY id DESC",[$user]);
+                    response()->json(["result"=>"true","usuario"=>$usuario]);
+                } else {
+                    if ($cargo==1){
+                        delete_imagem($conn,$id);
+                    } else {
+                        delete_imagem($conn,$id,$usuario);
+                    }
+                    gpa($tipo);
+                }
+            } else {
+                gpa($tipo);
+            }
+            // $num=$conn->query("SELECT COUNT(*) AS num FROM post WHERE usuario")
+        } else {
+            response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/noticias_lista/admin.html'));
+        }
+    } else {
+        login();
+    }
+    // return view("admin.noticias_lista.index",compact("r","usuario","cargo"));
+});
 Route::post('/admin/destaque',function(){
     $usuario=get_user();
     if ($usuario){
@@ -2096,19 +2143,19 @@ Route::post('/admin/destaque',function(){
                 $name=$result["geral_tipo"];
                 $image_column=$name=="post_texto" ? "JSON_ARRAY(texto,'t')" : ($name=="post_video" ? "CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END" : "imagem");
                 $result=p($conn->prepare("SELECT 
-                        (SELECT $image_column AS geral FROM $name WHERE views_id=? AND privado='false' AND usuario=?) AS geral,
-                        (SELECT imagem AS materia FROM post WHERE views_id=? AND privado='false' AND usuario=?) AS materia,
-                        (SELECT imagem AS imagem FROM post_imagem WHERE views_id=? AND privado='false' AND usuario=?) AS imagem,
-                        (SELECT imagem AS musica FROM post_musica WHERE views_id=? AND privado='false' AND usuario=?) AS musica,
-                        (SELECT JSON_ARRAY(texto,'t') AS texto FROM post_texto WHERE views_id=? AND privado='false' AND usuario=?) AS texto,
-                        (SELECT CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END AS video FROM post_video WHERE views_id=? AND privado='false' AND usuario=?) AS video,
+                        (SELECT $image_column AS geral FROM $name WHERE views_id=? AND privado=0 AND usuario=?) AS geral,
+                        (SELECT imagem AS materia FROM post WHERE views_id=? AND privado=0 AND usuario=?) AS materia,
+                        (SELECT imagem AS imagem FROM post_imagem WHERE views_id=? AND privado=0 AND usuario=?) AS imagem,
+                        (SELECT imagem AS musica FROM post_musica WHERE views_id=? AND privado=0 AND usuario=?) AS musica,
+                        (SELECT JSON_ARRAY(texto,'t') AS texto FROM post_texto WHERE views_id=? AND privado=0 AND usuario=?) AS texto,
+                        (SELECT CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END AS video FROM post_video WHERE views_id=? AND privado=0 AND usuario=?) AS video,
                         (SELECT CASE 
-                            WHEN p.tipo='post' THEN (SELECT imagem FROM post WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado='false' AND usuario=?)
-                            WHEN p.tipo='post_imagem' THEN (SELECT imagem FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado='false' AND usuario=?)
-                            WHEN p.tipo='post_musica' THEN (SELECT imagem FROM post_musica WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado='false' AND usuario=?)
-                            WHEN p.tipo='post_texto' THEN (SELECT JSON_ARRAY(texto,'t') AS imagem FROM post_texto WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado='false' AND usuario=?)
-                            ELSE (SELECT CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado='false' AND usuario=?)
-                        END AS playlist FROM playlist p WHERE views_id=? AND privado='false' AND usuario=?) AS playlist
+                            WHEN p.tipo='post' THEN (SELECT imagem FROM post WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                            WHEN p.tipo='post_imagem' THEN (SELECT imagem FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                            WHEN p.tipo='post_musica' THEN (SELECT imagem FROM post_musica WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                            WHEN p.tipo='post_texto' THEN (SELECT JSON_ARRAY(texto,'t') AS imagem FROM post_texto WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                            ELSE (SELECT CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                        END AS playlist FROM playlist p WHERE views_id=? AND privado=0 AND usuario=?) AS playlist
                     FROM $name LIMIT 1",[$result["geral"],$usuario,$result["post"],$usuario,$result["post_imagem"],$usuario,$result["post_musica"],$usuario,$result["post_texto"],$usuario,$result["post_video"],$usuario,$usuario,$usuario,$usuario,$usuario,$usuario,$result["playlist"],$usuario]))[0];
                 $destaques=[];
                 foreach($result as $chave=>$valor){
@@ -2123,28 +2170,28 @@ Route::post('/admin/destaque',function(){
             $result=null;
             if ($tipo=="geral"){
                 $result=p($conn->prepare("SELECT views_id AS id,id_post,titulo,tipo FROM (
-                    (SELECT views_id,id AS id_post,titulo,'p' AS tipo FROM post WHERE privado='false' AND lixeira='false' AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48)
+                    (SELECT views_id,id AS id_post,titulo,'p' AS tipo FROM post WHERE privado=0 AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48)
                     UNION
-                    (SELECT views_id,id AS id_post,descricao AS titulo,'i' AS tipo FROM post_imagem WHERE privado='false' AND lixeira='false' AND LOWER(descricao) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48)
+                    (SELECT views_id,id AS id_post,descricao AS titulo,'i' AS tipo FROM post_imagem WHERE privado=0 AND LOWER(descricao) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48)
                     UNION
-                    (SELECT views_id,id AS id_post,titulo,'m' AS tipo FROM post_musica WHERE privado='false' AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48) 
+                    (SELECT views_id,id AS id_post,titulo,'m' AS tipo FROM post_musica WHERE privado=0 AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48) 
                     UNION
-                    (SELECT views_id,id AS id_post,texto AS titulo,'t' AS tipo FROM post_texto WHERE privado='false' AND lixeira='false' AND LOWER(texto) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48) 
+                    (SELECT views_id,id AS id_post,texto AS titulo,'t' AS tipo FROM post_texto WHERE privado=0 AND LOWER(texto) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48) 
                     UNION
-                    (SELECT views_id,id AS id_post,titulo,'v' AS tipo FROM post_video WHERE privado='false' AND lixeira='false' AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48) 
+                    (SELECT views_id,id AS id_post,titulo,'v' AS tipo FROM post_video WHERE privado=0 AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48) 
                 ) AS result ORDER BY views_id DESC LIMIT 48",[$search,$usuario,$search,$usuario,$search,$usuario,$search,$usuario,$search,$usuario]));
             } else if ($tipo=="materia"){
-                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,titulo,'p' AS tipo FROM post WHERE privado='false' AND lixeira='false' AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
+                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,titulo,'p' AS tipo FROM post WHERE privado=0 AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
             } else if ($tipo=="imagem"){
-                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,descricao,'t' AS tipo AS titulo FROM post_imagem WHERE lixeira='false' AND privado='false' AND LOWER(descricao) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
+                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,descricao,'t' AS tipo AS titulo FROM post_imagem WHERE privado=0 AND LOWER(descricao) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
             } else if ($tipo=="musica"){
-                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,titulo,'m' AS tipo FROM post_musica WHERE privado='false' AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
+                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,titulo,'m' AS tipo FROM post_musica WHERE privado=0 AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
             } else if ($tipo=="texto"){
-                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,texto AS titulo,'t' AS tipo FROM post_texto WHERE privado='false' AND lixeira='false' AND LOWER(texto) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
+                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,texto AS titulo,'t' AS tipo FROM post_texto WHERE privado=0 AND LOWER(texto) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
             } else if ($tipo=="video"){
-                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,titulo,'v' AS tipo FROM post_video WHERE privado='false' AND lixeira='false' AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
+                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,titulo,'v' AS tipo FROM post_video WHERE privado=0 AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
             } else if ($tipo=="playlist"){
-                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,titulo,'pl' AS tipo FROM playlist WHERE privado='false' AND lixeira='false' AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
+                $result=p($conn->prepare("SELECT views_id AS id,id AS id_post,titulo,'pl' AS tipo FROM playlist WHERE privado=0 AND LOWER(titulo) LIKE LOWER(?) AND usuario=? ORDER BY id DESC LIMIT 48",[$search,$usuario]));
             }
             response()->json(["result"=>"true","noticias"=>$result]);
         } else if (in_array($tipo,$tipos) && request("type")=="option"){
@@ -2166,15 +2213,15 @@ Route::post('/admin/destaque',function(){
                         // veriica se o usuario já em um destaque
                         if ($name=="playlist"){
                             $src=p($conn->prepare("SELECT CASE 
-                                WHEN p.tipo='post' THEN (SELECT imagem FROM post WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado='false' AND usuario=?)
-                                WHEN p.tipo='post_imagem' THEN (SELECT imagem FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado='false' AND usuario=?)
-                                WHEN p.tipo='post_musica' THEN (SELECT imagem FROM post_musica WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado='false' AND usuario=?)
-                                WHEN p.tipo='post_texto' THEN (SELECT NULL AS imagem FROM post_texto WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado='false' AND usuario=?)
-                                ELSE (SELECT CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado='false' AND usuario=?)
-                            END AS imagem FROM playlist p WHERE views_id=? AND privado='false' AND usuario=?",[$usuario,$usuario,$usuario,$usuario,$usuario,$id,$usuario]))[0];
+                                WHEN p.tipo='post' THEN (SELECT imagem FROM post WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                                WHEN p.tipo='post_imagem' THEN (SELECT imagem FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                                WHEN p.tipo='post_musica' THEN (SELECT imagem FROM post_musica WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                                WHEN p.tipo='post_texto' THEN (SELECT NULL AS imagem FROM post_texto WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                                ELSE (SELECT CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                            END AS imagem FROM playlist p WHERE views_id=? AND privado=0 AND usuario=?",[$usuario,$usuario,$usuario,$usuario,$usuario,$id,$usuario]))[0];
                         } else {
                             $image_column=$name=="post_texto" ? "JSON_ARRAY(texto,'t')" : ($name=="post_video" ? "CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END" : "imagem");
-                            $src=p($conn->prepare("SELECT $image_column AS imagem FROM $name WHERE privado='false' AND views_id=? AND usuario=?",[$id,$usuario]))[0];
+                            $src=p($conn->prepare("SELECT $image_column AS imagem FROM $name WHERE privado=0 AND views_id=? AND usuario=?",[$id,$usuario]))[0];
                         }
                         $src=$src["imagem"];
                         if ($result->num_rows>0){
@@ -2519,16 +2566,16 @@ Route::post("/admin/users",function(){
                 if (request("senha")==$GLOBALS["delete_account"]){
                     $name=request("name");
                     $conn=new sqli("anjoov00_posts");
-                    $private=p($conn->prepare("SELECT privado FROM user WHERE usuario=?",[$name]))[0]["privado"]=="true" ? "false" : "true";
-                    $conn->prepare("UPDATE post_24 SET privado='$private' WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE post SET privado='$private' WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE post_imagem SET privado='$private' WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE post_musica SET privado='$private' WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE post_texto SET privado='$private' WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE post_video SET privado='$private' WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE playlist SET privado='$private' WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE comment SET privado='$private' WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE user SET privado='$private' WHERE usuario=?",[$name]);
+                    $private=intval(p($conn->prepare("SELECT privado FROM user WHERE usuario=?",[$name]))[0]["privado"]) ^ 4;
+                    $conn->prepare("UPDATE post_24 SET privado=$private WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE post SET privado=$private WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE post_imagem SET privado=$private WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE post_musica SET privado=$private WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE post_texto SET privado=$private WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE post_video SET privado=$private WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE playlist SET privado=$private WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE comment SET privado=$private WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE user SET privado=$private WHERE usuario=?",[$name]);
                     gpa(request("search") ? "pesquisa" : "normal");
                 } else {
                     response()->json(["result"=>"false"]);
@@ -2544,3 +2591,8 @@ Route::post("/admin/users",function(){
         r404();
     }
 });
+// bitwise for private:
+    // 0: don't private
+    // | 1: private post for all users
+    // | 2: private post for non-premium only
+    // | 4: private channel for ADM

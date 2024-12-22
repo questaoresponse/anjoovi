@@ -81,7 +81,7 @@
         position:relative;
         display:flex;
         width:100%;
-        min-height:10vh;
+        min-height:8vh;
     }
     .ndivl{
         position:relative;
@@ -90,10 +90,10 @@
         color:white;
         justify-content: center;
         align-items: center;
-        width:8.75vh;
-        height:8.75vh;
-        border-radius: 1.45vh;
-        flex: 0 0 8.75vh;
+        width:5.5vh;
+        height:5.5vh;
+        border-radius: 0.83vh;
+        flex: 0 0 5.5vh;
         overflow: hidden;
     }
     .ndivx{
@@ -112,9 +112,39 @@
         position:relative;
         display:inline-flex;
         flex-direction: column;
-        margin-left:2vh;
+        margin-left:1vh;
         flex:1;
-        width: calc(100% - 10.75vh);
+        width: calc(100% - 6.5vh - 1em);
+    }
+    .ndivopts-btn{
+        position: relative;
+        display: inline-flex;
+        cursor: pointer;
+    }
+    .ndivopts{
+        position: absolute;
+        display: block;
+        background-color: hsl(0deg,0%,89%);
+        right:0.3em;
+        box-shadow: 2px 2px 5px rgb(128,128,128,0.5);
+        width: fit-content;
+        border-radius: 5px;
+        padding: 1vh;
+    }
+    .ndivopt{
+        display: flex;
+        flex-direction: row;
+        cursor: pointer;
+    }
+    .ndivopt:disabled,.ndivopt:active{
+        opacity: 0.5;
+    }
+    .delete-img{
+        aspect-ratio: 1;
+        height:1.25em;
+    }
+    .delete-div{
+        margin-left: 2px;
     }
     .ndivn{
         display:block;

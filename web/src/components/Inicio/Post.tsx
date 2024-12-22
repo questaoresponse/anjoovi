@@ -36,7 +36,7 @@ function Post({isLoaded,globals,posts,verifyScroll,adsRender,slot}:{isLoaded:any
                     } else {
                         cm=post.imagem;
                     }
-                    l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : "/video")+'/'+post.id;
+                    l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;
                     content=isVideoCover ? <video className='image' src={server+"/videos/"+encodeURIComponent(cm)}/> : <img className='image' src={server+"/images/"+encodeURIComponent(cm)}/>
                 }
                 const parts=(post.descricao || post.titulo || post.texto || "").split(" ");

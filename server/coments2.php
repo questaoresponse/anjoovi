@@ -42,7 +42,7 @@ Route::post("/a",function(){
 //     foreach($users as $user){
 //         $usuario=$user["usuario"];
 //         $conn=new sqli("anjoov00_posts");
-//         $num=p($conn->prepare("SELECT COUNT(*) AS num FROM post WHERE privado='false' AND lixeira='false' AND usuario=?",[$usuario]))[0]["num"];
+//         $num=p($conn->prepare("SELECT COUNT(*) AS num FROM post WHERE privado=0 AND lixeira='false' AND usuario=?",[$usuario]))[0]["num"];
 //         $conn=new sqli("anjoov00_users_conteudo");
 //         $conn->prepare("UPDATE user SET n_posts=? WHERE usuario=?",[$num,$usuario]);
 //     }

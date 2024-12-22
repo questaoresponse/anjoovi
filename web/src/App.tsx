@@ -44,6 +44,8 @@ const VideosCadastro = lazy(() => import('./components/Admin/cadastro/VideosCada
 const VideosLista = lazy(() => import('./components/Admin/lista/VideosLista.tsx'));
 const PlaylistsCadastro = lazy(() => import('./components/Admin/cadastro/PlaylistsCadastro.tsx' as string));
 const PlaylistsLista = lazy(() => import('./components/Admin/lista/PlaylistsLista.tsx' as string));
+const ProductsCadastro = lazy(() => import('./components/Admin/cadastro/ProductsCadastro.tsx'));
+const ProductsLista = lazy(() => import('./components/Admin/lista/ProductsLista.tsx' as string));
 const Settings = lazy(()=> import('./components/Admin/settings/Settings.tsx'));
 const Metricas = lazy(()=> import('./components/Admin/Metricas.jsx'));
 const Inscricoes = lazy(()=> import('./components/Inicio/Inscricoes.tsx'));
@@ -138,6 +140,7 @@ function App() {
         <Route path="/texto/:id" element={<Suspense><Update element={Types}></Update></Suspense>}/>
         <Route path="/video/:id" element={<Suspense><Update element={Types}></Update></Suspense>}/>
         <Route path="/playlist/:id" element={<Suspense><Update element={Types}></Update></Suspense>}/>
+        <Route path="/product/:id" element={<Suspense><Update element={Types}></Update></Suspense>}/>
         <Route path="/busca" element={<Suspense><Update element={Busca}></Update></Suspense>} />
         <Route path="/inscricoes" element={<Suspense><Update element={Inscricoes}></Update></Suspense>} />
         <Route path="/stories/:id" element={<Suspense><Update element={Stories}></Update></Suspense>} />
@@ -166,6 +169,9 @@ function App() {
         <Route path="/admin/videos_lista" element={<Suspense><Update element={VideosLista}></Update></Suspense>}/>
         <Route path="/admin/playlists_cadastro" element={<Suspense><Update element={PlaylistsCadastro}></Update></Suspense>}/>
         <Route path="/admin/playlists_lista" element={<Suspense><Update element={PlaylistsLista}></Update></Suspense>}/>
+        <Route path="/admin/products_cadastro" element={<Suspense><Update element={ProductsCadastro}></Update></Suspense>}/>
+        <Route path="/admin/products_edit" element={<Suspense><Update element={ProductsCadastro}></Update></Suspense>}/>
+        <Route path="/admin/products_lista" element={<Suspense><Update element={ProductsLista}></Update></Suspense>}/>
         <Route path="/admin/denuncias_lista" element={<Suspense><Update element={Denuncias}></Update></Suspense>}/>
         <Route path="/admin/denuncias_infos/:id" element={<Suspense><Update element={DenunciasInfos}></Update></Suspense>}/>
         <Route path="/admin/metricas" element={<Suspense><Update element={Metricas}></Update></Suspense>}/>            

@@ -9,6 +9,7 @@ import './lista/MusicasLista.tsx';
 import './lista/TextosLista.tsx';
 import './lista/VideosLista.tsx';
 import './lista/PlaylistsLista.tsx';
+import './lista/ProductsLista.tsx';
 
 function Listar(){
     const refs={
@@ -23,6 +24,7 @@ function Listar(){
         "/admin/textos_lista":"5",
         "/admin/videos_lista":"6",
         "/admin/playlists_lista":"7",
+        "/admin/products_lista":"8",
     }
     useEffect(()=>{
         refs.selected.current!.className="menu-s selected"+options[location.pathname];
@@ -38,6 +40,7 @@ function Listar(){
             <Link to='/admin/textos_lista' className="i-menu2 t5" id="textos_lista" >Textos</Link>
             <Link to='/admin/videos_lista' className="i-menu2 t6" id="videos_lista" >Vídeos</Link>
             <Link to='/admin/playlists_lista' className="i-menu2 t7" id="playlists_lista" >Playlists</Link>
+            <Link to='/admin/products_lista' className="i-menu2 t8" id="products_lista" >Produtos</Link>
         </div>
     </div>
     )

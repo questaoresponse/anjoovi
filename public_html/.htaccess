@@ -46,6 +46,9 @@ AddType application/wasm .wasm
     RewriteCond %{HTTP:Authorization} . 
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+    RewriteCond %{REQUEST_URI} ^/.*\/p.*\.webp$ [NC]
+    RewriteRule ^ index.php [L]
+
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$

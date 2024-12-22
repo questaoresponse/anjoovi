@@ -1,0 +1,29 @@
+@import '../../../function.scss';
+@import '../../../admin.scss';
+@import './cadastro.scss';
+
+.pdc#pg{
+    position: absolute;
+    top:var(--menu-height);
+    width: 100%;
+    background: var(--admin-color);
+}
+.pdc {
+    @include admin();
+    @include cadastro();
+    .input{
+        outline: none;
+        border:solid 1px black;
+    }
+    .input:focus{
+        border:solid 1px black;
+    }
+    textarea{
+        font-size:110%;
+        position:relative;
+        background:white;
+        width:100%;
+        height:40vh;
+        line-height: 1.3em;
+    }
+}

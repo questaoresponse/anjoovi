@@ -213,11 +213,11 @@ function delete_file_temps($conn){
 };
 function get_posts($conn){
     return p($conn->query("SELECT id,usuario,titulo,imagem,tipo FROM (
-        (SELECT id,acessos,usuario,titulo,imagem,'p' AS tipo FROM post WHERE lixeira='false' AND privado='false' ORDER BY acessos DESC LIMIT 25)
+        (SELECT id,acessos,usuario,titulo,imagem,'p' AS tipo FROM post WHERE privado=0 ORDER BY acessos DESC LIMIT 25)
         UNION
-        (SELECT id,acessos,usuario,descricao AS titulo,imagem,'i' AS tipo FROM post_imagem WHERE privado='false' AND lixeira='false' ORDER BY acessos DESC LIMIT 25)
+        (SELECT id,acessos,usuario,descricao AS titulo,imagem,'i' AS tipo FROM post_imagem WHERE privado=0 ORDER BY acessos DESC LIMIT 25)
         UNION
-        (SELECT id,acessos,usuario,titulo,imagem,'m' AS tipo FROM post_musica WHERE privado='false' ORDER BY acessos DESC LIMIT 25)
+        (SELECT id,acessos,usuario,titulo,imagem,'m' AS tipo FROM post_musica WHERE privado=0 ORDER BY acessos DESC LIMIT 25)
     ) AS result ORDER BY acessos DESC LIMIT 25
     "));
 }
@@ -252,6 +252,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
     $m1="";
     $t1="";
     $v1="";
+    $pd1="";
     if (!$isGeral){
         $n1="CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
@@ -268,6 +269,9 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
         $v1="CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
         (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='video') AS n_comment,";
+        $pd1="CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+        p2.logo,p2.nome,
+        (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='product') AS n_comment,";
     }
     if ($usuario){
             return p($conn->prepare("SELECT * FROM (
@@ -283,7 +287,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 (
                     CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END + 
                     CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado='false' AND lixeira='false' AND views_id!=?
+                ) AS accuracy FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
             )
             UNION
             (
@@ -298,7 +302,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 (
                     CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
                     CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado='false' AND lixeira='false' AND views_id!=?
+                ) AS accuracy FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
             )
             UNION
             (
@@ -313,7 +317,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 (
                     CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
                     CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado='false' AND views_id!=?
+                ) AS accuracy FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
             )
             UNION
             (
@@ -328,7 +332,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 (
                     CASE WHEN LOWER(texto) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
                     CASE WHEN LOWER(texto) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado='false' AND views_id!=?
+                ) AS accuracy FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
             )
             UNION
             (
@@ -343,9 +347,25 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 (
                     CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
                     CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado='false' AND views_id!=?
+                ) AS accuracy FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
+            )
+            UNION
+            (
+                SELECT 
+                (SELECT CASE 
+                        WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
+                        ELSE 'false' 
+                    END 
+                AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
+                $pd1
+                'pd' AS tipo,acessos,p.usuario,NULL AS titulo,descricao,NULL AS subtitulo,NULL AS texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
+                (
+                    CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
+                    CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
+                ) AS accuracy FROM post_product p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
             )
             ) AS ranked ORDER BY accuracy DESC LIMIT ". $pt * $limit . "," . ($pt+1)*$limit,[
+            '"' . $usuario . '"', "$." . $usuario,$usuario,$usuario,$id,
             '"' . $usuario . '"', "$." . $usuario,$usuario,$usuario,$id,
             '"' . $usuario . '"', "$." . $usuario,$usuario,$usuario,$id,
             '"' . $usuario . '"', "$." . $usuario,$usuario,$usuario,$id,
@@ -363,7 +383,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     STR_TO_DATE(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(d, '$.a')), JSON_UNQUOTE(JSON_EXTRACT(d, '$.o'))), '%Y-%m-%d')
                 ) AS latest_date,
                 'p' AS tipo,acessos,p.usuario,titulo,NULL AS descricao,subtitulo,texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
-                0 AS accuracy FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado='false' AND lixeira='false'
+                0 AS accuracy FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0
             )
             UNION
             (
@@ -375,7 +395,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     STR_TO_DATE(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(d, '$.a')), JSON_UNQUOTE(JSON_EXTRACT(d, '$.o'))), '%Y-%m-%d')
                 ) AS latest_date,
                 'i' AS tipo,acessos,p.usuario,NULL AS titulo,descricao,NULL AS subtitulo,NULL AS texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
-                0 AS accuracy FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado='false' AND lixeira='false'
+                0 AS accuracy FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0
             )
             UNION
             (
@@ -387,7 +407,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     STR_TO_DATE(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(d, '$.a')), JSON_UNQUOTE(JSON_EXTRACT(d, '$.o'))), '%Y-%m-%d')
                 ) AS latest_date,   
                 'm' AS tipo,acessos,p.usuario,titulo,NULL AS descricao,NULL AS subtitulo,NULL AS texto,imagem,arquivo,duration,zip,d,views_id,id,
-                0 AS accuracy FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado='false'
+                0 AS accuracy FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0
             )
             UNION
             (
@@ -399,7 +419,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     STR_TO_DATE(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(d, '$.a')), JSON_UNQUOTE(JSON_EXTRACT(d, '$.o'))), '%Y-%m-%d')
                 ) AS latest_date,   
                 't' AS tipo,acessos,p.usuario,NULL AS titulo,NULL AS descricao,NULL AS subtitulo,texto,'' AS imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
-                0 AS accuracy FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado='false'
+                0 AS accuracy FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0
             )
             UNION
             (
@@ -411,7 +431,19 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     STR_TO_DATE(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(d, '$.a')), JSON_UNQUOTE(JSON_EXTRACT(d, '$.o'))), '%Y-%m-%d')
                 ) AS latest_date,   
                 'v' AS tipo,acessos,p.usuario,titulo,NULL AS descricao,NULL AS subtitulo,texto,JSON_ARRAY(video,imagem) AS imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
-                0 AS accuracy FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado='false'
+                0 AS accuracy FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0
+            )
+            UNION
+            (
+                SELECT
+                'false' AS inscrito,
+                $pd1
+                GREATEST(
+                    STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')), '%Y-%m-%d'),
+                    STR_TO_DATE(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(d, '$.a')), JSON_UNQUOTE(JSON_EXTRACT(d, '$.o'))), '%Y-%m-%d')
+                ) AS latest_date,
+                'pd' AS tipo,acessos,p.usuario,NULL AS titulo,descricao,NULL AS subtitulo,NULL AS texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
+                0 AS accuracy FROM post_product p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0
             )
         ) AS ranked WHERE latest_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) ORDER BY latest_date DESC LIMIT ". $pt * $limit . "," . ($pt+1)*$limit));
     }
@@ -490,11 +522,11 @@ Route::post('/',function () {
         }
         $conn=new sqli("anjoov00_posts");
         // $r=p($conn->query("SELECT id,usuario,titulo,imagem,tipo FROM ( 
-        //         (SELECT views_id,id,usuario,titulo,imagem,'p' AS tipo FROM post WHERE privado='false' AND lixeira='false' ORDER BY id DESC LIMIT 48)
+        //         (SELECT views_id,id,usuario,titulo,imagem,'p' AS tipo FROM post WHERE privado=0 ORDER BY id DESC LIMIT 48)
         //         UNION
-        //         (SELECT views_id,id,usuario,descricao AS titulo,imagem,'i' AS tipo FROM post_imagem WHERE privado='false' AND lixeira='false' ORDER BY id DESC LIMIT 48)
+        //         (SELECT views_id,id,usuario,descricao AS titulo,imagem,'i' AS tipo FROM post_imagem WHERE privado=0 ORDER BY id DESC LIMIT 48)
         //         UNION
-        //         (SELECT views_id,id,usuario,titulo,imagem,'m' AS tipo FROM post_musica WHERE privado='false' ORDER BY id DESC LIMIT 48)
+        //         (SELECT views_id,id,usuario,titulo,imagem,'m' AS tipo FROM post_musica WHERE privado=0 ORDER BY id DESC LIMIT 48)
         //         UNION
         //         (SELECT p.views_id AS views_id,p.id AS id,p.usuario AS usuario,p.titulo AS titulo,
         //         (SELECT CONCAT('[\"',GROUP_CONCAT(p2.imagem SEPARATOR '\",\"'),'\"]') 
@@ -507,13 +539,13 @@ Route::post('/',function () {
         //             ) AS p2
         //             WHERE FIND_IN_SET(CASE WHEN p.tipo='post' THEN p2.id1 WHEN p.tipo='post_imagem' THEN p2.id2 ELSE p2.id3 END, REPLACE(REPLACE(REPLACE(p.posts, '[', ''), ']', ''),'\"',''))
         //         ) AS imagem,'playlist' AS tipo 
-        //         FROM playlist p WHERE privado='false')
+        //         FROM playlist p WHERE privado=0)
         //     ) AS result ORDER BY views_id DESC LIMIT 48
         // "));
         $r=getAlgoritmoNoticia(true,$conn,$usuario,0);
         $canal=[];
         $r2=[];
-        $result=$conn->query("SELECT COUNT(*) AS num FROM post_24 WHERE privado='false'");
+        $result=$conn->query("SELECT COUNT(*) AS num FROM post_24 WHERE privado=0");
         if (intval(p($result)[0]["num"])>0){
             $t;
             $r2=p($conn->query("SELECT t.*, u.max_id
@@ -657,7 +689,7 @@ Route::post("/busca",function(){
             if (substr($ps,0,1)=="@"){
                 $p = substr($ps,1,strlen($ps));
                 $conn = new sqli("anjoov00_posts");
-                $result = $conn->prepare("SELECT nome,usuario,logo,n_posts FROM user WHERE usuario=? AND privado='false'",[$p]);
+                $result = $conn->prepare("SELECT nome,usuario,logo,n_posts FROM user WHERE usuario=? AND privado=0",[$p]);
                 $canals=p($result);
                 // return view("busca.index",compact("r","usuario","logo","canal"));
                 $end_time = microtime(true);
@@ -668,7 +700,7 @@ Route::post("/busca",function(){
             } else {
                 $conn = new sqli("anjoov00_posts");
                 $p = '%' . $ps . '%' ;
-                $list2=p($conn->prepare("SELECT usuario,logo FROM user WHERE LOWER(nome) LIKE LOWER(?) AND privado='false' LIMIT 8",[$p]));
+                $list2=p($conn->prepare("SELECT usuario,logo FROM user WHERE LOWER(nome) LIKE LOWER(?) AND privado=0 LIMIT 8",[$p]));
                 $list=[];
                 foreach ($list2 as $el){
                     array_push($list,$el["usuario"]);
@@ -678,45 +710,47 @@ Route::post("/busca",function(){
                     $n+=count($list);
                 }
                 if (!$filters["canal"]){
-                // $s = $conn->prepare("SELECT * FROM post  WHERE LOWER(titulo) LIKE LOWER(?) AND lixeira='false' ORDER BY id DESC LIMIT 15");
+                // $s = $conn->prepare("SELECT * FROM post  WHERE LOWER(titulo) LIKE LOWER(?) AND privado=0 ORDER BY id DESC LIMIT 15");
                     if (count($list)>0){
                         $list="'" . implode("','",$list) . "'";
                         $result = $conn->prepare("SELECT * FROM (
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto, imagem,'p' AS tipo FROM post WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' AND lixeira='false' ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto, imagem,'p' AS tipo FROM post WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' AND lixeira='false' ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'m' AS tipo FROM post_musica WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'m' AS tipo FROM post_musica WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,NULL AS titulo,texto,'' AS imagem,'t' AS tipo FROM post_texto WHERE ( LOWER(texto) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' AND lixeira='false' ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,NULL AS titulo,texto,'' AS imagem,'t' AS tipo FROM post_texto WHERE ( LOWER(texto) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,JSON_ARRAY(video,imagem) AS imagem,'v' AS tipo FROM post_video WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' AND lixeira='false' ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,JSON_ARRAY(video,imagem) AS imagem,'v' AS tipo FROM post_video WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
                             ( SELECT posts,d,0 AS acessos,views_id,id,usuario,titulo,NULL AS texto,
-                            (
-                                SELECT CONCAT('[',GROUP_CONCAT(JSON_OBJECT(p2.id,p2.imagem) SEPARATOR ','),']')  FROM (
-                                    SELECT id AS id1, NULL AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post
-                                    UNION
-                                    SELECT NULL AS id1, id AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post_imagem
-                                    UNION
-                                    SELECT NULL AS id1, NULL AS id2, id AS id3, NULL AS id4, id, imagem FROM post_musica
-                                    UNION
-                                    SELECT NULL AS id1, NULL AS id2, NULL AS id3, id AS id4, id, '' AS imagem FROM post_texto
-                                ) AS p2 WHERE FIND_IN_SET(CASE WHEN p.tipo='post' THEN p2.id1 WHEN p.tipo='post_imagem' THEN p2.id2 WHEN p.tipo='post_musica' THEN p2.id3 ELSE p2.id4 END, REPLACE(REPLACE(REPLACE(p.posts, '[', ''), ']', ''),'\"',''))
-                            ) AS imagem,
-                            'pl' AS tipo FROM playlist p WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC LIMIT 16 )
-                        ) AS result ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
+                                (
+                                    SELECT CONCAT('[',GROUP_CONCAT(JSON_OBJECT(p2.id,p2.imagem) SEPARATOR ','),']')  FROM (
+                                        SELECT id AS id1, NULL AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post
+                                        UNION
+                                        SELECT NULL AS id1, id AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post_imagem
+                                        UNION
+                                        SELECT NULL AS id1, NULL AS id2, id AS id3, NULL AS id4, id, imagem FROM post_musica
+                                        UNION
+                                        SELECT NULL AS id1, NULL AS id2, NULL AS id3, id AS id4, id, '' AS imagem FROM post_texto
+                                    ) AS p2 WHERE FIND_IN_SET(CASE WHEN p.tipo='post' THEN p2.id1 WHEN p.tipo='post_imagem' THEN p2.id2 WHEN p.tipo='post_musica' THEN p2.id3 ELSE p2.id4 END, REPLACE(REPLACE(REPLACE(p.posts, '[', ''), ']', ''),'\"',''))
+                                ) AS imagem,
+                            'pl' AS tipo FROM playlist p WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0 ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC LIMIT 16 )
+                            UNION
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'pd' AS tipo FROM post_product WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
+                        ) AS result ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
                         $r=p($result);
                         $result = $conn->prepare("SELECT COUNT(*) AS num FROM (
-                            ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post  WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' AND lixeira='false')
+                            ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post  WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0)
                             UNION
-                            ( SELECT id,usuario,descricao AS titulo,NULL AS texto,imagem FROM post_imagem WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' AND lixeira='false')
+                            ( SELECT id,usuario,descricao AS titulo,NULL AS texto,imagem FROM post_imagem WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0)
                             UNION
-                            ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post_musica WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false')
+                            ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post_musica WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0)
                             UNION
-                            ( SELECT id,usuario,NULL AS titulo,texto,'' AS imagem FROM post_texto WHERE ( LOWER(texto) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' AND lixeira='false')
+                            ( SELECT id,usuario,NULL AS titulo,texto,'' AS imagem FROM post_texto WHERE ( LOWER(texto) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0)
                             UNION
-                            ( SELECT id,usuario,titulo,NULL AS texto,JSON_ARRAY(video,imagem) AS imagem FROM post_video WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' AND lixeira='false')
+                            ( SELECT id,usuario,titulo,NULL AS texto,JSON_ARRAY(video,imagem) AS imagem FROM post_video WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0)
                             UNION
                             ( SELECT id,usuario,titulo,NULL AS texto,
                             (
@@ -729,24 +763,26 @@ Route::post("/busca",function(){
                                     UNION
                                     SELECT NULL AS id1, NULL AS id2, NULL AS id3, id AS id4, id, '' AS imagem FROM post_texto
                                 ) AS p2 WHERE FIND_IN_SET(CASE WHEN p.tipo='post' THEN p2.id1 WHEN p.tipo='post_imagem' THEN p2.id2 WHEN p.tipo='post_musica' THEN p2.id3 ELSE p2.id4 END, REPLACE(REPLACE(REPLACE(p.posts, '[', ''), ']', ''),'\"',''))
-                            ) AS imagem FROM playlist p WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado='false' ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC LIMIT 16 )
-                        ) AS result",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
+                            ) AS imagem FROM playlist p WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0 ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC LIMIT 16 )
+                            UNION
+                            ( SELECT id,usuario,descricao AS titulo,NULL AS texto,imagem FROM post_product WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || usuario IN ($list) ) AND privado=0)
+                        ) AS result",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
                         $n+=p($result)[0]["num"];
-                        // $result = $conn->prepare("SELECT nome,usuario,logo,n_posts FROM user  WHERE (LOWER(nome) LIKE LOWER(?) OR LOWER(usuario) LIKE LOWER(?)) AND privado='false' ORDER BY id DESC LIMIT 5",[$p,$p]);
+                        // $result = $conn->prepare("SELECT nome,usuario,logo,n_posts FROM user  WHERE (LOWER(nome) LIKE LOWER(?) OR LOWER(usuario) LIKE LOWER(?)) AND privado=0 ORDER BY id DESC LIMIT 5",[$p,$p]);
                         // $canal=p($result);
-                        $result = $conn->prepare("SELECT COUNT(*) AS num FROM user  WHERE ( LOWER(nome) LIKE LOWER(?) OR LOWER(usuario) LIKE LOWER(?) ) AND privado='false'",[$p,$p]);
+                        $result = $conn->prepare("SELECT COUNT(*) AS num FROM user  WHERE ( LOWER(nome) LIKE LOWER(?) OR LOWER(usuario) LIKE LOWER(?) ) AND privado=0",[$p,$p]);
                         $n+=p($result)[0]["num"];
                     } else {
                         $result = $conn->prepare("SELECT * FROM (
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'p' AS tipo FROM post WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' AND lixeira='false' ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'p' AS tipo FROM post WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' AND lixeira='false' ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,imagem,NULL AS texto,'m' AS tipo FROM post_musica WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,imagem,NULL AS texto,'m' AS tipo FROM post_musica WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,NULL AS titulo,texto,'' AS imagem,'t' AS tipo FROM post_texto WHERE ( LOWER(texto) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' AND lixeira='false' ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,NULL AS titulo,texto,'' AS imagem,'t' AS tipo FROM post_texto WHERE ( LOWER(texto) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,JSON_ARRAY(video,imagem) AS imagem,'v' AS tipo FROM post_video WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' AND lixeira='false' ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,JSON_ARRAY(video,imagem) AS imagem,'v' AS tipo FROM post_video WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
                             ( SELECT    posts,d,0 AS acessos,views_id,id,usuario,titulo,NULL AS texto,
                             (
@@ -760,19 +796,21 @@ Route::post("/busca",function(){
                                     SELECT NULL AS id1, NULL AS id2, NULL AS id3, id AS id4, id, '' AS imagem FROM post_texto
                                 ) AS p2 WHERE FIND_IN_SET(CASE WHEN p.tipo='post' THEN p2.id1 WHEN p.tipo='post_imagem' THEN p2.id2 WHEN p.tipo='post_musica' THEN p2.id3 ELSE p2.id4 END, REPLACE(REPLACE(REPLACE(p.posts, '[', ''), ']', ''),'\"',''))
                             ) AS imagem,
-                            'pl' AS tipo FROM playlist p WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC LIMIT 16 )
-                        ) AS result ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
+                            'pl' AS tipo FROM playlist p WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0 ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC LIMIT 16 )
+                            UNION
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'pd' AS tipo FROM post_product WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
+                        ) AS result ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
                         $r=p($result);
                         $result = $conn->prepare("SELECT COUNT(*) AS num FROM (
-                            ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post  WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' AND lixeira='false')
+                            ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post  WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0)
                             UNION
-                            ( SELECT id,usuario,descricao AS titulo,NULL AS texto,imagem FROM post_imagem WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' AND lixeira='false')
+                            ( SELECT id,usuario,descricao AS titulo,NULL AS texto,imagem FROM post_imagem WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0)
                             UNION
-                            ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post_musica WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false')
+                            ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post_musica WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0)
                             UNION
-                            ( SELECT id,usuario,NULL AS titulo,texto,'' AS imagem FROM post_texto WHERE ( LOWER(texto) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' AND lixeira='false')
+                            ( SELECT id,usuario,NULL AS titulo,texto,'' AS imagem FROM post_texto WHERE ( LOWER(texto) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0)
                             UNION
-                            ( SELECT id,usuario,titulo,NULL AS texto,JSON_ARRAY(video,imagem) AS imagem FROM post_video WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' AND lixeira='false')
+                            ( SELECT id,usuario,titulo,NULL AS texto,JSON_ARRAY(video,imagem) AS imagem FROM post_video WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0)
                             UNION
                             ( SELECT id,usuario,titulo,NULL AS texto,
                             (
@@ -785,12 +823,14 @@ Route::post("/busca",function(){
                                     UNION
                                     SELECT NULL AS id1, NULL AS id2, NULL AS id3, id AS id4, id, '' AS imagem FROM post_texto
                                 ) AS p2 WHERE FIND_IN_SET(CASE WHEN p.tipo='post' THEN p2.id1 WHEN p.tipo='post_imagem' THEN p2.id2 WHEN p.tipo='post_musica' THEN p2.id3 ELSE p2.id4 END, REPLACE(REPLACE(REPLACE(p.posts, '[', ''), ']', ''),'\"',''))
-                            ) AS imagem FROM playlist p WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false' ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC LIMIT 8 )
-                        ) AS result",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
+                            ) AS imagem FROM playlist p WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0 ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC LIMIT 8 )
+                            UNION
+                            ( SELECT id,usuario,descricao AS titulo,NULL AS texto,imagem FROM post_product WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0)
+                        ) AS result",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
                         $n+=p($result)[0]["num"];
-                        // $result = $conn->prepare("SELEC T nome,usuario,logo,n_posts FROM user  WHERE (LOWER(nome) LIKE LOWER(?) OR LOWER(usuario) LIKE LOWER(?)) AND privado='false' ORDER BY id DESC LIMIT 5",[$p,$p]);
+                        // $result = $conn->prepare("SELEC T nome,usuario,logo,n_posts FROM user  WHERE (LOWER(nome) LIKE LOWER(?) OR LOWER(usuario) LIKE LOWER(?)) AND privado=0 ORDER BY id DESC LIMIT 5",[$p,$p]);
                         // $canal=p($result);
-                        $result = $conn->prepare("SELECT COUNT(*) AS num FROM user  WHERE ( LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado='false'",[$p,$p]);
+                        $result = $conn->prepare("SELECT COUNT(*) AS num FROM user  WHERE ( LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0",[$p,$p]);
                         $n+=p($result)[0]["num"];
                     }
                 }
@@ -853,12 +893,12 @@ Route::get("/noticia/{id}",function($id){
         AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        acessos,p.usuario,titulo,subtitulo,texto,imagem,d,views_id,id,'p' AS tipo FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",['"' . $usuario . '"', "$." . $usuario,$id]);
+        acessos,p.usuario,titulo,subtitulo,texto,imagem,d,views_id,id,'p' AS tipo FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id]);
     } else {
         $result=$conn->prepare("SELECT 'false' AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        acessos,p.usuario,titulo,subtitulo,texto,imagem,d,views_id,id,'p' AS tipo FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",[$id]); 
+        acessos,p.usuario,titulo,subtitulo,texto,imagem,d,views_id,id,'p' AS tipo FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",[$id]); 
     }
     $r=[];
     if ($result->num_rows>0){
@@ -869,7 +909,7 @@ Route::get("/noticia/{id}",function($id){
             $views_id=$r["views_id"];
             $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=? AND tipo='post'",[$views_id]))[0]["d2"],true);
             $acessos_d=update_acessos_d($usuario,$acessos_d);
-            $conn->prepare("UPDATE post SET acessos=? WHERE id=? AND privado='false' AND lixeira='false'",[$acessos,$id]);
+            $conn->prepare("UPDATE post SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
             $conn->prepare("UPDATE views SET d2=? WHERE id=? AND tipo='post'",[$acessos_d,$views_id]);
             unset($r["views"]);
             unset($r["acessos"]);
@@ -901,7 +941,7 @@ Route::get("/noticia/{id}",function($id){
 //     $usuario=get_user();
 //     $id=intval($id);
 //     $conn = new sqli("anjoov00_posts");
-//     $result=$conn->prepare("SELECT usuario,titulo,subtitulo,texto,imagem,d,acessos,views_id FROM post WHERE id=? AND privado='false' AND lixeira='false'",[$id]);
+//     $result=$conn->prepare("SELECT usuario,titulo,subtitulo,texto,imagem,d,acessos,views_id FROM post WHERE id=? AND privado=0",[$id]);
 //     $r=[];
 //     if ($result->num_rows>0){
 //         $r=p($result)[0];
@@ -915,7 +955,7 @@ Route::get("/noticia/{id}",function($id){
 //         $json[$d]=$usuario;
 //         $acessos_d[]=$json;
 //         $acessos_d=json_encode($acessos_d);
-//         $conn->prepare("UPDATE post SET acessos=? WHERE id=? AND privado='false' AND lixeira='false'",[$acessos,$id]);
+//         $conn->prepare("UPDATE post SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
 //         $conn->prepare("UPDATE views SET acessos_d=? WHERE id=? AND tipo='post'",[$acessos_d,$views_id]);
 //         unset($r["acessos"]);
 //         unset($r["views_id"]);
@@ -951,12 +991,12 @@ Route::get("/imagem/{id}",function($id){
         AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",['"' . $usuario . '"', "$." . $usuario,$id]);
+        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id]);
     } else {
         $result=$conn->prepare("SELECT 'false' AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",[$id]); 
+        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",[$id]); 
     }
     $r=[];
     if ($result->num_rows>0){
@@ -967,7 +1007,7 @@ Route::get("/imagem/{id}",function($id){
             $views_id=$r["views_id"];
             $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=? AND tipo='post_imagem'",[$views_id]))[0]["d2"],true);
             $acessos_d=update_acessos_d($usuario,$acessos_d);
-            $conn->prepare("UPDATE post_imagem SET acessos=? WHERE id=? AND privado='false' AND lixeira='false'",[$acessos,$id]);
+            $conn->prepare("UPDATE post_imagem SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
             $conn->prepare("UPDATE views SET d2=? WHERE id=? AND tipo='post_imagem'",[$acessos_d,$views_id]);
             unset($r["views"]);
             unset($r["acessos"]);
@@ -998,7 +1038,7 @@ Route::get("/imagem/{id}",function($id){
 //             $rc=p($result);
 //             $categoria=$rc[0]["nome"];
 //             $conn = new sqli("anjoov00_posts");
-//             $result=$conn->prepare("SELECT * FROM post WHERE categoria=? AND privado='false' AND lixeira='false'",[$categoria]);
+//             $result=$conn->prepare("SELECT * FROM post WHERE categoria=? AND privado=0",[$categoria]);
 //             $r=p($result);
 //             return view("categoria.index",compact("r","usuario","logo"));
 //         } else {
@@ -1037,7 +1077,7 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
                 $s=p($s)[0];
                 $info=$ss;
                 $info[0]["n_inscritos"]=$s["n_inscritos"];
-                $result=$conn->prepare("SELECT MIN(id) AS id FROM post_24 WHERE usuario=? AND privado='false'",[$name]);
+                $result=$conn->prepare("SELECT MIN(id) AS id FROM post_24 WHERE usuario=? AND privado=0",[$name]);
                 if ($result->num_rows>0){
                     $info[0]["post_24"]=p($result)[0]["id"];
                 }
@@ -1057,11 +1097,11 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
                     $card=["links"=>[],"titles"=>[],"descriptions"=>[]];
                 }
                 $info[0]["card"]=json_encode($card);
-                $posts=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,imagem,'p' AS tipo FROM post WHERE usuario=? AND privado='false' AND lixeira='false' ORDER BY id DESC LIMIT 48",[$name]));
-                $imagens=p($conn->prepare("SELECT usuario,descricao AS titulo,NULL AS texto,id,views_id,imagem,'i' AS tipo FROM post_imagem WHERE usuario=? AND privado='false' AND lixeira='false' ORDER BY id DESC LIMIT 48",[$name]));
-                $musicas=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,imagem,'m' AS tipo FROM post_musica WHERE usuario=? AND privado='false' ORDER BY id DESC LIMIT 48",[$name]));
-                $textos=p($conn->prepare("SELECT usuario,NULL AS titulo,texto,id,views_id,'' AS imagem,'t' AS tipo FROM post_texto WHERE usuario=? AND privado='false' AND lixeira='false' ORDER BY id DESC LIMIT 48",[$name]));
-                $videos=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,JSON_ARRAY(video,imagem) AS imagem,'v' AS tipo FROM post_video WHERE usuario=? AND privado='false' AND lixeira='false' ORDER BY id DESC LIMIT 48",[$name]));
+                $posts=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,imagem,'p' AS tipo FROM post WHERE usuario=? AND privado=0 ORDER BY id DESC LIMIT 48",[$name]));
+                $imagens=p($conn->prepare("SELECT usuario,descricao AS titulo,NULL AS texto,id,views_id,imagem,'i' AS tipo FROM post_imagem WHERE usuario=? AND privado=0 ORDER BY id DESC LIMIT 48",[$name]));
+                $musicas=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,imagem,'m' AS tipo FROM post_musica WHERE usuario=? AND privado=0 ORDER BY id DESC LIMIT 48",[$name]));
+                $textos=p($conn->prepare("SELECT usuario,NULL AS titulo,texto,id,views_id,'' AS imagem,'t' AS tipo FROM post_texto WHERE usuario=? AND privado=0 ORDER BY id DESC LIMIT 48",[$name]));
+                $videos=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,JSON_ARRAY(video,imagem) AS imagem,'v' AS tipo FROM post_video WHERE usuario=? AND privado=0 ORDER BY id DESC LIMIT 48",[$name]));
                 $tempo_final = microtime(true);
                 $visualized=false;
                 if ($usuario){
@@ -1089,20 +1129,20 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
                     ];
                     $sigla_name_tipo=$types[$name_tipo];
                     $destaques=p($conn->prepare("SELECT 
-                            (SELECT JSON_ARRAY($titulo_value,$imagem_value,id,'$sigla_name_tipo')  FROM $name_tipo WHERE views_id=? AND usuario=? AND privado='false') AS geral,
-                            (SELECT JSON_ARRAY(titulo,imagem,id,'p') AS materia FROM post WHERE views_id=? AND usuario=? AND privado='false' AND lixeira='false') AS materia,
-                            (SELECT JSON_ARRAY(descricao,imagem,id,'i') AS imagem FROM post_imagem WHERE views_id=? AND usuario=? AND privado='false' AND lixeira='false') AS imagem,
-                            (SELECT  JSON_ARRAY(titulo,imagem,id,'m') AS musica FROM post_musica WHERE views_id=? AND usuario=? AND privado='false') AS musica,
-                            (SELECT  JSON_ARRAY(texto,'',id,'t') AS texto FROM post_texto WHERE views_id=? AND usuario=? AND privado='false' AND lixeira='false') AS texto,
-                            (SELECT  JSON_ARRAY(titulo,JSON_ARRAY(video,imagem),id,'v') AS texto FROM post_video WHERE views_id=? AND usuario=? AND privado='false' AND lixeira='false') AS video,
+                            (SELECT JSON_ARRAY($titulo_value,$imagem_value,id,'$sigla_name_tipo')  FROM $name_tipo WHERE views_id=? AND usuario=? AND privado=0) AS geral,
+                            (SELECT JSON_ARRAY(titulo,imagem,id,'p') AS materia FROM post WHERE views_id=? AND usuario=? AND privado=0) AS materia,
+                            (SELECT JSON_ARRAY(descricao,imagem,id,'i') AS imagem FROM post_imagem WHERE views_id=? AND usuario=? AND privado=0) AS imagem,
+                            (SELECT  JSON_ARRAY(titulo,imagem,id,'m') AS musica FROM post_musica WHERE views_id=? AND usuario=? AND privado=0) AS musica,
+                            (SELECT  JSON_ARRAY(texto,'',id,'t') AS texto FROM post_texto WHERE views_id=? AND usuario=? AND privado=0) AS texto,
+                            (SELECT  JSON_ARRAY(titulo,JSON_ARRAY(video,imagem),id,'v') AS texto FROM post_video WHERE views_id=? AND usuario=? AND privado=0) AS video,
                             (
                                 SELECT CASE 
-                                    WHEN p.tipo='post' THEN (SELECT JSON_ARRAY(p.titulo,imagem,p.id,'pl') FROM post WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND usuario=? AND privado='false' AND lixeira='false')
-                                    WHEN p.tipo='post_imagem' THEN (SELECT JSON_ARRAY(p.titulo,imagem,p.id,'pl') FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND usuario=? AND privado='false' AND lixeira='false')
-                                    WHEN p.tipo='post_musica' THEN (SELECT JSON_ARRAY(p.titulo,imagem,p.id,'pl') FROM post_musica WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND usuario=? AND privado='false')
-                                    WHEN p.tipo='post_texto' THEN (SELECT JSON_ARRAY(p.titulo,'',p.id,'pl') FROM post_texto WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND usuario=? AND privado='false' AND lixeira='false')
-                                    ELSE (SELECT JSON_ARRAY(p.titulo,JSON_ARRAY(video,imagem),p.id,'pl') FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND usuario=? AND privado='false' AND lixeira='false')
-                                END AS imagem FROM playlist p WHERE views_id=? AND usuario=? AND privado='false'
+                                    WHEN p.tipo='post' THEN (SELECT JSON_ARRAY(p.titulo,imagem,p.id,'pl') FROM post WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND usuario=? AND privado=0)
+                                    WHEN p.tipo='post_imagem' THEN (SELECT JSON_ARRAY(p.titulo,imagem,p.id,'pl') FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND usuario=? AND privado=0)
+                                    WHEN p.tipo='post_musica' THEN (SELECT JSON_ARRAY(p.titulo,imagem,p.id,'pl') FROM post_musica WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND usuario=? AND privado=0)
+                                    WHEN p.tipo='post_texto' THEN (SELECT JSON_ARRAY(p.titulo,'',p.id,'pl') FROM post_texto WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND usuario=? AND privado=0)
+                                    ELSE (SELECT JSON_ARRAY(p.titulo,JSON_ARRAY(video,imagem),p.id,'pl') FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND usuario=? AND privado=0)
+                                END AS imagem FROM playlist p WHERE views_id=? AND usuario=? AND privado=0
                             ) AS playlist
                         FROM $name_tipo LIMIT 1",[
                             $result["geral"],$name,
@@ -1134,7 +1174,7 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
                         SELECT NULL AS id1, NULL AS id2, id AS id3, id, imagem FROM post_musica
                     ) AS p2 WHERE FIND_IN_SET(CASE WHEN p.tipo='post' THEN p2.id1 WHEN p.tipo='post_imagem' THEN p2.id2 ELSE p2.id3 END, REPLACE(REPLACE(REPLACE(p.posts, '[', ''), ']', ''),'\"',''))
                 ) AS imagem
-                FROM playlist p WHERE usuario=? AND privado='false'",[$name]));
+                FROM playlist p WHERE usuario=? AND privado=0",[$name]));
                 response()->json([
                     "result"=>"true",
                     "destaques"=>$destaques,
@@ -1237,7 +1277,7 @@ Route::get("/playlist/{id}",function($id){
             WHERE FIND_IN_SET(CASE WHEN p.tipo='post' THEN p2.id1 WHEN p.tipo='post_imagem' THEN p2.id2 ELSE p2.id3 END, REPLACE(REPLACE(REPLACE(p.posts, '[', ''), ']', ''),'\"',''))
         ) AS idd,
         'pl' AS tipo, tipo AS post_tipo
-    FROM playlist p WHERE id=? AND privado='false'",[$id]);
+    FROM playlist p WHERE id=? AND privado=0",[$id]);
     if ($r->num_rows>0){
         $r=p($r)[0];
         if (is_js()){
@@ -1245,6 +1285,55 @@ Route::get("/playlist/{id}",function($id){
             response()->json(["result"=>"true","post"=>$r,"posts"=>$algoritmo]);
         } else {
             include(__DIR__ . "/playlist.php");
+            client();
+        }
+    } else {
+        if (is_js()){
+            r404();
+        } else {
+            r404g();
+        }
+    }
+});
+Route::get("/product/{id}",function($id){
+    $usuario=get_user();
+    $id=intval($id);
+    $conn = new sqli("anjoov00_posts");
+    $result=null;
+    if ($usuario){
+        $result=$conn->prepare("SELECT 
+        (SELECT CASE 
+                WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
+                ELSE 'false' 
+            END 
+        AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
+        CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+        p2.logo,p2.nome,
+        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_product p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id]);
+    } else {
+        $result=$conn->prepare("SELECT 'false' AS inscrito,
+        CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
+        p2.logo,p2.nome,
+        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_product p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",[$id]); 
+    }
+    $r=[];
+    if ($result->num_rows>0){
+        $r=p($result)[0];
+        $r["acessos"]++;
+        if (is_js()){
+            $acessos=$r["acessos"];
+            $views_id=$r["views_id"];
+            $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=? AND tipo='post_product'",[$views_id]))[0]["d2"],true);
+            $acessos_d=update_acessos_d($usuario,$acessos_d);
+            $conn->prepare("UPDATE post_product SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
+            $conn->prepare("UPDATE views SET d2=? WHERE id=? AND tipo='post_product'",[$acessos_d,$views_id]);
+            unset($r["views"]);
+            unset($r["acessos"]);
+            unset($r["views_id"]);
+            $algoritmo=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
+            response()->json(["result"=>"true","usuario"=>$usuario,"post"=>$r,"posts"=>$algoritmo,"alta"=>get_posts($conn)]);
+        } else {
+            include(__DIR__ . "/product.php");
             client();
         }
     } else {
@@ -1328,7 +1417,7 @@ Route::post("/inscricoes",function(){
     if ($usuario){
         if (request("type")=="info"){
             $conn=new sqli("anjoov00_posts");
-            $r=$conn->prepare("SELECT inscritos FROM user WHERE usuario=? AND privado='false'",[$usuario]);
+            $r=$conn->prepare("SELECT inscritos FROM user WHERE usuario=? AND privado=0",[$usuario]);
             if ($r->num_rows>0){
                 $r=json_decode(p($r)[0]["inscritos"],true);
                 $rk=array_keys($r);
@@ -1337,15 +1426,15 @@ Route::post("/inscricoes",function(){
                 $canal=[];
                 $lista=to_list($rk);
                 $r=p($conn->query("SELECT * FROM (
-                        (SELECT views_id,id,usuario,NULL AS texto,titulo,imagem,'p' AS tipo FROM post WHERE privado='false' AND lixeira='false' AND usuario IN ($lista) ORDER BY id DESC LIMIT 48)
+                        (SELECT views_id,id,usuario,NULL AS texto,titulo,imagem,'p' AS tipo FROM post WHERE privado=0 AND usuario IN ($lista) ORDER BY id DESC LIMIT 48)
                         UNION
-                        (SELECT views_id,id,usuario,NULL AS texto,descricao AS titulo,imagem,'i' AS tipo FROM post_imagem WHERE usuario IN ($lista) AND privado='false' AND lixeira='false' ORDER BY id DESC LIMIT 48)
+                        (SELECT views_id,id,usuario,NULL AS texto,descricao AS titulo,imagem,'i' AS tipo FROM post_imagem WHERE usuario IN ($lista) AND privado=0 ORDER BY id DESC LIMIT 48)
                         UNION
-                        (SELECT views_id,id,usuario,NULL AS texto,titulo,imagem,'m' AS tipo FROM post_musica WHERE usuario IN ($lista) AND privado='false' ORDER BY id DESC LIMIT 48)
+                        (SELECT views_id,id,usuario,NULL AS texto,titulo,imagem,'m' AS tipo FROM post_musica WHERE usuario IN ($lista) AND privado=0 ORDER BY id DESC LIMIT 48)
                         UNION
-                        (SELECT views_id,id,usuario,texto,NULL AS titulo,NULL AS imagem,'t' AS tipo FROM post_texto WHERE usuario IN ($lista) AND privado='false' AND lixeira='false' ORDER BY id DESC LIMIT 48)
+                        (SELECT views_id,id,usuario,texto,NULL AS titulo,NULL AS imagem,'t' AS tipo FROM post_texto WHERE usuario IN ($lista) AND privado=0 ORDER BY id DESC LIMIT 48)
                         UNION
-                        (SELECT views_id,id,usuario,NULL AS texto,titulo,(CASE WHEN imagem=NULL THEN video ELSE imagem END) AS imagem,'v' AS tipo FROM post_video WHERE usuario IN ($lista) AND privado='false' AND lixeira='false' ORDER BY id DESC LIMIT 48)
+                        (SELECT views_id,id,usuario,NULL AS texto,titulo,(CASE WHEN imagem=NULL THEN video ELSE imagem END) AS imagem,'v' AS tipo FROM post_video WHERE usuario IN ($lista) AND privado=0 ORDER BY id DESC LIMIT 48)
                     ) AS result ORDER BY views_id LIMIT 48
                 "));
                 $up="%".$usuario."%";
@@ -1425,11 +1514,11 @@ Route::get("/stories/{id}",function($id){
 });
 Route::post("/stories/{id}",function($id){
     function count_stories($conn,$id,$usuario){
-        $s=$conn->prepare("SELECT acessos,views_id FROM post_24 WHERE privado='false' AND id=?",[$id]);
+        $s=$conn->prepare("SELECT acessos,views_id FROM post_24 WHERE privado=0 AND id=?",[$id]);
         $result=p($s)[0];
         $acessos=$result["acessos"]+1;
         $views_id=$result["views_id"];
-        $s=$conn->prepare("UPDATE post_24 SET acessos=? WHERE id=? AND privado='false'",[$acessos,$id]);
+        $s=$conn->prepare("UPDATE post_24 SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
         $d=get_updated_date();
         $json=[];
         $json[$d]=$usuario;
@@ -1443,7 +1532,7 @@ Route::post("/stories/{id}",function($id){
         if (request("type")=="info"){
             $conn = new sqli("anjoov00_posts");
             count_stories($conn,$id,$usuario);
-            $posts=p($conn->prepare("SELECT * FROM post_24 t JOIN ( SELECT usuario FROM post_24 WHERE id=? AND privado='false' ) u ON t.usuario=u.usuario",[$id]));
+            $posts=p($conn->prepare("SELECT * FROM post_24 t JOIN ( SELECT usuario FROM post_24 WHERE id=? AND privado=0 ) u ON t.usuario=u.usuario",[$id]));
             response()->json(["result"=>"true","id"=>$id,"posts"=>$posts,"usuario"=>$usuario]);
         } else if (request("type")=="option"){
             $conn=new sqli("anjoov00_posts");
@@ -1507,18 +1596,18 @@ Route::get("/musica/{id}",function($id){
         AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        id,downloads,duration,acessos,titulo,p.usuario,imagem,views_id,arquivo,zip,'m' AS tipo FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false'",['"' . $usuario . '"', "$." . $usuario,$id]);
+        id,downloads,duration,acessos,titulo,p.usuario,imagem,views_id,arquivo,zip,'m' AS tipo FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id]);
     } else {
         $result=$conn->prepare("SELECT 'false' AS inscrito, 
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        id,downloads,duration,acessos,titulo,p.usuario,imagem,views_id,arquivo,zip,'m' AS tipo FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false'",[$id]); 
+        id,downloads,duration,acessos,titulo,p.usuario,imagem,views_id,arquivo,zip,'m' AS tipo FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",[$id]); 
     }
     if ($result->num_rows>0){
         $result=p($result)[0];
         $acessos=0;
         $views_id=$result["views_id"];
-        // $conn->prepare("UPDATE post_musica SET acessos=? WHERE id=? AND privado='false'",[$acessos,$id]);
+        // $conn->prepare("UPDATE post_musica SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
         // $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=?",[$views_id]))[0]["acessos_d"],true);
         // $d=get_updated_date();
         if (is_js()){
@@ -1546,7 +1635,7 @@ Route::post("/musica/{id}",function($id){
     if (request("type")=="info"){
         $conn=new sqli("anjoov00_posts");
         $id=intval($id);
-        $result=$conn->prepare("SELECT downloads,duration,acessos,titulo,usuario,imagem,views_id,arquivo,zip FROM post_musica WHERE id=? AND privado='false'",[$id]);
+        $result=$conn->prepare("SELECT downloads,duration,acessos,titulo,usuario,imagem,views_id,arquivo,zip FROM post_musica WHERE id=? AND privado=0",[$id]);
         if ($result->num_rows>0){
             $result=p($result)[0];
             $durations=$result["duration"];
@@ -1558,7 +1647,7 @@ Route::post("/musica/{id}",function($id){
             $arquivo=$result["arquivo"];
             $usuario_musica=$result["usuario"];
             $zip=$result["zip"];
-            // $conn->prepare("UPDATE post_musica SET acessos=? WHERE id=? AND privado='false'",[$acessos,$id]);
+            // $conn->prepare("UPDATE post_musica SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
             response()->json(["result"=>"true","downloads"=>$downloads,"zip"=>$zip,"durations"=>$durations,"titulo"=>$titulo,"imagem"=>$imagem,"arquivo"=>$arquivo,"usuario_musica"=>$usuario_musica,"alta"=>get_posts($conn),"usuario"=>$usuario]);
         } else {
             r404();
@@ -1609,12 +1698,12 @@ Route::get("/texto/{id}",function($id){
         AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",['"' . $usuario . '"', "$." . $usuario,$id]);
+        id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id]);
     } else {
         $result=$conn->prepare("SELECT 'false' AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",[$id]); 
+        id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",[$id]); 
     }
     $r=[];
     if ($result->num_rows>0){
@@ -1625,7 +1714,7 @@ Route::get("/texto/{id}",function($id){
             $views_id=$r["views_id"];
             $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=? AND tipo='post_texto'",[$views_id]))[0]["d2"],true);
             $acessos_d=update_acessos_d($usuario,$acessos_d);
-            $conn->prepare("UPDATE post_texto SET acessos=? WHERE id=? AND privado='false' AND lixeira='false'",[$acessos,$id]);
+            $conn->prepare("UPDATE post_texto SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
             $conn->prepare("UPDATE views SET d2=? WHERE id=? AND tipo='post_texto'",[$acessos_d,$views_id]);
             unset($r["views"]);
             unset($r["acessos"]);
@@ -1659,12 +1748,12 @@ Route::get("/texto/{id}",function($id){
 //         AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
 //         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
 //         p2.logo,p2.nome,
-//         id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",['"' . $usuario . '"', "$." . $usuario,$id]);
+//         id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id]);
 //     } else {
 //         $result=$conn->prepare("SELECT 'false' AS inscrito,
 //         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
 //         p2.logo,p2.nome,
-//         id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",[$id]); 
+//         id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",[$id]); 
 //     }
 //     $r=[];
 //     if ($result->num_rows>0){
@@ -1675,7 +1764,7 @@ Route::get("/texto/{id}",function($id){
 //             $views_id=$r["views_id"];
 //             $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=? AND tipo='post_texto'",[$views_id]))[0]["d2"],true);
 //             $acessos_d=update_acessos_d($usuario,$acessos_d);
-//             $conn->prepare("UPDATE post_texto SET acessos=? WHERE id=? AND privado='false' AND lixeira='false'",[$acessos,$id]);
+//             $conn->prepare("UPDATE post_texto SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
 //             $conn->prepare("UPDATE views SET d2=? WHERE id=? AND tipo='post_texto'",[$acessos_d,$views_id]);
 //             unset($r["views"]);
 //             unset($r["acessos"]);
@@ -1709,12 +1798,12 @@ Route::get("/video/{id}",function($id){
         AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        id,acessos,p.usuario,titulo,JSON_ARRAY(video,imagem) AS imagem,texto,d,views_id,'v' AS tipo FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",['"' . $user . '"', "$." . $user,$id]);
+        id,acessos,p.usuario,titulo,JSON_ARRAY(video,imagem) AS imagem,texto,d,views_id,'v' AS tipo FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $user . '"', "$." . $user,$id]);
     } else {
         $result=$conn->prepare("SELECT 'false' AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        id,acessos,p.usuario,titulo,JSON_ARRAY(video,imagem) AS imagem,texto,d,views_id,'v' AS tipo FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado='false' AND lixeira='false'",[$id]); 
+        id,acessos,p.usuario,titulo,JSON_ARRAY(video,imagem) AS imagem,texto,d,views_id,'v' AS tipo FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",[$id]); 
     }
     $r=[];
     if ($result->num_rows>0){
@@ -1744,7 +1833,7 @@ Route::post("/video/{id}",function($id){
         $views_id=$r["views_id"];
         $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=? AND tipo='post_video'",[$views_id]))[0]["d2"],true);
         $acessos_d=update_acessos_d($user,$acessos_d);
-        $conn->prepare("UPDATE post_video SET acessos=? WHERE id=? AND privado='false' AND lixeira='false'",[$acessos,$id]);
+        $conn->prepare("UPDATE post_video SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
         $conn->prepare("UPDATE views SET d2=? WHERE id=? AND tipo='post_video'",[$acessos_d,$views_id]);
         response()->json(["result"=>"true","usuario"=>$user]);
     } else {
@@ -1772,14 +1861,14 @@ Route::post("/comentarios",function(){
         $conn=new sqli("anjoov00_posts");
         $operation=request("operation");
         if ($operation=="get_comentarios"){
-            $count=p($conn->prepare("SELECT COUNT(*) AS num FROM comment WHERE tipo=? AND post_id=? AND privado='false'",[$tipo,$post_id]))[0]["num"];
-            $result=$conn->prepare("SELECT usuario,texto,d,id FROM comment WHERE tipo=? AND post_id=? AND privado='false' ORDER BY id DESC LIMIT 50",[$tipo,$post_id]);
+            $count=p($conn->prepare("SELECT COUNT(*) AS num FROM comment WHERE tipo=? AND post_id=? AND privado=0",[$tipo,$post_id]))[0]["num"];
+            $result=$conn->prepare("SELECT usuario,texto,d,id FROM comment WHERE tipo=? AND post_id=? AND privado=0 ORDER BY id DESC LIMIT 50",[$tipo,$post_id]);
             $comentarios=p($result);
             $logos=[];
             foreach($comentarios as $comentario){
                 $user=$comentario["usuario"];
                 if (!isset($logos[$user])){
-                    $logos[$user]=p($conn->prepare("SELECT logo FROM user WHERE usuario=? AND privado='false'",[$user]))[0]["logo"];
+                    $logos[$user]=p($conn->prepare("SELECT logo FROM user WHERE usuario=? AND privado=0",[$user]))[0]["logo"];
                 }
             }
             response()->json(["comentarios"=>$comentarios,"logos"=>$logos,"count"=>$count,"usuario"=>$usuario]);
@@ -2782,12 +2871,12 @@ Route::post("/ajeitar",function(){
     // foreach ($r as $u){
     //     $usuario=$u["usuario"];
     //     $num=0;
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post WHERE usuario=? AND lixeira='false' AND privado='false'",[$usuario]))[0]["num"];
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_imagem WHERE usuario=? AND privado='false' AND lixeira='false'",[$usuario]))[0]["num"];
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_musica WHERE usuario=? AND privado='false'",[$usuario]))[0]["num"];
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_texto WHERE usuario=? AND privado='false' AND lixeira='false'",[$usuario]))[0]["num"];
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_video WHERE usuario=? AND privado='false' AND lixeira='false'",[$usuario]))[0]["num"];
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM playlist WHERE usuario=? AND privado='false'",[$usuario]))[0]["num"];
+    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_imagem WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_musica WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_texto WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_video WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM playlist WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
     //     $conn->prepare("UPDATE user SET n_posts=? WHERE usuario=?",[$num,$usuario]);
     // }
     // echo $mp3_1->str;

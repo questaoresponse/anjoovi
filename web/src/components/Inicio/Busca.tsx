@@ -23,11 +23,12 @@ function Busca(){
     const filterInfos=useRef<{[key:string]:boolean,canal:boolean}>({canal:false});
     const [state,dispatch]=useReducer(reducer,{
         isLoaded:false,
-        posts:{"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]},
+        posts:{"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[],"7":[]},
         canals:[],
         registros:0,
     });
     const get=()=>{
+        fetch(server+"/images/peste.webp").then(result=>result.text()).then(result=>console.log(result));
         auth.post(server+"/busca"+location.search,{type:"info",filter:JSON.stringify(filterInfos.current)}).then(result=>{
             var data=result.data;
             const posts=data.posts;
@@ -41,7 +42,8 @@ function Busca(){
                     "3":[],
                     "4":[],
                     "5":[],
-                    "6":[]
+                    "6":[],
+                    "7":[]
                 } : {
                     "0":posts.slice(0,16),
                     "1":posts.filter((post:any)=>post.tipo=="p"),
@@ -49,7 +51,8 @@ function Busca(){
                     "3":posts.filter((post:any)=>post.tipo=="m"),
                     "4":posts.filter((post:any)=>post.tipo=="t"),
                     "5":posts.filter((post:any)=>post.tipo=="v"),
-                    "6":posts.filter((post:any)=>post.tipo=="pl")
+                    "6":posts.filter((post:any)=>post.tipo=="pl"),
+                    "7":posts.filter((post:any)=>post.tipo=="pd")
                 },
                 canals:data.canals
             }});
@@ -80,7 +83,7 @@ function Busca(){
                     filterInfos.current[filter]=false;
                 }
             }
-            dispatch({type:'setValues',values:{isLoaded:false, posts:{"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]}, canals:[],registros:0}});
+            dispatch({type:'setValues',values:{isLoaded:false, posts:{"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[],"7":[]}, canals:[],registros:0}});
             get();
         }
     },[location.search]);
@@ -127,6 +130,7 @@ function Busca(){
                     <div className={"pt"+(selected==4 ? " selected" : "")} onClick={()=>updateSelect(4)}>Texto</div>
                     <div className={"pt"+(selected==5 ? " selected" : "")} onClick={()=>updateSelect(5)}>Vídeo</div>
                     <div className={"pt"+(selected==6 ? " selected" : "")} onClick={()=>updateSelect(6)}>Playlist</div>
+                    <div className={"pt"+(selected==7 ? " selected" : "")} onClick={()=>updateSelect(7)}>Produto</div>
                 </div>
             </div>
             <div id="registros">

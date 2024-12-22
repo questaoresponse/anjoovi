@@ -61,7 +61,7 @@ function Lista(propsl:any){
                 <Link className="titulo txt-1" onClick={(e:eventInterface)=>{e.preventDefault(); window.open(propsl.tituloHref(post))}} to={propsl.tituloHref(post)}>
                     {post.titulo}
                 </Link>
-                <div className="data">{post.d ? JSON.parse(post.d).o : ""}</div>
+                <div className="data">{post.d}</div>
                 <div className="acessos">{post.acessos}</div>
                 <div className="opcoes">
                     <Opcoes auth={auth} post={post} globals={globals} recriar={Recriar} location={location}/>
@@ -80,7 +80,8 @@ function Lista(propsl:any){
                         globals={globals} 
                         recriar={Recriar} 
                         location={location} 
-                        post={post} n={infos.pesquisa ? infos.numRegistros - index : infos.nd - index} key={index} />
+                        post={post} 
+                        n={infos.pesquisa ? infos.numRegistros - index : infos.nd - index} key={index} />
                     ) : (
                         TableItem({post,index})
                     )
@@ -104,6 +105,7 @@ function Lista(propsl:any){
             if (result.error){
                 globals.setRedirectError(result.error);
             } else {
+                result.data.posts=result.data.posts.map((post:any)=>{ return {...post,d:JSON.parse(post.d).o.split(":").splice(0,2).join(":"),privado:Number(post.privado)}});
                 Recriar(result.data);
             }
         })

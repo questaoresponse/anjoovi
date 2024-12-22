@@ -8,6 +8,7 @@ import './cadastro/ImagemCadastro.tsx';
 import './cadastro/TextosCadastro.tsx';
 import './cadastro/VideosCadastro.tsx';
 import './cadastro/PlaylistsCadastro.tsx';
+import './cadastro/ProductsCadastro.tsx';
 
 function Publicar(){
     const refs={
@@ -22,6 +23,7 @@ function Publicar(){
         "/admin/textos_cadastro":"5",
         "/admin/videos_cadastro":"6",
         "/admin/playlists_cadastro":"7",
+        "/admin/products_cadastro":"8",
     }
     useEffect(()=>{
         refs.selected.current!.className="menu-s selected"+options[location.pathname];
@@ -37,6 +39,7 @@ function Publicar(){
             <Link to='/admin/textos_cadastro' className="i-menu2 t5" id="textos_cadastro" >Texto</Link>
             <Link to='/admin/videos_cadastro' className="i-menu2 t6" id="videos_cadastro" >Vídeo</Link>
             <Link to='/admin/playlists_cadastro' className="i-menu2 t7" id="playlists_cadastro" >Playlist</Link>
+            <Link to='/admin/products_cadastro' className="i-menu2 t8" id="products_cadastro" >Produtos</Link>
         </div>
     </div>
     )
