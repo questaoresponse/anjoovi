@@ -2662,236 +2662,287 @@ Route::post("/ups",function(){
 //         $conn->prepare("UPDATE views SET excluido='true' WHERE id=?",[$p2["id"]]);
 //     }
 // });
+// Route::post("/ajeitar",function(){
+//     $conn=new sqli("anjoov00_posts");
+//     $musics=p($conn->query("SELECT arquivo,zip,id FROM post_musica"));
+//     $musics2=[];
+//     $zips=[];
+//     foreach ($musics as $music){
+//         $arquivos=json_decode($music["arquivo"]);
+//         $new_arquivos=[];
+//         $zips[$music["zip"]]="";
+//         foreach ($arquivos as $arquivo){
+//             if (!str_contains($arquivo,"_m_m_")){
+//                 $id=explode("_",$arquivo)[0];
+//                 $name=$id . "_m_m_" . implode("_",array_slice(explode("_",$arquivo),1));
+//                 rename(__DIR__ . "/../public_html/musics/" . $arquivo, __DIR__ . "/../public_html/musics/" . $name);
+//                 $new_arquivos[]=$name;
+//                 $musics2[$name]="";
+//             } else {
+//                 $new_arquivos[]=$arquivo;
+//                 $musics2[$arquivo]="";
+//             }
+//         }
+//         $new_arquivos=json_encode($new_arquivos);
+//         $conn->prepare("UPDATE post_musica SET arquivo=? WHERE id=?",[$new_arquivos,$music["id"]]);
+//         // echo $music["arquivo"];
+//         // echo $new_arquivos;
+//     }
+//     $videos=p($conn->query("SELECT video,id FROM post_video"));
+//     foreach ($videos as $video){
+//         $filename=$video["video"];
+//         $name=null;
+//         if (!str_contains($filename,"_v_v_")){
+//             $part_id=explode("_",$filename)[1];
+//             if (preg_match('/^\d+/', $part_id, $matches)) {
+//                 $id = $matches[0]; // Captura os dígitos iniciais
+//                 $name=$id . "_v_v_" . preg_replace('/^\d+/', '',  implode("_",array_slice(explode("_",$filename),1)));
+//                 rename(__DIR__ . "/../public_html/videos/" . $filename, __DIR__ . "/../public_html/videos/" . $name);
+//             }
+//         } else {
+//             $name=$filename;
+//         }
+//         $conn->prepare("UPDATE post_video SET video=? WHERE id=?",[$name,$video["id"]]);
+//         // echo $filename;
+//         // echo $name;
+//     }
+//     $imagens=[];
+//     $rs=p($conn->query("SELECT *  FROM (
+//         (SELECT imagem FROM post)
+//         UNION
+//         (SELECT imagem FROM post_imagem)
+//         UNION
+//         (SELECT imagem FROM post_musica)
+//         UNION
+//         (SELECT imagem FROM post_video WHERE imagem!=NULL)
+//         UNION
+//         (SELECT logo AS imagem FROM user WHERE logo IS NOT NULL)
+//         UNION
+//         (SELECT banner AS imagem FROM user WHERE banner IS NOT NULL)
+//         UNION
+//         (SELECT filename AS imagem FROM post_24 WHERE type='jpeg')
+//     ) AS result"));
+//     $t=microtime(true);
+//     foreach ($rs as $r){
+//         $imagens[$r["imagem"]]="";
+//     }
+//     $d0=0;
+//     $d01=0;
+//     $diretorio=__DIR__ . "/../public_html/zips/";
+//     if (is_dir($diretorio)) {
+//         $arquivos = scandir($diretorio);
+//         foreach ($arquivos as $arquivo) {
+//             // Ignorar "." e ".."
+//             if ($arquivo !== "." && $arquivo !== "..") {
+//                 if (!isset($zips[$arquivo])){
+//                     $d0++;
+//                     // echo $arquivo;
+//                     // if ($d<100){
+//                     unlink(__DIR__ . "/../public_html/zips/".$arquivo);
+//                     // }
+//                     // echo $arquivo;
+//                 } else {
+//                     $d01++;
+//                 }
+
+//             }
+//         }
+//     }
+//     $diretorio=__DIR__ . "/../public_html/musics/";
+//     $d1=0;
+//     $d2=0;
+//     if (is_dir($diretorio)) {
+//         $arquivos = scandir($diretorio);
+//         foreach ($arquivos as $arquivo) {
+//             // Ignorar "." e ".."
+//             if ($arquivo !== "." && $arquivo !== "..") {
+//                 if (!isset($musics2[$arquivo])){
+//                     $d1++;
+//                     // echo $arquivo;
+//                     // if ($d<100){
+//                         unlink(__DIR__ . "/../public_html/musics/".$arquivo);
+//                     // }
+//                     // echo $arquivo;
+//                 }
+//                 if (isset($musics2[$arquivo])){
+//                     $d2++;
+//                 }
+//             }
+//         }
+//     }
+//     echo count($musics2) . "_";
+//     // echo $d01 . "_";
+//     echo $d0 . "_";
+//     // echo $d2 . "_";
+//     echo $d1 . "_";
+//     $d=0;
+//     $diretorio=__DIR__ . "/../public_html/images/";
+//     if (is_dir($diretorio)) {
+//         $arquivos = scandir($diretorio);
+//         foreach ($arquivos as $arquivo) {
+//             // Ignorar "." e ".."
+//             if ($arquivo !== "." && $arquivo !== "..") {
+//                 if (!isset($imagens[$arquivo])){
+//                     $d++;
+//                     // if ($d<100){
+//                         unlink(__DIR__ . "/../public_html/images/".$arquivo);
+//                     // }
+//                     echo $arquivo;
+//                 }
+//             }
+//         }
+//     }
+//     $ts=microtime(true);
+//     echo $d;
+//     echo strval($ts-$t);
+
+//     // $d=json_encode(["o"=>"2024-01-01 00:00:00"]);
+//     // $conn->prepare("UPDATE views SET d=?",[$d]);
+
+//     // $rs=p($conn->query("SELECT tipo,id,acessos_d FROM views"));
+//     // foreach ($rs as $r){
+//     //     $data=[];
+//     //     $ds=json_decode($r["acessos_d"],true);
+//     //     if (count($ds)>0){
+//     //         foreach ($ds as $od){
+//     //             if (count($od)>0 && is_array($od)){
+//     //                 try {
+//     //                     if (isset($od[0])){
+//     //                         for ($i=0;$i<count($od[0]);$i++){
+//     //                             $date=$od[$i];
+//     //                             $d=array_keys($date)[0];
+//     //                             $original_date=new DateTime($d);
+//     //                             $strd=$original_date->format("H:i:s");
+//     //                             $year=strval($original_date->format("Y"));
+//     //                             $dr=strval($original_date->format("z"));
+//     //                             if (!isset($data[$year])){
+//     //                                 $data[$year]=[];
+//     //                             }
+//     //                             if (!isset($data[$year][$dr])){
+//     //                                 $data[$year][$dr]=[];
+//     //                             }
+//     //                             if (count($data[$year][$dr])==0){
+//     //                                 $data[$year][$dr][$i]=[];
+//     //                             }
+//     //                             $json=[];
+//     //                             $json[$strd]=$date[$d];
+//     //                             if (!isset($data[$year][$dr])){
+//     //                                 $data[$year][$dr]=[[$json]];
+//     //                             } else {
+//     //                                 $data[$year][$dr][$i][]=$json;
+//     //                             }
+//     //                         }
+//     //                     } else {
+//     //                         $d=array_keys($od)[0];
+//     //                         $original_date=new DateTime($d);
+//     //                         $strd=$original_date->format("H:i:s");
+//     //                         $year=strval($original_date->format("Y"));
+//     //                         $dr=strval($original_date->format("z"));
+//     //                         if (!isset($data[$year])){
+//     //                             $data[$year]=[];
+//     //                         }
+//     //                         if (!isset($data[$year][$dr])){
+//     //                             $data[$year][$dr]=[];
+//     //                         }
+//     //                         $json=[];
+//     //                         $json[$strd]=$od[$d];
+//     //                         if (!isset($data[$year][$dr])){
+//     //                             $data[$year][$dr]=[$json];
+//     //                         } else {
+//     //                             $data[$year][$dr][]=$json;
+//     //                         }
+//     //                     }
+                        
+//     //                 } catch (Exception $e){
+//     //                     if ($d===0){
+//     //                         echo "<br>" . json_encode($od) . "</br>" . $e->getMessage();
+//     //                     }
+//     //                 }
+//     //             }
+//     //         }
+//     //         $conn->prepare("UPDATE views SET d2=? WHERE id=?",[json_encode($data),$r["id"]]);
+//     //     }
+//     // }
+//     // $conn->query("UPDATE views SET d2='{}' WHERE acessos_d='[]'");
+
+//     // $conn->query("UPDATE view SET type='post_musica WHERE usuaos")
+//     // $conn->query("UPDATE views SET type='post_musica' WHERE excluido='false' AND y");
+//     // $r=p($conn->query("SELECT * FROM user"));
+//     // foreach ($r as $u){
+//     //     $usuario=$u["usuario"];
+//     //     $num=0;
+//     //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+//     //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_imagem WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+//     //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_musica WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+//     //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_texto WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+//     //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_video WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+//     //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM playlist WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
+//     //     $conn->prepare("UPDATE user SET n_posts=? WHERE usuario=?",[$num,$usuario]);
+//     // }
+//     // echo $mp3_1->str;
+
+//     // $conn=new sqli("anjoov00_posts");
+//     // $conn->query("DELETE FROM post WHERE views_id=NULL");
+//     // $conn->query("DELETE FROM post_imagem WHERE views_id=NULL");
+//     // $conn->query("DELETE FROM post_24 WHERE views_id=NULL");
+//     // $conn->query("DELETE FROM post_musica WHERE views_id=NULL");
+//     // $conn->query("DELETE FROM playlist WHERE views_id=NULL");
+
+//     // $p=p($conn->query("SELECT id FROM views WHERE tipo='post_24' AND excluido='false' AND id NOT IN (SELECT views_id AS id FROM post_24)"));
+//     // foreach ($p as $p2){
+//     //     $conn->prepare("UPDATE views SET excluido='true' WHERE id=?",[$p2["id"]]);
+//     // }
+// });
 Route::post("/ajeitar",function(){
     $conn=new sqli("anjoov00_posts");
-    $musics=p($conn->query("SELECT arquivo,zip,id FROM post_musica"));
-    $musics2=[];
-    $zips=[];
-    foreach ($musics as $music){
-        $arquivos=json_decode($music["arquivo"]);
-        $new_arquivos=[];
-        $zips[$music["zip"]]="";
-        foreach ($arquivos as $arquivo){
-            if (!str_contains($arquivo,"_m_m_")){
-                $id=explode("_",$arquivo)[0];
-                $name=$id . "_m_m_" . implode("_",array_slice(explode("_",$arquivo),1));
-                rename(__DIR__ . "/../public_html/musics/" . $arquivo, __DIR__ . "/../public_html/musics/" . $name);
-                $new_arquivos[]=$name;
-                $musics2[$name]="";
-            } else {
-                $new_arquivos[]=$arquivo;
-                $musics2[$arquivo]="";
-            }
-        }
-        $new_arquivos=json_encode($new_arquivos);
-        $conn->prepare("UPDATE post_musica SET arquivo=? WHERE id=?",[$new_arquivos,$music["id"]]);
-        // echo $music["arquivo"];
-        // echo $new_arquivos;
+    $r=p($conn->query("SELECT * FROM views LIMIT 1"));
+    $r2=p($conn->query("SELECT id,usuario FROM user"));
+    $users=[];
+    foreach ($r2 as $l){
+        $users[$l["usuario"]]=intval($l["id"]);
     }
-    $videos=p($conn->query("SELECT video,id FROM post_video"));
-    foreach ($videos as $video){
-        $filename=$video["video"];
-        $name=null;
-        if (!str_contains($filename,"_v_v_")){
-            $part_id=explode("_",$filename)[1];
-            if (preg_match('/^\d+/', $part_id, $matches)) {
-                $id = $matches[0]; // Captura os dígitos iniciais
-                $name=$id . "_v_v_" . preg_replace('/^\d+/', '',  implode("_",array_slice(explode("_",$filename),1)));
-                rename(__DIR__ . "/../public_html/videos/" . $filename, __DIR__ . "/../public_html/videos/" . $name);
-            }
-        } else {
-            $name=$filename;
-        }
-        $conn->prepare("UPDATE post_video SET video=? WHERE id=?",[$name,$video["id"]]);
-        // echo $filename;
-        // echo $name;
-    }
-    $imagens=[];
-    $rs=p($conn->query("SELECT *  FROM (
-        (SELECT imagem FROM post)
-        UNION
-        (SELECT imagem FROM post_imagem)
-        UNION
-        (SELECT imagem FROM post_musica)
-        UNION
-        (SELECT imagem FROM post_video WHERE imagem!=NULL)
-        UNION
-        (SELECT logo AS imagem FROM user WHERE logo IS NOT NULL)
-        UNION
-        (SELECT banner AS imagem FROM user WHERE banner IS NOT NULL)
-        UNION
-        (SELECT filename AS imagem FROM post_24 WHERE type='jpeg')
-    ) AS result"));
-    $t=microtime(true);
-    foreach ($rs as $r){
-        $imagens[$r["imagem"]]="";
-    }
-    $d0=0;
-    $d01=0;
-    $diretorio=__DIR__ . "/../public_html/zips/";
-    if (is_dir($diretorio)) {
-        $arquivos = scandir($diretorio);
-        foreach ($arquivos as $arquivo) {
-            // Ignorar "." e ".."
-            if ($arquivo !== "." && $arquivo !== "..") {
-                if (!isset($zips[$arquivo])){
-                    $d0++;
-                    // echo $arquivo;
-                    // if ($d<100){
-                    unlink(__DIR__ . "/../public_html/zips/".$arquivo);
-                    // }
-                    // echo $arquivo;
-                } else {
-                    $d01++;
-                }
-
-            }
-        }
-    }
-    $diretorio=__DIR__ . "/../public_html/musics/";
-    $d1=0;
-    $d2=0;
-    if (is_dir($diretorio)) {
-        $arquivos = scandir($diretorio);
-        foreach ($arquivos as $arquivo) {
-            // Ignorar "." e ".."
-            if ($arquivo !== "." && $arquivo !== "..") {
-                if (!isset($musics2[$arquivo])){
-                    $d1++;
-                    // echo $arquivo;
-                    // if ($d<100){
-                        unlink(__DIR__ . "/../public_html/musics/".$arquivo);
-                    // }
-                    // echo $arquivo;
-                }
-                if (isset($musics2[$arquivo])){
-                    $d2++;
+    $t1=0;
+    $t2=0;
+    foreach ($r as $c){
+       $t1+=strlen($c["d2"]);
+        $p=json_decode($c["d2"],true);
+        $a=[];
+        foreach ($p as $y=>$yv){
+            // $y=bin2hex(pack("S",$y));
+            $a[$y]=[];
+            foreach ($yv as $d=>$dv){
+                // $d=bin2hex(pack("S",$d));
+                $a[$y][$d]=[];
+                foreach ($dv as $array=>$arrayv){
+                    $anterior=0;
+                    foreach ($arrayv as $time=>$timev){
+                        // $codigo=0;
+                        // foreach (str_split($timev) as $char) {
+                        //     $codigo = $codigo * 256 + ord($char);  // Cria um número a partir da string
+                        // }
+                        $t=intval(strtotime($time) / 1000);
+                        $d=$t-$anterior;
+                        // echo $t,$anterior;
+                        $id=$timev!="" ? $users[$timev] : 0;
+                        $a[$y][$d][$array][]=( $id << 22) | $d;
+                        $anterior=$t;
+                    }
                 }
             }
         }
+        $a=gzcompress(json_encode($a));
+        // echo gzuncompress($a);
+        // echo "." . strval(strlen($c["d2"]));
+        // echo "." . strval(strlen($a));
+        // echo strlen($a)>strlen($c["d2"]) ? "true" : "false";
+        // echo $c["d2"];
+        // echo $a;
+        // echo $a;
     }
-    echo count($musics2) . "_";
-    // echo $d01 . "_";
-    echo $d0 . "_";
-    // echo $d2 . "_";
-    echo $d1 . "_";
-    $d=0;
-    $diretorio=__DIR__ . "/../public_html/images/";
-    if (is_dir($diretorio)) {
-        $arquivos = scandir($diretorio);
-        foreach ($arquivos as $arquivo) {
-            // Ignorar "." e ".."
-            if ($arquivo !== "." && $arquivo !== "..") {
-                if (!isset($imagens[$arquivo])){
-                    $d++;
-                    // if ($d<100){
-                        unlink(__DIR__ . "/../public_html/images/".$arquivo);
-                    // }
-                    echo $arquivo;
-                }
-            }
-        }
-    }
-    $ts=microtime(true);
-    echo $d;
-    echo strval($ts-$t);
-
-    // $d=json_encode(["o"=>"2024-01-01 00:00:00"]);
-    // $conn->prepare("UPDATE views SET d=?",[$d]);
-
-    // $rs=p($conn->query("SELECT tipo,id,acessos_d FROM views"));
-    // foreach ($rs as $r){
-    //     $data=[];
-    //     $ds=json_decode($r["acessos_d"],true);
-    //     if (count($ds)>0){
-    //         foreach ($ds as $od){
-    //             if (count($od)>0 && is_array($od)){
-    //                 try {
-    //                     if (isset($od[0])){
-    //                         for ($i=0;$i<count($od[0]);$i++){
-    //                             $date=$od[$i];
-    //                             $d=array_keys($date)[0];
-    //                             $original_date=new DateTime($d);
-    //                             $strd=$original_date->format("H:i:s");
-    //                             $year=strval($original_date->format("Y"));
-    //                             $dr=strval($original_date->format("z"));
-    //                             if (!isset($data[$year])){
-    //                                 $data[$year]=[];
-    //                             }
-    //                             if (!isset($data[$year][$dr])){
-    //                                 $data[$year][$dr]=[];
-    //                             }
-    //                             if (count($data[$year][$dr])==0){
-    //                                 $data[$year][$dr][$i]=[];
-    //                             }
-    //                             $json=[];
-    //                             $json[$strd]=$date[$d];
-    //                             if (!isset($data[$year][$dr])){
-    //                                 $data[$year][$dr]=[[$json]];
-    //                             } else {
-    //                                 $data[$year][$dr][$i][]=$json;
-    //                             }
-    //                         }
-    //                     } else {
-    //                         $d=array_keys($od)[0];
-    //                         $original_date=new DateTime($d);
-    //                         $strd=$original_date->format("H:i:s");
-    //                         $year=strval($original_date->format("Y"));
-    //                         $dr=strval($original_date->format("z"));
-    //                         if (!isset($data[$year])){
-    //                             $data[$year]=[];
-    //                         }
-    //                         if (!isset($data[$year][$dr])){
-    //                             $data[$year][$dr]=[];
-    //                         }
-    //                         $json=[];
-    //                         $json[$strd]=$od[$d];
-    //                         if (!isset($data[$year][$dr])){
-    //                             $data[$year][$dr]=[$json];
-    //                         } else {
-    //                             $data[$year][$dr][]=$json;
-    //                         }
-    //                     }
-                        
-    //                 } catch (Exception $e){
-    //                     if ($d===0){
-    //                         echo "<br>" . json_encode($od) . "</br>" . $e->getMessage();
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         $conn->prepare("UPDATE views SET d2=? WHERE id=?",[json_encode($data),$r["id"]]);
-    //     }
-    // }
-    // $conn->query("UPDATE views SET d2='{}' WHERE acessos_d='[]'");
-
-    // $conn->query("UPDATE view SET type='post_musica WHERE usuaos")
-    // $conn->query("UPDATE views SET type='post_musica' WHERE excluido='false' AND y");
-    // $r=p($conn->query("SELECT * FROM user"));
-    // foreach ($r as $u){
-    //     $usuario=$u["usuario"];
-    //     $num=0;
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_imagem WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_musica WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_texto WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM post_video WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
-    //     $num+=p($conn->prepare("SELECT COUNT(*) AS num FROM playlist WHERE usuario=? AND privado=0",[$usuario]))[0]["num"];
-    //     $conn->prepare("UPDATE user SET n_posts=? WHERE usuario=?",[$num,$usuario]);
-    // }
-    // echo $mp3_1->str;
-
-    // $conn=new sqli("anjoov00_posts");
-    // $conn->query("DELETE FROM post WHERE views_id=NULL");
-    // $conn->query("DELETE FROM post_imagem WHERE views_id=NULL");
-    // $conn->query("DELETE FROM post_24 WHERE views_id=NULL");
-    // $conn->query("DELETE FROM post_musica WHERE views_id=NULL");
-    // $conn->query("DELETE FROM playlist WHERE views_id=NULL");
-
-    // $p=p($conn->query("SELECT id FROM views WHERE tipo='post_24' AND excluido='false' AND id NOT IN (SELECT views_id AS id FROM post_24)"));
-    // foreach ($p as $p2){
-    //     $conn->prepare("UPDATE views SET excluido='true' WHERE id=?",[$p2["id"]]);
-    // }
+    // echo ($t2 / $t1);
+    // $u=( 5 << 11) | 300;
+    // $e=$u & ((1 << 11) -1);
+    // echo "." . $e;
 });
 Route::post("/functions",function(){
     if (isset($_POST["key"]) && $_POST["key"]=="7894j96~-[njd98n705yfhq´-d3=rfekk9"){

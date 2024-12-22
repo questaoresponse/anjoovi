@@ -11,7 +11,7 @@ import { resultInterface } from '../../Auth.tsx';
 function ImagemLista(){
     const globals=useGlobal();
     const Opcoes=(props:any)=>{
-        const [isChecked,setIsChecked]=useState((props.post.privado & 2)==2 || (props.post.privado & 4)==4);
+        const [isChecked,setIsChecked]=useState((props.post.privado & 1)==1 || (props.post.privado & 4)==4);
         const auth=props.auth;
         const server=props.globals.server;
         const location=props.location;

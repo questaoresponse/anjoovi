@@ -12,7 +12,8 @@ interface postInterface{
     titulo:string,
     subtitulo:string,
     texto:string,
-    imagem:string
+    imagem:string,
+    privado:boolean
 }
 declare module './NoticiasCadastro.tsx' {
     interface resultInterface{
@@ -27,6 +28,7 @@ function NoticiasCadastro(){
     const auth=useAuth();
     const navigate=useNavigate();
     const refs={
+        permission:useRef<HTMLSelectElement | null>(null),
         titulo:useRef<HTMLInputElement>(null),
         subtitulo:useRef<HTMLInputElement>(null),
         textarea:useRef<HTMLTextAreaElement>(null),
@@ -128,6 +130,8 @@ function NoticiasCadastro(){
                     refs.titulo.current!.value=post.titulo;
                     refs.subtitulo.current!.value=post.subtitulo;
                     refs.textarea.current!.value=post.texto;
+                    post.privado=post.privado!=0;
+                    refs.permission.current!.value=post.privado ? "1" : "0";
                     post_edit.current=post;
                     setDimensions(server+"/images/"+encodeURIComponent(post.imagem));
                 }
@@ -145,6 +149,7 @@ function NoticiasCadastro(){
         edit.current && fd.append("id",post_edit.current!.id.toString());
         imagem_data && fd.append("imagem",imagem_data);
         imagem_data && fd.append("imagens_edit",(true).toString());
+        fd.append("permission",refs.permission.current!.value);
         fd.append("usuario",globals.login.usuario!);
         fd.append("titulo",titulo);
         subtitulo!="" && fd.append("subtitulo", subtitulo);
@@ -193,6 +198,11 @@ function NoticiasCadastro(){
                 <Publicar/>
                 <div id="msg1">Cadastrar matéria</div>
                 <form onSubmit={Cadastrar}>
+                    <label>Disponível:</label>
+                    <select ref={refs.permission} id="permission" defaultValue="0">
+                        <option value="0">Público</option>
+                        <option value="1">Premium</option>
+                    </select>
                     <label>Título</label>
                     <input ref={refs.titulo} className="input" id="titulo" placeholder="Insira um título" required/>
                     <label>Subtítulo</label>

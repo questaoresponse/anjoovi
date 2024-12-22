@@ -6,8 +6,6 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
     include(__DIR__ . '/../server/routes.php');
 } else if (cm("/noticia") || cm("/imagem") || cm("/musica") || cm("/texto") || cm("/video") || cm("/playlist") || cm("/product")){
     include(__DIR__ . '/../server/routes.php');
-} else if (cm("/images")){
-    include(__DIR__ . '/../server/verify.php');
 } else {
     include(__DIR__ . '/index.html');
 }

@@ -476,6 +476,7 @@ Route::post("/admin/noticias_cadastro", function(){
                 $conn = new sqli("anjoov00_posts");
                 $dados=request()->all();
                 ['titulo'=>$titulo ] = $_POST;
+                $permission=$_POST["permission"]=="0" ? 0 : 0 | 2;
                 // if (strlen($titulo)==0) return;
                 $subtitulo=isset($dados["subtitulo"]) ? $dados["subtitulo"] : null;
                 $original_format=isset($dados["original_format"]);
@@ -524,19 +525,17 @@ Route::post("/admin/noticias_cadastro", function(){
                 }
                 if ($isCadastro){
                     $conn = new sqli("anjoov00_posts");
-                    $result=p($conn->prepare("SELECT nome,privado FROM user WHERE usuario=?",[$usuario]))[0];
-                    $nome=$result["nome"];
-                    $privado=0 | intval($result["privado"]);
                     $d=get_d();
                     $views_id=get_views_id($conn);
-                    $conn->prepare("INSERT INTO post(nome,usuario,titulo,subtitulo,texto,imagem,acessos,views_id,id,d,privado) VALUES (?,?,?,?,?,?,?,?,?,?,?)",[$nome,$usuario,$titulo,$subtitulo,$texto,$imagem,$acessos,$views_id,$id,$d,$privado]);
+                    $conn->prepare("INSERT INTO post(nome,usuario,titulo,subtitulo,texto,imagem,acessos,views_id,id,d,privado) 
+                        SELECT nome, usuario, ? AS titulo, ? AS subtitulo, ? AS texto, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d,(CASE WHEN privado=1 THEN ? | 4 ELSE ? END) AS privado FROM user WHERE usuario=?",[$titulo,$subtitulo,$texto,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$usuario]);
                     insert_views($conn,$usuario,"post",$views_id,$id);
                     add_n_posts($usuario,$conn);
                 } else {
                     $d=json_decode($d,true);
                     $d["a"]=get_updated_date();
                     $d=json_encode($d);
-                    $conn->prepare("UPDATE post SET titulo=?,subtitulo=?,texto=?,imagem=?,d=? WHERE usuario=? AND id=?",[$titulo,$subtitulo,$texto,$imagem,$d,$usuario,$id]);
+                    $conn->prepare("UPDATE post SET titulo=?,subtitulo=?,texto=?,imagem=?,d=?,privado=CASE WHEN ? & 2=2 THEN privado | 2 ELSE privado & ~2 END WHERE usuario=? AND id=?",[$titulo,$subtitulo,$texto,$imagem,$d,$permission,$usuario,$id]);
                 }
                 response()->json(["result"=>"true","usuario"=>$usuario]);
             }
@@ -557,7 +556,7 @@ Route::post("/admin/noticias_edit",function(){
         $conn=new sqli("anjoov00_posts");
         if (request()->query("id")){
             $id=intval(request()->query("id"));
-            $result=$conn->prepare("SELECT titulo,subtitulo,texto,imagem,id FROM post WHERE usuario=? AND id=?",[$usuario,$id]);
+            $result=$conn->prepare("SELECT titulo,subtitulo,texto,imagem,id,(privado & 2) AS privado FROM post WHERE usuario=? AND id=?",[$usuario,$id]);
             if ($result->num_rows>0){
                 response()->json(["result"=>"true","post_edit"=>p($result)]);
             } else {
@@ -995,6 +994,134 @@ Route::post("/admin/metricas",function(){
         login();
     }
 });
+// Route::post("/admin/metricas",function(){
+//     $usuario=get_user();
+//     if ($usuario){
+//         if (request("type")=="info"){
+//             $cargo=cargo($usuario);
+//             $conn = new sqli("anjoov00_posts");
+//             $r=null;
+//             $total_u=null;
+//             $t1=0;
+//             $t2=0;
+//             if ($cargo==1){
+//                 $r=p($conn->query("SELECT tipo,d2,d FROM views WHERE tipo!='playlist'"));
+//                 $t1=strlen(json_encode($r));
+//                 $ba=microtime(true);
+//                 $r2=p($conn->query("SELECT id,usuario FROM user"));
+//                 $users=[];
+//                 foreach ($r2 as $l){
+//                     $users[$l["usuario"]]=intval($l["id"]);
+//                 }
+//                 for ($i=0;$i<count($r);$i++){
+//                     $c=$r[$i];
+//                     $p=json_decode($c["d2"],true);
+//                     $a=[];
+//                     try{
+//                         foreach ($p as $y=>$yv){
+//                             // $y=bin2hex(pack("S",$y));
+//                             $a[$y]=[];
+//                             foreach ($yv as $d=>$dv){
+//                                 // $d=bin2hex(pack("S",$d));
+//                                 $a[$y][$d]=[];
+//                                 foreach ($dv as $array=>$arrayv){
+//                                     $anterior=0;
+//                                     foreach ($arrayv as $time=>$timev){
+//                                         // $codigo=0;
+//                                         // foreach (str_split($timev) as $char) {
+//                                         //     $codigo = $codigo * 256 + ord($char);  // Cria um número a partir da string
+//                                         // }
+//                                         $t=intval(strtotime($time) / 1000);
+//                                         $d=$t-$anterior;
+//                                         // echo $t,$anterior;
+//                                         $id=$timev && is_string($timev) && isset($users[$timev]) ? $users[$timev] : 0;
+//                                         $a[$y][$d][$array][]=( $id << 22) | $d;
+//                                         $anterior=$t;
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                         $r[$i]["d2"]=json_encode($a);
+//                         $d=json_decode($r[$i]["d"],true)["o"];
+//                         $r[$i]["d"]=json_encode(["d"=>strtotime($d) / 1000]);
+//                     } catch (Exception $e){
+//                         echo $e->getMessage();
+//                         $r[$i]=[];
+//                     }
+//                 }
+//                 // $result=p($conn->query("SELECT * FROM views_atual"));
+//                 // $d=new DateTime();
+//                 // foreach($result as $v){
+//                 //     $dv=$v["d"];
+//                 //     $dv=DateTime::createFromFormat('Y-m-d H:i:s', $dv);
+//                 //     $dv->modify('+10 seconds');
+//                 //     if ($d>$dv){
+//                 //         $conn->prepare("DELETE FROM views_atual WHERE id=?",[$v["id"]]);
+//                 //     }
+//                 // }
+//                 // $total_u=p($conn->query("SELECT tipo,usuario FROM views_atual"));
+//                 $total_u=p($conn->query("SELECT usuario,peer_tokens FROM user WHERE online=2"));
+//             } else {
+//                 $r=p($conn->prepare("SELECT tipo,d2,d FROM views WHERE usuario=? AND tipo!='playlist' AND tipo!='musica' AND tipo!='post_musica'",[$usuario]));
+//                 $ba=microtime(true);
+//                 $r2=p($conn->query("SELECT id,usuario FROM user"));
+//                 $users=[];
+//                 foreach ($r2 as $l){
+//                     $users[$l["usuario"]]=intval($l["id"]);
+//                 }
+//                 $t1=0;
+//                 $t2=0;
+//                 for ($i=0;$i<count($r);$i++){
+//                     $c=$r[$i];
+//                     $t1+=strlen($c["d2"]);
+//                     $p=json_decode($c["d2"],true);
+//                     $a=[];
+//                     try{
+//                         foreach ($p as $y=>$yv){
+//                             // $y=bin2hex(pack("S",$y));
+//                             $a[$y]=[];
+//                             foreach ($yv as $d=>$dv){
+//                                 // $d=bin2hex(pack("S",$d));
+//                                 $a[$y][$d]=[];
+//                                 foreach ($dv as $array=>$arrayv){
+//                                     $anterior=0;
+//                                     foreach ($arrayv as $time=>$timev){
+//                                         // $codigo=0;
+//                                         // foreach (str_split($timev) as $char) {
+//                                         //     $codigo = $codigo * 256 + ord($char);  // Cria um número a partir da string
+//                                         // }
+//                                         $t=intval(strtotime($time) / 1000);
+//                                         $d=$t-$anterior;
+//                                         // echo $t,$anterior;
+//                                         $id=$timev && is_string($timev) && isset($users[$timev]) ? $users[$timev] : 0;
+//                                         $a[$y][$d][$array][]=( $id << 22) | $d;
+//                                         $anterior=$t;
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                         $r[$i]=gzcompress(json_encode($a));
+//                     } catch (Exception $e){
+//                         echo $e->getMessage();
+//                         $r[$i]=[];
+//                     }
+//                 }
+//             }
+//             $zi=microtime(true);
+//             $t2=strlen(json_encode($r));
+//             $compressedData=json_encode(["a"=>$t2/$t1,"b"=>$t2,"c"=>$t1,"posts"=>$r,"total_u"=>$total_u,"usuario"=>$usuario,"t"=>$zi-$ba]);
+//             // header('Content-Type: application/octet-stream');  // Ou um tipo adequado dependendo dos dados
+//             // header('Content-Length: ' . strlen($compressedData));  // Tamanho dos dados comprimidos
+
+//             // Enviar os dados comprimidos para o cliente
+//             echo $compressedData;
+//         } else {
+//             response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/grafico/main.html'));
+//         }
+//     } else {
+//         login();
+//     }
+// });
 Route::get("/admin/sair",function(){
     session()->forget("key");
     return redirect("/");
@@ -2532,7 +2659,7 @@ Route::post("/admin/premium",function(){
 Route::post("/admin/users",function(){
     $usuario=get_user();
     $cargo=cargo($usuario);
-    if ($cargo==1){
+    if ($cargo==1 && request("name")!=$usuario){
         $tipo=isset($_POST["tipo"])  ? request("tipo") : "normal";
         function gpa($type){
             $type=isset($_GET["search"]) ? "pesquisa" : "normal";
@@ -2542,11 +2669,11 @@ Route::post("/admin/users",function(){
             $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
             if ($type=="pesquisa"){
-                $s=$conn->prepare("SELECT id,usuario,privado FROM user WHERE LOWER(usuario) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search]);
-                $num=$conn->prepare("SELECT COUNT(*) AS num FROM user WHERE LOWER(usuario) LIKE LOWER(?)",[$search]);
+                $s=$conn->prepare("SELECT id,usuario,privado FROM user WHERE LOWER(usuario) LIKE LOWER(?) AND cargo=0 ORDER BY id DESC LIMIT $n,10",[$search]);
+                $num=$conn->prepare("SELECT COUNT(*) AS num FROM user WHERE LOWER(usuario) LIKE LOWER(?) AND cargo=0",[$search]);
             } else {
-                $s=$conn->query("SELECT id,usuario,privado FROM user ORDER BY id DESC LIMIT $n,10");
-                $num=$conn->query("SELECT COUNT(*) AS num FROM user");
+                $s=$conn->query("SELECT id,usuario,privado FROM user WHERE cargo=0 ORDER BY id DESC LIMIT $n,10");
+                $num=$conn->query("SELECT COUNT(*) AS num FROM user WHERE cargo=0");
             }
             $r=p($s);
             $num=p($num)[0]["num"];
@@ -2566,16 +2693,17 @@ Route::post("/admin/users",function(){
                 if (request("senha")==$GLOBALS["delete_account"]){
                     $name=request("name");
                     $conn=new sqli("anjoov00_posts");
-                    $private=intval(p($conn->prepare("SELECT privado FROM user WHERE usuario=?",[$name]))[0]["privado"]) ^ 4;
-                    $conn->prepare("UPDATE post_24 SET privado=$private WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE post SET privado=$private WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE post_imagem SET privado=$private WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE post_musica SET privado=$private WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE post_texto SET privado=$private WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE post_video SET privado=$private WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE playlist SET privado=$private WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE comment SET privado=$private WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE user SET privado=$private WHERE usuario=?",[$name]);
+                    $private_user=intval(p($conn->prepare("SELECT privado,cargo FROM user WHERE usuario=?",[$name]))[0]["privado"]) ^ 1;
+                    $private_clause=$private_user==1 ? "privado | 4" : "privado & ~4";
+                    $conn->prepare("UPDATE post_24 SET privado=$private_clause WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE post SET privado=$private_clause WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE post_imagem SET privado=$private_clause WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE post_musica SET privado=$private_clause WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE post_texto SET privado=$private_clause WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE post_video SET privado=$private_clause WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE playlist SET privado=$private_clause WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE comment SET privado=$private_clause WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE user SET privado=$private_user WHERE usuario=?",[$name]);
                     gpa(request("search") ? "pesquisa" : "normal");
                 } else {
                     response()->json(["result"=>"false"]);

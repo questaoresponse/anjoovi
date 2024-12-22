@@ -5,6 +5,7 @@ import './Users.scss';
 import excluirSrc from '../static/remove-icone.png';
 import { useAuth } from "../Auth.jsx";
 import GlobalContextInterface, { useGlobal } from "../Global.tsx";
+import X from "../X.tsx";
 interface UsersContextInterface{
     namePrivate:React.MutableRefObject<string | undefined>,
     stateReducer:any,
@@ -60,7 +61,6 @@ const Table=memo((props:{globals:GlobalContextInterface,auth:any,post:any,openEx
     const server=globals.server;
     const auth=props.auth;
     const post=props.post;
-    // const checkedRef=useRef();
     const n=props.n;
     const openExclusion=props.openExclusion;
     const recriar=props.recriar;
@@ -82,7 +82,7 @@ const Table=memo((props:{globals:GlobalContextInterface,auth:any,post:any,openEx
                 <div className="opcoesb">
                     <img onClick={Excluir} src={excluirSrc} className="excluir"/>
                     <div className="btt">
-                        <input checked={post.privado=="true"} data-anjoovi-user={post.usuario} onChange={onCheckChange} type="checkbox" tabIndex={3}></input>
+                        <input checked={post.privado==1} data-anjoovi-user={post.usuario} onChange={onCheckChange} type="checkbox" tabIndex={3}></input>
                         <div className="espaco" tabIndex={0}></div>
                         <div className="content">
                             <div className="bttb" tabIndex={1}></div>
@@ -164,7 +164,7 @@ function Users(){
                 namePrivate.current=undefined;
                 setInfos((infos)=>({...infos,posts:infos.posts.map((info:any)=>{
                     if (info.usuario==name){
-                        return {...info,privado:stateReducer.checked ? "true" : "false"};
+                        return {...info,privado:stateReducer.checked ? 1 : 0};
                     }
                     return info;
                 })}));
@@ -205,7 +205,7 @@ function Users(){
                 </div>
                 <div className="menu-a l-l"></div>
                 <div id="menu-private" style={{display:stateReducer.menu ? "flex" : "none"}}>
-                    <div className="x" onClick={quitMenu}>X</div>
+                    <X className="x" onClick={quitMenu}></X>
                     <form onSubmit={onPrivateSubmit} id="center-menu-private">
                         <div className="error" style={{display:errorPrivate ? "block" : "none"}}>Senha de exclusão incorreta.</div>
                         <div id="group-menu-private">
@@ -214,8 +214,8 @@ function Users(){
                         </div>
                     </form>
                 </div>
-                <div id="loading">
-                    <i className='ball loading-ball bi-arrow-clockwise' style={{fontSize:"70px"}}></i>
+                <div id="loading-div">
+                    <i id="loading" className='ball loading-ball bi-arrow-clockwise' style={{fontSize:"70px"}}></i>
                 </div>
             </div>
         </div>
