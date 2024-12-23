@@ -74,6 +74,7 @@ const Table=memo((props:{globals:GlobalContextInterface,auth:any,post:any,openEx
     const Excluir=()=>{
         openExclusion({usuario:post.usuario,server:server,auth:auth,recriar:recriar});
     }
+    console.log(post.cargo);
     return (
         <div className="linha">
             <div className="num">{n}</div>
@@ -82,7 +83,7 @@ const Table=memo((props:{globals:GlobalContextInterface,auth:any,post:any,openEx
                 <div className="opcoesb">
                     <img onClick={Excluir} src={excluirSrc} className="excluir"/>
                     <div className="btt">
-                        <input checked={post.privado==1} data-anjoovi-user={post.usuario} onChange={onCheckChange} type="checkbox" tabIndex={3}></input>
+                        <input checked={(Number(post.cargo) & 1)==1} data-anjoovi-user={post.usuario} onChange={onCheckChange} type="checkbox" tabIndex={3}></input>
                         <div className="espaco" tabIndex={0}></div>
                         <div className="content">
                             <div className="bttb" tabIndex={1}></div>
@@ -164,7 +165,7 @@ function Users(){
                 namePrivate.current=undefined;
                 setInfos((infos)=>({...infos,posts:infos.posts.map((info:any)=>{
                     if (info.usuario==name){
-                        return {...info,privado:stateReducer.checked ? 1 : 0};
+                        return {...info,cargo:result.data.posts.filter((post:any)=>post.usuario==name).map((post:any)=>post.cargo)};
                     }
                     return info;
                 })}));

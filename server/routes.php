@@ -441,6 +441,27 @@ function get_user(){
 function logout(){
     delete_cookie("token");
 }
+$GLOBALS["user"]=get_user();
+$conn=new sqli("anjoov00_posts");
+$r=$conn->prepare("SELECT cargo FROM user WHERE usuario=?",[$GLOBALS["user"]]);
+if ($r->num_rows>0){
+    $r=p($r)[0];
+    $GLOBALS["cargo"]=intval($r["cargo"]);
+}
+if (str_starts_with($_SERVER["REQUEST_URI"],"/admin")){
+    if ($GLOBALS["user"] && $_POST["type"]!="info"){
+        if ($GLOBALS["user"]){
+            if ($GLOBALS["cargo"] & 1==1){
+                return response()->json(["result"=>"false","type"=>"banned"]);
+            }
+        } else {
+            response()->json(["result"=>"false","type"=>"usuario"]);
+        }
+    } else if (!$GLOBALS["user"] && $_SERVER["REQUEST_URI"]!="/admin"){
+        return response()->json(["result"=>"false","type"=>"not_logged","nome"=>null,"usuario"=>null,"lsrc"=>null]);
+    }
+}
+
 $ci= __DIR__ . '/../FastRoute/src/';
 require $ci . 'Route.php';
 require $ci . 'BadRouteException.php';
@@ -550,3 +571,12 @@ Route::init();
 // include(__DIR__ . '/mp3file.class.php');
 include(__DIR__ . '/main.php');
 Route::dispatch($_SERVER["REQUEST_METHOD"]=="PUT" ? "GET" : $_SERVER["REQUEST_METHOD"],parse_url($_SERVER["REQUEST_URI"])['path']);
+
+// bitwise for cargo:
+    // 1: if the user is private
+    // 2: if the user is ADM
+    // 4: if the user is PREMIUM
+    // 8: if the user is PREMUM START 
+    // 16: if the user is PREMIUM PRO
+    // 32: if the user is PREMIUM PLUS
+    // 64: if the user is PREMIUM ULTRA

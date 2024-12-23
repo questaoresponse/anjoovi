@@ -246,7 +246,7 @@ if (!function_exists("cargo")){
             $conn->prepare("DELETE FROM mensagem WHERE chat_id=?",[$chat_id]);
             $conn->prepare("DELETE FROM chat WHERE chat_id=?",[$chat_id]);
         }
-        $cargo=cargo($usuario);
+        $cargo=$GLOBALS["cargo"];
         if ($cargo>1){
             $conn->prepare("UPDATE payments SET valid=0 WHERE usuario=?",[$usuario]);
         }
@@ -271,18 +271,29 @@ if (!function_exists("cargo")){
     function get_token_id(){
         return uniqid("anjoovi-");
     }
+    function blur_image($dir,$filename){
+        $image = imagecreatefromwebp($dir . $filename);
+
+        imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
+
+        // Salvar a imagem borrada na saída (browser)
+        imagewebp($image, $dir . "p_" . $filename);
+
+        // Libere a memória usada pela imagem
+        imagedestroy($image);
+    }
 }
 Route::post("/admin_header",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     response()->json(["usuario"=>$usuario]);
 });
 Route::post("/isAdmin",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     response()->json($usuario ? "true" : "false");
 });
 Route::post("/admin/cargo",function(){
-    $usuario=get_user();
-    response()->json($usuario ? ["result"=>"true","cargo"=>cargo($usuario)] : ["header_location"=>"/admin"]);
+    $usuario=$GLOBALS["user"];
+    response()->json($usuario ? ["result"=>"true","cargo"=>$GLOBALS["cargo"]] : ["header_location"=>"/admin"]);
 });
 Route::get('/admin', function(){
     // get_user : header("location:/admin");
@@ -292,7 +303,7 @@ Route::get('/admin', function(){
 Route::post('/admin',function(){
     $type=$_POST["type"];
     if ($type=="info"){
-        // $usuario=get_user();
+        // $usuario=$GLOBALS["user"];
         // $conn=new sqli("anjoov00_posts");
         // $r=p($conn->prepare("SELECT tokens FROM user WHERE usuario=?",[$usuario]))[0];
         // sendMessage(json_decode($r["tokens"]),[
@@ -310,7 +321,7 @@ Route::post('/admin',function(){
         //         ]
         //     ]
         // ]);
-        response()->json(["result"=>"true","usuario"=>get_user()]);
+        response()->json(["result"=>"true","usuario"=>$GLOBALS["user"]]);
         $dados=request()->all();
     } else if ($type=="login"){
         function cript($usuario){
@@ -422,9 +433,9 @@ Route::post('/admin',function(){
             response()->json(["result"=>"false"]);
         }
     } else {
-        $usuario=get_user();
+        $usuario=$GLOBALS["user"];
         if ($usuario){
-            $cargo=cargo($usuario);
+            $cargo=$GLOBALS["cargo"];
             // return view("admin.admin_inicio.index",compact("usuario","cargo"));
             response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/inicio/main.html'));
         } else{
@@ -434,7 +445,7 @@ Route::post('/admin',function(){
     }
 });
 Route::post("/admin/token",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $type=$_POST["type"];
         if ($type=="replace"){
@@ -459,16 +470,16 @@ Route::post("/admin/token",function(){
     }
 });
 Route::get("/admin/noticias_cadastro",function(){
-    get_user() || header("location:/admin");
+    $GLOBALS["user"] || header("location:/admin");
     include(__DIR__ . '/../public_html/templates/main/main.html');
 });
 Route::post("/admin/noticias_cadastro", function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $type=$_GET["type"];
         if (request("type"=="option")){
-            $cargo=cargo($usuario);
-            if ($cargo==1){
+            $cargo=$GLOBALS["cargo"];
+            if (($cargo & 2)==2){
                 r404();
             } else {
                 $isCadastro=$type=="cadastro";
@@ -476,22 +487,26 @@ Route::post("/admin/noticias_cadastro", function(){
                 $conn = new sqli("anjoov00_posts");
                 $dados=request()->all();
                 ['titulo'=>$titulo ] = $_POST;
-                $permission=$_POST["permission"]=="0" ? 0 : 0 | 2;
+                $permission=($GLOBALS["cargo"] & 4)==4 ? ($_POST["permission"]=="0" ? 0 : 0 | 2) : 0;
                 // if (strlen($titulo)==0) return;
                 $subtitulo=isset($dados["subtitulo"]) ? $dados["subtitulo"] : null;
                 $original_format=isset($dados["original_format"]);
                 $acessos=0;
                 $texto=null;
+                $old_image=null;
                 $imagem=null;
+                $old_permission=0;
                 $d=null;
                 $id=null;
                 if ($isCadastro){
                     $id=intval(p($conn->query("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM post"))[0]["id"]);
                 } else {
                     $id=$_POST["id"];
-                    $result=$conn->prepare("SELECT imagem,d FROM post WHERE usuario=? AND id=?",[$usuario,$id]);
+                    $result=$conn->prepare("SELECT imagem,privado,d FROM post WHERE usuario=? AND id=?",[$usuario,$id]);
                     if ($result->num_rows>0){
-                        ["imagem"=>$imagem,"d"=>$d]=p($result)[0];
+                        ["imagem"=>$imagem,"privado"=>$old_permission,"d"=>$d]=p($result)[0];
+                        $old_image=$image;
+                        $old_permission=intval($permission) & 2;
                     } else {
                         return response()->json(["result"=>"false","type"=>"id"]);
                     }
@@ -505,6 +520,7 @@ Route::post("/admin/noticias_cadastro", function(){
                         if ($imagem){
                             unlink($caminhoDestino . $imagem);
                         }
+                        // if permission has changed and new permission is public;
                         // Salvar a imagem em um diretório
                         $imagem = $file->getClientOriginalName("webp");
                         $imagem=$id . "_p_" . $imagem;
@@ -523,19 +539,26 @@ Route::post("/admin/noticias_cadastro", function(){
                         return response()->json(["result"=>"false","type"=>"image"]);
                     }
                 }
+                if ($permission!=$old_permission){
+                    if ($permission==0){
+                        unlink(__DIR__ . '/../public_html/images/p_' . $old_image);
+                    } else {
+                        blur_image(__DIR__ . '/../public_html/images/', $image);
+                    }
+                }
                 if ($isCadastro){
                     $conn = new sqli("anjoov00_posts");
                     $d=get_d();
                     $views_id=get_views_id($conn);
                     $conn->prepare("INSERT INTO post(nome,usuario,titulo,subtitulo,texto,imagem,acessos,views_id,id,d,privado) 
-                        SELECT nome, usuario, ? AS titulo, ? AS subtitulo, ? AS texto, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d,(CASE WHEN privado=1 THEN ? | 4 ELSE ? END) AS privado FROM user WHERE usuario=?",[$titulo,$subtitulo,$texto,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$usuario]);
+                        SELECT nome, usuario, ? AS titulo, ? AS subtitulo, ? AS texto, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d,(CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado FROM user WHERE usuario=?",[$titulo,$subtitulo,$texto,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$usuario]);
                     insert_views($conn,$usuario,"post",$views_id,$id);
                     add_n_posts($usuario,$conn);
                 } else {
                     $d=json_decode($d,true);
                     $d["a"]=get_updated_date();
                     $d=json_encode($d);
-                    $conn->prepare("UPDATE post SET titulo=?,subtitulo=?,texto=?,imagem=?,d=?,privado=CASE WHEN ? & 2=2 THEN privado | 2 ELSE privado & ~2 END WHERE usuario=? AND id=?",[$titulo,$subtitulo,$texto,$imagem,$d,$permission,$usuario,$id]);
+                    $conn->prepare("UPDATE post SET titulo=?,subtitulo=?,texto=?,imagem=?,d=?,privado=CASE WHEN ? & 2=2 THEN cargo & 1 | 2 ELSE cargo & 1 & ~2 END WHERE usuario=? AND id=?",[$titulo,$subtitulo,$texto,$imagem,$d,$permission,$usuario,$id]);
                 }
                 response()->json(["result"=>"true","usuario"=>$usuario]);
             }
@@ -547,11 +570,11 @@ Route::post("/admin/noticias_cadastro", function(){
     }
 });
 Route::get("/admin/noticias_edit",function(){
-    !get_user() && header("location:/admin");
+    !$GLOBALS["user"] && header("location:/admin");
     include(__DIR__ . '/../public_html/templates/main/main.html');
 });
 Route::post("/admin/noticias_edit",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $conn=new sqli("anjoov00_posts");
         if (request()->query("id")){
@@ -571,25 +594,25 @@ Route::post("/admin/noticias_edit",function(){
     // return view("admin.noticias_edit.index",compact("select_options","r","usuario","cargo"));
 });
 Route::get("/admin/noticias_lista",function(){
-    // get_user() || header("location:/admin");
+    // $GLOBALS["user"] || header("location:/admin");
     resp("/admin/noticias_lista.html");
     // include(__DIR__ . '/../public_html/templates/main/main.html');
 });
 Route::post("/admin/noticias_lista",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
         function gpa($type){
             $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-            $usuario=get_user();
-            $cargo=cargo($usuario);
+            $usuario=$GLOBALS["user"];
+            $cargo=$GLOBALS["cargo"];
             $conn=new sqli("anjoov00_posts");
             $s=null;
             $num=null;
             $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
             $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
-            if($cargo==1){
+            if(($cargo & 2)==2){
                 if ($type=="pesquisa"){
                     $s=$conn->prepare("SELECT id,titulo,usuario,acessos,d,privado FROM post WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search,$search,$search]);
@@ -614,7 +637,7 @@ Route::post("/admin/noticias_lista",function(){
             gpa($tipo);
         } else if (request("type")=="option"){
             if ($tipo=="normal"){
-                $cargo=cargo($usuario);
+                $cargo=$GLOBALS["cargo"];
                 $id=request("id");
                 $operation=request("operation") ? request("operation") : null;
                 $conn = new sqli("anjoov00_posts");
@@ -626,7 +649,7 @@ Route::post("/admin/noticias_lista",function(){
                     $li=$operation=="privado";
                     $case=$li ? "privado | 1" : "privado & ~1"; 
                     $sum=$li ? -1 : 1;
-                    if ($cargo==1){
+                    if (($cargo & 2)==2){
                         $result=$conn->prepare("UPDATE post SET privado=$case WHERE id=?",[$id]);
                         $user=p($conn->prepare("SELECT usuario FROM post WHERE id=?",[$id]))[0]["usuario"];
                     } else {
@@ -637,7 +660,7 @@ Route::post("/admin/noticias_lista",function(){
                     $s=$conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts" . $sum_str . ",0) WHERE usuario=? ORDER BY id DESC",[$user]);
                     response()->json(["result"=>"true","usuario"=>$usuario]);
                 } else {
-                    if ($cargo==1){
+                    if (($cargo & 2)==2){
                         delete_post($conn,$id);
                     } else {
                         delete_post($conn,$id,$usuario);
@@ -657,12 +680,12 @@ Route::post("/admin/noticias_lista",function(){
     // return view("admin.noticias_lista.index",compact("r","usuario","cargo"));
 });
 Route::get("/admin/24_cadastro",function(){
-    get_user() || header("location:/admin");
+    $GLOBALS["user"] || header("location:/admin");
     include(__DIR__ . '/../public_html/templates/main/main.html');
 });
 Route::post("/admin/24_cadastro",function(){
     include(__DIR__ . '/../conf/config.php');
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         if (request("type")=="info"){
             response()->json([]);
@@ -730,24 +753,24 @@ Route::post("/admin/24_cadastro",function(){
     }
 });
 Route::get("/admin/24_lista",function(){
-    get_user() || header("location:/admin");
+    $GLOBALS["user"] || header("location:/admin");
     include(__DIR__ . '/../public_html/templates/main/main.html');
 });
 Route::post("/admin/24_lista",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
-        $cargo=cargo($usuario);
+        $cargo=$GLOBALS["cargo"];
         function gpa($type,$cargo){
             $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-            $usuario=get_user();
+            $usuario=$GLOBALS["user"];
             $conn=new sqli("anjoov00_posts");
             $s=null;
             $num=null;
             $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
             $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
             $search = $type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
-            if($cargo==1){
+            if(($cargo & 2)==2){
                 if ($type=="pesquisa"){
                     $s=$conn->prepare("SELECT id,titulo,usuario,acessos,d FROM post_24 WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_24 WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search,$search,$search]);  
@@ -776,10 +799,10 @@ Route::post("/admin/24_lista",function(){
             gpa($tipo,$cargo);
         } else if (request("type")=="option"){
             if ($tipo=="normal"){
-                $cargo=cargo($usuario);
+                $cargo=$GLOBALS["cargo"];
                 $id=$_POST["id"];
                 $conn=new sqli("anjoov00_posts");
-                if ($cargo==1){
+                if (($cargo & 2)==2){
                     delete_24($conn,$id);
                 } else {
                     delete_24($conn,$id,$usuario);
@@ -794,14 +817,14 @@ Route::post("/admin/24_lista",function(){
     }
 });
 Route::post("/admin/denuncias_lista",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
-        $cargo=cargo($usuario);
-        if ($cargo==1){
+        $cargo=$GLOBALS["cargo"];
+        if (($cargo & 2)==2){
             $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
             function gpa($type){
                 $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-                $usuario=get_user();
+                $usuario=$GLOBALS["user"];
                 $conn=new sqli("anjoov00_posts");
                 $s=null;
                 $num=null;
@@ -823,13 +846,13 @@ Route::post("/admin/denuncias_lista",function(){
                 gpa($tipo);
             } else if (request("type")=="option"){
                 if ($tipo=="normal"){
-                    $cargo=cargo($usuario);
+                    $cargo=$GLOBALS["cargo"];
                     $id=intval(request("id"));
                     $conn = new sqli("anjoov00_posts");
                     //$s=$conn->prepare("SELECT * FROM post WHERE usuario=?AND privado=0",[$usuario]);
                     // unlink(__DIR__ . "/../images/" . p($result)[0]["imagem"]);
                     //$s=$conn->prepare("DELETE FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
-                    if ($cargo==1){
+                    if (($cargo & 2)==2){
                         $conn->prepare("DELETE FROM denuncia WHERE id=?",[$id]);
                     } else {
                         $conn->prepare("DELETE FROM denuncia WHERE usuario=? AND id=?",[$usuario,$id]);
@@ -850,10 +873,10 @@ Route::post("/admin/denuncias_lista",function(){
     }
 });
 Route::post("/admin/denuncias_infos/{id}",function($id){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
-        $cargo=cargo($usuario);
-        if ($cargo==1){
+        $cargo=$GLOBALS["cargo"];
+        if (($cargo & 2)==2){
             $conn=new sqli("anjoov00_posts");
             $result=$conn->prepare("SELECT * FROM denuncia WHERE id=?",[$id]);
             if ($result->num_rows>0){
@@ -870,12 +893,12 @@ Route::post("/admin/denuncias_infos/{id}",function($id){
     }
 });
 Route::get("/admin/settings",function(){
-    get_user() || header("location:/admin");
+    $GLOBALS["user"] || header("location:/admin");
     include(__DIR__ . '/../public_html/templates/main/main.html');
 });
 Route::post("/admin/settings",function(){
     
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
     if (request("type")=="info"){
         $conn = new sqli("anjoov00_posts");
@@ -929,46 +952,46 @@ Route::post("/admin/settings",function(){
         login();
     }
 });
-Route::get("/admin/usuarios",function(){
-    $usuario=get_user();
-    if ($usuario){
-        $cargo=cargo($usuario);
-        $cargo==1 ? include(__DIR__ . '/../public_html/templates/main/main.html') : header("location:/erro?origin=/");
-    } else {
-        header("location:/erro?origin=/");
-    }
-});
-Route::post("/admin/usuarios",function(){
-    $usuario=get_user();
-    $cargo=cargo($usuario);
-    if ($usuario && $cargo==1){
-        if (request("type")=="info"){
-            $conn = new sqli("anjoov00_posts");
-            $s=$conn->prepare("SELECT nome,usuario,banner FROM user WHERE usuario!=?",[$usuario]);
-            $r=p($s);
-            response()->json(["usuarios"=>$r]);
-        } else {
-            response()->json(file_get_contents(__DIR__ . '/../public_html/templates/lista_usuarios/main.html'));
-        }
-    } else {
-        login();
-    }
-    // include(__DIR__ . '/../public_html/templates/admin/lista_usuarios/index.php');
-});
+// Route::get("/admin/usuarios",function(){
+//     $usuario=$GLOBALS["user"];
+//     if ($usuario){
+//         $cargo=$GLOBALS["cargo"];
+//         ($cargo & 2)==2 ? include(__DIR__ . '/../public_html/templates/main/main.html') : header("location:/erro?origin=/");
+//     } else {
+//         header("location:/erro?origin=/");
+//     }
+// });
+// Route::post("/admin/usuarios",function(){
+//     $usuario=$GLOBALS["user"];
+//     $cargo=$GLOBALS["cargo"];
+//     if ($usuario && ($cargo & 2)==2){
+//         if (request("type")=="info"){
+//             $conn = new sqli("anjoov00_posts");
+//             $s=$conn->prepare("SELECT nome,usuario,banner FROM user WHERE usuario!=?",[$usuario]);
+//             $r=p($s);
+//             response()->json(["usuarios"=>$r]);
+//         } else {
+//             response()->json(file_get_contents(__DIR__ . '/../public_html/templates/lista_usuarios/main.html'));
+//         }
+//     } else {
+//         login();
+//     }
+//     // include(__DIR__ . '/../public_html/templates/admin/lista_usuarios/index.php');
+// });
 Route::get("/admin/metricas",function(){
-    get_user() || header("location:/admin");
+    $GLOBALS["user"] || header("location:/admin");
     include(__DIR__ . '/../public_html/templates/main/main.html');
 });
 Route::post("/admin/metricas",function(){
     
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         if (request("type")=="info"){
-        $cargo=cargo($usuario);
+        $cargo=$GLOBALS["cargo"];
         $conn = new sqli("anjoov00_posts");
         $p=null;
         $total_u=null;
-        if ($cargo==1){
+        if (($cargo & 2)==2){
             $p=$conn->query("SELECT tipo,d2,d FROM views WHERE tipo!='playlist'");
             // $result=p($conn->query("SELECT * FROM views_atual"));
             // $d=new DateTime();
@@ -995,16 +1018,16 @@ Route::post("/admin/metricas",function(){
     }
 });
 // Route::post("/admin/metricas",function(){
-//     $usuario=get_user();
+//     $usuario=$GLOBALS["user"];
 //     if ($usuario){
 //         if (request("type")=="info"){
-//             $cargo=cargo($usuario);
+//             $cargo=$GLOBALS["cargo"];
 //             $conn = new sqli("anjoov00_posts");
 //             $r=null;
 //             $total_u=null;
 //             $t1=0;
 //             $t2=0;
-//             if ($cargo==1){
+//             if (($cargo & 2)==2){
 //                 $r=p($conn->query("SELECT tipo,d2,d FROM views WHERE tipo!='playlist'"));
 //                 $t1=strlen(json_encode($r));
 //                 $ba=microtime(true);
@@ -1129,7 +1152,7 @@ Route::get("/admin/sair",function(){
 Route::post("/admin/sair",function(){
     // session()->forget("key");
     // response()->json(["header_location"=>"/"]);
-    $user=get_user();
+    $user=$GLOBALS["user"];
     if ($user){
         $token=isset($_POST["mToken"]) ? $_POST["mToken"] : null;
         if ($token){
@@ -1143,20 +1166,20 @@ Route::post("/admin/sair",function(){
     response()->json(["result"=>"true"]);
 });
 Route::post("/cargo",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
-        response()->json(["result"=>"true","cargo"=>cargo($usuario)]);
+        response()->json(["result"=>"true","cargo"=>$GLOBALS["cargo"]]);
     } else {
         response()->json(["result"=>"true","cargo"=>null]);
     }
 });
 Route::post("/admin/imagens_cadastro", function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $type=$_GET["type"];
         if (request("type")!="get"){
-            $cargo=cargo($usuario);
-            if ($cargo==1){
+            $cargo=$GLOBALS["cargo"];
+            if (($cargo & 2)==2){
                 r404();
             } else if ($type=="cadastro" || $type=="edit"){
                 $isCadastro=$type=="cadastro";
@@ -1231,13 +1254,13 @@ Route::post("/admin/imagens_cadastro", function(){
     }
 });
 Route::post("/admin/imagens_edit",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $id=request()->query("id");
         $id=intval($id);
         $conn=new sqli("anjoov00_posts");
         $result=null;
-        if (cargo($usuario)=="admin"){
+        if ($GLOBALS["cargo"]=="admin"){
             $result=$conn->prepare("SELECT imagem,descricao,id FROM post_imagem WHERE id=? AND privado=0",[$id]);
         } else {
             $result=$conn->prepare("SELECT imagem,descricao,id FROM post_imagem WHERE id=? AND usuario=? AND privado=0",[$id,$usuario]);
@@ -1253,20 +1276,20 @@ Route::post("/admin/imagens_edit",function(){
     }
 });
 Route::post("/admin/imagens_lista",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
         function gpa($type){
             $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-            $usuario=get_user();
-            $cargo=cargo($usuario);
+            $usuario=$GLOBALS["user"];
+            $cargo=$GLOBALS["cargo"];
             $conn=new sqli("anjoov00_posts");
             $s=null;
             $num=null;
             $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
             $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
-            if($cargo==1){
+            if(($cargo & 2)==2){
                 if ($type=="pesquisa"){
                     $s=$conn->prepare("SELECT id,descricao AS titulo,usuario,acessos,d,privado FROM post_imagem WHERE LOWER(descricao) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_imagem WHERE LOWER(descricao) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search,$search,$search]);
@@ -1291,7 +1314,7 @@ Route::post("/admin/imagens_lista",function(){
             gpa($tipo);
         } else if (request("type")=="option"){
             if ($tipo=="normal"){
-                $cargo=cargo($usuario);
+                $cargo=$GLOBALS["cargo"];
                 $id=request("id");
                 $operation=request("operation") ? request("operation") : null;
                 $conn = new sqli("anjoov00_posts");
@@ -1303,7 +1326,7 @@ Route::post("/admin/imagens_lista",function(){
                     $li=$operation=="privado";
                     $case=$li ? "privado | 1" : "privado & ~1"; 
                     $sum=$li ? -1 : 1;
-                    if ($cargo==1){
+                    if (($cargo & 2)==2){
                         $result=$conn->prepare("UPDATE post_imagem SET privado=$case WHERE id=?",[$id]);
                         $user=p($conn->prepare("SELECT usuario FROM post_imagem WHERE id=?",[$id]))[0]["usuario"];
                     } else {
@@ -1314,7 +1337,7 @@ Route::post("/admin/imagens_lista",function(){
                     $s=$conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts" . $sum_str . ",0) WHERE usuario=? ORDER BY id DESC",[$user]);
                     response()->json(["result"=>"true","usuario"=>$usuario]);
                 } else {
-                    if ($cargo==1){
+                    if (($cargo & 2)==2){
                         delete_imagem($conn,$id);
                     } else {
                         delete_imagem($conn,$id,$usuario);
@@ -1334,7 +1357,7 @@ Route::post("/admin/imagens_lista",function(){
     // return view("admin.noticias_lista.index",compact("r","usuario","cargo"));
 });
 Route::get("/admin/musicas_cadastro",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         include(__DIR__ . '/../public_html/templates/main/main.html');
     } else {
@@ -1343,7 +1366,7 @@ Route::get("/admin/musicas_cadastro",function(){
 });
 Route::post("/admin/musicas_cadastro",function(){
     include(__DIR__ . '/../conf/config.php');
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $type=$_GET["type"];
         if (request("type")=="chunk"){
@@ -1516,7 +1539,7 @@ Route::post("/admin/musicas_cadastro",function(){
     }
 });
 Route::post("/admin/musicas_edit",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $conn=new sqli("anjoov00_posts");
         if (request()->query("id")){
@@ -1536,7 +1559,7 @@ Route::post("/admin/musicas_edit",function(){
     // return view("admin.noticias_edit.index",compact("select_options","r","usuario","cargo"));
 });
 Route::get("/admin/musicas_lista",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         include(__DIR__ . '/../public_html/templates/main/main.html');
     } else {
@@ -1544,20 +1567,20 @@ Route::get("/admin/musicas_lista",function(){
     }
 });
 Route::post("/admin/musicas_lista",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
         function gpa($type){
             $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-            $usuario=get_user();
-            $cargo=cargo($usuario);
+            $usuario=$GLOBALS["user"];
+            $cargo=$GLOBALS["cargo"];
             $conn=new sqli("anjoov00_posts");
             $s=null;
             $num=null;
             $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
             $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
-            if ($cargo==1){
+            if (($cargo & 2)==2){
                 if ($type=="pesquisa"){
                     $nomes=p($conn->prepare("SELECT usuario FROM user WHERE LOWER(nome) LIKE LOWER(?)",[$search]));
                     $list2=[];
@@ -1593,7 +1616,7 @@ Route::post("/admin/musicas_lista",function(){
             gpa($tipo);
         } else if (request("type")=="option"){
             if ($tipo=="normal"){
-                $cargo=cargo($usuario);
+                $cargo=$GLOBALS["cargo"];
                 $conn=new sqli("anjoov00_posts");
                 $id=request("id");
                 function delete($result){
@@ -1606,7 +1629,7 @@ Route::post("/admin/musicas_lista",function(){
                         unlink(__DIR__ . "/../public_html/musics/" . $arquivo);
                     }
                 }
-                if ($cargo==1){
+                if (($cargo & 2)==2){
                     delete_musica($conn,$id);
                 } else {
                     delete_musica($conn,$id,$usuario);
@@ -1623,7 +1646,7 @@ Route::post("/admin/musicas_lista",function(){
     }
 });
 Route::post("/admin/textos_cadastro",function(){
-    $user=get_user();
+    $user=$GLOBALS["user"];
     if ($user){
         $type=$_GET["type"];
         if ($type=="cadastro" || $type=="edit"){
@@ -1667,7 +1690,7 @@ Route::post("/admin/textos_cadastro",function(){
     }
 });
 Route::post("/admin/textos_edit",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $conn=new sqli("anjoov00_posts");
         if (request()->query("id")){
@@ -1686,20 +1709,20 @@ Route::post("/admin/textos_edit",function(){
     }
 });
 Route::post("/admin/textos_lista",function(){
-    $user=get_user();
+    $user=$GLOBALS["user"];
     if ($user){
         $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
         function gpa($type){
             $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-            $usuario=get_user();
-            $cargo=cargo($usuario);
+            $usuario=$GLOBALS["user"];
+            $cargo=$GLOBALS["cargo"];
             $conn=new sqli("anjoov00_posts");
             $s=null;
             $num=null;
             $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
             $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
-            if($cargo==1){
+            if(($cargo & 2)==2){
                 if ($type=="pesquisa"){
                     $s=$conn->prepare("SELECT id,texto AS titulo,usuario,acessos,d,privado FROM post_texto WHERE LOWER(texto) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_texto WHERE LOWER(texto) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(texto) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search,$search,$search]);
@@ -1735,7 +1758,7 @@ Route::post("/admin/textos_lista",function(){
                     $username=null;
                     $li=$operation=="privado" ? "true" : "false";
                     $sum=$li=="true" ? -1 : 1;
-                    if ($cargo==1){
+                    if (($cargo & 2)==2){
                         $conn->prepare("UPDATE post_texto SET privado=$case WHERE id=?",[$id]);
                         $username=p($conn->prepare("SELECT usuario FROM post_texto WHERE id=?",[$id]))[0]["usuario"];
                     } else {
@@ -1746,7 +1769,7 @@ Route::post("/admin/textos_lista",function(){
                     $conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts" . $sum_str . ",0) WHERE usuario=? ORDER BY id DESC",[$username]);
                     response()->json(["result"=>"true","usuario"=>$user]);
                 } else {
-                    if ($cargo==1){
+                    if (($cargo & 2)==2){
                         delete_texto($conn,$id);
                     } else {
                         delete_texto($conn,$id,$user);
@@ -1766,7 +1789,7 @@ Route::post("/admin/textos_lista",function(){
 });
 Route::post("/admin/videos_cadastro",function(){
     include(__DIR__ . '/../conf/config.php');
-    $user=get_user();
+    $user=$GLOBALS["user"];
     if ($user){
         $type=$_GET["type"];
         if (request("type")=="info"){
@@ -1861,7 +1884,7 @@ Route::post("/admin/videos_cadastro",function(){
     }
 });
 Route::post("/admin/videos_edit",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $conn=new sqli("anjoov00_posts");
         if (request()->query("id")){
@@ -1880,7 +1903,7 @@ Route::post("/admin/videos_edit",function(){
     }
 });
 Route::post("/admin/videos_lista",function(){
-    $user=get_user();
+    $user=$GLOBALS["user"];
     if ($user){
         $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
         $cargo=cargo($user);
@@ -1892,7 +1915,7 @@ Route::post("/admin/videos_lista",function(){
             $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
             $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
             $search = $type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
-            if($cargo==1){
+            if(($cargo & 2)==2){
                 if ($type=="pesquisa"){
                     $s=$conn->prepare("SELECT id,titulo,usuario,acessos,d FROM post_video WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_video WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search,$search,$search]);  
@@ -1925,7 +1948,7 @@ Route::post("/admin/videos_lista",function(){
                 $cargo=cargo($user);
                 $id=$_POST["id"];
                 $conn=new sqli("anjoov00_posts");
-                if ($cargo==1){
+                if (($cargo & 2)==2){
                     delete_video($conn,$id);
                 } else {
                     delete_video($conn,$id,$user);
@@ -1940,7 +1963,7 @@ Route::post("/admin/videos_lista",function(){
     }
 });
 Route::post("/admin/playlists_cadastro",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $type=request("type");
         if ($type=="info"){
@@ -2005,20 +2028,20 @@ Route::post("/admin/playlists_cadastro",function(){
     }
 });
 Route::post("/admin/playlists_lista",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
         function gpa($type){
             $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-            $usuario=get_user();
-            $cargo=cargo($usuario);
+            $usuario=$GLOBALS["user"];
+            $cargo=$GLOBALS["cargo"];
             $conn=new sqli("anjoov00_posts");
             $s=null;
             $num=null;
             $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
             $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
-            if ($cargo==1){
+            if (($cargo & 2)==2){
                 if ($type=="pesquisa"){
                     $nomes=p($conn->prepare("SELECT usuario FROM user WHERE LOWER(nome) LIKE LOWER(?)",[$search]));
                     $list2=[];
@@ -2054,10 +2077,10 @@ Route::post("/admin/playlists_lista",function(){
             gpa($tipo);
         } else if (request("type")=="option"){
             if ($tipo=="normal"){
-                $cargo=cargo($usuario);
+                $cargo=$GLOBALS["cargo"];
                 $conn=new sqli("anjoov00_posts");
                 $id=request("id");
-                if ($cargo==1){
+                if (($cargo & 2)==2){
                     $conn->prepare("DELETE FROM playlist WHERE id=?",[$id]);
                 } else {
                     $conn->prepare("DELETE FROM playlist WHERE id=? AND usuario=?",[$id,$usuario]);
@@ -2074,12 +2097,12 @@ Route::post("/admin/playlists_lista",function(){
     }
 });
 Route::post("/admin/products_cadastro", function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $type=$_GET["type"];
         if (request("type")!="get"){
-            $cargo=cargo($usuario);
-            if ($cargo==1){
+            $cargo=$GLOBALS["cargo"];
+            if (($cargo & 2)==2){
                 r404();
             } else if ($type=="cadastro" || $type=="edit"){
                 $isCadastro=$type=="cadastro";
@@ -2154,13 +2177,13 @@ Route::post("/admin/products_cadastro", function(){
     }
 });
 Route::post("/admin/products_edit",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $id=request()->query("id");
         $id=intval($id);
         $conn=new sqli("anjoov00_posts");
         $result=null;
-        if (cargo($usuario)=="admin"){
+        if ($GLOBALS["cargo"]=="admin"){
             $result=$conn->prepare("SELECT imagem,descricao,id FROM post_product WHERE id=? AND privado=0",[$id]);
         } else {
             $result=$conn->prepare("SELECT imagem,descricao,id FROM post_product WHERE id=? AND usuario=? AND privado=0",[$id,$usuario]);
@@ -2176,20 +2199,20 @@ Route::post("/admin/products_edit",function(){
     }
 });
 Route::post("/admin/products_lista",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
         function gpa($type){
             $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-            $usuario=get_user();
-            $cargo=cargo($usuario);
+            $usuario=$GLOBALS["user"];
+            $cargo=$GLOBALS["cargo"];
             $conn=new sqli("anjoov00_posts");
             $s=null;
             $num=null;
             $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
             $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
-            if($cargo==1){
+            if(($cargo & 2)==2){
                 if ($type=="pesquisa"){
                     $s=$conn->prepare("SELECT id,descricao AS titulo,usuario,acessos,privado,d FROM post_product WHERE LOWER(descricao) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search,$search,$search]);
                     $num=$conn->prepare("SELECT COUNT(*) AS num FROM post_product WHERE LOWER(descricao) LIKE LOWER(?) || LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search,$search,$search]);
@@ -2214,7 +2237,7 @@ Route::post("/admin/products_lista",function(){
             gpa($tipo);
         } else if (request("type")=="option"){
             if ($tipo=="normal"){
-                $cargo=cargo($usuario);
+                $cargo=$GLOBALS["cargo"];
                 $id=request("id");
                 $operation=request("operation") ? request("operation") : null;
                 $conn = new sqli("anjoov00_posts");
@@ -2226,7 +2249,7 @@ Route::post("/admin/products_lista",function(){
                     $li=$operation=="privado";
                     $case=$li ? "privado | 1" : "privado & ~1"; 
                     $sum=$li ? -1 : 1;
-                    if ($cargo==1){
+                    if (($cargo & 2)==2){
                         $result=$conn->prepare("UPDATE post_product SET privado=$case WHERE id=?",[$id]);
                         $user=p($conn->prepare("SELECT usuario FROM post_product WHERE id=?",[$id]))[0]["usuario"];
                     } else {
@@ -2237,7 +2260,7 @@ Route::post("/admin/products_lista",function(){
                     $s=$conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts" . $sum_str . ",0) WHERE usuario=? ORDER BY id DESC",[$user]);
                     response()->json(["result"=>"true","usuario"=>$usuario]);
                 } else {
-                    if ($cargo==1){
+                    if (($cargo & 2)==2){
                         delete_imagem($conn,$id);
                     } else {
                         delete_imagem($conn,$id,$usuario);
@@ -2257,7 +2280,7 @@ Route::post("/admin/products_lista",function(){
     // return view("admin.noticias_lista.index",compact("r","usuario","cargo"));
 });
 Route::post('/admin/destaque',function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $conn=new sqli("anjoov00_posts");
         $tipo=request("tipo");
@@ -2387,7 +2410,7 @@ Route::post('/admin/destaque',function(){
     }
 });
 Route::post('/admin/description',function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $conn=new sqli("anjoov00_posts");
         if (request("type")=="info"){
@@ -2409,7 +2432,7 @@ Route::post('/admin/description',function(){
     }
 });
 Route::post('/admin/card',function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $conn=new sqli("anjoov00_posts");
         if (request("type")=="info"){
@@ -2472,7 +2495,7 @@ Route::post('/admin/card',function(){
     }
 });
 Route::post('/admin/views',function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $conn=new sqli("anjoov00_posts");
         if (request("type")=="info"){
@@ -2487,7 +2510,7 @@ Route::post('/admin/views',function(){
     }
 });
 Route::post('/admin/account',function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         if (request("type")=="info"){
             $conn=new sqli("anjoov00_posts");
@@ -2624,7 +2647,7 @@ Route::post('/admin/account',function(){
     }
 });
 Route::post("/admin/premium",function(){
-    $user=get_user();
+    $user=$GLOBALS["user"];
     if ($user){
         if (isset($_POST["type"])){
             $type=$_POST["type"];
@@ -2657,23 +2680,23 @@ Route::post("/admin/premium",function(){
     }
 });
 Route::post("/admin/users",function(){
-    $usuario=get_user();
-    $cargo=cargo($usuario);
-    if ($cargo==1 && request("name")!=$usuario){
+    $usuario=$GLOBALS["user"];
+    $cargo=$GLOBALS["cargo"];
+    if (($cargo & 2)==2 && request("name")!=$usuario){
         $tipo=isset($_POST["tipo"])  ? request("tipo") : "normal";
         function gpa($type){
             $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-            $usuario=get_user();
+            $usuario=$GLOBALS["user"];
             $conn=new sqli("anjoov00_posts");
             $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
             $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
             $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
             if ($type=="pesquisa"){
-                $s=$conn->prepare("SELECT id,usuario,privado FROM user WHERE LOWER(usuario) LIKE LOWER(?) AND cargo=0 ORDER BY id DESC LIMIT $n,10",[$search]);
-                $num=$conn->prepare("SELECT COUNT(*) AS num FROM user WHERE LOWER(usuario) LIKE LOWER(?) AND cargo=0",[$search]);
+                $s=$conn->prepare("SELECT id,usuario,cargo FROM user WHERE LOWER(usuario) LIKE LOWER(?) AND cargo & 2=0 ORDER BY id DESC LIMIT $n,10",[$search]);
+                $num=$conn->prepare("SELECT COUNT(*) AS num FROM user WHERE LOWER(usuario) LIKE LOWER(?) AND cargo & 2=0",[$search]);
             } else {
-                $s=$conn->query("SELECT id,usuario,privado FROM user WHERE cargo=0 ORDER BY id DESC LIMIT $n,10");
-                $num=$conn->query("SELECT COUNT(*) AS num FROM user WHERE cargo=0");
+                $s=$conn->query("SELECT id,usuario,cargo FROM user WHERE cargo & 2=0 ORDER BY id DESC LIMIT $n,10");
+                $num=$conn->query("SELECT COUNT(*) AS num FROM user WHERE cargo & 2=0");
             }
             $r=p($s);
             $num=p($num)[0]["num"];
@@ -2693,8 +2716,8 @@ Route::post("/admin/users",function(){
                 if (request("senha")==$GLOBALS["delete_account"]){
                     $name=request("name");
                     $conn=new sqli("anjoov00_posts");
-                    $private_user=intval(p($conn->prepare("SELECT privado,cargo FROM user WHERE usuario=?",[$name]))[0]["privado"]) ^ 1;
-                    $private_clause=$private_user==1 ? "privado | 4" : "privado & ~4";
+                    $private_user=intval(p($conn->prepare("SELECT cargo FROM user WHERE usuario=?",[$name]))[0]["cargo"]) ^ 1;
+                    $private_clause=$private_user & 1==1 ? "privado | 4" : "privado & ~4";
                     $conn->prepare("UPDATE post_24 SET privado=$private_clause WHERE usuario=?",[$name]);
                     $conn->prepare("UPDATE post SET privado=$private_clause WHERE usuario=?",[$name]);
                     $conn->prepare("UPDATE post_imagem SET privado=$private_clause WHERE usuario=?",[$name]);
@@ -2703,7 +2726,7 @@ Route::post("/admin/users",function(){
                     $conn->prepare("UPDATE post_video SET privado=$private_clause WHERE usuario=?",[$name]);
                     $conn->prepare("UPDATE playlist SET privado=$private_clause WHERE usuario=?",[$name]);
                     $conn->prepare("UPDATE comment SET privado=$private_clause WHERE usuario=?",[$name]);
-                    $conn->prepare("UPDATE user SET privado=$private_user WHERE usuario=?",[$name]);
+                    $conn->prepare("UPDATE user SET cargo=$private_user WHERE usuario=?",[$name]);
                     gpa(request("search") ? "pesquisa" : "normal");
                 } else {
                     response()->json(["result"=>"false"]);

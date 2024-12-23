@@ -12,22 +12,22 @@ Route::post("/pay",function(){
         $types=[
             "2415251"=>[
                 "name"=>"Anjoovi Premium Start",
-                "cargo"=>2,
+                "cargo"=>8,
                 "expiry"=>"30",
             ],
             "2416145"=>[
                 "name"=>"Anjoovi Premium Pro",
-                "cargo"=>3,
+                "cargo"=>16,
                 "expiry"=>"60",
             ],
             "2416726"=>[
                 "name"=>"Anjoovi Premium Plus",
-                "cargo"=>4,
+                "cargo"=>32,
                 "expiry"=>"90",
             ],
             "2431416"=>[
                 "name"=>"Anjoovi Premium Ultra",
-                "cargo"=>5,
+                "cargo"=>64,
                 "expiry"=>"360",
             ],
         ];
@@ -57,7 +57,7 @@ Route::post("/pay",function(){
             if ($exists){
                 $user=p($response)[0]["usuario"];
                 $conn->prepare("UPDATE payments SET valid=0 WHERE user=?",[$user]);
-                $conn->prepare("UPDATE user SET cargo=? WHERE usuario=?",[$cargo,$user]);
+                $conn->prepare("UPDATE user SET cargo=cargo & ~8 & ~16 & ~32 & ~64 | 4 | ? WHERE usuario=?",[$cargo,$user]);
             } else {
                 $mail = new PHPMailer(true);
                 try {

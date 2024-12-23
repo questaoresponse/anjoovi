@@ -24,7 +24,7 @@ function NoticiasCadastro(){
     const edit=useRef(false);
     const post_edit=useRef<postInterface>();
     const globals=useGlobal();
-    const server=globals.server;
+    const { server, cargo }=globals;
     const auth=useAuth();
     const navigate=useNavigate();
     const refs={
@@ -41,6 +41,7 @@ function NoticiasCadastro(){
     const [filename,setFilename]=useState("Upload");
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
+    const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
     const showError=()=>{
         setErrorImage(true);
         const st=setTimeout(()=>{
@@ -120,6 +121,14 @@ function NoticiasCadastro(){
         }
     }
     edit.current=location.pathname=="/admin/noticias_edit";
+    const updateCargo=(cargo:number)=>{
+        setIsPremium((cargo & 4)==4);
+    }
+    const updatePermission=()=>{
+        if (isPremium){
+            refs.permission.current!.value=post_edit.current!.privado ? "1" : "0";
+        }
+    }
     useEffect(()=>{
         globals.setSelected("publicar");
         if (edit.current){
@@ -131,13 +140,22 @@ function NoticiasCadastro(){
                     refs.subtitulo.current!.value=post.subtitulo;
                     refs.textarea.current!.value=post.texto;
                     post.privado=post.privado!=0;
-                    refs.permission.current!.value=post.privado ? "1" : "0";
                     post_edit.current=post;
+                    updatePermission();
                     setDimensions(server+"/images/"+encodeURIComponent(post.imagem));
                 }
             });
         }
+        cargo.current.addListener(updateCargo);
+        return ()=>{
+            cargo.current.removeListener(updateCargo);
+        }
     },[]);
+    useEffect(()=>{
+        if (post_edit.current){
+            updatePermission();
+        }
+    },[isPremium]);
     const Cadastrar=async (e:any)=>{
         e.preventDefault();
         var fd=new FormData();
@@ -198,11 +216,13 @@ function NoticiasCadastro(){
                 <Publicar/>
                 <div id="msg1">Cadastrar matéria</div>
                 <form onSubmit={Cadastrar}>
-                    <label>Disponível:</label>
-                    <select ref={refs.permission} id="permission" defaultValue="0">
-                        <option value="0">Público</option>
-                        <option value="1">Premium</option>
-                    </select>
+                    {isPremium ? <>
+                        <label>Disponível:</label>
+                        <select ref={refs.permission} id="permission" defaultValue="0">
+                            <option value="0">Público</option>
+                            <option value="1">Premium</option>
+                        </select>
+                    </> : <></>}
                     <label>Título</label>
                     <input ref={refs.titulo} className="input" id="titulo" placeholder="Insira um título" required/>
                     <label>Subtítulo</label>

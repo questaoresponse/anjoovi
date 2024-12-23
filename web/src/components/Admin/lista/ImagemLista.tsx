@@ -16,8 +16,10 @@ function ImagemLista(){
         const server=props.globals.server;
         const location=props.location;
         const onPublicChange=useCallback((e:any)=>{
-            auth.post(server+"/admin/imagens_lista"+location.search,{type:"option",id:props.post.id,operation:e.target.checked ? "privado":"publico"}).then((_:resultInterface)=>{
-                setIsChecked(isChecked ? false : true);
+            auth.post(server+"/admin/imagens_lista"+location.search,{type:"option",id:props.post.id,operation:e.target.checked ? "privado":"publico"}).then((result:resultInterface)=>{
+                if (result.data.result=="true"){
+                    setIsChecked(isChecked ? false : true);
+                }
             });
         },[isChecked]);
         const Excluir=useCallback(()=>{

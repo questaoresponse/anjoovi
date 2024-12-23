@@ -497,7 +497,7 @@ function update_acessos_d($usuario,$acessos_d,$index=null,$count=null){
 }
 Route::post("/inicio_header",function(){
     $logo=null;
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $conn = new sqli("anjoov00_posts");
         $config=$conn->prepare("SELECT logo FROM user WHERE usuario=?",[$usuario]);
@@ -515,7 +515,7 @@ Route::get('/', function () {
 });
 Route::post('/',function () {
     $start_time = microtime(true);
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if (request("type")=="info"){
         if (!session()->has("key_init")){
             $t = 16; $ba = random_bytes($t); $ca = bin2hex($ba); session(["key_init"=>$ca]);
@@ -681,7 +681,7 @@ Route::post("/busca",function(){
     if (request("type")=="info"){
     if (isset($_GET["q"])){
         $start_time = microtime(true);
-        $usuario=get_user();
+        $usuario=$GLOBALS["user"];
         $ps=request()->query("q");
         if (trim($ps)!=""){
             $r=[];
@@ -867,16 +867,16 @@ Route::post("/busca",function(){
 //     }else{
 //         $r=[];
 //     }
-//     $usuario=get_user();
+//     $usuario=$GLOBALS["user"];
 //     return view("editorias.index",compact("r","usuario","logo"));
 // });
 // Route::get("/noticia",function(){
-//     // $usuario=get_user() || header("location: /admin");
+//     // $usuario=$GLOBALS["user"] || header("location: /admin");
 //     // include(__DIR__ . '/../../nextjs/templates/main/main.html');
 //     // resp("noticia.html");
 // });
 Route::get("/noticia/{id}",function($id){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     // if (request("type")=="info"){
     // include(__DIR__ . "/inicio.php");
     // if (isset($_GET["id"])){
@@ -938,7 +938,7 @@ Route::get("/noticia/{id}",function($id){
     // }
 });
 // Route::post("/noticia/{id}",function($id){
-//     $usuario=get_user();
+//     $usuario=$GLOBALS["user"];
 //     $id=intval($id);
 //     $conn = new sqli("anjoov00_posts");
 //     $result=$conn->prepare("SELECT usuario,titulo,subtitulo,texto,imagem,d,acessos,views_id FROM post WHERE id=? AND privado=0",[$id]);
@@ -978,7 +978,7 @@ Route::get("/noticia/{id}",function($id){
 //     // }
 // });
 Route::get("/imagem/{id}",function($id){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     $id=intval($id);
     $conn = new sqli("anjoov00_posts");
     $result=null;
@@ -1029,7 +1029,7 @@ Route::get("/imagem/{id}",function($id){
 // Route::get("/categoria",function(){
     
 //     include(__DIR__ . "/inicio.php");
-//     $usuario=get_user();
+//     $usuario=$GLOBALS["user"];
 //     if (isset($_GET["name"])){
 //         $name=request()->query("name");
 //         $conn = new sqli("anjoov00_config");
@@ -1049,7 +1049,7 @@ Route::get("/imagem/{id}",function($id){
 //     }
 // });
 Route::get(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
-    // $usuario=get_user() || header("location:/admin");
+    // $usuario=$GLOBALS["user"] || header("location:/admin");
     resp("Canal.html");
     // include(__DIR__ . '/../public_html/templates/main/main.html');
 });
@@ -1059,7 +1059,7 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
         $name=urldecode($name);
         $conn = new sqli("anjoov00_posts");
         // $name=request()->query("name");
-        $usuario=get_user();
+        $usuario=$GLOBALS["user"];
         $result=$conn->prepare("SELECT nome,usuario,logo,banner,n_posts,privado FROM user WHERE usuario=?",[$name]);
         $ss=p($result);
         if ($result->num_rows>0){
@@ -1243,7 +1243,7 @@ Route::post("/get-title",function(){
     response()->json(["result"=>"true","titles"=>json_encode($titles)]);
 });
 Route::get("/playlist/{id}",function($id){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     $id=intval($id);
     $conn=new sqli("anjoov00_posts");
     $r=$conn->prepare("SELECT p.*, (SELECT CONCAT('[\"',GROUP_CONCAT(p2.titulo SEPARATOR '\",\"'),'\"]') 
@@ -1296,7 +1296,7 @@ Route::get("/playlist/{id}",function($id){
     }
 });
 Route::get("/product/{id}",function($id){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     $id=intval($id);
     $conn = new sqli("anjoov00_posts");
     $result=null;
@@ -1347,7 +1347,7 @@ Route::get("/product/{id}",function($id){
 Route::post("/canal",function(){
     $name=request()->query("name");
     $conn = new sqli("anjoov00_posts");
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
     $s=$conn->prepare("SELECT inscritos,n_inscritos,privado FROM user WHERE usuario=?",[$usuario]);
     $n_inscritos=p($conn->prepare("SELECT n_inscritos FROM inscritos WHERE usuario=?",[$usuario]))[0]["n_inscritos"];
@@ -1407,13 +1407,13 @@ Route::post("/canal",function(){
 //     }
 // });
 Route::get('/inscricoes', function () {
-    $usuario=get_user() || header("location:/admin");
+    $usuario=$GLOBALS["user"] || header("location:/admin");
     include(__DIR__ . '/../public_html/templates/main/main.html');
 });
 Route::post("/inscricoes",function(){
     // return view('welcome');
     // $logo;
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         if (request("type")=="info"){
             $conn=new sqli("anjoov00_posts");
@@ -1480,12 +1480,12 @@ Route::post("/inscricoes",function(){
     //return view('pagina_inicial.index',compact('usuario','r','logo','canal'));
 });
 Route::get("/m_inscricoes",function(){
-    $usuario=get_user() || header("location:/admin");
+    $usuario=$GLOBALS["user"] || header("location:/admin");
     include(__DIR__ . '/../public_html/templates/main/main.html');
 });
 Route::post("/m_inscricoes",function(){
     
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         if (request("type")=="info"){
             $conn = new sqli("anjoov00_posts");
@@ -1508,7 +1508,7 @@ Route::post("/m_inscricoes",function(){
     }
 });
 Route::get("/stories/{id}",function($id){
-    $usuario=get_user() || header("location: /admin");
+    $usuario=$GLOBALS["user"] || header("location: /admin");
     resp("/stories/[id].html");
     // include(__DIR__ . '/../public_html/templates/main/main.html');
 });
@@ -1526,7 +1526,7 @@ Route::post("/stories/{id}",function($id){
         $acessos_d=update_acessos_d($usuario,$acessos_d);
         $conn->prepare("UPDATE views SET d2=? WHERE id=? AND tipo='post_24'",[$acessos_d,$views_id]);
     }
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $id=intval($id);
         if (request("type")=="info"){
@@ -1583,7 +1583,7 @@ Route::get("/ajeitar2",function(){
     echo "deu certo";
 });
 Route::get("/musica/{id}",function($id){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     $conn=new sqli("anjoov00_posts");
     $id=intval($id);
     $result=null;
@@ -1631,7 +1631,7 @@ Route::get("/musica/{id}",function($id){
     // }
 });
 Route::post("/musica/{id}",function($id){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if (request("type")=="info"){
         $conn=new sqli("anjoov00_posts");
         $id=intval($id);
@@ -1685,7 +1685,7 @@ Route::post("/musica/{id}",function($id){
     // }
 });
 Route::get("/texto/{id}",function($id){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     $id=intval($id);
     $conn = new sqli("anjoov00_posts");
     $result=null;
@@ -1735,7 +1735,7 @@ Route::get("/texto/{id}",function($id){
 
 });
 // Route::post("/texto/{id}",function($id){
-//     $usuario=get_user();
+//     $usuario=$GLOBALS["user"];
 //     $id=intval($id);
 //     $conn = new sqli("anjoov00_posts");
 //     $result=null;
@@ -1785,7 +1785,7 @@ Route::get("/texto/{id}",function($id){
 
 // });
 Route::get("/video/{id}",function($id){
-    $user=get_user();
+    $user=$GLOBALS["user"];
     $id=intval($id);
     $conn = new sqli("anjoov00_posts");
     $result=null;
@@ -1822,7 +1822,7 @@ Route::get("/video/{id}",function($id){
     
 });
 Route::post("/video/{id}",function($id){
-    $user=get_user();
+    $user=$GLOBALS["user"];
     $id=intval($id);
     $conn = new sqli("anjoov00_posts");
     $result=$conn->prepare("SELECT * FROM post_video WHERE id=?",[$id]);
@@ -1853,7 +1853,7 @@ Route::post("/video/{id}",function($id){
 //     return (["result"=>"true"]);
 // });
 Route::post("/comentarios",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if (request("type")=="option"){
         $dados=request()->all();
         $tipo=$dados["tipo"];
@@ -1868,7 +1868,7 @@ Route::post("/comentarios",function(){
             foreach($comentarios as $comentario){
                 $user=$comentario["usuario"];
                 if (!isset($logos[$user])){
-                    $logos[$user]=p($conn->prepare("SELECT logo FROM user WHERE usuario=? AND privado=0",[$user]))[0]["logo"];
+                    $logos[$user]=p($conn->prepare("SELECT logo FROM user WHERE usuario=? AND cargo & 1=0",[$user]))[0]["logo"];
                 }
             }
             response()->json(["comentarios"=>$comentarios,"logos"=>$logos,"count"=>$count,"usuario"=>$usuario]);
@@ -1922,7 +1922,7 @@ Route::post("/view",function(){
     
     // if (same_site()){
     $conn=new sqli("anjoov00_posts");
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $dados=request()->all();
         $tipo=$dados["tipo"];
@@ -2074,7 +2074,7 @@ Route::post("/view",function(){
     // };
 });
 Route::post("/denuncia",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         if (isset($_POST["post_tipo"]) && isset($_POST["post_id"]) && isset($_POST["tipo"])){
             ["post_tipo"=>$post_tipo,"post_id"=>$post_id,"tipo"=>$tipo]=$_POST;
@@ -2122,7 +2122,7 @@ Route::post("/denuncia",function(){
     }
 });
 Route::post("/chat/{chat_id}",function($chat_id){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $type=isset($_POST["type"]) ? $_POST["type"] : null;
         if (!$type){
@@ -2293,7 +2293,7 @@ Route::post("/chat/{chat_id}",function($chat_id){
     }
 });
 Route::post("/notifications",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     $token=$_POST["token"];
     $conn=new sqli("anjoov00_posts");
     $conn->prepare("INSERT INTO notifications(id,user,token,type,content) VALUES(1,'sla','1','1',?)",[json_encode($_POST)]);
@@ -2357,7 +2357,7 @@ Route::post("/teste_notification",function(){
     response()->json(["result"=>"true","id"=>$d]);
 });
 Route::post("/chat_init",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $canal=request("canal");
         if ($canal && $canal!=$usuario){
@@ -2388,7 +2388,7 @@ Route::post("/chat_init",function(){
     }
 });
 Route::post("/chats",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $type=request("type");
         if ($type=="info"){
@@ -2962,7 +2962,7 @@ Route::post("/functions",function(){
     }
 });
 Route::post("/verifyPeerId",function(){
-    $usuario=get_user();
+    $usuario=$GLOBALS["user"];
     if ($usuario){
         $conn=new sqli("anjoov00_posts");
         $name=$_POST["name"];

@@ -105,7 +105,7 @@ function Lista(propsl:any){
             if (result.error){
                 globals.setRedirectError(result.error);
             } else {
-                result.data.posts=result.data.posts.map((post:any)=>{ return {...post,d:post.d ? JSON.parse(post.d).o.split(":").splice(0,2).join(":") : "",privado:Number(post.privado)}});
+                result.data.posts=result.data.posts.map((post:any)=>{ return {...post,d:post.d ? JSON.parse(post.d).o.split(":").splice(0,2).join(":") : "",privado:post.privado ? Number(post.privado) : undefined}});
                 Recriar(result.data);
             }
         })

@@ -36,7 +36,7 @@ function HeaderAdmin(){
         <div>
             <div id="cb" className="d-block cbn">
             <Link className="nome_usuario txt-1" to='/admin/settings'>{globals.login.usuario}</Link>
-            { cargoValue!=1 ? 
+            { (cargoValue! & 2)==0 ? 
             <div id="c_menu" className={cMenu ? "aberto" : "fechado"}>
                 <Link to='/admin'><div className={"i-menu-1 i-menu"+(globals.selected=="inicio" ? " selected" : "")} id="inicio" >Inicio</div></Link>
                 <Link to="/admin/noticias_cadastro"  className={"i-menu-1 i-menu"+(globals.selected=="publicar" ? " selected" : "")} id="publicar">Publicar</Link>

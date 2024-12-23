@@ -19,7 +19,7 @@ function AdminSair(){
             globals.myStorage.current=true;
             localStorage.removeItem("lg");
             globals.setLogin({usuario:null,isLoged:"false",logo:null});
-            globals.cargo.current.setCargo(0);
+            globals.cargo.current.setCargo((globals.cargo.current.cargo || 0) & ~2);
             navigate!("/");
         }
         logout();

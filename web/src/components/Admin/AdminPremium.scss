@@ -28,6 +28,7 @@
         margin-right: auto;
         font-size: 150%;
         height: 7vh;
+        user-select: none;
     }
     #verifyBtn{
         position: relative;
@@ -41,6 +42,11 @@
         border-radius: 5px;
         justify-content: center;
         align-items: center;
+        user-select: none;
+        cursor: pointer;
+    }
+    #verifyBtn:active{
+        opacity:0.5 !important;
     }
     #input{
         position: relative;
@@ -96,6 +102,11 @@
         position: relative;
         margin-left: auto;
         margin-right: 20px;
+        user-select: none;
+        cursor: pointer;
+    }
+    #cancelBtn:active{
+        opacity: 0.5;
     }
     #msg-not-plan{
         position: relative;
@@ -132,6 +143,9 @@
     .buyBtn:hover{
         color:black;
         background-color: white;
+    }
+    #invalid-license{
+        user-select: none;
     }
     @include pc(){
         #blocks{

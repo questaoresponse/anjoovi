@@ -6,9 +6,9 @@ import { useAuth } from '../Auth';
 import Link from '../Link';
 const AdminPremium=()=>{
     const { server, setSelected, cargo }=useGlobal();
-    const [cargoValue,setCargoValue]=useState(cargo.current.cargo);
+    const [cargoValue,setCargoValue]=useState(((cargo.current.cargo || 0)+8) >> 3);
     const updateCargo=(cargo:number)=>{
-        setCargoValue(cargo);
+        setCargoValue(((cargo || 0)+8) >> 3);
     }
     useEffect(()=>{
         cargo.current.addListener(updateCargo);
@@ -77,29 +77,29 @@ const AdminPremium=()=>{
     useEffect(()=>{
         if (cargoValue!==null){
             setIsLoading(false);
-            setIsPremium(cargoValue>1);
+            setIsPremium(cargoValue > 1);
         }
     },[cargoValue]);
     useEffect(()=>{
         setSelected("premium");
     },[]);
     const types:{[key:string]:{name:string,price:string,expiry:string}}={
-        "2":{
+        "1":{
             name:"START",
             price:"7,00",
             expiry:"30",
         },
-        "3":{
+        "2":{
             name:"PRO",
             price:"12,00",
             expiry:"60",
         },
-        "4":{
+        "3":{
             name:"PLUS",
             price:"17,00",
             expiry:"90",
         },
-        "5":{
+        "4":{
             name:"ULTRA",
             price:"26,00",
             expiry:"360",
@@ -132,7 +132,7 @@ const AdminPremium=()=>{
                     <div id="input" onClick={()=>refs.input.current!.click()} onDragOver={(e)=>e.preventDefault()} onDrop={onDropFile}>{licenseInfos.isFile ? licenseInfos.filename : "Arraste sua licença aqui ou selecione sua licença"}</div>
                     <div id="verify"></div>
                     <div id="div-btn">
-                        <div style={{display:isInvalidLicense ? "block" : "none"}}>Licença inválida.</div>
+                        <div id="invalid-license" style={{display:isInvalidLicense ? "block" : "none"}}>Licença inválida.</div>
                         <div id="cancelBtn" onClick={Cancel}>Cancelar</div>
                         <div id="verifyBtn" onClick={Verify} style={{opacity:licenseInfos.isFile ? "1" : "0.5"}}>Verificar licença</div>
                     </div>
