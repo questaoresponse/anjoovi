@@ -543,7 +543,7 @@ Route::post("/admin/noticias_cadastro", function(){
                     if ($permission==0){
                         unlink(__DIR__ . '/../public_html/images/p_' . $old_image);
                     } else {
-                        blur_image(__DIR__ . '/../public_html/images/', $image);
+                        blur_image(__DIR__ . '/../public_html/images/', $imagem);
                     }
                 }
                 if ($isCadastro){
