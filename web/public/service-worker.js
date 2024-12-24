@@ -12,7 +12,6 @@ const enviar=(newPeer,deletePeer)=>{
     //         'Content-Type': 'application/x-www-form-urlencoded',
     //     },
     // })
-    
     clients[0].postMessage({origin:"worker",type:"send",url:server+"/view",data:{type:"infos",tipo:tipo,modify:peer_ids,newPeer,deletePeer}})
 };
 self.addEventListener('message', message => {
@@ -57,13 +56,13 @@ self.addEventListener('install', (event) => {
     // setInterval(()=>{
 
     // },[]);
-    console.log("install")
+    // console.log("install")
 // Força a instalação imediata, ignorando qualquer versão anterior
     self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-    console.log("activate");
+    // console.log("activate");
     // Limpeza opcional de caches antigos ou outras tarefas de ativação
     // event.waitUntil(
     //     caches.keys().then((cacheNames) => {

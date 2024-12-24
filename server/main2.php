@@ -499,7 +499,7 @@ Route::post("/inicio_header",function(){
     $logo=null;
     $usuario=$GLOBALS["user"];
     if ($usuario){
-        $conn = new sqli("anjoov00_posts");
+        $conn = $GLOBALS["conn"];
         $config=$conn->prepare("SELECT logo FROM user WHERE usuario=?",[$usuario]);
         $logo=p($config)[0]["logo"];
     };
@@ -520,7 +520,7 @@ Route::post('/',function () {
         if (!session()->has("key_init")){
             $t = 16; $ba = random_bytes($t); $ca = bin2hex($ba); session(["key_init"=>$ca]);
         }
-        $conn=new sqli("anjoov00_posts");
+        $conn=$GLOBALS["conn"];
         // $r=p($conn->query("SELECT id,usuario,titulo,imagem,tipo FROM ( 
         //         (SELECT views_id,id,usuario,titulo,imagem,'p' AS tipo FROM post WHERE privado=0 ORDER BY id DESC LIMIT 48)
         //         UNION
@@ -666,7 +666,7 @@ Route::post('/',function () {
         // STR_TO_DATE(d,'%Y-%m-%d %H:%i:%s')
         response()->json(["canal"=>$canal,"posts"=>$r,"st"=>$r2,"time"=>$time,"time2"=>$time2,"usuario"=>$usuario,"alta"=>$alta]);
     } else if (request("type")=="posts" && isset($_POST["pt"])){
-        $conn=new sqli("anjoov00_posts");
+        $conn=$GLOBALS["conn"];
         $r=getAlgoritmoNoticia(true,$conn,$usuario,0,intval($_POST["pt"]));
         response()->json(["posts"=>$r,"result"=>"true"]);
     } else {
@@ -688,7 +688,7 @@ Route::post("/busca",function(){
             $n=0;
             if (substr($ps,0,1)=="@"){
                 $p = substr($ps,1,strlen($ps));
-                $conn = new sqli("anjoov00_posts");
+                $conn = $GLOBALS["conn"];
                 $result = $conn->prepare("SELECT nome,usuario,logo,n_posts FROM user WHERE usuario=? AND privado=0",[$p]);
                 $canals=p($result);
                 // return view("busca.index",compact("r","usuario","logo","canal"));
@@ -698,7 +698,7 @@ Route::post("/busca",function(){
                 $n=1;
                 response()->json(["posts"=>$r,"canals"=>$canals,"n_registros"=>$n,"time"=>$time]);
             } else {
-                $conn = new sqli("anjoov00_posts");
+                $conn = $GLOBALS["conn"];
                 $p = '%' . $ps . '%' ;
                 $list2=p($conn->prepare("SELECT usuario,logo FROM user WHERE LOWER(nome) LIKE LOWER(?) AND privado=0 LIMIT 8",[$p]));
                 $list=[];
@@ -882,9 +882,10 @@ Route::get("/noticia/{id}",function($id){
     // if (isset($_GET["id"])){
         // $id=request()->query("id");
     $id=intval($id);
-    $conn = new sqli("anjoov00_posts");
+    $conn = $GLOBALS["conn"];
     $result=null;
     if ($usuario){
+        $clause=($GLOBALS["cargo"] & 4)==4 ? "privado & 4=0" : "privado & 2=0 AND privado & 4=0";
         $result=$conn->prepare("SELECT 
         (SELECT CASE 
                 WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
@@ -893,12 +894,13 @@ Route::get("/noticia/{id}",function($id){
         AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        acessos,p.usuario,titulo,subtitulo,texto,imagem,d,views_id,id,'p' AS tipo FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id]);
+        acessos,p.usuario,titulo,subtitulo,texto,imagem,d,views_id,id,'p' AS tipo FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND $clause",['"' . $usuario . '"', "$." . $usuario,$id]);
     } else {
+        $clause="privado & 2=0 AND privado & 4=0";
         $result=$conn->prepare("SELECT 'false' AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         p2.logo,p2.nome,
-        acessos,p.usuario,titulo,subtitulo,texto,imagem,d,views_id,id,'p' AS tipo FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",[$id]); 
+        acessos,p.usuario,titulo,subtitulo,texto,imagem,d,views_id,id,'p' AS tipo FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND $clause",[$id]); 
     }
     $r=[];
     if ($result->num_rows>0){
@@ -909,7 +911,7 @@ Route::get("/noticia/{id}",function($id){
             $views_id=$r["views_id"];
             $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=? AND tipo='post'",[$views_id]))[0]["d2"],true);
             $acessos_d=update_acessos_d($usuario,$acessos_d);
-            $conn->prepare("UPDATE post SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
+            $conn->prepare("UPDATE post SET acessos=? WHERE id=? AND privado & 4=0",[$acessos,$id]);
             $conn->prepare("UPDATE views SET d2=? WHERE id=? AND tipo='post'",[$acessos_d,$views_id]);
             unset($r["views"]);
             unset($r["acessos"]);
@@ -940,7 +942,7 @@ Route::get("/noticia/{id}",function($id){
 // Route::post("/noticia/{id}",function($id){
 //     $usuario=$GLOBALS["user"];
 //     $id=intval($id);
-//     $conn = new sqli("anjoov00_posts");
+//     $conn = $GLOBALS["conn"];
 //     $result=$conn->prepare("SELECT usuario,titulo,subtitulo,texto,imagem,d,acessos,views_id FROM post WHERE id=? AND privado=0",[$id]);
 //     $r=[];
 //     if ($result->num_rows>0){
@@ -980,7 +982,7 @@ Route::get("/noticia/{id}",function($id){
 Route::get("/imagem/{id}",function($id){
     $usuario=$GLOBALS["user"];
     $id=intval($id);
-    $conn = new sqli("anjoov00_posts");
+    $conn = $GLOBALS["conn"];
     $result=null;
     if ($usuario){
         $result=$conn->prepare("SELECT 
@@ -1037,7 +1039,7 @@ Route::get("/imagem/{id}",function($id){
 //         if ($result->num_rows>0){
 //             $rc=p($result);
 //             $categoria=$rc[0]["nome"];
-//             $conn = new sqli("anjoov00_posts");
+//             $conn = $GLOBALS["conn"];
 //             $result=$conn->prepare("SELECT * FROM post WHERE categoria=? AND privado=0",[$categoria]);
 //             $r=p($result);
 //             return view("categoria.index",compact("r","usuario","logo"));
@@ -1057,7 +1059,7 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
     if (request("type")=="info"){
         $tempo_inicial=microtime(true);
         $name=urldecode($name);
-        $conn = new sqli("anjoov00_posts");
+        $conn = $GLOBALS["conn"];
         // $name=request()->query("name");
         $usuario=$GLOBALS["user"];
         $result=$conn->prepare("SELECT nome,usuario,logo,banner,n_posts,privado FROM user WHERE usuario=?",[$name]);
@@ -1245,7 +1247,7 @@ Route::post("/get-title",function(){
 Route::get("/playlist/{id}",function($id){
     $usuario=$GLOBALS["user"];
     $id=intval($id);
-    $conn=new sqli("anjoov00_posts");
+    $conn=$GLOBALS["conn"];
     $r=$conn->prepare("SELECT p.*, (SELECT CONCAT('[\"',GROUP_CONCAT(p2.titulo SEPARATOR '\",\"'),'\"]') 
         FROM (
                 SELECT id AS id1, NULL AS id2, NULL AS id3, titulo FROM post
@@ -1298,7 +1300,7 @@ Route::get("/playlist/{id}",function($id){
 Route::get("/product/{id}",function($id){
     $usuario=$GLOBALS["user"];
     $id=intval($id);
-    $conn = new sqli("anjoov00_posts");
+    $conn = $GLOBALS["conn"];
     $result=null;
     if ($usuario){
         $result=$conn->prepare("SELECT 
@@ -1346,7 +1348,7 @@ Route::get("/product/{id}",function($id){
 });
 Route::post("/canal",function(){
     $name=request()->query("name");
-    $conn = new sqli("anjoov00_posts");
+    $conn = $GLOBALS["conn"];
     $usuario=$GLOBALS["user"];
     if ($usuario){
     $s=$conn->prepare("SELECT inscritos,n_inscritos,privado FROM user WHERE usuario=?",[$usuario]);
@@ -1393,7 +1395,7 @@ Route::post("/canal",function(){
     }
 });
 // Route::get("/ajeitar",function(){
-//     $conn=new sqli("anjoov00_posts");
+//     $conn=$GLOBALS["conn"];
 //     $p=p($conn->query("SELECT id,arquivo,acessos FROM post_musica"));
 //     foreach ($p as $s){
 //         if (!isJsonString($p["acessos"])){
@@ -1416,7 +1418,7 @@ Route::post("/inscricoes",function(){
     $usuario=$GLOBALS["user"];
     if ($usuario){
         if (request("type")=="info"){
-            $conn=new sqli("anjoov00_posts");
+            $conn=$GLOBALS["conn"];
             $r=$conn->prepare("SELECT inscritos FROM user WHERE usuario=? AND privado=0",[$usuario]);
             if ($r->num_rows>0){
                 $r=json_decode(p($r)[0]["inscritos"],true);
@@ -1488,7 +1490,7 @@ Route::post("/m_inscricoes",function(){
     $usuario=$GLOBALS["user"];
     if ($usuario){
         if (request("type")=="info"){
-            $conn = new sqli("anjoov00_posts");
+            $conn = $GLOBALS["conn"];
             $logo=$conn->prepare("SELECT inscritos FROM user WHERE usuario=?",[$usuario]);
             $cisg=p($logo)[0]["inscritos"];
             $cisg=json_decode($cisg,true);
@@ -1530,12 +1532,12 @@ Route::post("/stories/{id}",function($id){
     if ($usuario){
         $id=intval($id);
         if (request("type")=="info"){
-            $conn = new sqli("anjoov00_posts");
+            $conn = $GLOBALS["conn"];
             count_stories($conn,$id,$usuario);
             $posts=p($conn->prepare("SELECT * FROM post_24 t JOIN ( SELECT usuario FROM post_24 WHERE id=? AND privado=0 ) u ON t.usuario=u.usuario",[$id]));
             response()->json(["result"=>"true","id"=>$id,"posts"=>$posts,"usuario"=>$usuario]);
         } else if (request("type")=="option"){
-            $conn=new sqli("anjoov00_posts");
+            $conn=$GLOBALS["conn"];
             count_stories($conn,$id,$usuario);
             response()->json(["result"=>"true","usuario"=>$usuario]);
         } else {
@@ -1546,7 +1548,7 @@ Route::post("/stories/{id}",function($id){
     }
 });
 Route::get("/ajeitar2",function(){
-    $conn=new sqli("anjoov00_posts");
+    $conn=$GLOBALS["conn"];
     $result=$conn->query("SELECT id,acessos,usuario FROM post_24");
     $result=p($result);
     $conn->query("DELETE FROM views WHERE tipo='post_24'");
@@ -1584,7 +1586,7 @@ Route::get("/ajeitar2",function(){
 });
 Route::get("/musica/{id}",function($id){
     $usuario=$GLOBALS["user"];
-    $conn=new sqli("anjoov00_posts");
+    $conn=$GLOBALS["conn"];
     $id=intval($id);
     $result=null;
     if ($usuario){
@@ -1633,7 +1635,7 @@ Route::get("/musica/{id}",function($id){
 Route::post("/musica/{id}",function($id){
     $usuario=$GLOBALS["user"];
     if (request("type")=="info"){
-        $conn=new sqli("anjoov00_posts");
+        $conn=$GLOBALS["conn"];
         $id=intval($id);
         $result=$conn->prepare("SELECT downloads,duration,acessos,titulo,usuario,imagem,views_id,arquivo,zip FROM post_musica WHERE id=? AND privado=0",[$id]);
         if ($result->num_rows>0){
@@ -1655,7 +1657,7 @@ Route::post("/musica/{id}",function($id){
     } else if (request("type")=="download"){
         $id=intval("id");
         // $id=request("id");
-        $conn=new sqli("anjoov00_posts");
+        $conn=$GLOBALS["conn"];
         $conn->prepare("UPDATE post_musica SET downloads=downloads+1 WHERE id=?",[$id]);
         response()->json(["result"=>"true","usuario"=>$usuario]);
         // response()->json(file_get_contents(__DIR__ . '/../public_html/templates/musica/main.html'));
@@ -1663,7 +1665,7 @@ Route::post("/musica/{id}",function($id){
         $id=intval("id");
         // $id=request("id");
         $index=request("index");
-        $conn=new sqli("anjoov00_posts");
+        $conn=$GLOBALS["conn"];
         $result=p($conn->prepare("SELECT views_id,acessos,acessos_parcial,acessos_d FROM post_musica WHERE id=?",[$id]))[0];
         $acessos=$result["acessos"]+1;
         $acessos_parcial=json_decode($result["acessos_parcial"]);
@@ -1687,7 +1689,7 @@ Route::post("/musica/{id}",function($id){
 Route::get("/texto/{id}",function($id){
     $usuario=$GLOBALS["user"];
     $id=intval($id);
-    $conn = new sqli("anjoov00_posts");
+    $conn = $GLOBALS["conn"];
     $result=null;
     if ($usuario){
         $result=$conn->prepare("SELECT 
@@ -1737,7 +1739,7 @@ Route::get("/texto/{id}",function($id){
 // Route::post("/texto/{id}",function($id){
 //     $usuario=$GLOBALS["user"];
 //     $id=intval($id);
-//     $conn = new sqli("anjoov00_posts");
+//     $conn = $GLOBALS["conn"];
 //     $result=null;
 //     if ($usuario){
 //         $result=$conn->prepare("SELECT 
@@ -1787,7 +1789,7 @@ Route::get("/texto/{id}",function($id){
 Route::get("/video/{id}",function($id){
     $user=$GLOBALS["user"];
     $id=intval($id);
-    $conn = new sqli("anjoov00_posts");
+    $conn = $GLOBALS["conn"];
     $result=null;
     if ($user){
         $result=$conn->prepare("SELECT 
@@ -1824,7 +1826,7 @@ Route::get("/video/{id}",function($id){
 Route::post("/video/{id}",function($id){
     $user=$GLOBALS["user"];
     $id=intval($id);
-    $conn = new sqli("anjoov00_posts");
+    $conn = $GLOBALS["conn"];
     $result=$conn->prepare("SELECT * FROM post_video WHERE id=?",[$id]);
     if ($result->num_rows>0){
         $r=p($result)[0];
@@ -1843,7 +1845,7 @@ Route::post("/video/{id}",function($id){
 // Route::post("/music_view",function(){
 //     $id=request("id");
 //     $n_arquivo=request("n_arquivo");
-//     $conn=new sqli("anjoov00_posts");
+//     $conn=$GLOBALS["conn"];
 //     $acessos=p($conn->prepare("SELECT acessos FROM musica WHERE id=?",[$id]));
 //     $acessos_obj==json_decode($acessos);
 //     if (count($acessos_obj)<=$n_arquivo) return;
@@ -1858,7 +1860,7 @@ Route::post("/comentarios",function(){
         $dados=request()->all();
         $tipo=$dados["tipo"];
         $post_id=$dados["post_id"];
-        $conn=new sqli("anjoov00_posts");
+        $conn=$GLOBALS["conn"];
         $operation=request("operation");
         if ($operation=="get_comentarios"){
             $count=p($conn->prepare("SELECT COUNT(*) AS num FROM comment WHERE tipo=? AND post_id=? AND privado=0",[$tipo,$post_id]))[0]["num"];
@@ -1890,7 +1892,7 @@ Route::post("/comentarios",function(){
     }
 });
 Route::get("/testes",function(){
-    $conn=new sqli("anjoov00_posts");
+    $conn=$GLOBALS["conn"];
     $d=new DateTime();
     $peer_id="oeiioreeee";
     $usuario="musica2";
@@ -1921,7 +1923,7 @@ Route::post("/view",function(){
     // echo "Seu IP é: " . $client_ip;
     
     // if (same_site()){
-    $conn=new sqli("anjoov00_posts");
+    $conn=$GLOBALS["conn"];
     $usuario=$GLOBALS["user"];
     if ($usuario){
         $dados=request()->all();
@@ -2078,7 +2080,7 @@ Route::post("/denuncia",function(){
     if ($usuario){
         if (isset($_POST["post_tipo"]) && isset($_POST["post_id"]) && isset($_POST["tipo"])){
             ["post_tipo"=>$post_tipo,"post_id"=>$post_id,"tipo"=>$tipo]=$_POST;
-            $conn=new sqli("anjoov00_posts");
+            $conn=$GLOBALS["conn"];
             $result=$conn->prepare("SELECT d,tipo,num FROM denuncia WHERE post_tipo=? AND post_id=?",[$post_tipo,$post_id]);
             if ($result->num_rows>0){
                 $result=p($result)[0];
@@ -2131,7 +2133,7 @@ Route::post("/chat/{chat_id}",function($chat_id){
         $result=null;
         $usuario2=null;
         $chat_id=intval($chat_id);
-        $conn=new sqli("anjoov00_posts");
+        $conn=$GLOBALS["conn"];
         $is_new_chat=$chat_id==0 && isset($_GET["user"]);
         if ($is_new_chat){
             $usuario2=base64_decode(urldecode($_GET["user"]));
@@ -2295,7 +2297,7 @@ Route::post("/chat/{chat_id}",function($chat_id){
 Route::post("/notifications",function(){
     $usuario=$GLOBALS["user"];
     $token=$_POST["token"];
-    $conn=new sqli("anjoov00_posts");
+    $conn=$GLOBALS["conn"];
     $conn->prepare("INSERT INTO notifications(id,user,token,type,content) VALUES(1,'sla','1','1',?)",[json_encode($_POST)]);
     if ($token){
         $result=$conn->prepare("SELECT * FROM notifications WHERE token=?",[$token]);
@@ -2311,7 +2313,7 @@ Route::post("/notifications",function(){
 Route::post("/teste_notification",function(){
     $usuario="musica";
     $chat_id=531939461;
-    $conn=new sqli("anjoov00_posts");
+    $conn=$GLOBALS["conn"];
     $result=$conn->prepare("SELECT c.usuarios, u.logo, u.nome AS name FROM chat c JOIN user u ON JSON_CONTAINS(c.usuarios, CONCAT('\"', u.usuario, '\"'), '$') WHERE c.chat_id = ? AND u.usuario = JSON_UNQUOTE(
         JSON_EXTRACT(
             c.usuarios,
@@ -2361,7 +2363,7 @@ Route::post("/chat_init",function(){
     if ($usuario){
         $canal=request("canal");
         if ($canal && $canal!=$usuario){
-            $conn=new sqli("anjoov00_posts");
+            $conn=$GLOBALS["conn"];
             $result=$conn->prepare("SELECT usuario FROM user WHERE usuario=?",[$canal]);
             if ($result->num_rows>0){
                 $result=$conn->prepare('SELECT privado,chat_id FROM chat WHERE JSON_CONTAINS(usuarios,CONCAT(\'"\',?,\'"\')) AND JSON_CONTAINS(usuarios,CONCAT(\'"\',?,\'"\'))',[$usuario,$canal]);
@@ -2392,12 +2394,12 @@ Route::post("/chats",function(){
     if ($usuario){
         $type=request("type");
         if ($type=="info"){
-            $conn=new sqli("anjoov00_posts");
+            $conn=$GLOBALS["conn"];
             $result=p($conn->prepare("SELECT chat_id, (SELECT JSON_OBJECT('usuario',usuario,'online',online,'peer_tokens',peer_tokens,'logo',logo) AS usuario FROM user WHERE usuario!=? AND JSON_CONTAINS(c.usuarios, CONCAT('\"',REPLACE(usuario, '\"', '\\\"'),'\"'), '$') LIMIT 1) AS usuario,(SELECT texto FROM mensagem WHERE chat_id=c.chat_id AND NOT JSON_CONTAINS(privado,?) ORDER BY id DESC LIMIT 1) AS texto,(SELECT d FROM mensagem WHERE chat_id=c.chat_id AND NOT JSON_CONTAINS(privado,?) ORDER BY id DESC LIMIT 1) AS d FROM chat c WHERE NOT JSON_CONTAINS(privado,?) AND JSON_CONTAINS(usuarios, ?, '$')",[$usuario,'"' . $usuario . '"','"' . $usuario . '"','"' . $usuario . '"','"' . $usuario . '"']));
             response()->json(["result"=>"true","chats"=>$result]);
         } else if ($type=="excluir"){
             $id=intval(request("id"));
-            $conn=new sqli("anjoov00_posts");
+            $conn=$GLOBALS["conn"];
             $conn->prepare("UPDATE chat SET privado=JSON_ARRAY_APPEND(privado,'$',?) WHERE chat_id=?",[$usuario,$id]);
             $conn->prepare("UPDATE mensagem SET privado=JSON_ARRAY_APPEND(privado,'$',?) WHERE chat_id=?",[$usuario,$id]);
             $result=p($conn->prepare("SELECT chat_id, (SELECT JSON_OBJECT('usuario',usuario,'online',online,'peer_tokens',peer_tokens,'logo',logo) AS usuario FROM user WHERE usuario!=? AND JSON_CONTAINS(c.usuarios, CONCAT('\"',REPLACE(usuario, '\"', '\\\"'),'\"'), '$') LIMIT 1) AS usuario,(SELECT texto FROM mensagem WHERE chat_id=c.chat_id AND NOT JSON_CONTAINS(privado,?) ORDER BY id DESC LIMIT 1) AS texto,(SELECT d FROM mensagem WHERE chat_id=c.chat_id AND NOT JSON_CONTAINS(privado,?) ORDER BY id DESC LIMIT 1) AS d FROM chat c WHERE NOT JSON_CONTAINS(privado,?) AND JSON_CONTAINS(usuarios, ?, '$')",[$usuario,'"' . $usuario . '"','"' . $usuario . '"','"' . $usuario . '"','"' . $usuario . '"']));
@@ -2409,12 +2411,12 @@ Route::post("/chats",function(){
 });
 Route::post("/pay",function(){
     if (isset($_GET["isApi"])){
-        $conn=new sqli("anjoov00_posts");
+        $conn=$GLOBALS["conn"];
         $json = file_get_contents('php://input');
         // Decodifica o JSON
         $conn->prepare("INSERT INTO payments(val) VALUES(?)",[$json]);
     } else {
-        $conn=new sqli("anjoov00_posts");
+        $conn=$GLOBALS["conn"];
         $client = new Req();
 
         // echo $response->getStatusCode(); // 200
@@ -2615,7 +2617,7 @@ Route::post("/ups",function(){
     }
 });
 // Route::post("/ajeitar",function(){
-//     $conn=new sqli("anjoov00_posts");
+//     $conn=$GLOBALS["conn"];
 //     $result_total=p($conn->query("SELECT tipo,usuario,id,id_post,acessos_d,excluido FROM views WHERE acessos_d!='[]' AND tipo!='post_musica'"));
 //     foreach ($result_total as $result){
 //         $q22=json_decode($result["acessos_d"],true);
@@ -2656,14 +2658,14 @@ Route::post("/ups",function(){
 //     // }
 // });
 // Route::post("/ajeitar",function(){
-//     $conn=new sqli("anjoov00_posts");
+//     $conn=$GLOBALS["conn"];
 //     $p=p($conn->query("SELECT id FROM views WHERE tipo='post_24' AND excluido='false' AND id NOT IN (SELECT views_id AS id FROM post_24)"));
 //     foreach ($p as $p2){
 //         $conn->prepare("UPDATE views SET excluido='true' WHERE id=?",[$p2["id"]]);
 //     }
 // });
 // Route::post("/ajeitar",function(){
-//     $conn=new sqli("anjoov00_posts");
+//     $conn=$GLOBALS["conn"];
 //     $musics=p($conn->query("SELECT arquivo,zip,id FROM post_musica"));
 //     $musics2=[];
 //     $zips=[];
@@ -2881,7 +2883,7 @@ Route::post("/ups",function(){
 //     // }
 //     // echo $mp3_1->str;
 
-//     // $conn=new sqli("anjoov00_posts");
+//     // $conn=$GLOBALS["conn"];
 //     // $conn->query("DELETE FROM post WHERE views_id=NULL");
 //     // $conn->query("DELETE FROM post_imagem WHERE views_id=NULL");
 //     // $conn->query("DELETE FROM post_24 WHERE views_id=NULL");
@@ -2893,56 +2895,64 @@ Route::post("/ups",function(){
 //     //     $conn->prepare("UPDATE views SET excluido='true' WHERE id=?",[$p2["id"]]);
 //     // }
 // });
+// Route::post("/ajeitar",function(){
+//     $conn=$GLOBALS["conn"];
+//     $r=p($conn->query("SELECT * FROM views LIMIT 1"));
+//     $r2=p($conn->query("SELECT id,usuario FROM user"));
+//     $users=[];
+//     foreach ($r2 as $l){
+//         $users[$l["usuario"]]=intval($l["id"]);
+//     }
+//     $t1=0;
+//     $t2=0;
+//     foreach ($r as $c){
+//        $t1+=strlen($c["d2"]);
+//         $p=json_decode($c["d2"],true);
+//         $a=[];
+//         foreach ($p as $y=>$yv){
+//             // $y=bin2hex(pack("S",$y));
+//             $a[$y]=[];
+//             foreach ($yv as $d=>$dv){
+//                 // $d=bin2hex(pack("S",$d));
+//                 $a[$y][$d]=[];
+//                 foreach ($dv as $array=>$arrayv){
+//                     $anterior=0;
+//                     foreach ($arrayv as $time=>$timev){
+//                         // $codigo=0;
+//                         // foreach (str_split($timev) as $char) {
+//                         //     $codigo = $codigo * 256 + ord($char);  // Cria um número a partir da string
+//                         // }
+//                         $t=intval(strtotime($time) / 1000);
+//                         $d=$t-$anterior;
+//                         // echo $t,$anterior;
+//                         $id=$timev!="" ? $users[$timev] : 0;
+//                         $a[$y][$d][$array][]=( $id << 22) | $d;
+//                         $anterior=$t;
+//                     }
+//                 }
+//             }
+//         }
+//         $a=gzcompress(json_encode($a));
+//         // echo gzuncompress($a);
+//         // echo "." . strval(strlen($c["d2"]));
+//         // echo "." . strval(strlen($a));
+//         // echo strlen($a)>strlen($c["d2"]) ? "true" : "false";
+//         // echo $c["d2"];
+//         // echo $a;
+//         // echo $a;
+//     }
+//     // echo ($t2 / $t1);
+//     // $u=( 5 << 11) | 300;
+//     // $e=$u & ((1 << 11) -1);
+//     // echo "." . $e;
+// });
 Route::post("/ajeitar",function(){
-    $conn=new sqli("anjoov00_posts");
-    $r=p($conn->query("SELECT * FROM views LIMIT 1"));
-    $r2=p($conn->query("SELECT id,usuario FROM user"));
-    $users=[];
-    foreach ($r2 as $l){
-        $users[$l["usuario"]]=intval($l["id"]);
+    $conn=$GLOBALS["conn"];
+    $r=p($conn->query("SELECT usuario FROM user"));
+    foreach ($r as $rs){
+        $hash=get_token(["usuario"=>$rs["usuario"]]);
+        $conn->prepare("UPDATE user SET hash=? WHERE usuario=?",[$hash,$rs["usuario"]]);
     }
-    $t1=0;
-    $t2=0;
-    foreach ($r as $c){
-       $t1+=strlen($c["d2"]);
-        $p=json_decode($c["d2"],true);
-        $a=[];
-        foreach ($p as $y=>$yv){
-            // $y=bin2hex(pack("S",$y));
-            $a[$y]=[];
-            foreach ($yv as $d=>$dv){
-                // $d=bin2hex(pack("S",$d));
-                $a[$y][$d]=[];
-                foreach ($dv as $array=>$arrayv){
-                    $anterior=0;
-                    foreach ($arrayv as $time=>$timev){
-                        // $codigo=0;
-                        // foreach (str_split($timev) as $char) {
-                        //     $codigo = $codigo * 256 + ord($char);  // Cria um número a partir da string
-                        // }
-                        $t=intval(strtotime($time) / 1000);
-                        $d=$t-$anterior;
-                        // echo $t,$anterior;
-                        $id=$timev!="" ? $users[$timev] : 0;
-                        $a[$y][$d][$array][]=( $id << 22) | $d;
-                        $anterior=$t;
-                    }
-                }
-            }
-        }
-        $a=gzcompress(json_encode($a));
-        // echo gzuncompress($a);
-        // echo "." . strval(strlen($c["d2"]));
-        // echo "." . strval(strlen($a));
-        // echo strlen($a)>strlen($c["d2"]) ? "true" : "false";
-        // echo $c["d2"];
-        // echo $a;
-        // echo $a;
-    }
-    // echo ($t2 / $t1);
-    // $u=( 5 << 11) | 300;
-    // $e=$u & ((1 << 11) -1);
-    // echo "." . $e;
 });
 Route::post("/functions",function(){
     if (isset($_POST["key"]) && $_POST["key"]=="7894j96~-[njd98n705yfhq´-d3=rfekk9"){
@@ -2964,7 +2974,7 @@ Route::post("/functions",function(){
 Route::post("/verifyPeerId",function(){
     $usuario=$GLOBALS["user"];
     if ($usuario){
-        $conn=new sqli("anjoov00_posts");
+        $conn=$GLOBALS["conn"];
         $name=$_POST["name"];
         $peer_tokens=json_decode(p($conn->prepare("SELECT peer_tokens FROM user WHERE usuario=?",[$name]))[0]["peer_tokens"]);
         $verify=false;

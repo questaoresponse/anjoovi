@@ -33,51 +33,23 @@ class sqli{
         return $q2;
     }
 }
-$ci=__DIR__ . '/../php-jwt/src/';
-require $ci . 'JWT.php';
-require $ci . 'JWTExceptionWithPayloadInterface.php';
-require $ci . 'BeforeValidException.php';
-require $ci . 'ExpiredException.php';
-require $ci . 'SignatureInvalidException.php';
-require $ci . 'Key.php';
-require $ci . 'JWK.php';
-require $ci . 'CachedKeySet.php';
-require __DIR__ . "/../keys/keys.php";
-use \Firebase\JWT\JWT;
-use \Firebase\JWT\KEY;
 
-$chaveSecreta=$GLOBALS["jwtKey"];
-function jwt_verify($token){
-    $chaveSecreta=$GLOBALS["jwtKey"];
-    try {
-        $decoded=JWT::decode($token, new Key($chaveSecreta, 'HS256'));
-        return $decoded;
-    } catch (Exception $e) {
-        return false;
+if (isset($_COOKIE["token"])){
+    $r=$GLOBALS["conn"]->prepare("SELECT usuario,cargo FROM user WHERE hash=?",[$_COOKIE["token"]]);
+    if ($r->num_rows>0){
+        $r=p($r)[0];
+        $GLOBALS["user"]=$r["usuario"];
+        $GLOBALS["cargo"]=intval($r["cargo"]);
+        if (($GLOBALS["cargo"] & 4)==4){
+            header("Cache-Control: public, max-age=3600"); // Cache por 1 hora (3600 segundos)
+            header("Expires: " . gmdate("D, d M Y H:i:s", time() + 3600) . " GMT");  // Define a data de expiração
+            // header("Last-Modified: " . gmdate("D, d M Y H:i:s", filemtime('imagem.jpg')) . " GMT"); // Define a data de última modificação
+            // Enviar a imagem
+            header("Content-Type: image/webp");
+            readfile(__DIR__ . '/../public_html/images/' . array_splice(explode("/"$_SERVER["REQUEST_URI"]),-1)[0]);
+        }
     }
-}
-function get_token($dados){
-    $chaveSecreta=$GLOBALS["jwtKey"];
-    $payload = [
-        'iat' => time(),
-        'exp' => strtotime('+1 year'), // time in the past
-    ];
-    $token = JWT::encode(array_merge($payload,$dados), $chaveSecreta, 'HS256');
-    return $token;
-}
-function get_cookie($name){
-    return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
-}
-function get_user(){
-    if (!isset($_COOKIE["token"])) return null;
-    $v=jwt_verify($_COOKIE["token"]);
-    return $v ? strval($v->usuario) : null;
-}
-$usuario=get_user();
-if ($usuario){
-    $conn=new sqli("anjoov00_posts");
-    if (p($conn->prepare("SELECT cargo FROM user WHERE usuario=?",[$usuario]))[0]["cargo"]>0){
-        readfile(__DIR__ . "/../public_html" .  $_SERVER["REQUEST_URI"]);
-    } else {
-    }
+} else {
+    $GLOBALS["user"]=null;
+    $GLOBALS["cargo"]=null;
 }

@@ -429,24 +429,20 @@ function delete_cookie($name){
 function has_cookie($name){
     return isset($_COOKIE[$name]);
 }
-function set_user($user){
-    set_cookie("token",get_token(["usuario"=>$user]));
-}
-function get_user(){
-    // if (!isset($_POST["token"]) || $_POST["token"]=="null") return null;
-    if (!isset($_COOKIE["token"])) return null;
-    $v=jwt_verify($_COOKIE["token"]);
-    return $v ? strval($v->usuario) : null;
-}
 function logout(){
     delete_cookie("token");
 }
-$GLOBALS["user"]=get_user();
-$conn=new sqli("anjoov00_posts");
-$r=$conn->prepare("SELECT cargo FROM user WHERE usuario=?",[$GLOBALS["user"]]);
-if ($r->num_rows>0){
-    $r=p($r)[0];
-    $GLOBALS["cargo"]=intval($r["cargo"]);
+$GLOBALS["conn"]=new sqli("anjoov00_posts");
+if (isset($_COOKIE["token"])){
+    $r=$GLOBALS["conn"]->prepare("SELECT usuario,cargo FROM user WHERE hash=?",[$_COOKIE["token"]]);
+    if ($r->num_rows>0){
+        $r=p($r)[0];
+        $GLOBALS["user"]=$r["usuario"];
+        $GLOBALS["cargo"]=intval($r["cargo"]);
+    }
+} else {
+    $GLOBALS["user"]=null;
+    $GLOBALS["cargo"]=null;
 }
 if (str_starts_with($_SERVER["REQUEST_URI"],"/admin")){
     if ($GLOBALS["user"] && $_POST["type"]!="info"){
