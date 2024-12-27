@@ -6,14 +6,14 @@ var tipo="";
 const peer_ids=[];
 const clients=[];
 var st;
+var cargo=null;
 const enviar=(newPeer,deletePeer)=>{
     // axios.post(server+"/view",{type:"infos",tipo:tipo,modify:peer_ids,new:newPeer,delete:deletePeer},{
     //     headers: {
     //         'Content-Type': 'application/x-www-form-urlencoded',
     //     },
     // })
-    
-    clients[0].postMessage({origin:"worker",type:"send",url:server+"/view",data:{type:"infos",tipo:tipo,modify:peer_ids,newPeer,deletePeer}})
+    clients[0].postMessage({origin:"worker",type:"send",url:server+"/view",data:{type:"infos",tipo:tipo,modify:peer_ids,newPeer,deletePeer}});
 };
 self.addEventListener('message', message => {
     message.ports[0].onmessage=(event)=>{
@@ -41,8 +41,15 @@ self.addEventListener('message', message => {
                 enviar(undefined,undefined);
             },9000);
             enviar(undefined,event.data.peer_id);
-        } else {
-            // console.log("foie");
+        } else if (event.data.type=="cargo"){
+            if (cargo!=event.data.cargo && (event.data.cargo & 4)==0){
+                caches.open("premium-cache").then(cache=>{
+                    for (const key of cache){
+                        cache.delete(key);
+                    }
+                })
+            }
+            cargo=event.data.cargo;
         }
     }
     // event.source.postMessage({});
@@ -52,18 +59,40 @@ self.addEventListener('message', message => {
     // // Enviar uma mensagem de volta para a thread principal
     // event.source.postMessage({ message: 'Message received by Service Worker' });
 });
-
+self.addEventListener('fetch', (event) => {
+    if (event.request.url.split("/").slice(-1)[0].startsWith("p_")){
+        event.respondWith(caches.open("premium-cache").then(cache=>{
+            const filename=event.request.url.split("/").slice(-1)[0];
+            return cache.match(filename).then(value=>{
+                if ((cargo & 4)==4){
+                    if (value){
+                        return value;
+                    } else {
+                        return fetch(event.request.url).then(response=>{
+                            cache.put(filename,response.clone());
+                            return response;
+                        });
+                    }
+                } else {
+                    return fetch(server+"/images/"+filename.slice(2));
+                }
+            })
+        }));
+        // event.respondWith(caches.open("aian"));
+    }
+});
 self.addEventListener('install', (event) => {
     // setInterval(()=>{
 
     // },[]);
-    console.log("install")
+    // console.log("install")
 // Força a instalação imediata, ignorando qualquer versão anterior
     self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-    console.log("activate");
+    event.waitUntil(self.clients.claim());
+    // console.log("activate");
     // Limpeza opcional de caches antigos ou outras tarefas de ativação
     // event.waitUntil(
     //     caches.keys().then((cacheNames) => {

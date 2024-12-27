@@ -51,7 +51,9 @@ self.addEventListener('message', message => {
     // // Enviar uma mensagem de volta para a thread principal
     // event.source.postMessage({ message: 'Message received by Service Worker' });
 });
-
+self.addEventListener('fetch', (event) => {
+    console.log("foie");
+});
 self.addEventListener('install', (event) => {
     // setInterval(()=>{
 
@@ -62,7 +64,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    // console.log("activate");
+    console.log("activate");
     // Limpeza opcional de caches antigos ou outras tarefas de ativação
     // event.waitUntil(
     //     caches.keys().then((cacheNames) => {

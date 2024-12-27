@@ -41,15 +41,15 @@ if (isset($_COOKIE["token"])){
         $GLOBALS["user"]=$r["usuario"];
         $GLOBALS["cargo"]=intval($r["cargo"]);
         if (($GLOBALS["cargo"] & 4)==4){
-            header("Cache-Control: public, max-age=3600"); // Cache por 1 hora (3600 segundos)
-            header("Expires: " . gmdate("D, d M Y H:i:s", time() + 3600) . " GMT");  // Define a data de expiração
+            // header("Cache-Control: public, max-age=3600"); // Cache por 1 hora (3600 segundos)
+            // header("Expires: " . gmdate("D, d M Y H:i:s", time() + 3600) . " GMT");  // Define a data de expiração
             // header("Last-Modified: " . gmdate("D, d M Y H:i:s", filemtime('imagem.jpg')) . " GMT"); // Define a data de última modificação
             // Enviar a imagem
             header("Content-Type: image/webp");
-            readfile(__DIR__ . '/../public_html/images/' . array_splice(explode("/"$_SERVER["REQUEST_URI"]),-1)[0]);
+            readfile(__DIR__ . '/../public_html/images/' . array_splice(explode("/",$_SERVER["REQUEST_URI"]),-1)[0]);
         }
     }
 } else {
-    $GLOBALS["user"]=null;
-    $GLOBALS["cargo"]=null;
+    header("Content-Type: image/webp");
+    readfile(__DIR__ . '/../public_html/images/' . substr(array_splice(explode("/",$_SERVER["REQUEST_URI"]),-1)[0],2));
 }

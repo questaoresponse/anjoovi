@@ -6,6 +6,8 @@ import './NoticiasCadastro.scss';
 import '../../../d.ts';
 import sem_imagem from "../../static/sem-imagem.jpg";
 import Publicar from "./../Publicar.jsx";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { toBlobURL, fetchFile } from "@ffmpeg/util";
 
 interface postInterface{
     id:number,
@@ -42,6 +44,7 @@ function NoticiasCadastro(){
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
     const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
+    const ffmpeg=useRef(new FFmpeg());
     const showError=()=>{
         setErrorImage(true);
         const st=setTimeout(()=>{
@@ -146,6 +149,23 @@ function NoticiasCadastro(){
                 }
             });
         }
+        (async ()=>{
+            const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm";
+            await ffmpeg.current.load({
+                coreURL: await toBlobURL(
+                    `${baseURL}/ffmpeg-core.js`,
+                    "text/javascript"
+                ),
+                wasmURL: await toBlobURL(
+                    `${baseURL}/ffmpeg-core.wasm`,
+                    "application/wasm"
+                ),
+                workerURL: await toBlobURL(
+                    `${baseURL}/ffmpeg-core.worker.js`,
+                    "text/javascript"
+                ),
+            });
+        })();
         cargo.current.addListener(updateCargo);
         return ()=>{
             cargo.current.removeListener(updateCargo);
@@ -172,6 +192,16 @@ function NoticiasCadastro(){
         fd.append("titulo",titulo);
         subtitulo!="" && fd.append("subtitulo", subtitulo);
         original_format && fd.append("original_format",original_format.toString());
+        if (imagem_data){
+            const format=imagem_data.name.split(".").slice(-1)[0];
+            await ffmpeg.current.writeFile("input."+format,await fetchFile(imagem_data));
+            await ffmpeg.current.exec(["-i","input."+format,"-vf","boxblur=30","output."+format]);
+            const data=new Uint8Array(await ffmpeg.current.readFile("output."+format) as ArrayBuffer);
+            const blob = new Blob([data], { type: "image/"+format });
+            // Cria o objeto File a partir do Blob
+            const file = new File([blob], "image."+format, { type: "image/"+format });
+            fd.append("dImagem",file);
+        }
         auth.post(server+"/admin/noticias_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,{arquivo:true}).then((result)=>{
             if (result.error){
                 globals.setRedirectError(result.error);

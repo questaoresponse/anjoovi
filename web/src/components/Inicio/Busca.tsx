@@ -28,7 +28,6 @@ function Busca(){
         registros:0,
     });
     const get=()=>{
-        fetch(server+"/images/peste.webp").then(result=>result.text()).then(result=>console.log(result));
         auth.post(server+"/busca"+location.search,{type:"info",filter:JSON.stringify(filterInfos.current)}).then(result=>{
             var data=result.data;
             const posts=data.posts;

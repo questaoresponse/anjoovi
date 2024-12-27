@@ -193,6 +193,7 @@ function VideosCadastro(){
                     const output="output."+file.name.split(".").slice(-1);
                     ffmpeg.current.exec(["-i",file.name,"-t","00:01:00","-c","copy",output]);
                     ffmpeg.current.exec(['-i', file.name,'-vf', 'select=eq(n\\,0)','-q:v', '3','-frames:v', '1','output.jpg']);
+                    ffmpeg.current.exec(['-i', "output.jpg",'-vf', 'boxblur=30','output.jpg']);
                  
                     const data=new Uint8Array(await ffmpeg.current.readFile(output) as ArrayBuffer);
                     const fileData=new Uint8Array(await ffmpeg.current.readFile("output.jpg") as ArrayBuffer);

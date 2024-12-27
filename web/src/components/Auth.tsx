@@ -58,7 +58,7 @@ const AuthProvider = ({ children }:{children:any}) => {
         globals.redirect(res.data.header_location);
       }
     // r({error:res.data.header_location});
-    } else if (res.data.header_erro){
+    } else if (res.data.header_erro || (res.data.result=="false" && res.data.type=="not_logged")){
         globals.setRedirectError("/erro");
     } else {
       const lgs=localStorage.getItem("lg");

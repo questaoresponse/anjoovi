@@ -689,7 +689,7 @@ Route::post("/busca",function(){
             if (substr($ps,0,1)=="@"){
                 $p = substr($ps,1,strlen($ps));
                 $conn = $GLOBALS["conn"];
-                $result = $conn->prepare("SELECT nome,usuario,logo,n_posts FROM user WHERE usuario=? AND privado=0",[$p]);
+                $result = $conn->prepare("SELECT nome,usuario,logo,n_posts FROM user WHERE usuario=? AND cargo & 1=0",[$p]);
                 $canals=p($result);
                 // return view("busca.index",compact("r","usuario","logo","canal"));
                 $end_time = microtime(true);
@@ -700,7 +700,7 @@ Route::post("/busca",function(){
             } else {
                 $conn = $GLOBALS["conn"];
                 $p = '%' . $ps . '%' ;
-                $list2=p($conn->prepare("SELECT usuario,logo FROM user WHERE LOWER(nome) LIKE LOWER(?) AND privado=0 LIMIT 8",[$p]));
+                $list2=p($conn->prepare("SELECT usuario,logo FROM user WHERE LOWER(nome) LIKE LOWER(?) AND cargo & 1=0 LIMIT 8",[$p]));
                 $list=[];
                 foreach ($list2 as $el){
                     array_push($list,$el["usuario"]);
@@ -770,11 +770,11 @@ Route::post("/busca",function(){
                         $n+=p($result)[0]["num"];
                         // $result = $conn->prepare("SELECT nome,usuario,logo,n_posts FROM user  WHERE (LOWER(nome) LIKE LOWER(?) OR LOWER(usuario) LIKE LOWER(?)) AND privado=0 ORDER BY id DESC LIMIT 5",[$p,$p]);
                         // $canal=p($result);
-                        $result = $conn->prepare("SELECT COUNT(*) AS num FROM user  WHERE ( LOWER(nome) LIKE LOWER(?) OR LOWER(usuario) LIKE LOWER(?) ) AND privado=0",[$p,$p]);
+                        $result = $conn->prepare("SELECT COUNT(*) AS num FROM user  WHERE ( LOWER(nome) LIKE LOWER(?) OR LOWER(usuario) LIKE LOWER(?) ) AND cargo & 1=0",[$p,$p]);
                         $n+=p($result)[0]["num"];
                     } else {
                         $result = $conn->prepare("SELECT * FROM (
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'p' AS tipo FROM post WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'p' AS tipo FROM post WHERE ( LOWER(titulo) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado & 1=0 AND privado & 4=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( LOWER(descricao) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
@@ -830,13 +830,13 @@ Route::post("/busca",function(){
                         $n+=p($result)[0]["num"];
                         // $result = $conn->prepare("SELEC T nome,usuario,logo,n_posts FROM user  WHERE (LOWER(nome) LIKE LOWER(?) OR LOWER(usuario) LIKE LOWER(?)) AND privado=0 ORDER BY id DESC LIMIT 5",[$p,$p]);
                         // $canal=p($result);
-                        $result = $conn->prepare("SELECT COUNT(*) AS num FROM user  WHERE ( LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND privado=0",[$p,$p]);
+                        $result = $conn->prepare("SELECT COUNT(*) AS num FROM user  WHERE ( LOWER(nome) LIKE LOWER(?) || LOWER(usuario) LIKE LOWER(?) ) AND cargo & 1=0",[$p,$p]);
                         $n+=p($result)[0]["num"];
                     }
                 }
                 if ($usuario){
                     $d=get_updated_date();
-                    $conn->prepare("INSERT INTO historico(usuario,texto,d,id)  SELECT ?,?,?,COUNT(*) FROM historico WHERE usuario = ?",[$usuario,$ps,$d,$usuario]);
+                    $conn->prepare("INSERT INTO historico(usuario,texto,d,id)  SELECT ?,?,?,COUNT(*) FROM historico WHERE usuario=?",[$usuario,$ps,$d,$usuario]);
                 }
                 // echo $n;
                 $end_time = microtime(true);
@@ -1062,10 +1062,10 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
         $conn = $GLOBALS["conn"];
         // $name=request()->query("name");
         $usuario=$GLOBALS["user"];
-        $result=$conn->prepare("SELECT nome,usuario,logo,banner,n_posts,privado FROM user WHERE usuario=?",[$name]);
+        $result=$conn->prepare("SELECT nome,usuario,logo,banner,n_posts,cargo FROM user WHERE usuario=?",[$name]);
         $ss=p($result);
         if ($result->num_rows>0){
-            if ($ss[0]["privado"]=="true"){
+            if ((intval($ss[0]["cargo"]) & 1)==1){
                 response()->json(["result"=>"privado"]);
                 return;
             } else {

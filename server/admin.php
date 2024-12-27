@@ -1,4 +1,5 @@
 <?php
+set_include_path(get_include_path() . PATH_SEPARATOR . 'C:\xampp\htdocs\anjoovi\pear');
 if (!function_exists("cargo")){
     function cargo($usuario){
         $conn=$GLOBALS["conn"];
@@ -272,15 +273,8 @@ if (!function_exists("cargo")){
         return uniqid("anjoovi-");
     }
     function blur_image($dir,$filename){
-        $image = imagecreatefromwebp($dir . $filename);
-
-        imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
-
-        // Salvar a imagem borrada na saída (browser)
-        imagewebp($image, $dir . "p_" . $filename);
-
-        // Libere a memória usada pela imagem
-        imagedestroy($image);
+        $image = file_get_contents($dir . $filename);
+        file_put_contents($dir . substr($filename,2), $image);
     }
 }
 Route::post("/admin_header",function(){
@@ -488,7 +482,7 @@ Route::post("/admin/noticias_cadastro", function(){
                 $conn = $GLOBALS["conn"];
                 $dados=request()->all();
                 ['titulo'=>$titulo ] = $_POST;
-                $permission=($GLOBALS["cargo"] & 4)==4 ? ($_POST["permission"]=="0" ? 0 : 0 | 2) : 0;
+                $permission=($GLOBALS["cargo"] & 4)==4 ? ($_POST["permission"]=="0" ? 0 : 2) : 0;
                 // if (strlen($titulo)==0) return;
                 $subtitulo=isset($dados["subtitulo"]) ? $dados["subtitulo"] : null;
                 $original_format=isset($dados["original_format"]);
@@ -506,31 +500,46 @@ Route::post("/admin/noticias_cadastro", function(){
                     $result=$conn->prepare("SELECT imagem,privado,d FROM post WHERE usuario=? AND id=?",[$usuario,$id]);
                     if ($result->num_rows>0){
                         ["imagem"=>$imagem,"privado"=>$old_permission,"d"=>$d]=p($result)[0];
-                        $old_image=$image;
+                        $old_image=$imagem;
                         $old_permission=intval($permission) & 2;
                     } else {
                         return response()->json(["result"=>"false","type"=>"id"]);
                     }
                 }
                 $texto=isset($dados["texto"]) ? $dados["texto"] : null;
+                $hasDImage=$permission==2;
                 // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
-                if (($isCadastro || isset($dados["imagens_edit"])) && request()->has("imagem")) {
+                if (($isCadastro || isset($dados["imagens_edit"])) && request()->has("imagem") && (!$hasDImage || request()->has("dImagem"))) {
                     $file = request()->file("imagem");
-                    if (mime_content_type(request()->file("imagem")->file["tmp_name"]) === 'image/jpeg'){
+                    $dFile = request()->file("dImagem");
+                    if (mime_content_type($file->file["tmp_name"]) === 'image/jpeg' && (!$hasDImage || mime_content_type($dFile->file["tmp_name"]) === 'image/jpeg')){
                         $caminhoDestino = __DIR__ . "/../public_html/images/";
                         if ($imagem){
                             unlink($caminhoDestino . $imagem);
+                            if ($old_permission==2){
+                                unlink($caminhoDestino . substr($imagem,2));
+                            }
                         }
                         // if permission has changed and new permission is public;
                         // Salvar a imagem em um diretório
-                        $imagem = $file->getClientOriginalName("webp");
-                        $imagem=$id . "_p_" . $imagem;
+                        $filename = $file->getClientOriginalName("webp");
+                        $imagem=(($permission&2)==2 ? "p_" : "") . $id . "_p_" . $filename;
                         $file->createwebp($caminhoDestino,$imagem);
                         $img=imagem($caminhoDestino.$imagem);
                         if ($original_format){
                             $img->resize(null,720);
                         } else {
                             $img->resize(1280,720);
+                        }
+                        if ($hasDImage){
+                            $dImagem=$id . "_p_" . $filename;
+                            $dFile->createwebp($caminhoDestino,$dImagem);
+                            $img=imagem($caminhoDestino.$dImagem);
+                            if ($original_format){
+                                $img->resize(null,720);
+                            } else {
+                                $img->resize(1280,720);
+                            }
                         }
                     } else {
                         return response()->json(["result"=>"false","type"=>"mimeType"]);
@@ -540,12 +549,8 @@ Route::post("/admin/noticias_cadastro", function(){
                         return response()->json(["result"=>"false","type"=>"image"]);
                     }
                 }
-                if ($permission!=$old_permission){
-                    if ($permission==0){
-                        unlink(__DIR__ . '/../public_html/images/p_' . $old_image);
-                    } else {
-                        blur_image(__DIR__ . '/../public_html/images/', $imagem);
-                    }
+                if ($permission==0 && $permission!=$old_permission){
+                    unlink(__DIR__ . '/../public_html/images/' . substr($old_image,2));
                 }
                 if ($isCadastro){
                     $conn = $GLOBALS["conn"];
@@ -559,7 +564,22 @@ Route::post("/admin/noticias_cadastro", function(){
                     $d=json_decode($d,true);
                     $d["a"]=get_updated_date();
                     $d=json_encode($d);
-                    $conn->prepare("UPDATE post SET titulo=?,subtitulo=?,texto=?,imagem=?,d=?,privado=CASE WHEN ? & 2=2 THEN cargo & 1 | 2 ELSE cargo & 1 & ~2 END WHERE usuario=? AND id=?",[$titulo,$subtitulo,$texto,$imagem,$d,$permission,$usuario,$id]);
+                    // if (new permission is premium only){
+                        // if (flag of private channel in cargo){
+                            // a=1 << 2 (4);
+                        // } else {
+                            // a=0<< 2 (0);
+                        // }
+                        // return a | 2;
+                    //} else {
+                        // if (flag of private channel in cargo){
+                            // a=1 << 2 (4);
+                        // } else {
+                            // a=0<< 2 (0);
+                        // }
+                        // return a & ~2;
+                    //}
+                    $conn->prepare("UPDATE post SET titulo=?,subtitulo=?,texto=?,imagem=?,d=?,privado=CASE WHEN ? & 2=2 THEN ((? & 1) << 2) | 2 ELSE ((? & 1) << 2) & ~2 END WHERE usuario=? AND id=?",[$titulo,$subtitulo,$texto,$imagem,$d,$permission,$GLOBALS["cargo"],$GLOBALS["cargo"],$usuario,$id]);
                 }
                 response()->json(["result"=>"true","usuario"=>$usuario]);
             }

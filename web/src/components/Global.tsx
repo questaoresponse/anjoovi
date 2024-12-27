@@ -106,7 +106,14 @@ class NavigateClass{
 class Cargo{
   cargo:number | null=null;
   listeners:((cargo:number)=>void)[]=[];
+  serviceChannel:MutableRefObject<MessageChannel>;
+  constructor (serviceChannel:MutableRefObject<MessageChannel>){
+    this.serviceChannel=serviceChannel;
+  }
   setCargo(cargo:number){
+    if (this.cargo!=cargo){
+      this.serviceChannel.current.port1.postMessage({type:"cargo",cargo:cargo,origin:"client"});
+    }
     this.cargo=cargo;
     this.listeners.forEach(fn=>fn(cargo));
   }
@@ -194,13 +201,13 @@ const GlobalProvider = ({ children }:{children:any}) => {
     const [selected,setSelected]=useState<string>();
     const [inicioSelected,setInicioSelected]=useState<string>();
     const [redirectTo,redirect]=useState<string | null>(null);
-    const cargo=useRef<Cargo>(new Cargo());
+    const serviceChannel=useRef<MessageChannel>(new MessageChannel());
+    const cargo=useRef<Cargo>(new Cargo(serviceChannel));
     const countAds=useRef(0);
     const peer=useRef<MyPeer>(new MyPeer());
     const modules=useRef(null);
     const myStorage=useRef(false);
     const player=useRef(new PlayerClass);
-    const serviceChannel=useRef<MessageChannel>(new MessageChannel());
     const get=useRef<((initial?:boolean)=>void) | undefined>(undefined);
     const isLoadedPage=useRef(true);
     const loadedInfos=useRef<loadedInfosInterface>({loaded:false});
