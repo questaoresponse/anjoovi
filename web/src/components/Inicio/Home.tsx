@@ -16,9 +16,9 @@ interface postsInterface{
 function Home() {
     const isLoaded=useRef(false);
     const globals = useGlobal();
-    const { server }=globals;
+    const { server, navigateClass }=globals;
     const auth = useAuth();
-    const [posts,setPosts]=useState<postsInterface>(localStorage.getItem("p") ? JSON.parse(localStorage.getItem("p") || "") : {isLoaded:false,canal:[],posts:[],st:[]});
+    const [posts,setPosts]=useState<postsInterface>({isLoaded:false,canal:[],posts:[],st:[]});
     const [altas,setAltas]=useState<{palavra:string,frequencia:number}[]>([]);
     const [isLoading,setIsLoading]=useState(false);
     const get=async (initial=false)=>{
@@ -40,7 +40,6 @@ function Home() {
     const pt=useRef(0);
     const awaitingLoad=useRef(false);
     const verifyScroll=()=>{
-        // console.log("foie",document.documentElement.scrollHeight,);
         if (window.scrollY+800>document.documentElement.scrollHeight && !awaitingLoad.current){
             pt.current+=1;
             setIsLoading(true);
@@ -58,8 +57,10 @@ function Home() {
         document.title="Anjoovi";
         globals.get.current=get;
         window.addEventListener("scroll",verifyScroll);
+        // navigateClass.current.addListener(onUpdate);
         return ()=>{
             window.removeEventListener("scroll",verifyScroll);
+            // navigateClass.current.addListener(onUpdate);
             globals.get.current=undefined;
         }
     },[]);
@@ -84,4 +85,4 @@ function Home() {
     </div>
   );
 }
-export default memo(Home);
+export default Home;

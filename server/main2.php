@@ -287,7 +287,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 (
                     CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END + 
                     CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
+                ) AS accuracy FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado & 1=0 AND privado & 4=0 AND views_id!=?
             )
             UNION
             (
@@ -383,7 +383,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     STR_TO_DATE(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(d, '$.a')), JSON_UNQUOTE(JSON_EXTRACT(d, '$.o'))), '%Y-%m-%d')
                 ) AS latest_date,
                 'p' AS tipo,acessos,p.usuario,titulo,NULL AS descricao,subtitulo,texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
-                0 AS accuracy FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0
+                0 AS accuracy FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado & 1=0 AND privado & 4=0
             )
             UNION
             (
@@ -1419,7 +1419,7 @@ Route::post("/inscricoes",function(){
     if ($usuario){
         if (request("type")=="info"){
             $conn=$GLOBALS["conn"];
-            $r=$conn->prepare("SELECT inscritos FROM user WHERE usuario=? AND privado=0",[$usuario]);
+            $r=$conn->prepare("SELECT inscritos FROM user WHERE usuario=? AND cargo & 1=0       ",[$usuario]);
             if ($r->num_rows>0){
                 $r=json_decode(p($r)[0]["inscritos"],true);
                 $rk=array_keys($r);
@@ -1995,26 +1995,41 @@ Route::post("/view",function(){
     // Monta a consulta SQL para excluir os registros que atendem à condição
         // $sql = "UPDATE user SET peer_tokens=peer_tokens ?"
         if (isset($dados["delete"])){
-            $peer_id=$dados["delete"];
-            // $conn->prepare("DELETE FROM views_atual WHERE id=?",[$v["id"]]);
-            $new_peer_id="%\"peer_id\":\"$peer_id\"%";
-            // echo p($conn->prepare("SELECT JSON_REMOVE(
-            //     peer_tokens,
-            //     REPLACE(JSON_SEARCH(peer_tokens, 'one', ? , NULL, '$'),'\"','')
-            // ) AS p, JSON_SEARCH(peer_tokens, 'one', ? , NULL, '$') AS d FROM user u WHERE usuario=?",[$new_peer_id,$new_peer_id,$usuario]))[0]["p"];
-            $conn->prepare("UPDATE user SET online=(CASE WHEN JSON_LENGTH(
-                JSON_REMOVE(
-                    peer_tokens,
-                    REPLACE(JSON_SEARCH(peer_tokens, 'one', ? , NULL, '$[*]'),'\"','')
-                )
-                )=0 THEN 0 ELSE online END),
-                peer_tokens=IFNULL(
+            if (is_array($dados["delete"])){
+                $r=p($conn->prepare("SELECT online, peer_tokens FROM user WHERE usuario=?",[$usuario]))[0];
+                $peer_tokens=json_decode($r["peer_tokens"],true);
+                $peer_delete_map=[];
+                foreach ($dados["delete"] as $peer_delete){
+                    $peer_delete_map[$peer_delete]=true;
+                }
+                $peer_tokens=array_filter($peer_tokens,function($peer_token) use ($peer_delete_map){
+                    return isset($peer_delete_map[$peer_token["peer_id"]]);
+                });
+                $online=count($peer_tokens)>0 ? intval($r["online"]) : 0;
+                $peer_tokens=json_encode($peer_tokens);
+                $conn->prepare("UPDATE user SET online=?,peer_tokens=? WHERE usuario=?",[$online,$peer_tokens]);
+            } else {
+                $peer_id=$dados["delete"];
+                // $conn->prepare("DELETE FROM views_atual WHERE id=?",[$v["id"]]);
+                $new_peer_id="%\"peer_id\":\"$peer_id\"%";
+                // echo p($conn->prepare("SELECT JSON_REMOVE(
+                //     peer_tokens,
+                //     REPLACE(JSON_SEARCH(peer_tokens, 'one', ? , NULL, '$'),'\"','')
+                // ) AS p, JSON_SEARCH(peer_tokens, 'one', ? , NULL, '$') AS d FROM user u WHERE usuario=?",[$new_peer_id,$new_peer_id,$usuario]))[0]["p"];
+                $conn->prepare("UPDATE user SET online=(CASE WHEN JSON_LENGTH(
                     JSON_REMOVE(
                         peer_tokens,
                         REPLACE(JSON_SEARCH(peer_tokens, 'one', ? , NULL, '$[*]'),'\"','')
-                    ),
-                '[]')
-            WHERE usuario=?",[$new_peer_id,$new_peer_id,$usuario]);
+                    )
+                    )=0 THEN 0 ELSE online END),
+                    peer_tokens=IFNULL(
+                        JSON_REMOVE(
+                            peer_tokens,
+                            REPLACE(JSON_SEARCH(peer_tokens, 'one', ? , NULL, '$[*]'),'\"','')
+                        ),
+                    '[]')
+                WHERE usuario=?",[$new_peer_id,$new_peer_id,$usuario]);
+            }
         }
             // $peer_id=$dados["peer_id"];
             // $new_peer_id="%\"peer_id\":\"$peer_id\"%";

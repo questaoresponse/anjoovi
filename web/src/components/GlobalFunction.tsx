@@ -7,7 +7,7 @@ function GlobalFunction(){
     const location=useLocation();
     const auth=useAuth();
     const navigatess=useNavigate();
-    const { player, setHeader, loadedInfos,serviceChannel,server,navigate,navigateClass,setMobile,verifyStories,currentLogin,modules,redirectTo,redirectError,isLoadedPage,peer, cargo }=useGlobal();
+    const { player, setHeader, loadedInfos,serviceChannel,server,navigate,navigateClass,setMobile,verifyStories,currentLogin,modules,redirectTo,redirectError,isLoadedPage,peer, cargo, login }=useGlobal();
     
     function gtag(..._:any){window.dataLayer.push(arguments);}
     const verifyHeader=(pathname:string)=>{
@@ -46,12 +46,13 @@ function GlobalFunction(){
             
           // },1000);
     };
+    const onPopstate=()=>{
+        navigate(window.location.href.split(window.location.host)[1],{changeURL:false});
+    };
     useEffect(()=>{
         function navigateFn(pathname:string,changeURL?:boolean,lookTop?:boolean){
             if (changeURL){
                 navigatess(pathname);
-            } else {
-                window.history.pushState({},"",pathname);
             }
             if (lookTop && location.pathname!=pathname.split("?")[0] && window.scrollY>0){
                 window.scrollTo({top:0,behavior:"instant"});
@@ -125,89 +126,43 @@ function GlobalFunction(){
     //     const pesquisa=pesquisaRef.current;
     //     pesquisa.style.display=mobile ? "none" : "block"; 
     // },[globals.mobile]);
-        const toExecute=()=>{
-        // if (navigator.serviceWorker.controller){
-        //     const messageChannel = new MessageChannel();
-        //     // Recebe a resposta do Service Worker
-        //     messageChannel.port1.onmessage = event => {
-        //         console.log('Received message from Service Worker:', event.data);
-        //     };
-        //     // Envia uma mensagem para o Service Worker
-        //     navigator.serviceWorker.controller.postMessage({ type:"client", message: 'Hello from main thread' },[messageChannel.port2]);
-        // }
-        if (!loadedInfos.current.loaded){
-            loadedInfos.current.loaded=true;
-            auth.post(server+"/cargo",{type:"info"}).then((result:resultInterface)=>{
-                if (result.data.result=="true"){
-                    cargo.current.setCargo(result.data.cargo);
-                    
-                }
+    const peer_id=useRef("");
+    const send=(message:any)=>{
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller!.postMessage({...message,origin:"client"});
+        }
+    }
+    const deletar=()=>{
+        send({type:"deletePeer",peer_id:peer_id.current});
+        // enviar(true,true);
+    }
+    const toExecute=(userChanged:boolean=false)=>{
+        if (loadedInfos.current.loaded && !userChanged){
+            return;
+        }
+        loadedInfos.current.loaded=true;
+        
+        auth.post(server+"/cargo",{type:"info"}).then((result:resultInterface)=>{
+            if (result.data.result=="true"){
+                cargo.current.setCargo(result.data.cargo);
+                
+            }
+        });
+        function ismobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+        var tipo_usuario=ismobile() ? "mobile" : "computer";
+        // Recebe a resposta do Service Worker
+        send({type:"data",server,tipo:tipo_usuario});
+        // Envia uma mensagem para o Service Worker
+        if (currentLogin.current.usuario){
+            peer.current.init(currentLogin.current.usuario!);
+            peer.current.post=auth.post;
+            peer.current.server=server;
+            peer.current.on('open', ({id}:{id:string}) => {
+                peer_id.current=id;
+                send({type:"newPeer",peer_id:peer_id.current});
             });
-            function ismobile() {
-                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            }
-            var tipo_usuario=ismobile() ? "mobile" : "computer";
-            var peer_id="";
-            // Recebe a resposta do Service Worker
-            serviceChannel.current.port1.onmessage = event => {
-                if (event.data.type=="send"){
-                    const { tipo, modify, newPeer, deletePeer }=event.data.data;
-                    auth.post(event.data.url,{type:"infos",tipo:tipo,modify:modify,new:newPeer,delete:deletePeer});
-                }
-                // console.log('Received message from Service Worker:', event.data);
-            };
-            const send=(message:any)=>{
-                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-                    serviceChannel.current.port1.postMessage({...message,origin:"client"});
-                }
-            }
-            navigator.serviceWorker.controller!.postMessage({origin:"new"},[serviceChannel.current.port2]);
-            send({type:"data",server,tipo:tipo_usuario});
-            // Envia uma mensagem para o Service Worker
-            if (currentLogin.current.usuario){
-                peer.current.init(currentLogin.current.usuario!);
-                peer.current.post=auth.post;
-                peer.current.server=server;
-                peer.current.on('open', ({id}:{id:string}) => {
-                    peer_id=id;
-                    // enviar();
-                    send({type:"newPeer",peer_id:peer_id});
-                });
-            }
-            // function enviar(hidden=false,out=false){
-            //     if (hidden && !out) return;
-            //     auth.post(server+"/view",{type:"info",tipo:tipo_usuario,operator:out ? "delete" : hidden ? "modify" : "new",peer_id:peer_id});
-            // }
-            // function newSend(type:number){
-            //     if (currentLogin.current.usuario){
-            //         auth.post(server+"/view",{type:"info",tipo:tipo_usuario,operator:type==0 ? "delete" : type==1 ? "modify" : "new",peer_id:peer_id});
-            //     }       
-            // }
-            // function trocar(){
-            //     // enviar(document.hidden);
-            //     newSend(1);
-            //     // if (document.hidden){
-            //     //     clearInterval(st);
-            //     //     st=undefined;
-            //     // } else {
-            //     //     if (!st){
-            //     //         st=setInterval(()=>{
-            //     //             // enviar();
-            //     //             newSend(1);
-            //     //         },10000);
-            //     //     }
-            //     // }
-            // }
-            function deletar(){
-                send({type:"deletePeer",peer_id:peer_id});
-                // enviar(true,true);
-            }
-            // document.addEventListener("visibilitychange",trocar);
-            window.addEventListener("beforeunload",deletar);
-            return ()=>{
-                // document.removeEventListener("visibilitychange",trocar);
-                window.removeEventListener("beforeunload",deletar);
-            }
         }
     }
     useEffect(()=>{
@@ -233,7 +188,28 @@ function GlobalFunction(){
             //     console.log(c2.get());
             // });
         });
+        navigator.serviceWorker.addEventListener("message",event=>{
+            if (event.data.type=="send"){
+                    const { tipo, modify, newPeer, deletePeer }=event.data.data;
+                    auth.post(event.data.url,{type:"infos",tipo:tipo,modify:modify,new:newPeer,delete:deletePeer});
+            }
+        });
+        window.addEventListener("beforeunload",deletar);
+        window.addEventListener("popstate",onPopstate);
+        return ()=>{
+            window.removeEventListener("beforeunload",deletar);
+            window.removeEventListener("popstate",onPopstate);
+        }
     },[]);
+    const c=useRef(0);
+    useEffect(()=>{
+        c.current++;
+        if (c.current > 1){
+            if (currentLogin.current.usuario){
+                toExecute(true);
+            }
+        }
+    },[login]);
     const isLoaded=useRef(false);
     const install=()=>{
         if (isLoaded.current) return;

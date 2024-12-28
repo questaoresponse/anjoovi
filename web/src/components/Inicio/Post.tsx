@@ -37,7 +37,7 @@ function Post({isLoaded,globals,posts,verifyScroll,adsRender,slot}:{isLoaded:any
                         cm=post.imagem;
                     }
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;
-                    content=isVideoCover ? <video className='image' src={server+"/videos/"+encodeURIComponent(cm)}/> : <img className='image' src={server+"/images/"+encodeURIComponent(cm)}/>
+                    content=isVideoCover ? <video className='image' src={server+"/videos/"+encodeURIComponent(cm)}/> : <img className='image' src={server+"/images/"+encodeURIComponent(cm)+(cm.startsWith("p_") ? "?c="+(globals.cargo.current.cargo & 4) : "")}/>
                 }
                 const parts=(post.descricao || post.titulo || post.texto || "").split(" ");
                 return isAds ? <Ads slot={slot} globals={globals} isRender={adsRender ? "true" : "false"} key={index}/> : 

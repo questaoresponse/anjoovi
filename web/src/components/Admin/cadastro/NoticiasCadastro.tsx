@@ -187,7 +187,7 @@ function NoticiasCadastro(){
         edit.current && fd.append("id",post_edit.current!.id.toString());
         imagem_data && fd.append("imagem",imagem_data);
         imagem_data && fd.append("imagens_edit",(true).toString());
-        fd.append("permission",refs.permission.current!.value);
+        refs.permission.current && fd.append("permission",refs.permission.current.value);
         fd.append("usuario",globals.login.usuario!);
         fd.append("titulo",titulo);
         subtitulo!="" && fd.append("subtitulo", subtitulo);

@@ -1,12 +1,13 @@
 <?php 
 $GLOBALS["isSecure"]=isset($_SERVER["HTTP_ORIGIN"]) ? str_starts_with($_SERVER["HTTP_ORIGIN"],"https://") : true;
-
 // Verifique se a URL contém um host
 if (isset($_SERVER["HTTP_ORIGIN"])) {
-    $server=implode("/",array_slice(explode("/",$_SERVER["HTTP_ORIGIN"]),-1));
-    if (substr_count($server,":")>0){
-        $server=implode(":",array_slice(explode(":",$server),0,-1));
-    }
+    $servers=[
+        "https://localhost:4000"=>"h0rnsgzt-4000.brs.devtunnels.ms",
+        "https://www.anjoovi.com"=>"anjoovi.com",
+        "https://192.168.18.113:4000"=>"192.168.18.113"
+    ];
+    $server=$servers[implode("/",array_slice(explode("/",$_SERVER["HTTP_ORIGIN"]),0,3))];
     $GLOBALS["domain_cookie"] = $server;
 } else if (isset($_SERVER["HTTP_HOST"])){
     $GLOBALS["domain_cookie"] = "." . $_SERVER["HTTP_HOST"];
@@ -304,6 +305,7 @@ function session($key=null){
 class rsp{
     public function json($v){
         if (is_array($v)){
+            $v["cargo"]=$GLOBALS["cargo"];
             echo json_encode($v);
         } else {
             echo $v;
@@ -442,9 +444,9 @@ if (isset($_COOKIE["token"])){
     }
 } else {
     $GLOBALS["user"]=null;
-    $GLOBALS["cargo"]=null;
+    $GLOBALS["cargo"]=128;
 }
-if (str_starts_with($_SERVER["REQUEST_URI"],"/admin")){
+if (str_starts_with($_SERVER["REQUEST_URI"],"/admin") && $_SERVER["REQUEST_URI"]!="/admin/cargo"){
     if ($GLOBALS["user"] && $_POST["type"]!="info"){
         if ($GLOBALS["user"]){
             if ($GLOBALS["cargo"] & 1==1){
@@ -453,7 +455,7 @@ if (str_starts_with($_SERVER["REQUEST_URI"],"/admin")){
         } else {
             response()->json(["result"=>"false","type"=>"usuario"]);
         }
-    } else if (!$GLOBALS["user"] && $_SERVER["REQUEST_URI"]!="/admin"){
+    } else if (!$GLOBALS["user"] && $_SERVER["REQUEST_URI"]!="/admin" && $_SERVER["REQUEST_URI"]!="/admin/cargo"){
         return response()->json(["result"=>"false","type"=>"not_logged","nome"=>null,"usuario"=>null,"lsrc"=>null]);
     }
 }

@@ -1,5 +1,4 @@
 <?php
-set_include_path(get_include_path() . PATH_SEPARATOR . 'C:\xampp\htdocs\anjoovi\pear');
 if (!function_exists("cargo")){
     function cargo($usuario){
         $conn=$GLOBALS["conn"];
@@ -329,16 +328,17 @@ Route::post('/admin',function(){
             response()->json(["result"=>"false"]);
         } else {
             $conn=$GLOBALS["conn"];
-            $result=$conn->prepare("SELECT usuario,hash,logo FROM user WHERE (usuario=? OR email=?) AND senha=?",[$email,$email,$password]);
+            $result=$conn->prepare("SELECT usuario,hash,logo,cargo FROM user WHERE (usuario=? OR email=?) AND senha=?",[$email,$email,$password]);
             if ($result->num_rows>0){
                 $rs=p($result)[0];
-                ["usuario"=>$usuario,"logo"=>$logo,"hash"=>$hash]=$rs;
+                ["cargo"=>$cargo,"usuario"=>$usuario,"logo"=>$logo,"hash"=>$hash]=$rs;
                 $token=isset($_POST["getTokenId"]);
                 if ($token){
                     $token=get_token_id();
                     $conn->prepare("UPDATE user SET tokens=JSON_ARRAY_APPEND(tokens,'$',?) WHERE usuario=?",[$token,$usuario]);
                 }
                 set_cookie("token",$hash);
+                $GLOBALS["cargo"]=intval($cargo);
                 response()->json(["result"=>"true","token"=>"token","tokenId"=>$token,"usuario"=>$usuario,"lsrc"=>$logo]);
             } else {
                 response()->json(["result"=>"false"]);
@@ -387,6 +387,7 @@ Route::post('/admin',function(){
                         $json=json_encode([]);
                         $conn->prepare("INSERT INTO inscritos(usuario,inscritos) VALUES(?,?)",[$user,$json]);
                         set_user($user);
+                        $GLOBALS["cargo"]=0;
                         response()->json(["result"=>"true","token"=>"token","tokenId"=>$token,"usuario"=>$user]);
                     }
                 } else {
@@ -1175,6 +1176,7 @@ Route::post("/admin/sair",function(){
     // response()->json(["header_location"=>"/"]);
     $user=$GLOBALS["user"];
     if ($user){
+        $GLOBALS["cargo"]=128;
         $token=isset($_POST["mToken"]) ? $_POST["mToken"] : null;
         if ($token){
             $conn=$GLOBALS["conn"];

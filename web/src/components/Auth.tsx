@@ -39,6 +39,9 @@ const AuthProvider = ({ children }:{children:any}) => {
     localStorage.removeItem('lsrc');
   }
   const a=useCallback((res:any,resolve:any)=>{
+    if (res.data.cargo){
+      globals.cargo.current.cargo!=res.data.cargo && globals.cargo.current.setCargo(res.data.cargo);
+    }
     if (res.data.header_location){
       if (res.data.header_location=="/admin"){
         // globals.setUser(false);

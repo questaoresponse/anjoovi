@@ -246,6 +246,7 @@ function Types(){
     const updatePosts=(pathname:string,i:number)=>{
         id.current=i;
         window && navigate(pathname,{changeURL:false,lookTop:false});
+        history.pushState({page:""},"",pathname);
         get(false,pathname);
         waitingUpdate.current=true;
         postChanged.current=true;

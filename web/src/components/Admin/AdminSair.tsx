@@ -6,8 +6,30 @@ function AdminSair(){
     const auth=useAuth();
     const { server,navigate }=globals;
     useEffect(()=>{
+        var rPromisse:any=false;
+        function onMessage(event:any){
+            console.log(event);
+            if (event.data.type=="sendDeletePeer"){
+                const { tipo, modify, newPeer, deletePeer }=event.data.data;
+                auth.post(event.data.url,{type:"infos",tipo:tipo,modify:modify,new:newPeer,delete:deletePeer});
+                navigator.serviceWorker.controller!.removeEventListener("message",onMessage);
+                rPromisse(true);
+            }
+        };
+        function peer_logout(){
+            return new Promise((r,_)=>{
+                if (navigator.serviceWorker.controller){
+                    navigator.serviceWorker.controller.addEventListener("message",onMessage);
+                    navigator.serviceWorker.controller.postMessage({type:"deleteAllPeer"});
+                    rPromisse=r;
+                } else {
+                    r(false);
+                }
+            });
+        }
         async function logout(){
-            await auth.post(server+"/admin/sair",{type:"info"});
+            await peer_logout();
+            await auth.post(server+"/admin/sair",{type:"info"})
             if (localStorage.getItem("token")){
                 globals.myStorage.current=true;
                 localStorage.removeItem("token");

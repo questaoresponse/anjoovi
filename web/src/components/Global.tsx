@@ -112,7 +112,8 @@ class Cargo{
   }
   setCargo(cargo:number){
     if (this.cargo!=cargo){
-      this.serviceChannel.current.port1.postMessage({type:"cargo",cargo:cargo,origin:"client"});
+      navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({type:"cargo",cargo:cargo,origin:"client"});
+      // this.serviceChannel.current.port2.postMessage({type:"cargo",cargo:cargo,origin:"client"});
     }
     this.cargo=cargo;
     this.listeners.forEach(fn=>fn(cargo));

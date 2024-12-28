@@ -33,23 +33,26 @@ class sqli{
         return $q2;
     }
 }
-
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0"); // Cache por 1 hora (3600 segundos)
+header("Expires: Wed, 11 Jan 1984 05:00:00 GMT");  // Define a data de expiração
+header("Content-Type: image/webp");
+$arr=explode("/",explode("?",$_SERVER["REQUEST_URI"])[0]);
+$filename=array_splice($arr,-1)[0];
 if (isset($_COOKIE["token"])){
+    $GLOBALS["conn"]=new sqli("anjoov00_posts");
     $r=$GLOBALS["conn"]->prepare("SELECT usuario,cargo FROM user WHERE hash=?",[$_COOKIE["token"]]);
     if ($r->num_rows>0){
         $r=p($r)[0];
         $GLOBALS["user"]=$r["usuario"];
         $GLOBALS["cargo"]=intval($r["cargo"]);
         if (($GLOBALS["cargo"] & 4)==4){
-            // header("Cache-Control: public, max-age=3600"); // Cache por 1 hora (3600 segundos)
-            // header("Expires: " . gmdate("D, d M Y H:i:s", time() + 3600) . " GMT");  // Define a data de expiração
-            // header("Last-Modified: " . gmdate("D, d M Y H:i:s", filemtime('imagem.jpg')) . " GMT"); // Define a data de última modificação
-            // Enviar a imagem
-            header("Content-Type: image/webp");
-            readfile(__DIR__ . '/../public_html/images/' . array_splice(explode("/",$_SERVER["REQUEST_URI"]),-1)[0]);
+            readfile(__DIR__ . '/../public_html/images/' . $filename);
+        } else {
+            readfile(__DIR__ . '/../public_html/images/' . substr($filename,2));
         }
+    } else {
+        readfile(__DIR__ . '/../public_html/images/' . substr($filename,2));
     }
 } else {
-    header("Content-Type: image/webp");
-    readfile(__DIR__ . '/../public_html/images/' . substr(array_splice(explode("/",$_SERVER["REQUEST_URI"]),-1)[0],2));
+    readfile(__DIR__ . '/../public_html/images/' . substr($filename,2));
 }
