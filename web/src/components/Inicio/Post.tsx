@@ -12,7 +12,6 @@ function Post({isLoaded,globals,posts,verifyScroll,adsRender,slot}:{isLoaded:any
             {posts.map((post:any,index:number)=>{
                 const isAds=post=="ads";
                 var l,n,cm="";
-                var isVideoCover=false;
                 var content:any=null;
                 if (post.imagem!==false){
                     n=post.tipo=="p";
@@ -25,19 +24,12 @@ function Post({isLoaded,globals,posts,verifyScroll,adsRender,slot}:{isLoaded:any
                         const imgs=JSON.parse(post.imagem);
                         cm=JSON.parse(post.posts).map((post:any)=>imgs.filter((img:any)=>post in img)[0][post])[0];
                     } else if (v){
-                        cm=JSON.parse(post.imagem);
-                        if (cm[1]){
-                            isVideoCover=false;
-                            cm=cm[1];
-                        } else {
-                            isVideoCover=true;
-                            cm=cm[0];
-                        }
+                        cm=JSON.parse(post.imagem)[1];
                     } else {
                         cm=post.imagem;
                     }
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;
-                    content=isVideoCover ? <video className='image' src={server+"/videos/"+encodeURIComponent(cm)}/> : <img className='image' src={server+"/images/"+encodeURIComponent(cm)+(cm.startsWith("p_") ? "?c="+(globals.cargo.current.cargo & 4) : "")}/>
+                    content=t ? null : <img className='image' src={server+"/images/"+encodeURIComponent(cm)+(cm.startsWith("p_") ? "?c="+(globals.cargo.current.cargo & 4) : "")}/>
                 }
                 const parts=(post.descricao || post.titulo || post.texto || "").split(" ");
                 return isAds ? <Ads slot={slot} globals={globals} isRender={adsRender ? "true" : "false"} key={index}/> : 

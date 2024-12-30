@@ -274,103 +274,188 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
         (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='product') AS n_comment,";
     }
     if ($usuario){
-            return p($conn->prepare("SELECT * FROM (
-            (
+            return p($conn->prepare("WITH history AS (
                 SELECT 
-                (SELECT CASE 
-                    WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
-                    ELSE 'false' 
-                END 
-                AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
-                $n1
-                'p' AS tipo,acessos,p.usuario,titulo,NULL AS descricao,subtitulo,texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
-                (
-                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END + 
-                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado & 1=0 AND privado & 4=0 AND views_id!=?
+                    h.usuario,
+                    MAX(CASE WHEN h.rnk = 1 THEN h.texto ELSE NULL END) AS latest_text,
+                    MAX(CASE WHEN h.rnk = 2 THEN h.texto ELSE NULL END) AS second_latest_text
+                FROM (
+                    SELECT 
+                        usuario, 
+                        texto,
+                        ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
+                    FROM historico
+                ) h
+                WHERE h.rnk <= 2
+                GROUP BY h.usuario
+            ),
+            inscritos_check AS (
+                SELECT
+                    usuario,
+                    CASE
+                        WHEN JSON_CONTAINS(JSON_KEYS(inscritos), ?, '$') AND JSON_EXTRACT(inscritos, ?) IS NOT NULL THEN 'true'
+                        ELSE 'false'
+                    END AS inscrito
+                FROM inscritos
             )
-            UNION
-            (
+            SELECT 
+                *,
+                (
+                    CASE 
+                        WHEN LOWER(p.titulo) LIKE (h.latest_text) THEN 1 
+                        ELSE 0 
+                    END + 
+                    CASE 
+                        WHEN LOWER(p.titulo) LIKE (h.second_latest_text) THEN 0.5 
+                        ELSE 0 
+                    END
+                ) AS accuracy 
+            FROM (
                 SELECT 
-                (SELECT CASE 
-                        WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
-                        ELSE 'false' 
-                    END 
-                AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
-                $i1
-                'i' AS tipo,acessos,p.usuario,NULL AS titulo,descricao,NULL AS subtitulo,NULL AS texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
-                (
-                    CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
-                    CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
-            )
-            UNION
-            (
+                    i.inscrito,
+                    p.acessos, 
+                    p.usuario,
+                    p.titulo, 
+                    NULL AS descricao, 
+                    p.subtitulo, 
+                    p.texto, 
+                    p.imagem, 
+                    NULL AS arquivo, 
+                    NULL AS duration, 
+                    NULL AS zip, 
+                    p.d, 
+                    p.views_id, 
+                    p.id,
+                    'p' AS tipo
+                FROM post p
+                INNER JOIN user p2 ON p.usuario = p2.usuario
+                LEFT JOIN inscritos_check i ON i.usuario = p.usuario
+                WHERE p.privado & 1 = 0 AND p.privado & 4 = 0 AND p.views_id != ?
+                
+                UNION ALL
+                
                 SELECT 
-                (SELECT CASE 
-                        WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
-                        ELSE 'false' 
-                    END 
-                AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
-                $m1
-                'm' AS tipo,acessos,p.usuario,titulo,NULL AS descricao,NULL AS subtitulo,NULL AS texto,imagem,arquivo,duration,zip,d,views_id,id,
-                (
-                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
-                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
-            )
-            UNION
-            (
+                    i.inscrito,
+                    p.acessos, 
+                    p.usuario,
+                    NULL AS titulo, 
+                    p.descricao, 
+                    NULL AS subtitulo, 
+                    NULL AS texto, 
+                    p.imagem, 
+                    NULL AS arquivo, 
+                    NULL AS duration, 
+                    NULL AS zip, 
+                    p.d, 
+                    p.views_id, 
+                    p.id,
+                    'i' AS tipo
+                FROM post_imagem p
+                INNER JOIN user p2 ON p.usuario = p2.usuario
+                LEFT JOIN inscritos_check i ON i.usuario = p.usuario
+                WHERE p.privado = 0 AND p.views_id != ?
+
+                UNION ALL
+                
                 SELECT 
-                (SELECT CASE 
-                        WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
-                        ELSE 'false' 
-                    END 
-                AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
-                $t1
-                't' AS tipo,acessos,p.usuario,NULL AS titulo,NULL AS descricao,NULL AS subtitulo,texto,'' AS imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
-                (
-                    CASE WHEN LOWER(texto) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
-                    CASE WHEN LOWER(texto) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
-            )
-            UNION
-            (
+                    i.inscrito,
+                    p.acessos, 
+                    p.usuario,
+                    p.titulo, 
+                    NULL AS descricao, 
+                    NULL AS subtitulo, 
+                    NULL AS texto, 
+                    p.imagem, 
+                    p.arquivo, 
+                    p.duration, 
+                    p.zip, 
+                    p.d, 
+                    p.views_id, 
+                    p.id,
+                    'm' AS tipo
+                FROM post_musica p
+                INNER JOIN user p2 ON p.usuario = p2.usuario
+                LEFT JOIN inscritos_check i ON i.usuario = p.usuario
+                WHERE p.privado = 0 AND p.views_id != ?
+
+                UNION ALL
+                
                 SELECT 
-                (SELECT CASE 
-                        WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
-                        ELSE 'false' 
-                    END 
-                AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
-                $v1
-                'v' AS tipo,acessos,p.usuario,titulo,NULL AS descricao,NULL AS subtitulo,texto,JSON_ARRAY(video,imagem) AS imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
-                (
-                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
-                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
-            )
-            UNION
-            (
+                    i.inscrito,
+                    p.acessos, 
+                    p.usuario,
+                    NULL AS titulo, 
+                    NULL AS descricao, 
+                    NULL AS subtitulo, 
+                    p.texto, 
+                    NULL AS imagem, 
+                    NULL AS arquivo, 
+                    NULL AS duration, 
+                    NULL AS zip, 
+                    p.d, 
+                    p.views_id, 
+                    p.id,
+                    't' AS tipo
+                FROM post_texto p
+                INNER JOIN user p2 ON p.usuario = p2.usuario
+                LEFT JOIN inscritos_check i ON i.usuario = p.usuario
+                WHERE p.privado = 0 AND p.views_id != ?
+
+                UNION ALL
+                
                 SELECT 
-                (SELECT CASE 
-                        WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
-                        ELSE 'false' 
-                    END 
-                AS inscritos FROM inscritos WHERE usuario=p.usuario) AS inscrito,
-                $pd1
-                'pd' AS tipo,acessos,p.usuario,NULL AS titulo,descricao,NULL AS subtitulo,NULL AS texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
-                (
-                    CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
-                    CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
-                ) AS accuracy FROM post_product p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
-            )
-            ) AS ranked ORDER BY accuracy DESC LIMIT ". $pt * $limit . "," . ($pt+1)*$limit,[
-            '"' . $usuario . '"', "$." . $usuario,$usuario,$usuario,$id,
-            '"' . $usuario . '"', "$." . $usuario,$usuario,$usuario,$id,
-            '"' . $usuario . '"', "$." . $usuario,$usuario,$usuario,$id,
-            '"' . $usuario . '"', "$." . $usuario,$usuario,$usuario,$id,
-            '"' . $usuario . '"', "$." . $usuario,$usuario,$usuario,$id,
-            '"' . $usuario . '"', "$." . $usuario,$usuario,$usuario,$id,
+                    i.inscrito,
+                    p.acessos, 
+                    p.usuario,
+                    p.titulo, 
+                    NULL AS descricao, 
+                    NULL AS subtitulo, 
+                    NULL AS texto, 
+                    JSON_ARRAY(p.video, p.imagem) AS imagem, 
+                    NULL AS arquivo, 
+                    NULL AS duration, 
+                    NULL AS zip, 
+                    p.d, 
+                    p.views_id, 
+                    p.id,
+                    'v' AS tipo
+                FROM post_video p
+                INNER JOIN user p2 ON p.usuario = p2.usuario
+                LEFT JOIN inscritos_check i ON i.usuario = p.usuario
+                WHERE p.privado = 0 AND p.views_id != ?
+
+                UNION ALL
+                
+                SELECT 
+                    i.inscrito,
+                    p.acessos, 
+                    p.usuario,
+                    NULL AS titulo, 
+                    p.descricao, 
+                    NULL AS subtitulo, 
+                    NULL AS texto, 
+                    p.imagem, 
+                    NULL AS arquivo, 
+                    NULL AS duration, 
+                    NULL AS zip, 
+                    p.d, 
+                    p.views_id, 
+                    p.id,
+                    'pd' AS tipo
+                FROM post_product p
+                INNER JOIN user p2 ON p.usuario = p2.usuario
+                LEFT JOIN inscritos_check i ON i.usuario = p.usuario
+                WHERE p.privado = 0 AND p.views_id != ?
+            ) p
+            INNER JOIN history h ON h.usuario = p.usuario
+            ORDER BY accuracy DESC
+            LIMIT ". $pt * $limit . "," . ($pt+1)*$limit,[
+            '"' . $usuario . '"', "$." . $usuario,$id,
+            $id,
+            $id,
+            $id,
+            $id,
+            $id,
         ]));
     } else {
         return p($conn->query("SELECT * FROM (
