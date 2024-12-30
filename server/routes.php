@@ -425,7 +425,7 @@ function delete_cookie($name){
         "secure"=>$GLOBALS["isSecure"],
         "httponly"=>true,
         "samesite"=>"None"
-]);
+    ]);
     unset($_COOKIE[$name]);
 }
 function has_cookie($name){
@@ -443,7 +443,17 @@ if (isset($_COOKIE["token"])){
         $GLOBALS["cargo"]=intval($r["cargo"]);
     } else {
         delete_cookie("token");
-    }
+        $valorVazio = "";
+        $expiracaoPassada = time() - 3600;
+        setcookie($name, $valorVazio,[ 
+            "expires"=>$expiracaoPassada,
+            "path"=>"/",
+            "domain"=>"anjoovi.com", 
+            "secure"=>$GLOBALS["isSecure"],
+            "httponly"=>true,
+            "samesite"=>"None"
+        ]);
+        }
 } else {
     $GLOBALS["user"]=null;
     $GLOBALS["cargo"]=128;
