@@ -285,8 +285,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 $n1
                 'p' AS tipo,acessos,p.usuario,titulo,NULL AS descricao,subtitulo,texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
                 (
-                    CASE WHEN MATCH(titulo) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)) IN NATURAL LANGUAGE MODE) THEN 1 ELSE 0 END + 
-                    CASE WHEN MATCH(titulo) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)) IN NATURAL LANGUAGE MODE) THEN 0.5 ELSE 0 END
+                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END + 
+                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
                 ) AS accuracy FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado & 1=0 AND privado & 4=0 AND views_id!=?
             )
             UNION
@@ -300,8 +300,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 $i1
                 'i' AS tipo,acessos,p.usuario,NULL AS titulo,descricao,NULL AS subtitulo,NULL AS texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
                 (
-                    CASE WHEN MATCH(descricao) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)) IN NATURAL LANGUAGE MODE) THEN 1 ELSE 0 END +
-                    CASE WHEN MATCH(descricao) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)) IN NATURAL LANGUAGE MODE) THEN 0.5 ELSE 0 END
+                    CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
+                    CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
                 ) AS accuracy FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
             )
             UNION
@@ -315,8 +315,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 $m1
                 'm' AS tipo,acessos,p.usuario,titulo,NULL AS descricao,NULL AS subtitulo,NULL AS texto,imagem,arquivo,duration,zip,d,views_id,id,
                 (
-                    CASE WHEN MATCH(titulo) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)) IN NATURAL LANGUAGE MODE) THEN 1 ELSE 0 END + 
-                    CASE WHEN MATCH(titulo) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)) IN NATURAL LANGUAGE MODE) THEN 0.5 ELSE 0 END
+                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
+                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
                 ) AS accuracy FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
             )
             UNION
@@ -330,8 +330,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 $t1
                 't' AS tipo,acessos,p.usuario,NULL AS titulo,NULL AS descricao,NULL AS subtitulo,texto,'' AS imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
                 (
-                    CASE WHEN MATCH(texto) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)) IN NATURAL LANGUAGE MODE) THEN 1 ELSE 0 END + 
-                    CASE WHEN MATCH(texto) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)) IN NATURAL LANGUAGE MODE) THEN 0.5 ELSE 0 END
+                    CASE WHEN LOWER(texto) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
+                    CASE WHEN LOWER(texto) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
                 ) AS accuracy FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
             )
             UNION
@@ -345,8 +345,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 $v1
                 'v' AS tipo,acessos,p.usuario,titulo,NULL AS descricao,NULL AS subtitulo,texto,JSON_ARRAY(video,imagem) AS imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
                 (
-                    CASE WHEN MATCH(titulo) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)) IN NATURAL LANGUAGE MODE) THEN 1 ELSE 0 END + 
-                    CASE WHEN MATCH(titulo) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)) IN NATURAL LANGUAGE MODE) THEN 0.5 ELSE 0 END
+                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
+                    CASE WHEN LOWER(titulo) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
                 ) AS accuracy FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
             )
             UNION
@@ -360,8 +360,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 $pd1
                 'pd' AS tipo,acessos,p.usuario,NULL AS titulo,descricao,NULL AS subtitulo,NULL AS texto,imagem,NULL AS arquivo,NULL AS duration,NULL AS zip,d,views_id,id,
                 (
-                    CASE WHEN MATCH(descricao) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)) IN NATURAL LANGUAGE MODE) THEN 1 ELSE 0 END + 
-                    CASE WHEN MATCH(descricao) AGAINST(LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)) IN NATURAL LANGUAGE MODE) THEN 0.5 ELSE 0 END
+                    CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1)),'%')) THEN 1 ELSE 0 END +
+                    CASE WHEN LOWER(descricao) LIKE(CONCAT('%',LOWER((SELECT texto FROM historico WHERE usuario=? ORDER BY id DESC LIMIT 1 OFFSET 1)),'%')) THEN 0.5 ELSE 0 END
                 ) AS accuracy FROM post_product p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE privado=0 AND views_id!=?
             )
             ) AS ranked ORDER BY accuracy DESC LIMIT ". $pt * $limit . "," . ($pt+1)*$limit,[
