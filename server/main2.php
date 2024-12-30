@@ -542,7 +542,9 @@ Route::post('/',function () {
         //         FROM playlist p WHERE privado=0)
         //     ) AS result ORDER BY views_id DESC LIMIT 48
         // "));
+        $g_time=microtime(true);
         $r=getAlgoritmoNoticia(true,$conn,$usuario,0);
+        $ge_time=microtime(true);
         $canal=[];
         $r2=[];
         $result=$conn->query("SELECT COUNT(*) AS num FROM post_24 WHERE privado=0");
@@ -567,11 +569,9 @@ Route::post('/',function () {
             $users=implode(",",$users);
             $canal=p($conn->query("SELECT nome,usuario,logo FROM user WHERE usuario IN ($users)"));
         };
-        $end_time = microtime(true);
-        $execution_time = ($end_time - get_time());
-        $time=number_format($execution_time, 4);
-        $execution_time = ($end_time - $start_time);
-        $time2=number_format($execution_time, 4);
+        $end_time=microtime(true);
+        $time=($ge_time - $g_time) * 1000;
+        $time2=($end_time - $start_time) * 1000;
         // $alta=p($conn->query("SELECT palavra, COUNT(*) AS frequencia 
         // FROM (
         //     (
