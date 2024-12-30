@@ -4,7 +4,7 @@ $GLOBALS["isSecure"]=isset($_SERVER["HTTP_ORIGIN"]) ? str_starts_with($_SERVER["
 if (isset($_SERVER["HTTP_ORIGIN"])) {
     $servers=[
         "https://localhost:4000"=>"h0rnsgzt-4000.brs.devtunnels.ms",
-        "https://www.anjoovi.com"=>"anjoovi.com",
+        "https://www.anjoovi.com"=>".www.anjoovi.com",
         "https://192.168.18.113:4000"=>"192.168.18.113"
     ];
     $server=$servers[implode("/",array_slice(explode("/",$_SERVER["HTTP_ORIGIN"]),0,3))];
