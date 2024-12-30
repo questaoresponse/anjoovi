@@ -129,7 +129,7 @@ function Busca(){
                     <div className={"pt"+(selected==4 ? " selected" : "")} onClick={()=>updateSelect(4)}>Texto</div>
                     <div className={"pt"+(selected==5 ? " selected" : "")} onClick={()=>updateSelect(5)}>Vídeo</div>
                     <div className={"pt"+(selected==6 ? " selected" : "")} onClick={()=>updateSelect(6)}>Playlist</div>
-                    <div className={"pt"+(selected==7 ? " selected" : "")} onClick={()=>updateSelect(7)}>Produto</div>
+                    {/* <div className={"pt"+(selected==7 ? " selected" : "")} onClick={()=>updateSelect(7)}>Produto</div> */}
                 </div>
             </div>
             <div id="registros">

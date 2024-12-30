@@ -57,12 +57,12 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
                     {post.srcImagem ? <img src={post.srcImagem}/> : <></>}
                 </div>
                 <div className={"texto-noticia txt " + (!isMain ? " resumo" : "")}>{post.text.map((line:string[],i:number)=>{
-                    return <>
+                    return <div key={i}>
                         {line.map((texto:string,index:number)=>{
                             return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )
                         })}
                         <br></br>
-                    </>
+                    </div>
                 })}</div>
                 <div className="data_d">
                     <p className="data data_data">{post.dataText}</p>
@@ -86,12 +86,12 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
                     {post.srcImagem ? <img src={post.srcImagem}/> : <></>}
                 </div>
                 <div className={"texto-noticia txt " + (!isMain ? " resumo" : "")}>{post.text.map((line:string[],i:number)=>{
-                    return <>
+                    return <div key={i}>
                         {line.map((texto:string,index:number)=>{
                             return texto.length>0 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto + ( line.length-1>index ? " " : "" )}</div> : texto + ( line.length-1>index ? " " : "" )
                         })}
                         <br></br>
-                    </>
+                    </div>
                 })}</div>
                 <div className="data_d">
                     <p className="data data_data">{post.dataText}</p>
@@ -100,7 +100,7 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
                     <Denuncia tipo="noticia"></Denuncia>
                 </div>
             </div>}
-            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios/> : <></>}
+            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios postAtual={post}/> : <></>}
             {/* <Ads slot="7693763089"/> */}
             {/* {!props.id && globals.mobile && <Post globals={globals} posts={infos.alta}/>} */}
         </div>
@@ -115,7 +115,7 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
                     <Elements></Elements>
                 </div>
                 {!globals.mobile && <Ads slot="7577017868"/>}
-                {!globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
+                {!globals.mobile && !isPlaylist ? <Comentarios postAtual={post}/> : <></> }
 
                 {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}
             </div>

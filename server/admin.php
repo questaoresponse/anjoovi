@@ -2314,22 +2314,30 @@ Route::post('/admin/destaque',function(){
                 $result2=p($result);
                 $result=$result2[0];
                 $name=$result["geral_tipo"];
-                $image_column=$name=="post_texto" ? "JSON_ARRAY(texto,'t')" : ($name=="post_video" ? "CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END" : "imagem");
-                $result=p($conn->prepare("SELECT 
-                        (SELECT $image_column AS geral FROM $name WHERE views_id=? AND privado=0 AND usuario=?) AS geral,
+                $image_column=$name=="post_texto" ? "JSON_ARRAY(texto,'t')" : "imagem";
+                $geral_select=null;
+                $values=null;
+                if (intval($result["geral"]==-1)){
+                    $geral_select="NULL AS geral,";
+                    $values=[$result["post"],$usuario,$result["post_imagem"],$usuario,$result["post_musica"],$usuario,$result["post_texto"],$usuario,$result["post_video"],$usuario,$usuario,$usuario,$usuario,$usuario,$usuario,$result["playlist"],$usuario];
+                } else {
+                    $geral_select="(SELECT $image_column AS geral FROM $name WHERE views_id=? AND privado=0 AND usuario=?) AS geral,";    
+                    $values=[$result["geral"],$usuario,$result["post"],$usuario,$result["post_imagem"],$usuario,$result["post_musica"],$usuario,$result["post_texto"],$usuario,$result["post_video"],$usuario,$usuario,$usuario,$usuario,$usuario,$usuario,$result["playlist"],$usuario];
+                }
+                $result=p($conn->prepare("SELECT
                         (SELECT imagem AS materia FROM post WHERE views_id=? AND privado=0 AND usuario=?) AS materia,
                         (SELECT imagem AS imagem FROM post_imagem WHERE views_id=? AND privado=0 AND usuario=?) AS imagem,
                         (SELECT imagem AS musica FROM post_musica WHERE views_id=? AND privado=0 AND usuario=?) AS musica,
                         (SELECT JSON_ARRAY(texto,'t') AS texto FROM post_texto WHERE views_id=? AND privado=0 AND usuario=?) AS texto,
-                        (SELECT CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END AS video FROM post_video WHERE views_id=? AND privado=0 AND usuario=?) AS video,
+                        (SELECT imagem AS video FROM post_video WHERE views_id=? AND privado=0 AND usuario=?) AS video,
                         (SELECT CASE 
                             WHEN p.tipo='post' THEN (SELECT imagem FROM post WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                             WHEN p.tipo='post_imagem' THEN (SELECT imagem FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                             WHEN p.tipo='post_musica' THEN (SELECT imagem FROM post_musica WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                             WHEN p.tipo='post_texto' THEN (SELECT JSON_ARRAY(texto,'t') AS imagem FROM post_texto WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
-                            ELSE (SELECT CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                            ELSE (SELECT imagem FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                         END AS playlist FROM playlist p WHERE views_id=? AND privado=0 AND usuario=?) AS playlist
-                    FROM $name LIMIT 1",[$result["geral"],$usuario,$result["post"],$usuario,$result["post_imagem"],$usuario,$result["post_musica"],$usuario,$result["post_texto"],$usuario,$result["post_video"],$usuario,$usuario,$usuario,$usuario,$usuario,$usuario,$result["playlist"],$usuario]))[0];
+                    FROM post LIMIT 1",$values))[0];
                 $destaques=[];
                 foreach($result as $chave=>$valor){
                     $destaques[$chave]=["src"=>$valor];
@@ -2390,10 +2398,10 @@ Route::post('/admin/destaque',function(){
                                 WHEN p.tipo='post_imagem' THEN (SELECT imagem FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                                 WHEN p.tipo='post_musica' THEN (SELECT imagem FROM post_musica WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                                 WHEN p.tipo='post_texto' THEN (SELECT NULL AS imagem FROM post_texto WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
-                                ELSE (SELECT CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                                ELSE (imagem FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                             END AS imagem FROM playlist p WHERE views_id=? AND privado=0 AND usuario=?",[$usuario,$usuario,$usuario,$usuario,$usuario,$id,$usuario]))[0];
                         } else {
-                            $image_column=$name=="post_texto" ? "JSON_ARRAY(texto,'t')" : ($name=="post_video" ? "CASE WHEN imagem IS NULL THEN JSON_ARRAY(video,'v') ELSE JSON_ARRAY(imagem,'i') END" : "imagem");
+                            $image_column=$name=="post_texto" ? "JSON_ARRAY(texto,'t')" : "imagem";
                             $src=p($conn->prepare("SELECT $image_column AS imagem FROM $name WHERE privado=0 AND views_id=? AND usuario=?",[$id,$usuario]))[0];
                         }
                         $src=$src["imagem"];

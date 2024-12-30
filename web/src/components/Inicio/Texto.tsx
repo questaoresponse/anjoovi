@@ -78,7 +78,7 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{i
                     <Denuncia tipo="texto"></Denuncia>
                 </div>
             </div>}
-            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios/> : <></>}
+            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios postAtual={post}/> : <></>}
 
 
             {/* <Ads slot="7693763089"/> */}
@@ -95,7 +95,7 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{i
                     <Elements></Elements>
                 </div>
                 {!globals.mobile && <Ads slot="7577017868"/>}
-                {!globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
+                {!globals.mobile && !isPlaylist ? <Comentarios postAtual={post}/> : <></> }
 
                 {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}
             </div>

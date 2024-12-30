@@ -1,4 +1,4 @@
-import { useState, useEffect, memo, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
 import './Home.scss';
@@ -16,7 +16,7 @@ interface postsInterface{
 function Home() {
     const isLoaded=useRef(false);
     const globals = useGlobal();
-    const { server, navigateClass }=globals;
+    const { server }=globals;
     const auth = useAuth();
     const [posts,setPosts]=useState<postsInterface>({isLoaded:false,canal:[],posts:[],st:[]});
     const [altas,setAltas]=useState<{palavra:string,frequencia:number}[]>([]);
@@ -57,10 +57,8 @@ function Home() {
         document.title="Anjoovi";
         globals.get.current=get;
         window.addEventListener("scroll",verifyScroll);
-        // navigateClass.current.addListener(onUpdate);
         return ()=>{
             window.removeEventListener("scroll",verifyScroll);
-            // navigateClass.current.addListener(onUpdate);
             globals.get.current=undefined;
         }
     },[]);

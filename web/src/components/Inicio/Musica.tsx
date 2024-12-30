@@ -186,7 +186,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
             </div>}
             {/* {!comentarios ? <div className='comment' onClick={()=>{setComentarios(true)}}>Comentários</div> : <></>} */}
             {/* {comentarios && <Comentarios id_comment={post.id}/>} */}
-            {globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
+            {globals.mobile && !isPlaylist ? <Comentarios postAtual={post}/> : <></> }
             {/* <Ads slot="7693763089"/> */}
             {/* {!props.id && globals.mobile && <Post globals={globals}  posts={infos}/>} */}
         </div>
@@ -200,7 +200,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                     <Nt post={post} musics={musics}/>
                     <Elements></Elements>
                 </div>
-                {!globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
+                {!globals.mobile && !isPlaylist ? <Comentarios postAtual={post}/> : <></> }
                 {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos} /> } */}
             </div>
         </div>

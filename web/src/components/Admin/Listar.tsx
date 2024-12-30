@@ -40,7 +40,7 @@ function Listar(){
             <Link to='/admin/textos_lista' className="i-menu2 t5" id="textos_lista" >Textos</Link>
             <Link to='/admin/videos_lista' className="i-menu2 t6" id="videos_lista" >Vídeos</Link>
             <Link to='/admin/playlists_lista' className="i-menu2 t7" id="playlists_lista" >Playlists</Link>
-            <Link to='/admin/products_lista' className="i-menu2 t8" id="products_lista" >Produtos</Link>
+            {/* <Link to='/admin/products_lista' className="i-menu2 t8" id="products_lista" >Produtos</Link> */}
         </div>
     </div>
     )

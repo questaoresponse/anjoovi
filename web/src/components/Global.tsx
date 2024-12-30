@@ -45,7 +45,6 @@ interface GlobalContextInterface {
   setIsAds:Dispatch<SetStateAction<boolean | undefined>>,
   peer:MutableRefObject<MyPeer>,
   cargo:MutableRefObject<Cargo>,
-  serviceChannel:MutableRefObject<MessageChannel>,
   loadedInfos:MutableRefObject<loadedInfosInterface>,
   firstPageInfos:MutableRefObject<{isFirstPage:boolean,onChange:(fn:any)=>void}>
 }
@@ -106,14 +105,9 @@ class NavigateClass{
 class Cargo{
   cargo:number | null=null;
   listeners:((cargo:number)=>void)[]=[];
-  serviceChannel:MutableRefObject<MessageChannel>;
-  constructor (serviceChannel:MutableRefObject<MessageChannel>){
-    this.serviceChannel=serviceChannel;
-  }
   setCargo(cargo:number){
     if (this.cargo!=cargo){
       navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({type:"cargo",cargo:cargo,origin:"client"});
-      // this.serviceChannel.current.port2.postMessage({type:"cargo",cargo:cargo,origin:"client"});
     }
     this.cargo=cargo;
     this.listeners.forEach(fn=>fn(cargo));
@@ -202,8 +196,7 @@ const GlobalProvider = ({ children }:{children:any}) => {
     const [selected,setSelected]=useState<string>();
     const [inicioSelected,setInicioSelected]=useState<string>();
     const [redirectTo,redirect]=useState<string | null>(null);
-    const serviceChannel=useRef<MessageChannel>(new MessageChannel());
-    const cargo=useRef<Cargo>(new Cargo(serviceChannel));
+    const cargo=useRef<Cargo>(new Cargo());
     const countAds=useRef(0);
     const peer=useRef<MyPeer>(new MyPeer());
     const modules=useRef(null);
@@ -292,7 +285,6 @@ const GlobalProvider = ({ children }:{children:any}) => {
       player,
       peer,
       cargo,
-      serviceChannel,
       loadedInfos,
       firstPageInfos
     }

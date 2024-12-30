@@ -1,4 +1,4 @@
-import { useRef, useState, useLayoutEffect, memo, useEffect } from "react";
+import { useRef, useState, useLayoutEffect, memo } from "react";
 import GlobalContextInterface, { useGlobal } from "../Global";
 import { useAuth } from "../Auth";
 import { useLocation } from "react-router-dom";
@@ -55,7 +55,7 @@ function Types(){
 
         return `${dia}/${mes}/${ano} às ${hora}h${minuto}`;
     }
-    const analyze=(post:any,_:boolean)=>{
+    const analyze=(post:any,comments:any=undefined)=>{
         switch (post.tipo){
             case "p":
                 var dj=post.d ? JSON.parse(post.d) : { o:"2024-01-01 00:00:00" };
@@ -77,6 +77,7 @@ function Types(){
                     id:post.id,
                     tipo:post.tipo,
                     n_comment:post.n_comment,
+                    comments:comments
                 };
             case "i":
                 var dj=JSON.parse(post.d);
@@ -95,6 +96,7 @@ function Types(){
                     text:texto,
                     id:post.id,
                     n_comment:post.n_comment,
+                    comments:comments,
                     tipo:post.tipo
                 };
             case "m":
@@ -130,6 +132,7 @@ function Types(){
                     inscrito:JSON.parse(post.inscrito!),
                     id:post.id,
                     n_comment:post.n_comment,
+                    comments:comments,
                     arquivos:arquivos,
                     musics:musics,
                     tipo:post.tipo
@@ -150,6 +153,7 @@ function Types(){
                     id:post.id,
                     tipo:post.tipo,
                     n_comment:post.n_comment,
+                    comments:comments
                 };
             case "v":
                 var dj=JSON.parse(post.d);
@@ -172,6 +176,7 @@ function Types(){
                     id:post.id,
                     tipo:post.tipo,
                     n_comment:post.n_comment,
+                    comments:comments
                 };
             case "pl":
                 const playlists:{imagem:string,titulo:string,post:number}[]=[];
@@ -218,15 +223,18 @@ function Types(){
                     text:texto,
                     id:post.id,
                     n_comment:post.n_comment,
+                    comments:comments,
                     tipo:post.tipo
                 };
         }  
     }
+    const initPosts=useRef<any[]>([])
     const get=async (initial:boolean,pathname:string)=>{
         if (initial && isLoaded.current) return;
         if (initial && !isLoaded.current) isLoaded.current=true;
         var params:URLSearchParams=new URLSearchParams(location.search);
         params.set("c","1");
+        initial && params.set("i","1");
         var result=await auth.get(server+pathname+"?"+params.toString());
         if (result.error){
             setRedirectError(result.error);
@@ -234,38 +242,47 @@ function Types(){
             type.current=result.data.post.tipo;
             const t=result.data.post.titulo || result.data.post.descricao || result.data.post.texto || "";
             if (t!=document.title) document.title=t.length > 100 ? t.substring(0, 100) : t;
-            result.data.post=analyze(result.data.post,true);
-            for (var i=0;i<result.data.posts.length;i++){
-                result.data.posts[i]=analyze(result.data.posts[i],false);
+            result.data.post=analyze(result.data.post,result.data.comments);
+            if (initial){
+                for (var i=0;i<result.data.posts.length;i++){
+                    result.data.posts[i]=analyze(result.data.posts[i]);
+                }
+                initPosts.current=result.data.posts;
+                setPosts({posts:result.data.posts,postAtual:result.data.post});
+            } else {
+                setPosts((posts)=>{
+                    posts.posts=[...initPosts.current];
+                    posts.posts[posts.posts.findIndex(p=>p.tipo==result.data.post.tipo && p.id==result.data.post.id)]={...posts.postAtual,comments:null};
+                    return {posts:posts.posts,postAtual:result.data.post}
+                });
             }
-            setPosts({posts:result.data.posts,postAtual:result.data.post});
         }
     };
-    const waitingUpdate=useRef(false);
     const postChanged=useRef(false);
     const updatePosts=(pathname:string,i:number)=>{
         id.current=i;
+        postChanged.current=true;
         window && navigate(pathname,{changeURL:false,lookTop:false});
         history.pushState({page:""},"",pathname);
         get(false,pathname);
-        waitingUpdate.current=true;
-        postChanged.current=true;
     }
-    useEffect(()=>{
-        if (waitingUpdate.current){
-            waitingUpdate.current=false;
-            // window.scrollTo({top:0,behavior:"instant"});
-        }
-    });
     const changeId=(pathname:string)=>{
         if (postChanged.current){
             postChanged.current=false;
         } else {
-            if (pathname.split("/").length>=3){
+            const pathnames:{[key:string]:any}={
+                "noticia":true,
+                "imagem":true,
+                "musica":true,
+                "texto":true,
+                "video":true,
+                "playlist":true,
+                "product":true,
+            };
+            if (pathname.split("/").length>=3 && pathname.split("/")[1] in pathnames){
                 id.current=Number(pathname.split("/")[2]);
                 window && navigate(pathname,{changeURL:false,lookTop:false,callHandle:false});
                 get(false,pathname);
-                waitingUpdate.current=true;
             }
         }
     }

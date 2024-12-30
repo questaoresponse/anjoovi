@@ -12,14 +12,13 @@ interface commentInterface{
     texto:string,
     loading:boolean
 }
-function Comentarios({previousRequest, ...values}:{previousRequest?:MutableRefObject<(string | boolean)[]>,playlistComponent?:any,tipo?:any,postAtual?:any,values?:any}){
+function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,previousRequest?:MutableRefObject<(string | boolean)[]>,playlistComponent?:any,tipo?:any,values?:any}){
     const PlaylistComponent=values.playlistComponent || null;
     const globals=useGlobal();
-    const { server, navigate, navigateClass }=globals;
+    const { server, navigate }=globals;
     const auth=useAuth();
     const location=useLocation();
     const [comentarios,setComentarios]=useState<commentInterface[]>([]);
-    const [logos,setLogos]=useState([]);
     const [count,setCount]=useState(0);
     const [loading,setLoading]=useState(false);
     const [optionsShow,setOptionsShow]=useState(-1);
@@ -32,15 +31,22 @@ function Comentarios({previousRequest, ...values}:{previousRequest?:MutableRefOb
         id:useRef(Number(location.pathname.split("/")[2]))
     }
     const get=()=>{
-        auth.post(server+"/comentarios",{type:"option",operation:"get_comentarios",tipo:infos.tipo.current,post_id:infos.id.current.toString()}).then((result)=>{
-            setLogos(result.data.logos);
-            setCount(result.data.count);
-            setComentarios(result.data.comentarios.map((comentarios:any)=>{return {...comentarios,texto:comentarios.texto.split(" ")}}));
-        });
+        if (postAtual){
+            setCount(postAtual.n_comment);
+            setComentarios(postAtual.comments.map((comentarios:any)=>{return {...comentarios,texto:comentarios.texto.split(" ")}}));
+        }
     };
     const update=(pathname:string)=>{
-        if (pathname!=""){
-
+        const pathnames:{[key:string]:any}={
+            "noticia":true,
+            "imagem":true,
+            "musica":true,
+            "texto":true,
+            "video":true,
+            "playlist":true,
+            "product":true,
+        };
+        if (pathname!="" && pathname.split("/")[1] in pathnames){
             infos.tipo.current=pathname.split("/")[1];
             infos.id.current=Number(pathname.split("/")[2]);
             get();
@@ -48,10 +54,6 @@ function Comentarios({previousRequest, ...values}:{previousRequest?:MutableRefOb
     }
     useEffect(()=>{
         update(window.location.pathname);
-        navigateClass.current.addListener(update);
-        return ()=>{
-            navigateClass.current.removeListener(update);
-        }
     },[]);
     const Comentar=useCallback((e:any)=>{
         e.preventDefault();
@@ -63,9 +65,8 @@ function Comentarios({previousRequest, ...values}:{previousRequest?:MutableRefOb
                 setCount(count=>count+1);
                 setLoading(true);
                 refs.btn.current!.disabled=true;
-                if (!Object.keys(logos).includes(globals.login.usuario!)) setLogos((logos)=>{return {...logos,[globals.login.usuario!]:globals.login.logo=='null' ? null : globals.login.logo}});
                 setComentarios((comentarios:any)=>{
-                    comentarios.unshift({usuario:globals.login.usuario!,texto:text.split(" ")});
+                    comentarios.unshift({usuario:globals.login.usuario!,logo:globals.login.logo=='null' ? null : globals.login.logo,texto:text.split(" ")});
                     return comentarios;
                 });
                 auth.post(server+"/comentarios",{type:"option",operation:"comentar",tipo:infos.tipo.current,post_id:infos.id.current.toString(),texto:text}).then((result)=>{
@@ -116,7 +117,7 @@ function Comentarios({previousRequest, ...values}:{previousRequest?:MutableRefOb
     };
     return (
         <div id="cmdd" className="comm">
-            {PlaylistComponent ? <PlaylistComponent postAtual={values.postAtual} values={values.values}></PlaylistComponent> : null}
+            {PlaylistComponent ? <PlaylistComponent postAtual={postAtual} values={values.values}></PlaylistComponent> : null}
             <div id="cmn">{count+(count>1 ? " Comentários" : " Comentário")}</div>
             <div id="cmd">
                 <form onSubmit={Comentar} id="cmf">
@@ -125,7 +126,7 @@ function Comentarios({previousRequest, ...values}:{previousRequest?:MutableRefOb
                 </form>
                 <div id="cmb">
                     {comentarios.map((comment:any,index)=>{
-                        const content=!logos[comment.usuario] ? comment.usuario[0] : <img src={server+"/images/"+encodeURIComponent(logos[comment.usuario])}/>
+                        const content=comment.logo ? <img src={server+"/images/"+encodeURIComponent(comment.logo)}/> : comment.usuario[0];
                         return (
                             <div className="ndivc" key={index}>
                                 <Link to={"/@"+encodeURIComponent(comment.usuario)} className="ndivl">{content}</Link>

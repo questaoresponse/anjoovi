@@ -7,7 +7,7 @@ function GlobalFunction(){
     const location=useLocation();
     const auth=useAuth();
     const navigatess=useNavigate();
-    const { player, setHeader, loadedInfos,serviceChannel,server,navigate,navigateClass,setMobile,verifyStories,currentLogin,modules,redirectTo,redirectError,isLoadedPage,peer, cargo, login }=useGlobal();
+    const { player, setHeader, loadedInfos,server,navigate,navigateClass,setMobile,verifyStories,currentLogin,modules,redirectTo,redirectError,isLoadedPage,peer, cargo, login }=useGlobal();
     
     function gtag(..._:any){window.dataLayer.push(arguments);}
     const verifyHeader=(pathname:string)=>{
@@ -190,8 +190,8 @@ function GlobalFunction(){
         });
         navigator.serviceWorker.addEventListener("message",event=>{
             if (event.data.type=="send"){
-                    const { tipo, modify, newPeer, deletePeer }=event.data.data;
-                    auth.post(event.data.url,{type:"infos",tipo:tipo,modify:modify,new:newPeer,delete:deletePeer});
+                const { tipo, modify, newPeer, deletePeer }=event.data.data;
+                auth.post(event.data.url,{type:"infos",tipo:tipo,modify:modify,new:newPeer,delete:deletePeer});
             }
         });
         window.addEventListener("beforeunload",deletar);

@@ -28,9 +28,6 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
     onLinkClick !="";
   const globals = useGlobal();
   const auth = useAuth();
-    // axios.post("http://www.teste.com",{type:"info"}).then((result)=>{
-    //     posts=JSON.parse(result);
-    // })
     const refs={
       descricao:useRef<HTMLDivElement>(null),
     }
@@ -38,50 +35,6 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
     useEffect(()=>{
         setSummarized(post.text.length>2);
     },[post]);
-    // const update=(pathname:string)=>{
-    //     console.log("ai");
-    //     if (waiting.current){
-    //         if (p.current!=pathname){
-    //             waiting.current=false;
-    //             p.current=pathname;
-    //         }
-    //     }
-    // }
-    // useEffect(()=>{
-    //     if (isMain){
-    //         navigateClass.current.addListener(update);
-    //         return ()=>{
-    //             navigateClass.current.addListener(update);
-    //         }
-    //     }
-    // },[]);
-    // const c=useRef<number[]>([0,0,0]);
-    // useEffect(()=>{
-    //   // veriifca se a chamada não é pela montagem do componente
-    //   // verifica se a modificação no pathname ocorreu devido a mudança no id
-    //   if (c.current[0]>0){
-    //     // if (location.pathname!=pathname.current){
-    //       get();
-
-    //       // verifica se foi a primeira mudança, pois o anuncio só precisa ser carregado uma vez por tipo de página
-    //       if (c.current[0]==1){
-    //       globals.isRender();
-    //       }
-    //     // }
-    //   }
-    //   if (c.current[2]==1) c.current[2]=0;
-    //   c.current[0]++;
-    // },[location.pathname]);
-
-    // useEffect(()=>{
-
-    //   // veriifca se a chamada não é pela montagem do componente
-    //   if (c.current[1]>0){
-    //       get();
-    //   }
-    //   c.current[1]++;
-    //   c.current[2]=1;
-    // },[props.id]);
     const isValidURL=(str:any)=>{
         try {
           const url=new URL(str);
@@ -98,12 +51,12 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/imagem/"+post.id,post.id)}} to={"/imagem/"+post.id} className="imagem disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo> 
                 <div className={(post.usuario!="" ? "" : " wait ") + "descricao-imagem txt " + (!isMain ? "resumo" : "")} ref={refs.descricao}>{post.text.map((line:string[],i:number)=>{
-                    return <>
+                    return <div key={i}>
                         {line.map((texto:string,index:number)=>{
                             return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1,-1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )
                         })}
                         <br></br>
-                    </>
+                    </div>
                 })}</div>
                 <div className="campo-img-imagem">
                     {post.srcImagem ? <img src={post.srcImagem}/> : <></>}
@@ -148,7 +101,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
             </div>}
             {/* {comentarios && <Comentarios id_comment={post.id}/>} */}
 
-            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios/> : <></>}
+            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios postAtual={post}/> : <></>}
 
             {/* <Ads slot="7693763089"/> */}
             {/* {!props.id && globals.mobile && <Post globals={globals} posts={infos.alta}/>} */}
@@ -161,7 +114,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                     {post.id ? <Ads solt="7693763089"/> : <></>}
                     <Nt post={post}/>
                     <Elements></Elements>
-                    {!globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
+                    {!globals.mobile && !isPlaylist ? <Comentarios postAtual={post}/> : <></> }
                     {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}
                 </div>
             </div>

@@ -9,7 +9,7 @@ import sem_imagem from "../static/sem-imagem.jpg";
 import Logop from '../Logop.jsx';
 import Post from './Post.jsx';
 import X from '../X.tsx';
-//pc
+//mobile
 const Content1=memo(({showAbout,initChat,showCard,option,globals,values,navigate,inscrever,onStart, onMove, onEnd,btnsRef}:{showAbout:()=>void,initChat:()=>void,option:string | null,showCard:()=>void,globals:GlobalContextInterface,values:any,navigate:(url:string)=>void,inscrever:(event:any)=>void,onStart:(e:any)=>void,onMove:(e:any)=>void,onEnd:(e:any)=>void,btnsRef:MutableRefObject<HTMLDivElement | null>})=>{
     const server=globals.server;
     const post=option ? values.destaques[option] : null;
@@ -18,16 +18,7 @@ const Content1=memo(({showAbout,initChat,showCard,option,globals,values,navigate
     var src;
     if (post){
         option_correct=post.tipo=="p" ? "noticia" : post.tipo=="i" ? "imagem" : post.tipo=="m" ? "musica" : post.tipo=="t" ? "texto" : post.tipo=="v" ? "video" : "playlist";
-        if (post.tipo=="v"){
-            if (post.imagem[1]){
-                type="img";
-                src=post.imagem[1];
-            } else {
-                type="mp4";
-                src=post.imagem[0];
-            }
-        }
-        if (["p","i","m","pl"].includes(post.tipo)){
+        if (["p","i","m","v","pl"].includes(post.tipo)){
             type="img";
             src=post.imagem;
         } else if (post.tipo=="t"){
@@ -61,12 +52,12 @@ const Content1=memo(({showAbout,initChat,showCard,option,globals,values,navigate
                     </div>
                 </div>  
             { option ? <Link to={"/"+option_correct+"/"+values.destaques[option].id} id="destaque" style={{background:post.tipo!="t" ? "gray" : "rgba(0,0,0,0)"}}>
-                {option && values.destaques[option] ? type=="img" ? <img className="imagem-canal" src={server+"/images/"+encodeURIComponent(src)}></img> : type=="mp4" ? <video className='imagem-canal' src={server+"/videos/"+encodeURIComponent(src)}></video> : type=="text" ? <div className='texto-canal txt'>{post.titulo}</div> : <img className='imagem-canal' src={sem_imagem}></img> : <img className='imagem-canal' src={sem_imagem}></img>}
+                {option && values.destaques[option] ? type=="img" ? <img className="imagem-canal" src={server+"/images/"+encodeURIComponent(src)}></img> : type=="text" ? <div className='texto-canal txt'>{post.titulo}</div> : <img className='imagem-canal' src={sem_imagem}></img> : <img className='imagem-canal' src={sem_imagem}></img>}
             </Link> : <div id="destaque"><img className='imagem-canal' src={sem_imagem}></img></div> }
             </div>
         );
 });
-//mobile
+//pc
 const Content2=memo(({showAbout,initChat,showCard,option,globals,values,navigate,inscrever,onStart, onMove, onEnd,btnsRef}:{showAbout:()=>void,initChat:()=>void,option:string | null,showCard:()=>void,globals:GlobalContextInterface,values:any,navigate:(url:string)=>void,inscrever:(event:any)=>void,onStart:(e:any)=>void,onMove:(e:any)=>void,onEnd:(e:any)=>void,btnsRef:MutableRefObject<HTMLDivElement | null>})=>{
     const server=globals.server;
     const post=option ? values.destaques[option] : null;
@@ -75,16 +66,7 @@ const Content2=memo(({showAbout,initChat,showCard,option,globals,values,navigate
     var src;
     if (post){
         option_correct=post.tipo=="p" ? "noticia" : post.tipo=="i" ? "imagem" : post.tipo=="m" ? "musica" : post.tipo=="t" ? "texto" : post.tipo=="v" ? "video" : "playlist";
-        if (post.tipo=="v"){
-            if (post.imagem[1]){
-                type="img";
-                src=post.imagem[1];
-            } else {
-                type="mp4";
-                src=post.imagem[0];
-            }
-        }
-        if (["p","i","m","pl"].includes(post.tipo)){
+        if (["p","i","m","v","pl"].includes(post.tipo)){
             type="img";
             src=post.imagem;
         } else if (post.tipo=="t"){
@@ -96,7 +78,7 @@ const Content2=memo(({showAbout,initChat,showCard,option,globals,values,navigate
         // <div id="topd">
             <div id="topb">
                 { option ? <Link to={"/"+option_correct+"/"+values.destaques[option].id} id="destaque" style={{background:post.tipo!="t" ? "gray" : "rgba(0,0,0,0)"}}>
-                    {option && values.destaques[option] ? type=="img" ? <img className="imagem-canal" src={server+"/images/"+encodeURIComponent(src)}></img> : type=="mp4" ? <video className='imagem-canal' src={server+"/videos/"+encodeURIComponent(src)}></video> : type=="text" ? <div className='texto-canal txt'>{post.titulo}</div> : <img className='imagem-canal' src={sem_imagem}></img> : <img className='imagem-canal' src={sem_imagem}></img>}
+                    {option && values.destaques[option] ? type=="img" ? <img className="imagem-canal" src={server+"/images/"+encodeURIComponent(src)}></img> : type=="text" ? <div className='texto-canal txt'>{post.titulo}</div> : <img className='imagem-canal' src={sem_imagem}></img> : <img className='imagem-canal' src={sem_imagem}></img>}
                 </Link> : <div id="destaque"><img className='imagem-canal' src={sem_imagem}></img></div> }
                 <div id="pg-t">
                 <div id="banner" className="d-inline-block col-12 col-md-9 p-0"><img src={values.banner}/></div>
@@ -253,7 +235,7 @@ function Canal(){
             }
             const transform=(option:string)=>{
                 const post=options[option][0];
-                return {titulo:post.titulo,imagem:post.tipo=="v" ? JSON.parse(post.imagem) : post.imagem,id:post.id,tipo:post.tipo};
+                return {titulo:post.titulo,imagem:post.imagem,id:post.id,tipo:post.tipo};
             }
             document.title=info.nome+" - Anjoovi";
             const dd:{[chave:string]:any}={};

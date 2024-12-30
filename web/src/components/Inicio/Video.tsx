@@ -107,7 +107,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
                     <Denuncia tipo="video"></Denuncia>
                 </div>
             </div>}
-            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios/> : <></>}
+            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios postAtual={post}/> : <></>}
         </div>
     }
     return !isMain ? <Nt post={post}/> : (
@@ -120,7 +120,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
                         <Elements></Elements>
                     </div>
                     {!globals.mobile && <Ads slot="7577017868"/>}
-                    {!globals.mobile && !isPlaylist ? <Comentarios/> : <></> }
+                    {!globals.mobile && !isPlaylist ? <Comentarios postAtual={post}/> : <></> }
 
                     {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}
                 </div>
