@@ -654,9 +654,7 @@ Route::post('/',function () {
             $users=implode(",",$users);
             $canal=p($conn->query("SELECT nome,usuario,logo FROM user WHERE usuario IN ($users)"));
         };
-        $end_time=microtime(true);
-        $time=($ge_time - $g_time) * 1000;
-        $time2=($end_time - $start_time) * 1000;
+ 
         // $alta=p($conn->query("SELECT palavra, COUNT(*) AS frequencia 
         // FROM (
         //     (
@@ -745,7 +743,9 @@ Route::post('/',function () {
         GROUP BY palavra
         ORDER BY frequencia DESC LIMIT 30
         "));
-
+       $end_time=microtime(true);
+       $time=($ge_time - $g_time) * 1000;
+       $time2=($end_time - $start_time) * 1000;
         // $alta=[];
 
         // STR_TO_DATE(d,'%Y-%m-%d %H:%i:%s')
