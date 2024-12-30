@@ -693,63 +693,41 @@ Route::post('/',function () {
         // GROUP BY palavra
         // ORDER BY frequencia DESC LIMIT 30
         // "));
-        $alta=p($conn->query("SELECT palavra, COUNT(*) AS frequencia 
-        FROM (
-            (
-                SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(titulo, ' ', n.n), ' ', -1) AS palavra,JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) AS d FROM post 
-                JOIN 
-                    (SELECT a.N + b.N * 10 + 1 n
+        $alta=p($conn->query("WITH palavras AS (
+                SELECT 
+                    SUBSTRING_INDEX(SUBSTRING_INDEX(column_data, ' ', n.n), ' ', -1) AS palavra
+                FROM (
+                    SELECT titulo AS column_data,d FROM post
+                    UNION ALL
+                    SELECT texto AS column_data,d FROM post
+                    UNION ALL
+                    SELECT descricao AS column_data,d FROM post_imagem
+                    UNION ALL
+                    SELECT titulo AS column_data,d FROM post_musica
+                ) AS combined_columns
+                JOIN (
+                    SELECT a.N + b.N * 10 + 1 n
                     FROM 
                         (SELECT 0 N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a,
                         (SELECT 0 N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
-                    ORDER BY n) n
-                WHERE n.n <= 1 + (LENGTH(titulo) - LENGTH(REPLACE(titulo, ' ', ''))) AND STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')),'%Y-%m-%d %H:%i:%s') >= NOW() - INTERVAL 1 DAY
+                    ORDER BY n
+                ) n ON n.n <= 1 + (LENGTH(column_data) - LENGTH(REPLACE(column_data, ' ', '')))
+                WHERE STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')),'%Y-%m-%d %H:%i:%s') >= NOW() - INTERVAL 1 DAY
             )
-            UNION ALL
-            (
-                SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(texto, ' ', n.n), ' ', -1) AS palavra,JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) AS d FROM post 
-                JOIN 
-                    (SELECT a.N + b.N * 10 + 1 n
-                    FROM 
-                        (SELECT 0 N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a,
-                        (SELECT 0 N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
-                    ORDER BY n) n
-                WHERE n.n <= 1 + (LENGTH(texto) - LENGTH(REPLACE(texto, ' ', ''))) AND STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')),'%Y-%m-%d %H:%i:%s') >= NOW() - INTERVAL 1 DAY
-            )
-            UNION ALL
-            (
-                SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(descricao, ' ', n.n), ' ', -1) AS palavra,JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) AS d FROM post_imagem
-                JOIN 
-                    (SELECT a.N + b.N * 10 + 1 n
-                    FROM 
-                        (SELECT 0 N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a,
-                        (SELECT 0 N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
-                    ORDER BY n) n
-                WHERE n.n <= 1 + (LENGTH(descricao) - LENGTH(REPLACE(descricao, ' ', ''))) AND STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')),'%Y-%m-%d %H:%i:%s') >= NOW() - INTERVAL 1 DAY
-                )
-            UNION ALL
-            (
-                SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(titulo, ' ', n.n), ' ', -1) AS palavra,JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) AS d FROM post_musica
-                JOIN 
-                    (SELECT a.N + b.N * 10 + 1 n
-                    FROM 
-                        (SELECT 0 N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a,
-                        (SELECT 0 N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
-                    ORDER BY n) n
-                WHERE n.n <= 1 + (LENGTH(titulo) - LENGTH(REPLACE(titulo, ' ', ''))) AND STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')),'%Y-%m-%d %H:%i:%s') >= NOW() - INTERVAL 1 DAY
-            )
-        ) AS palavras
-        WHERE palavra LIKE '#%'
-        GROUP BY palavra
-        ORDER BY frequencia DESC LIMIT 30
+            SELECT palavra, COUNT(*) AS frequencia 
+            FROM palavras
+            WHERE palavra LIKE '#%' 
+            GROUP BY palavra
+            ORDER BY frequencia DESC
+            LIMIT 30
         "));
-       $end_time=microtime(true);
-       $time=($ge_time - $g_time) * 1000;
-       $time2=($end_time - $start_time) * 1000;
-        // $alta=[];
+        $end_time=microtime(true);
+        $time=($ge_time - $g_time) * 1000;
+        $time2=($end_time - $start_time) * 1000;
+            // $alta=[];
 
-        // STR_TO_DATE(d,'%Y-%m-%d %H:%i:%s')
-        response()->json(["canal"=>$canal,"posts"=>$r,"st"=>$r2,"time"=>$time,"time2"=>$time2,"usuario"=>$usuario,"alta"=>$alta]);
+            // STR_TO_DATE(d,'%Y-%m-%d %H:%i:%s')
+            response()->json(["canal"=>$canal,"posts"=>$r,"st"=>$r2,"time"=>$time,"time2"=>$time2,"usuario"=>$usuario,"alta"=>$alta]);
     } else if (request("type")=="posts" && isset($_POST["pt"])){
         $conn=$GLOBALS["conn"];
         $r=getAlgoritmoNoticia(true,$conn,$usuario,0,intval($_POST["pt"]));
