@@ -247,6 +247,7 @@ function getAtualDate(){
     return $d->format('Y-m-d H:i:s');
 }
 function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
+    $s1="";
     $n1="";
     $i1="";
     $m1="";
@@ -254,24 +255,28 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
     $v1="";
     $pd1="";
     if (!$isGeral){
+        $s1="n_comment,
+            visualizacoes,
+            logo,
+            nome,";
         $n1="CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-        p2.logo,p2.nome,
-        (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='noticia') AS n_comment,";
+            p2.logo,p2.nome,
+            (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='noticia') AS n_comment,";
         $i1="CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-        p2.logo,p2.nome,
-        (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='imagem') AS n_comment,";
+            p2.logo,p2.nome,
+            (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='imagem') AS n_comment,";
         $m1="CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-        p2.logo,p2.nome,
-        (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='musica') AS n_comment,";
+            p2.logo,p2.nome,
+            (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='musica') AS n_comment,";
         $t1="CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-        p2.logo,p2.nome,
-        (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='texto') AS n_comment,";
+            p2.logo,p2.nome,
+            (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='texto') AS n_comment,";
         $v1="CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-        p2.logo,p2.nome,
-        (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='video') AS n_comment,";
+            p2.logo,p2.nome,
+            (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='video') AS n_comment,";
         $pd1="CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
-        p2.logo,p2.nome,
-        (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='product') AS n_comment,";
+            p2.logo,p2.nome,
+            (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='product') AS n_comment,";
     }
     if ($usuario){
             return p($conn->prepare("WITH history AS (
@@ -299,7 +304,22 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 FROM inscritos
             )
             SELECT 
-                *,
+                $s1
+                inscrito,
+                acessos,
+                p.usuario,
+                titulo,
+                descricao,
+                subtitulo,
+                texto,
+                imagem,
+                arquivo,
+                duration,
+                zip,
+                d,
+                views_id,
+                id,
+                tipo,
                 (
                     CASE 
                         WHEN LOWER(p.titulo) LIKE (h.latest_text) THEN 1 
@@ -312,6 +332,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 ) AS accuracy 
             FROM (
                 SELECT 
+                    $n1
                     i.inscrito,
                     p.acessos, 
                     p.usuario,
@@ -335,6 +356,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 UNION ALL
                 
                 SELECT 
+                    $i1
                     i.inscrito,
                     p.acessos, 
                     p.usuario,
@@ -357,7 +379,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
 
                 UNION ALL
                 
-                SELECT 
+                SELECT
+                    $m1
                     i.inscrito,
                     p.acessos, 
                     p.usuario,
@@ -380,7 +403,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
 
                 UNION ALL
                 
-                SELECT 
+                SELECT
+                    $t1
                     i.inscrito,
                     p.acessos, 
                     p.usuario,
@@ -403,7 +427,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
 
                 UNION ALL
                 
-                SELECT 
+                SELECT
+                    $v1
                     i.inscrito,
                     p.acessos, 
                     p.usuario,
@@ -426,7 +451,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
 
                 UNION ALL
                 
-                SELECT 
+                SELECT
+                    $pd1
                     i.inscrito,
                     p.acessos, 
                     p.usuario,
