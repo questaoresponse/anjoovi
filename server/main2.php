@@ -1628,9 +1628,9 @@ Route::get("/musica/{id}",function($id){
     $usuario=$GLOBALS["user"];
     $conn=$GLOBALS["conn"];
     $id=intval($id);
-    $result=null;
+    $r=null;
     if ($usuario){
-        $result=$conn->prepare("SELECT 
+        $r=$conn->prepare("SELECT 
         (SELECT CASE 
                 WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
                 ELSE 'false' 
@@ -1641,22 +1641,21 @@ Route::get("/musica/{id}",function($id){
         p2.logo,p2.nome,
         id,downloads,duration,acessos,titulo,p.usuario,imagem,views_id,arquivo,zip,'m' AS tipo FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id,$id]);
     } else {
-        $result=$conn->prepare("SELECT 'false' AS inscrito, 
+        $r=$conn->prepare("SELECT 'false' AS inscrito, 
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         (SELECT COUNT(*) AS num FROM comment WHERE tipo='musica' AND post_id=? AND privado=0) AS n_comment,
         p2.logo,p2.nome,
         id,downloads,duration,acessos,titulo,p.usuario,imagem,views_id,arquivo,zip,'m' AS tipo FROM post_musica p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",[$id,$id]); 
     }
-    if ($result->num_rows>0){
-        $result=p($result)[0];
+    if ($r->num_rows>0){
+        $r=p($r)[0];
         $acessos=0;
-        $views_id=$result["views_id"];
+        $views_id=$r["views_id"];
         $comentarios=p($conn->prepare("SELECT c.usuario,c.texto,c.d,c.id,u.logo FROM comment AS c LEFT JOIN user AS u ON c.user_id=u.id WHERE c.tipo='musica' AND c.post_id=? AND c.privado=0 ORDER BY c.id DESC LIMIT 50",[$id]));
         // $conn->prepare("UPDATE post_musica SET acessos=? WHERE id=? AND privado=0",[$acessos,$id]);
         // $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=?",[$views_id]))[0]["acessos_d"],true);
         // $d=get_updated_date();
         if (is_js()){
-            $post=$result;
             $response=["result"=>"true","usuario"=>$usuario,"comments"=>$comentarios,"post"=>$r];
             if (isset($_GET["i"])){
                 $response["posts"]=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);

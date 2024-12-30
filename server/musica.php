@@ -1,2 +1,2 @@
 <?php
-    echo "<title>" . $titulo . "</title>";
+    echo "<title>" . $r["titulo"] . "</title>";
