@@ -441,6 +441,8 @@ if (isset($_COOKIE["token"])){
         $r=p($r)[0];
         $GLOBALS["user"]=$r["usuario"];
         $GLOBALS["cargo"]=intval($r["cargo"]);
+    } else {
+        delete_cookie("token");
     }
 } else {
     $GLOBALS["user"]=null;
