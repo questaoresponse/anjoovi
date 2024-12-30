@@ -1926,7 +1926,7 @@ Route::post("/comentarios",function(){
                 $texto=$dados["texto"];
                 $id=p($conn->prepare("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM comment WHERE tipo=? AND post_id=? ORDER BY id DESC LIMIT 1",[$tipo,$post_id]))[0]["id"];
                 $d=get_d(); 
-                $conn->prepare("INSERT INTO comment(usuario,tipo,texto,d,post_id,id) VALUES(?,?,?,?,?,?)",[$usuario,$tipo,$texto,$d,$post_id,$id]);
+                $conn->prepare("INSERT INTO comment(user_id,usuario,tipo,texto,d,post_id,id) SELECT id AS user_id, usuario, ? AS tipo, ? AS texto, ? AS d, ? AS post_id, ? AS id FROM user WHERE usuario=?",[$tipo,$texto,$d,$post_id,$id,$usuario]);
                 response()->json(["result"=>"true","usuario"=>$usuario,"id"=>$id]);
             }
         } else if ($operation=="excluir"){
