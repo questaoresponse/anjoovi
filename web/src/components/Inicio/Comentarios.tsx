@@ -31,7 +31,7 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
         id:useRef(Number(location.pathname.split("/")[2]))
     }
     const get=()=>{
-        if (postAtual){
+        if (postAtual && postAtual.comments){
             setCount(postAtual.n_comment);
             setComentarios(postAtual.comments.map((comentarios:any)=>{return {...comentarios,texto:comentarios.texto.split(" ")}}));
         }
