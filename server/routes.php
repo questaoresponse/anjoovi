@@ -436,18 +436,21 @@ function logout(){
 }
 $GLOBALS["conn"]=new sqli("anjoov00_posts");
 if (isset($_COOKIE["token"])){
-    $r=$GLOBALS["conn"]->prepare("SELECT usuario,cargo FROM user WHERE hash=?",[$_COOKIE["token"]]);
+    $r=$GLOBALS["conn"]->prepare("SELECT usuario,id,cargo FROM user WHERE hash=?",[$_COOKIE["token"]]);
     if ($r->num_rows>0){
         $r=p($r)[0];
         $GLOBALS["user"]=$r["usuario"];
+        $GLOBALS["user_id"]=$r["id"];
         $GLOBALS["cargo"]=intval($r["cargo"]);
     } else {
         delete_cookie("token");
         $GLOBALS["user"]=null;
+        $GLOBALS["user_id"]=null;
         $GLOBALS["cargo"]=128;
     }
 } else {
     $GLOBALS["user"]=null;
+    $GLOBALS["user_id"]=null;
     $GLOBALS["cargo"]=128;
 }
 if (str_starts_with($_SERVER["REQUEST_URI"],"/admin") && $_SERVER["REQUEST_URI"]!="/admin/cargo"){

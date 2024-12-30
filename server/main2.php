@@ -3007,12 +3007,26 @@ Route::post("/ups",function(){
 //     // echo "." . $e;
 // });
 Route::post("/ajeitar",function(){
-    $conn=$GLOBALS["conn"];
-    $r=p($conn->query("SELECT usuario FROM user"));
-    foreach ($r as $rs){
-        $hash=get_token(["usuario"=>$rs["usuario"]]);
-        $conn->prepare("UPDATE user SET hash=? WHERE usuario=?",[$hash,$rs["usuario"]]);
-    }
+    // $conn=$GLOBALS["conn"];
+    // $r=p($conn->query("SELECT usuario FROM user"));
+    // foreach ($r as $rs){
+    //     $hash=get_token(["usuario"=>$rs["usuario"]]);
+    //     $conn->prepare("UPDATE user SET hash=? WHERE usuario=?",[$hash,$rs["usuario"]]);
+    // }
+    // $r=p($conn->query("SELECT nome FROM user WHERE nome='amostradinho'"));
+    // $t1=0;
+    // $t2=0;
+    // for ($i=0;$i<10;$i++){
+    //     $i=microtime(true);
+    //     $r=p($conn->prepare("SELECT u.cargo FROM comment c LEFT JOIN user u ON c.user_id=u.id WHERE c.user_id=?",[$GLOBALS["user_id"]]));
+    //     $pi=microtime(true);
+    //     $i2=microtime(true);
+    //     $r=p($conn->prepare("SELECT u.cargo FROM comment c LEFT JOIN user u ON c.usuario=u.usuario WHERE c.usuario=?",[$GLOBALS["user"]]));
+    //     $pi2=microtime(true);
+    //     $t1+=($pi - $i) * 1000;
+    //     $t2+=($pi2-$i2) * 1000;
+    // }
+    // echo json_encode(["time"=>$t1, "time2"=>$t2]);
 });
 Route::post("/functions",function(){
     if (isset($_POST["key"]) && $_POST["key"]=="7894j96~-[njd98n705yfhq´-d3=rfekk9"){
