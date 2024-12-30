@@ -553,7 +553,7 @@ Route::post('/',function () {
                 JOIN (
                     SELECT usuario, MIN(id) AS min_id, MAX(id) AS max_id
                     FROM post_24
-                    WHERE privado = 'false'
+                    WHERE privado=0
                     GROUP BY usuario
                     ORDER BY max_id DESC
                     LIMIT 20
@@ -1500,7 +1500,7 @@ Route::post("/inscricoes",function(){
                     JOIN (
                         SELECT usuario, MIN(id) AS min_id, MAX(id) AS max_id
                         FROM post_24
-                        WHERE usuario IN ($lista) AND privado = 'false'
+                        WHERE usuario IN ($lista) AND privado=0
                         GROUP BY usuario
                         ORDER BY max_id DESC
                         LIMIT 20
