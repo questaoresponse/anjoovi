@@ -287,7 +287,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 FROM (
                     SELECT 
                         usuario, 
-                        texto,
+                        IFNULL(texto,''),
                         ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
                     FROM historico
                 ) h
@@ -476,12 +476,12 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
             INNER JOIN history h ON h.usuario = p.usuario
             ORDER BY accuracy DESC
             LIMIT ". $pt * $limit . "," . ($pt+1)*$limit,[
-            '"' . $usuario . '"', "$." . $usuario,$id,
-            $id,
-            $id,
-            $id,
-            $id,
-            $id,
+                '"' . $usuario . '"', "$." . $usuario,$id,
+                $id,
+                $id,
+                $id,
+                $id,
+                $id,
         ]));
     } else {
         return p($conn->query("SELECT * FROM (
