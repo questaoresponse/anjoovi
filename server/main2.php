@@ -1495,9 +1495,9 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
                 $videos=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,JSON_ARRAY(video,imagem) AS imagem,'v' AS tipo FROM post_video WHERE usuario=? AND privado=0 ORDER BY id DESC LIMIT 48",[$name]));
                 $visualized=false;
                 if ($usuario){
-                    $visualized=p($conn->prepare("SELECT COUNT(CASE WHEN acessos_d LIKE (?) THEN 1 ELSE NULL END) AS num, COUNT(*) AS num2 FROM views WHERE usuario=? AND excluido='false' AND tipo='post_24'
-                    ",["%" . $usuario . "%",$name]))[0];
-                    $visualized=$visualized["num"]!=0 && $visualized["num"]==$visualized["num2"];
+                    $visualized=p($conn->prepare("SELECT (CASE WHEN COUNT(CASE WHEN d2 LIKE (?) THEN 1 ELSE NULL END) = COUNT(*) THEN COUNT(*) ELSE 0 END) AS visualized FROM views WHERE usuario=? AND excluido='false' AND tipo='post_24'
+                    ",["%" . $usuario . "%",$name]))[0]["visualized"];
+                    $visualized=$visualized!=0;
                 }
                 $result=$conn->prepare("SELECT * FROM destaques WHERE usuario=?",[$name]);
                 $destaques=null;
@@ -1723,7 +1723,7 @@ Route::post("/inscricoes",function(){
     if ($usuario){
         if (request("type")=="info"){
             $conn=$GLOBALS["conn"];
-            $r=$conn->prepare("SELECT inscritos FROM user WHERE usuario=? AND cargo & 1=0       ",[$usuario]);
+            $r=$conn->prepare("SELECT inscritos FROM user WHERE usuario=? AND cargo & 1=0",[$usuario]);
             if ($r->num_rows>0){
                 $r=json_decode(p($r)[0]["inscritos"],true);
                 $rk=array_keys($r);
@@ -1732,7 +1732,7 @@ Route::post("/inscricoes",function(){
                 $canal=[];
                 $lista=to_list($rk);
                 $r=p($conn->query("SELECT * FROM (
-                        (SELECT views_id,id,usuario,NULL AS texto,titulo,imagem,'p' AS tipo FROM post WHERE privado=0 AND usuario IN ($lista) ORDER BY id DESC LIMIT 48)
+                        (SELECT views_id,id,usuario,NULL AS texto,titulo,imagem,'p' AS tipo FROM post WHERE usuario IN ($lista) AND privado=0 ORDER BY id DESC LIMIT 48)
                         UNION
                         (SELECT views_id,id,usuario,NULL AS texto,descricao AS titulo,imagem,'i' AS tipo FROM post_imagem WHERE usuario IN ($lista) AND privado=0 ORDER BY id DESC LIMIT 48)
                         UNION
@@ -1740,39 +1740,40 @@ Route::post("/inscricoes",function(){
                         UNION
                         (SELECT views_id,id,usuario,texto,NULL AS titulo,NULL AS imagem,'t' AS tipo FROM post_texto WHERE usuario IN ($lista) AND privado=0 ORDER BY id DESC LIMIT 48)
                         UNION
-                        (SELECT views_id,id,usuario,NULL AS texto,titulo,(CASE WHEN imagem=NULL THEN video ELSE imagem END) AS imagem,'v' AS tipo FROM post_video WHERE usuario IN ($lista) AND privado=0 ORDER BY id DESC LIMIT 48)
+                        (SELECT views_id,id,usuario,NULL AS texto,titulo,JSON_ARRAY('',imagem),'v' AS tipo FROM post_video WHERE usuario IN ($lista) AND privado=0 ORDER BY id DESC LIMIT 48)
+                        UNION
+                        (SELECT views_id,id,usuario,NULL AS texto,NULL AS titulo,imagem,'pd' AS tipo FROM post_product WHERE usuario IN ($lista) AND privado=0 ORDER BY id DESC LIMIT 48)
                     ) AS result ORDER BY views_id LIMIT 48
                 "));
                 $up="%".$usuario."%";
-                $canal=p($conn->query("SELECT logo,nome,usuario FROM user WHERE usuario IN ($lista)"));
                 $r2=p($conn->prepare("SELECT 
-                    RankedPosts.*, 
+                    temp.*, 
                     (
                         SELECT 
                             CASE 
-                                WHEN COUNT(CASE WHEN acessos_d LIKE (?) THEN 1 ELSE NULL END) != 0 
-                                    AND COUNT(CASE WHEN acessos_d LIKE (?) THEN 1 ELSE NULL END) = COUNT(*) 
+                                WHEN COUNT(CASE WHEN d2 LIKE (?) THEN 1 ELSE NULL END) != 0 
+                                    AND COUNT(CASE WHEN d2 LIKE (?) THEN 1 ELSE NULL END) = COUNT(*) 
                                 THEN 1 
                                 ELSE 0 
                             END AS visualized
-                        FROM views WHERE excluido='false' AND tipo='post_24' AND usuario=RankedPosts.usuario
+                        FROM views WHERE excluido='false' AND tipo='post_24' AND usuario=temp.usuario
                     ) AS visualized
-                FROM 
-                ( 
-                    SELECT t.*, u.max_id
-                    FROM post_24 t
-                    JOIN (
-                        SELECT usuario, MIN(id) AS min_id, MAX(id) AS max_id
-                        FROM post_24
-                        WHERE usuario IN ($lista) AND privado=0
-                        GROUP BY usuario
-                        ORDER BY max_id DESC
-                        LIMIT 20
-                    ) AS u ON t.id = u.min_id
-                    ORDER BY t.id DESC
-                ) AS RankedPosts
-                ",[$up,$up]));
-                response()->json(["result"=>"true","canal"=>$canal,"posts"=>$r,"st"=>$r2,"usuario"=>$usuario]);
+                    FROM 
+                    ( 
+                        SELECT u.nome, u.logo, t.usuario, t.acessos, t.id, tp.max_id
+                        FROM post_24 t
+                        JOIN (
+                            SELECT usuario, MIN(id) AS min_id, MAX(id) AS max_id
+                            FROM post_24
+                            WHERE usuario IN ($lista) AND privado=0
+                            GROUP BY usuario
+                            ORDER BY max_id DESC
+                            LIMIT 20
+                        ) AS tp ON t.id = tp.min_id
+                        JOIN user u ON t.usuario=u.usuario
+                        ORDER BY t.id DESC
+                    ) AS temp",[$up,$up]));
+                response()->json(["result"=>"true","posts"=>$r,"st"=>$r2,"usuario"=>$usuario]);
             } else {
                 response()->json(["result"=>"true","canal"=>[],"posts"=>[],"st"=>[],"usuario"=>$usuario]);
             }
