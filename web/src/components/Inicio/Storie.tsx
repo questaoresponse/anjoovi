@@ -17,27 +17,31 @@ function Storie({globals,stories:storiesV,inscricoes}:{globals:GlobalContextInte
             if (globals.mobile){
                 setInfos({canals:stories.sort((a,b)=>b.max_id-a.max_id).map(st=>{return {...st,visualized:st.visualized==1}}),margin:"2vw"});
             } else {
-                var c=0;
-                var isd=false;
-                refs.pai.current!.addEventListener("mousedown",(e)=>{
-                    c=e.clientX;
-                    isd=true;
-                },{ passive:true });
-                refs.pai.current!.addEventListener("mousemove",(e)=>{
-                    if (!isd) return;
-                    refs.pai.current!.scrollLeft+=(c-e.clientX) * window.innerWidth/1914;
-                    c=e.clientX;
-                },{ passive:true });
-                refs.pai.current!.addEventListener("mouseup",()=>{
-                    isd=false;
-                },{ passive:true });
-                refs.pai.current!.addEventListener("mouseleave",()=>{
-                    isd=false;
-                },{ passive:true });
                 setInfos({canals:stories.sort((a,b)=>b.max_id-a.max_id).map(st=>{return {...st,visualized:st.visualized==1}}),margin:"1vw"});
             }
         }
     },[stories,windowWidth]);
+    useEffect(()=>{
+        if (infos.canals.length>0){
+            var c=0;
+            var isd=false;
+            refs.pai.current!.addEventListener("mousedown",(e)=>{
+                c=e.clientX;
+                isd=true;
+            },{ passive:true });
+            refs.pai.current!.addEventListener("mousemove",(e)=>{
+                if (!isd) return;
+                refs.pai.current!.scrollLeft+=(c-e.clientX) * window.innerWidth/1914;
+                c=e.clientX;
+            },{ passive:true });
+            refs.pai.current!.addEventListener("mouseup",()=>{
+                isd=false;
+            },{ passive:true });
+            refs.pai.current!.addEventListener("mouseleave",()=>{
+                isd=false;
+            },{ passive:true });
+        }
+    },[infos]);
     useEffect(()=>{
         const setar=()=>{
             setWindowWidth(window.innerWidth);
