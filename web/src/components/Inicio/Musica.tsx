@@ -141,10 +141,10 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                             <div className="infos">
                                 <div className="downloads">Downloads:{post.downloads}</div>
                                 { post.visualizacoes!=-1 ? <div className="visualizacoes"><p>{post.visualizacoes}</p><i className="bi-eye"></i></div> : null }
-                                {!isMain && <div className='n_comment'>
+                                <div className='n_comment'>
                                     <p>{post.n_comment}</p>
                                     <i className='bi-chat-dots'></i>
-                                </div>} 
+                                </div>
                                 <Denuncia tipo="musica"></Denuncia>
                             </div>
                         </div>
@@ -168,6 +168,10 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                             <div className="infos">
                                 <div className="downloads">Downloads:{post.downloads}</div>
                                 { post.visualizacoes!=-1 ? <div className="visualizacoes"><p>{post.visualizacoes}</p><i className="bi-eye"></i></div> : null }
+                                <div className='n_comment'>
+                                    <p>{post.n_comment}</p>
+                                    <i className='bi-chat-dots'></i>
+                                </div>
                                 <Denuncia tipo="musica"></Denuncia>
                             </div>
                         </div>

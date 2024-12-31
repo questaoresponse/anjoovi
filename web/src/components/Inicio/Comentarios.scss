@@ -7,12 +7,12 @@
     max-height:100vh;
     margin-left: var(--div-margin);
     @include pc(){
-        margin-left: 0;
+        margin-left: calc(var(--div-margin) / 2);
         // width:100%;
         position: fixed;
         top:var(--menu-height);
         left:calc(59.5% + var(--div-margin));
-        width:calc(40% - var(--div-margin));
+        width:calc(40% - var(--div-margin) * 2.5);
     }
 }
 .comm{
@@ -46,7 +46,7 @@
     }
     #cmi{
         position:relative;
-        width:calc(100% - 8ch - 10px);
+        width:calc(100% - 8ch);
         height:100%;
         border:0px;
         background:white;

@@ -192,6 +192,10 @@
         font-size: 120%;
         margin-left: 1em;
         margin-right: 1em;
+        cursor: pointer;
+    }
+    .n_comment:active{
+        opacity: 0.5;
     }
     .n_comment p{
         margin:0;

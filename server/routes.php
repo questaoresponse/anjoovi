@@ -456,7 +456,7 @@ if (isset($_COOKIE["token"])){
 if (str_starts_with($_SERVER["REQUEST_URI"],"/admin") && $_SERVER["REQUEST_URI"]!="/admin/cargo"){
     if ($GLOBALS["user"] && $_POST["type"]!="info"){
         if ($GLOBALS["user"]){
-            if ($GLOBALS["cargo"] & 1==1){
+            if (($GLOBALS["cargo"] & 1)==1){
                 return response()->json(["result"=>"false","type"=>"banned"]);
             }
         } else {

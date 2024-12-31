@@ -12,7 +12,7 @@ interface commentInterface{
     texto:string,
     loading:boolean
 }
-function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,previousRequest?:MutableRefObject<(string | boolean)[]>,playlistComponent?:any,tipo?:any,values?:any}){
+function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,previousRequest?:MutableRefObject<(string | boolean)[]>,playlistComponent?:any,tipo?:any,showComment?:boolean,values?:any}){
     const PlaylistComponent=values.playlistComponent || null;
     const globals=useGlobal();
     const { server, navigate }=globals;
@@ -115,8 +115,7 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
     const verifyInput=(e:any)=>{
         refs.btn.current!.disabled=e.target.value.trim()==""; 
     };
-    return (
-        <div id="cmdd" className="comm">
+    return values.showComment==undefined || values.showComment ? <div id="cmdd" className="comm">
             {PlaylistComponent ? <PlaylistComponent postAtual={postAtual} values={values.values}></PlaylistComponent> : null}
             <div id="cmn">{count+(count>1 ? " Comentários" : " Comentário")}</div>
             <div id="cmd">
@@ -148,6 +147,6 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
                 </div>
             </div>
         </div>
-    )
+    : <></>
 }
 export default memo(Comentarios);

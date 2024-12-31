@@ -1,5 +1,5 @@
 // Exemplo do componente Contact
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useState } from 'react';
 import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -41,6 +41,7 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
         }
     }
     const Nt=({post}:{post:postInterface})=>{
+        const [showComment,setShowComment]=useState(false);
         useEffect(()=>{
             isMain && onLoaded!();
         },[]);
@@ -65,13 +66,14 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
                     </div>
                 })}</div>
                 <div className="data_d">
-                    <p className="data data_data">{post.dataText}</p>
-                    {post.dataUpdateText!="" ? <p className="data data_a">{post.dataUpdateText}</p> : <></>}
                     { post.visualizacoes!=-1 ? <div className="visualizacoes"><p>{post.visualizacoes}</p><i className="bi-eye"></i></div> : null }
-                    {!isMain && <div className='n_comment'>
+                    <div className='n_comment'>
                         <p>{post.n_comment}</p>
                         <i className='bi-chat-dots'></i>
-                    </div>}
+                    </div>
+                    <p className="data data_data">{post.dataText}</p>
+                    {post.dataUpdateText!="" ? <p className="data data_a">{post.dataUpdateText}</p> : <></>}
+                    
                     <Denuncia tipo="noticia"></Denuncia>
                 </div>
             </Link> : <div className={"noticia "+(false ? " loading" : "")}>
@@ -97,10 +99,14 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
                     <p className="data data_data">{post.dataText}</p>
                     {post.dataUpdateText!="" ? <p className="data data_a">{post.dataUpdateText}</p> : <></>}
                     { post.visualizacoes!=-1 || !post.isLoaded ? <div className="visualizacoes"><p>{post.isLoaded ? post.visualizacoes : ""}</p><i className="bi-eye"></i></div> : null }
+                    <div className='n_comment' onClick={()=>globals.mobile && setShowComment(showComment=>!showComment)}>
+                        <p>{post.n_comment}</p>
+                        <i className='bi-chat-dots'></i>
+                    </div>
                     <Denuncia tipo="noticia"></Denuncia>
                 </div>
             </div>}
-            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios postAtual={post}/> : <></>}
+            {globals.mobile ? !isPlaylist && <Comentarios postAtual={post} showComment={showComment}/> : <></>}
             {/* <Ads slot="7693763089"/> */}
             {/* {!props.id && globals.mobile && <Post globals={globals} posts={infos.alta}/>} */}
         </div>
