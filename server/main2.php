@@ -653,15 +653,11 @@ Route::post('/',function () {
         //         FROM playlist p WHERE privado=0)
         //     ) AS result ORDER BY views_id DESC LIMIT 48
         // "));
-        $g_time=microtime(true);
         $r=getAlgoritmoNoticia(true,$conn,$usuario,0);
-        $ge_time=microtime(true);
-        $canal=[];
         $r2=[];
         $result=$conn->query("SELECT COUNT(*) AS num FROM post_24 WHERE privado=0");
         if (intval(p($result)[0]["num"])>0){
-            $t;
-            $r2=p($conn->query("SELECT t.*, u.max_id
+            $r2=p($conn->query("SELECT u.nome, u.logo, t.usuario, t.acessos, t.id, tp.max_id
                 FROM post_24 t
                 JOIN (
                     SELECT usuario, MIN(id) AS min_id, MAX(id) AS max_id
@@ -670,15 +666,10 @@ Route::post('/',function () {
                     GROUP BY usuario
                     ORDER BY max_id DESC
                     LIMIT 20
-                ) AS u ON t.id = u.min_id
+                ) AS tp ON t.id = tp.min_id
+                JOIN user u ON t.usuario=u.usuario
                 ORDER BY t.id DESC
             "));
-            $users=array();
-            foreach($r2 as $r22){
-                array_push($users,"'" . $r22["usuario"] . "'");
-            }
-            $users=implode(",",$users);
-            $canal=p($conn->query("SELECT nome,usuario,logo FROM user WHERE usuario IN ($users)"));
         };
  
         // $alta=p($conn->query("SELECT palavra, COUNT(*) AS frequencia 
@@ -747,13 +738,10 @@ Route::post('/',function () {
             ORDER BY frequencia DESC
             LIMIT 30
         "));
-        $end_time=microtime(true);
-        $time=($ge_time - $g_time) * 1000;
-        $time2=($end_time - $start_time) * 1000;
             // $alta=[];
 
             // STR_TO_DATE(d,'%Y-%m-%d %H:%i:%s')
-            response()->json(["canal"=>$canal,"posts"=>$r,"st"=>$r2,"time"=>$time,"time2"=>$time2,"usuario"=>$usuario,"alta"=>$alta]);
+            response()->json(["posts"=>$r,"st"=>$r2,"usuario"=>$usuario,"alta"=>$alta]);
     } else if (request("type")=="posts" && isset($_POST["pt"])){
         $conn=$GLOBALS["conn"];
         $r=getAlgoritmoNoticia(true,$conn,$usuario,0,intval($_POST["pt"]));
@@ -1618,6 +1606,52 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
         } else {
             r404();
         }
+    } else if (request("type")=="option"){
+        $name=urldecode($name);
+        $conn = $GLOBALS["conn"];
+        $usuario=$GLOBALS["user"];
+        if ($usuario){
+            $q=p($conn->prepare("SELECT u.inscritos, u.n_inscritos AS channel_n_inscritos, cargo, i.n_inscritos FROM user u INNER JOIN inscritos i ON u.usuario=i.usuario WHERE u.usuario=?",[$usuario]))[0];
+            ["inscritos"=>$inscritos,"channel_n_inscritos"=>$channel_n_inscritos,"cargo"=>$cargo,"n_inscritos"=>$n_inscritos]=$q;
+            if ((intval($cargo) & 1)==1){
+                response()->json(["result"=>"privado"]);
+                return;
+            }
+            if ($usuario==$name){
+                response()->json(["result"=>"my","n_inscritos"=>$n_inscritos]);
+                return;
+            }
+            $inscritos=json_decode($inscritos,true);
+            if (isset($inscritos[$name])){
+                unset($inscritos[$name]);
+                $inscritos=json_encode($inscritos);
+                $n_inscritos=intval($n_inscritos)-1;
+                $s=$conn->prepare("UPDATE user SET inscritos=?, n_inscritos=? WHERE usuario=?",[$inscritos,$n_inscritos,$usuario]);
+                $s=$conn->prepare("SELECT * FROM inscritos WHERE usuario=?",[$name]);
+                $s=p($s)[0];
+                $inscritos=json_decode($s["inscritos"],true);
+                unset($inscritos[$usuario]);
+                $n_inscritos=intval($channel_n_inscritos)-1;
+                $inscritos=json_encode($inscritos);
+                $s=$conn->prepare("UPDATE inscritos SET inscritos=?,n_inscritos=? WHERE usuario=?",[$inscritos,$n_inscritos,$name]);
+                response()->json(["result"=>"true","n_inscritos"=>$n_inscritos,"usuario"=>$usuario]);
+            } else {
+                $inscritos[$name]="true";
+                $inscritos=json_encode($inscritos);
+                $n_inscritos=intval($n_inscritos)+1;
+                $s=$conn->prepare("UPDATE user SET inscritos=?, n_inscritos=? WHERE usuario=?",[$inscritos,$n_inscritos,$usuario]);
+                $s=$conn->prepare("SELECT * FROM inscritos WHERE usuario=?",[$name]);
+                $s=p($s)[0];
+                $inscritos=json_decode($inscritos,true);
+                $inscritos[$usuario]="true";
+                $n_inscritos=intval($channel_n_inscritos)+1;
+                $inscritos=json_encode($inscritos);
+                $s=$conn->prepare("UPDATE inscritos SET inscritos=?,n_inscritos=? WHERE usuario=?",[$inscritos,$n_inscritos,$name]);
+                response()->json(["result"=>"true","n_inscritos"=>$n_inscritos,"usuario"=>$usuario]);
+            };
+        } else {
+            response()->json(["header_location"=>"/admin"]);
+        }
     } else {
         // echo json_encode(file_get_contents(__DIR__ . '/../public_html/templates/canal/main.html'));
     }
@@ -1663,54 +1697,6 @@ Route::post("/get-title",function(){
         curl_close($ch);
     }    
     response()->json(["result"=>"true","titles"=>json_encode($titles)]);
-});
-Route::post("/canal",function(){
-    $name=request()->query("name");
-    $conn = $GLOBALS["conn"];
-    $usuario=$GLOBALS["user"];
-    if ($usuario){
-    $s=$conn->prepare("SELECT inscritos,n_inscritos,privado FROM user WHERE usuario=?",[$usuario]);
-    $n_inscritos=p($conn->prepare("SELECT n_inscritos FROM inscritos WHERE usuario=?",[$usuario]))[0]["n_inscritos"];
-    $s=p($s)[0];
-    if ($s["privado"]=="true"){
-        response()->json(["result"=>"privado"]);
-        return;
-    }
-    if ($usuario==$name){
-        response()->json(["result"=>"my","n_inscritos"=>$n_inscritos]);
-        return;
-    }
-    $inscritos=json_decode($s["inscritos"],true);
-    if (isset($inscritos[$name])){
-        unset($inscritos[$name]);
-        $inscritos=json_encode($inscritos);
-        $n_inscritos=intval($n_inscritos)-1;
-        $s=$conn->prepare("UPDATE user SET inscritos=?, n_inscritos=? WHERE usuario=?",[$inscritos,$n_inscritos,$usuario]);
-        $s=$conn->prepare("SELECT * FROM inscritos WHERE usuario=?",[$name]);
-        $s=p($s)[0];
-        $inscritos=json_decode($s["inscritos"],true);
-        unset($inscritos[$usuario]);
-        $n_inscritos=intval($s["n_inscritos"])-1;
-        $inscritos=json_encode($inscritos);
-        $s=$conn->prepare("UPDATE inscritos SET inscritos=?,n_inscritos=? WHERE usuario=?",[$inscritos,$n_inscritos,$name]);
-        response()->json(["result"=>"true","n_inscritos"=>$n_inscritos,"usuario"=>$usuario]);
-    } else {
-        $inscritos[$name]="true";
-        $inscritos=json_encode($inscritos);
-        $n_inscritos=intval($n_inscritos)+1;
-        $s=$conn->prepare("UPDATE user SET inscritos=?, n_inscritos=? WHERE usuario=?",[$inscritos,$n_inscritos,$usuario]);
-        $s=$conn->prepare("SELECT * FROM inscritos WHERE usuario=?",[$name]);
-        $s=p($s)[0];
-        $inscritos=json_decode($s["inscritos"],true);
-        $inscritos[$usuario]="true";
-        $n_inscritos=intval($s["n_inscritos"])+1;
-        $inscritos=json_encode($inscritos);
-        $s=$conn->prepare("UPDATE inscritos SET inscritos=?,n_inscritos=? WHERE usuario=?",[$inscritos,$n_inscritos,$name]);
-        response()->json(["result"=>"true","n_inscritos"=>$n_inscritos,"usuario"=>$usuario]);
-    };
-    } else {
-        response()->json(["header_location"=>"/admin"]);
-    }
 });
 // Route::get("/ajeitar",function(){
 //     $conn=$GLOBALS["conn"];

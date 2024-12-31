@@ -11,7 +11,7 @@ import Link from '../../Link.tsx';
 function VideosLista(){
     const globals=useGlobal();
     const Opcoes=(props:any)=>{
-        const [isChecked,setIsChecked]=useState((props.post.privado & 1)==1 || (props.post.privado & 4)==4);
+        const [isChecked,setIsChecked]=useState((props.post.privado & 1)==0 && (props.post.privado & 4)==0);
         const auth=props.auth;
         const server=props.globals.server;
         const location=props.location;
@@ -47,7 +47,7 @@ function VideosLista(){
                         <input onChange={onPublicChange} type="checkbox" checked={isChecked}/>
                         <span className="slider"></span>
                     </label>
-                    <div className="avs">{isChecked ? "privado" : "público"}</div>
+                    <div className="avs">{isChecked ? "público" : "privado"}</div>
                 </div>
             </div>
         )

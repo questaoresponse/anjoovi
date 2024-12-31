@@ -319,7 +319,7 @@ function Canal(){
             if (globals.login.isLoged=="false"){
                 globals.setRedirectError("/admin");
             } else {
-                var result=await auth.post(server+"/canal?name="+values.usuario,{type:"option"});
+                var result=await auth.post(server+"/@"+values.usuario,{type:"option"});
                 if (result.error){
                     globals.setRedirectError(result.error);
                 } else if (result.data.result=="privado"){

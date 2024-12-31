@@ -61,7 +61,7 @@ function PlaylistsLista(){
                 <Link className="titulo txt-1" onClick={(e:any)=>{e.preventDefault(); window.open("/playlist/"+post.id)}} to={"/playlist/"+post.id}>
                     {post.titulo}
                 </Link>
-                <div className="data">{post.d ? JSON.parse(post.d).o : ""}</div>
+                <div className="data">{post.d}</div>
                 <div className="opcoes">
                     <Opcoes auth={auth} post={post} globals={globals} recriar={Recriar} location={location}/>
                 </div>
