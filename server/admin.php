@@ -1451,7 +1451,6 @@ Route::post("/admin/musicas_cadastro",function(){
             $dados=request()->all();
             $arquivos=[];
             $acessos_parcial=[];
-            $acessos_d=[];
             $durations=[];
             $zip;
             $files=null;
@@ -1501,7 +1500,6 @@ Route::post("/admin/musicas_cadastro",function(){
                                 $idi++;
                                 array_push($durations,intval(shell_exec($GLOBALS["ffprobe_path"] . ' "' . $file  . '" -show_entries format=duration -v quiet -of csv="p=0"')));
                                 array_push($acessos_parcial,0);
-                                array_push($acessos_d,array());
                             }
                         }
                             // $zip->addFile(__DIR__ . '/main2.php', 'arquivo2.txt');
@@ -1537,12 +1535,11 @@ Route::post("/admin/musicas_cadastro",function(){
                 $views_id=get_views_id($conn);
                 $d=get_d();
                 $acessos_parcial=json_encode($acessos_parcial);
-                $acessos_d=json_encode($acessos_d);
                 $arquivos_json=json_encode($arquivos);
                 $durations=json_encode($durations);
                 $permission=0;
                 $conn->prepare("INSERT INTO post_musica(usuario,titulo,imagem,arquivo,acessos_parcial,acessos_d,views_id,id,d,privado,duration,zip)
-                    SELECT usuario, ? AS titulo, ? AS imagem, ? AS arquivo, ? AS acessos_parcial, ? AS acessos_d, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado, ? AS duration, ? AS zip FROM user WHERE id=?",[$titulo,$imagem,$arquivos_json,$acessos_parcial,$acessos_d,$views_id,$id,$d,$permission,$permission,$durations,$zip,$GLOBALS["user_id"]]);
+                    SELECT usuario, ? AS titulo, ? AS imagem, ? AS arquivo, ? AS acessos_parcial, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado, ? AS duration, ? AS zip FROM user WHERE id=?",[$titulo,$imagem,$arquivos_json,$acessos_parcial,$views_id,$id,$d,$permission,$permission,$durations,$zip,$GLOBALS["user_id"]]);
                 insert_views($conn,$usuario,"post_musica",$views_id,$id);
                 add_n_posts($usuario,$conn);
             } else { 

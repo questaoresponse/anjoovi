@@ -19,10 +19,7 @@ function Player(){
     const [infos,setInfos]=useState({user:"",name:""});
     const [play,setPlay]=useState(false);
     const viewRequest=()=>{
-        var params=new URLSearchParams();
-        params.set("type","view");
-        params.set("index",player.current.music_index.toString());
-        auth.get(server+"/musica/"+player.current.page_id+"?"+params.toString());
+        auth.post(server+"/musica/"+player.current.page_id,{type:"view",id:player.current.page_id.toString(),index:player.current.music_index.toString()});
     }
     useEffect(()=>{
         player.current.setInfos=setInfos;

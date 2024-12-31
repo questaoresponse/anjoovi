@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, memo } from 'react';
-import { useLocation } from 'react-router-dom';
 import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -88,7 +87,6 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
     const globals=useGlobal();
     const { server, player }=globals;
     const auth=useAuth();
-    const location=useLocation();
     // const { arquivos, musicasl, id }=useMusica();
     const arquivos=useRef([]);
     // const [musicasl,setMusicaslState]=useState<musicaslInterface[]>([]);
@@ -122,10 +120,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
         return {user:post.usuario,page_id:post.id,musics:musicsRef.current};
     }
     const Download=()=>{
-        var params=new URLSearchParams();
-        params.set("type","download");
-        params.set("id",location.pathname.split("/")[2]);
-        auth.get(server+"/musica/"+id+"?"+params.toString());
+        auth.post(server+"/musica/"+id,{type:"download",id:id!.toString()});
     }
     const Nt=({post}:{post:postInterface,musics:musicInterface[]})=>{
         useEffect(()=>{
