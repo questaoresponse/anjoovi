@@ -287,7 +287,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 FROM (
                     SELECT 
                         usuario, 
-                        IFNULL(texto,''),
+                        texto,
                         ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
                     FROM historico
                 ) h
@@ -322,11 +322,11 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 tipo,
                 (
                     CASE 
-                        WHEN LOWER(p.titulo) LIKE (h.latest_text) THEN 1 
+                        WHEN LOWER(p.titulo) LIKE (IFNULL(h.latest_text,'')) THEN 1 
                         ELSE 0 
                     END + 
                     CASE 
-                        WHEN LOWER(p.titulo) LIKE (h.second_latest_text) THEN 0.5 
+                        WHEN LOWER(p.titulo) LIKE (IFNULL(h.second_latest_text,'')) THEN 0.5 
                         ELSE 0 
                     END
                 ) AS accuracy 
