@@ -288,7 +288,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     SELECT 
                         usuario,
                         CONCAT('%',texto,'%') AS texto,
-                        ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
+                        ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id) AS rnk
                     FROM historico
                 ) h
                 WHERE h.rnk <= 2
