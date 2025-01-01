@@ -282,13 +282,13 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
             return p($conn->prepare("WITH history AS (
                 SELECT 
                     h.usuario,
-                    MAX(CASE WHEN h.rnk = 1 THEN h.texto ELSE NULL END) AS latest_text,
-                    MAX(CASE WHEN h.rnk = 2 THEN h.texto ELSE NULL END) AS second_latest_text
+                    MAX(CASE WHEN h.rnk = 1 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS latest_text,
+                    MAX(CASE WHEN h.rnk = 2 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS second_latest_text
                 FROM (
                     SELECT 
                         usuario,
-                        CONCAT('%',texto,'%') AS texto,
-                        ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id) AS rnk
+                        texto,
+                        ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
                     FROM historico
                 ) h
                 WHERE h.rnk <= 2
