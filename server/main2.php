@@ -298,7 +298,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 SELECT
                     usuario,
                     CASE
-                        WHEN JSON_CONTAINS(JSON_KEYS(inscritos), ?, '$') AND JSON_EXTRACT(inscritos, ?) IS NOT NULL THEN 'true'
+                        WHEN JSON_CONTAINS(JSON_KEYS(inscritos), CAST(?), '$') AND JSON_EXTRACT(inscritos, CAST(?)) IS NOT NULL THEN 'true'
                         ELSE 'false'
                     END AS inscrito
                 FROM inscritos
