@@ -279,7 +279,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
             (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='product') AS n_comment,";
     }
     if ($usuario){
-            return p($conn->prepare("WITH history AS (
+            echo $conn->prepare("WITH history AS (
                 SELECT 
                     h.usuario,
                     MAX(CASE WHEN h.rnk = 1 THEN h.texto ELSE NULL END) AS latest_text,
@@ -322,11 +322,11 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 tipo,
                 (
                     CASE 
-                        WHEN LOWER(p.titulo) LIKE (IFNULL(h.latest_text,'')) THEN 1 
+                        WHEN LOWER(p.titulo) LIKE (h.latest_text) THEN 1 
                         ELSE 0 
                     END + 
                     CASE 
-                        WHEN LOWER(p.titulo) LIKE (IFNULL(h.second_latest_text,'')) THEN 0.5 
+                        WHEN LOWER(p.titulo) LIKE (h.second_latest_text) THEN 0.5 
                         ELSE 0 
                     END
                 ) AS accuracy 
@@ -482,7 +482,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 $id,
                 $id,
                 $id,
-        ]));
+        ])->num_rows;
     } else {
         return p($conn->query("SELECT * FROM (
             (
