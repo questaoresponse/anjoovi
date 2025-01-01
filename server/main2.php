@@ -483,6 +483,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 $id,
                 $id,
         ])->num_rows;
+        echo $usuario;
     } else {
         return p($conn->query("SELECT * FROM (
             (
