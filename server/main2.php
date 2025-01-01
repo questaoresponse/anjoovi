@@ -282,8 +282,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
             return p($conn->prepare("WITH history AS (
                 SELECT 
                     h.usuario,
-                    MAX(CASE WHEN h.rnk = 1 THEN h.texto ELSE NULL END) AS latest_text,
-                    MAX(CASE WHEN h.rnk = 2 THEN h.texto ELSE NULL END) AS second_latest_text
+                    MAX(CASE WHEN h.rnk = 1 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS latest_text,
+                    MAX(CASE WHEN h.rnk = 2 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS second_latest_text
                 FROM (
                     SELECT 
                         usuario,
@@ -322,11 +322,11 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 tipo,
                 (
                     CASE 
-                        WHEN LOWER(p.descricao) LIKE LOWER(CONCAT('%',h.latest_text,'%')) THEN 1 
+                        WHEN LOWER(IFNULL(IFNULL(p.titulo,p.descricao),p.texto)) LIKE LOWER(h.latest_text) THEN 1 
                         ELSE 0 
                     END + 
                     CASE 
-                        WHEN LOWER(p.descricao) LIKE LOWER(CONCAT('%',h.second_latest_text,'%')) THEN 0.5 
+                        WHEN LOWER(IFNULL(IFNULL(p.titulo,p.descricao),p.texto)) LIKE LOWER(h.second_latest_text) THEN 0.5 
                         ELSE 0 
                     END
                 ) AS accuracy 
