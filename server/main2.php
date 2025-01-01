@@ -351,7 +351,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 FROM post p
                 INNER JOIN user p2 ON p.usuario = p2.usuario
                 LEFT JOIN inscritos_check i ON i.usuario = p.usuario
-                WHERE p.privado & 1 = 0 AND p.privado & 4 = 0 AND p.views_id != ?
+                WHERE p.privado & 1 = 0 AND p.views_id != ?
                 
                 UNION ALL
                 
@@ -375,7 +375,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 FROM post_imagem p
                 INNER JOIN user p2 ON p.usuario = p2.usuario
                 LEFT JOIN inscritos_check i ON i.usuario = p.usuario
-                WHERE p.privado = 0 AND p.views_id != ?
+                WHERE p.privado & 1 = 0 AND p.views_id != ?
 
                 UNION ALL
                 
@@ -399,7 +399,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 FROM post_musica p
                 INNER JOIN user p2 ON p.usuario = p2.usuario
                 LEFT JOIN inscritos_check i ON i.usuario = p.usuario
-                WHERE p.privado = 0 AND p.views_id != ?
+                WHERE p.privado & 1 = 0 AND p.views_id != ?
 
                 UNION ALL
                 
@@ -423,7 +423,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 FROM post_texto p
                 INNER JOIN user p2 ON p.usuario = p2.usuario
                 LEFT JOIN inscritos_check i ON i.usuario = p.usuario
-                WHERE p.privado = 0 AND p.views_id != ?
+                WHERE p.privado & 1 = 0 AND p.views_id != ?
 
                 UNION ALL
                 
@@ -447,7 +447,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 FROM post_video p
                 INNER JOIN user p2 ON p.usuario = p2.usuario
                 LEFT JOIN inscritos_check i ON i.usuario = p.usuario
-                WHERE p.privado = 0 AND p.views_id != ?
+                WHERE p.privado & 1 = 0 AND p.views_id != ?
 
                 UNION ALL
                 
@@ -471,7 +471,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 FROM post_product p
                 INNER JOIN user p2 ON p.usuario = p2.usuario
                 LEFT JOIN inscritos_check i ON i.usuario = p.usuario
-                WHERE p.privado = 0 AND p.views_id != ?
+                WHERE p.privado & 1 = 0 AND p.views_id != ?
             ) p
             INNER JOIN history h ON h.usuario = p.usuario
             ORDER BY accuracy DESC
