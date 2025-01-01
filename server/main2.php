@@ -282,8 +282,8 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
             return p($conn->prepare("WITH history AS (
                 SELECT 
                     h.usuario,
-                    MAX(CASE WHEN h.rnk = 1 THEN h.texto ELSE NULL END) AS latest_text,
-                    MAX(CASE WHEN h.rnk = 2 THEN h.texto ELSE NULL END) AS second_latest_text
+                    MAX(CASE WHEN h.rnk = 1 THEN CONCAT('%',h.texto,'%') ELSE NULL END) AS latest_text,
+                    MAX(CASE WHEN h.rnk = 2 THEN concat('%',h.texto,'%') ELSE NULL END) AS second_latest_text
                 FROM (
                     SELECT 
                         usuario,
