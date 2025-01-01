@@ -287,7 +287,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 FROM (
                     SELECT 
                         usuario,
-                        CONCAT('%',texto,,'%') AS texto,
+                        CONCAT('%',texto,'%') AS texto,
                         ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
                     FROM historico
                 ) h
