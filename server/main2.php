@@ -286,7 +286,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     MAX(CASE WHEN h.rnk = 2 THEN h.texto ELSE NULL END) AS second_latest_text
                 FROM (
                     SELECT 
-                        usuario, 
+                        usuario,
                         texto,
                         ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
                     FROM historico
@@ -297,7 +297,10 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
             inscritos_check AS (
                 SELECT
                     usuario,
-                    'false' AS inscrito
+                    CASE
+                        WHEN JSON_CONTAINS(JSON_KEYS(inscritos), ?, '$') AND JSON_EXTRACT(inscritos, ?) IS NOT NULL THEN 'true'
+                        ELSE 'false'
+                    END AS inscrito
                 FROM inscritos
             )
             SELECT 

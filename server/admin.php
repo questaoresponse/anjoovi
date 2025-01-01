@@ -335,7 +335,7 @@ Route::post('/admin',function(){
                 $token=isset($_POST["getTokenId"]);
                 if ($token){
                     $token=get_token_id();
-                    $conn->prepare("UPDATE user SET tokens=JSON_ARRAY_APPEND(tokens,'$',?) WHERE usuario=?",[$token,$usuario]);
+                    $conn->prepare("UPDATE user SET tokens=JSON_ARRAY_APPEND(tokens,'$',?),hash=? WHERE usuario=?",[$token,$hash,$usuario]);
                 }
                 set_cookie("token",$hash);
                 $GLOBALS["cargo"]=intval($cargo);
