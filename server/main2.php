@@ -475,7 +475,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
         ) p
         INNER JOIN history h ON h.usuario = p.usuario
         ORDER BY accuracy DESC
-        LIMIT ". $pt * $limit . "," . ($pt+1)*$limit";
+        LIMIT ". $pt * $limit . "," . ($pt+1)*$limit;
             echo $conn->prepare("WITH history AS (
                 SELECT 
                     h.usuario,
