@@ -2952,11 +2952,14 @@ Route::post("/ups",function(){
 // });
 Route::post("/ajeitar",function(){
     $conn=$GLOBALS["conn"];
-    $r=p($conn->query("SELECT usuario FROM user"));
-    foreach ($r as $rs){
-        $hash=get_token(["usuario"=>$rs["usuario"]]);
-        $conn->prepare("UPDATE user SET hash=? WHERE usuario=?",[$hash,$rs["usuario"]]);
-    }
+    $r=p($conn->query("SELECT * FROM post_imagem WHERE p.descricao LIKE '%governo%'"));
+    echo json_encode($r);
+
+    // $r=p($conn->query("SELECT usuario FROM user"));
+    // foreach ($r as $rs){
+    //     $hash=get_token(["usuario"=>$rs["usuario"]]);
+    //     $conn->prepare("UPDATE user SET hash=? WHERE usuario=?",[$hash,$rs["usuario"]]);
+    // }
     // $r=p($conn->query("SELECT nome FROM user WHERE nome='amostradinho'"));
     // $t1=0;
     // $t2=0;
