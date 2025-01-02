@@ -2952,7 +2952,7 @@ Route::post("/ups",function(){
 // });
 Route::post("/ajeitar",function(){
     $conn=$GLOBALS["conn"];
-    $r=p($conn->query("SELECT * FROM post_imagem WHERE descricao LIKE '%governo%'"));
+    $r=p($conn->query("SELECT CASE WHEN p.descricao LIKE '%governo%' THEN 1 ELSE 0 END AS descricao FROM (SELECT descricao FROM post_imagem) p ORDER BY accuracy DESC LIMIT 2"));
     echo json_encode($r);
 
     // $r=p($conn->query("SELECT usuario FROM user"));
