@@ -146,6 +146,7 @@ class sqli{
         try{
             $q2=$q->get_result();
         } catch (Exception $e){
+            echo $e->getMessage();
         }
         return $q2;
     }
