@@ -278,7 +278,6 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
             p2.logo,p2.nome,
             (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='product') AS n_comment,";
     }
-    echo $usuario;
     if ($usuario){
             return p($conn->prepare("WITH history AS (
                 SELECT 
@@ -475,7 +474,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 WHERE p.privado & 1 = 0 AND p.views_id != ?
             ) p
             INNER JOIN history h ON h.usuario = p.usuario
-            ORDER BY accuracy
+            ORDER BY accuracy DESC
             LIMIT ". $pt * $limit . "," . ($pt+1)*$limit,[
                 '"' . $usuario . '"', "$." . $usuario,$id,
                 $id,
