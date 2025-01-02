@@ -10,14 +10,14 @@
 .mc {
     @include admin();
     @include cadastro();
-    #imagem-div{
+    .imagem-div{
         flex-direction: column;
     }
-    #imagem-view{
+    .imagem-view{
         height: initial;
         aspect-ratio: 1;
     }
-    #imagem-pt{
+    .imagem-pt{
         left: 0;
         margin-top: 5px;
     }
@@ -173,7 +173,7 @@
         cursor: initial;
     }
     @media screen and (min-width:769px){
-        #imagem-view{
+        .imagem-view{
             width:30%;
         }
     }

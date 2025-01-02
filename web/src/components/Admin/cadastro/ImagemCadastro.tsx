@@ -157,16 +157,16 @@ function ImagemCadastro(){
                 <label>Descrição</label>
                 <textarea ref={refs.descricao}></textarea>
                 <label>Capa</label>
-                <div id="imagem-div">
-                    <div ref={refs.imagem_view} id="imagem-view" className="col-12 col-md-6">
+                <div className="imagem-div">
+                    <div ref={refs.imagem_view} className="imagem-view col-12 col-md-6">
                         <img ref={refs.image_element} className="of" src={imageSrc}/>
                     </div>
                     <input className="file" ref={refs.imagem} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg" required/>
-                    <div id="imagem-pt">
-                        <div id="imagem" onClick={()=>{refs.imagem.current!.click()}}>
+                    <div className="imagem-pt">
+                        <div className="imagem" onClick={()=>{refs.imagem.current!.click()}}>
                             <div className="txt-1">{filename}</div>
                         </div>
-                        <select defaultValue="true" onChange={ChangeOriginalFormat} ref={refs.original_format} id="original_format">
+                        <select defaultValue="true" onChange={ChangeOriginalFormat} ref={refs.original_format} className="original_format">
                             <option value="true">Formato original</option>
                             <option value="false">Redimensionar</option>
                         </select>

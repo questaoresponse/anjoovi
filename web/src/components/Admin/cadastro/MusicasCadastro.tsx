@@ -213,10 +213,8 @@ function MusicasCadastro(){
                 } else {
                     const input="input"+file.name.split(".").slice(-1).join(".");
                     await ffmpeg.current.writeFile(input, await fetchFile(file));
-                    console.log("aian2");
                     // Executa o corte para os primeiros 15 segundos
                     await ffmpeg.current.exec(["-i", input,"-vn","-c:a","aac","output.m4a"]);
-                    console.log("foie");
                     // Lê o arquivo de saída
                     const data = new Uint8Array(await ffmpeg.current.readFile("output.m4a") as ArrayBuffer);
                     await ffmpeg.current.deleteFile(input);
@@ -308,7 +306,6 @@ function MusicasCadastro(){
                         "text/javascript"
                     ),
                 });
-                console.log("carregado");
             })();
         }
     },[]);
@@ -405,13 +402,13 @@ function MusicasCadastro(){
                     </div>
                     <div style={{display:isAdd ? "block" : "none"}} id="add-list-music" onClick={addListMusic}>Adicionar</div>
                     <label>Capa</label>
-                    <div id="imagem-div">
-                        <div ref={refs.imagem_view} id="imagem-view">
+                    <div className="imagem-div">
+                        <div ref={refs.imagem_view} className="imagem-view">
                             <img  className="col-12 col-md-6" style={{width:imageInfos.width,height:imageInfos.height}} src={imageInfos.src}/>
                         </div>
                         <input className="file" ref={refs.imagem} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg" required/>
-                        <div id="imagem-pt">
-                            <div id="imagem" onClick={()=>{refs.imagem.current!.click()}}>
+                        <div className="imagem-pt">
+                            <div className="imagem" onClick={()=>{refs.imagem.current!.click()}}>
                                 <div className="txt-1">{filename}</div>
                             </div>
                         </div>

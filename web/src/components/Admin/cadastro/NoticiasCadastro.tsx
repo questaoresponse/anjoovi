@@ -6,8 +6,6 @@ import './NoticiasCadastro.scss';
 import '../../../d.ts';
 import sem_imagem from "../../static/sem-imagem.jpg";
 import Publicar from "./../Publicar.jsx";
-import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { toBlobURL, fetchFile } from "@ffmpeg/util";
 
 interface postInterface{
     id:number,
@@ -37,14 +35,19 @@ function NoticiasCadastro(){
         imagem:useRef<HTMLInputElement>(null),
         original_format:useRef<HTMLSelectElement>(null),
         imagem_view:useRef<HTMLDivElement>(null),
-        image_element:useRef<HTMLImageElement>(null)
+        image_element:useRef<HTMLImageElement>(null),
+        imagem_premium:useRef<HTMLInputElement>(null),
+        original_format_premium:useRef<HTMLSelectElement>(null),
+        imagem_view_premium:useRef<HTMLDivElement>(null),
+        image_element_premium:useRef<HTMLImageElement>(null),
     }
     const location=useLocation();
     const [filename,setFilename]=useState("Upload");
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
+    const [filenamePremium,setFilenamePremium]=useState("Upload");
     const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
-    const ffmpeg=useRef(new FFmpeg());
+    const [permission,setPermission]=useState(false);
     const showError=()=>{
         setErrorImage(true);
         const st=setTimeout(()=>{
@@ -57,7 +60,12 @@ function NoticiasCadastro(){
         width:"100%",
         height:"100%",
     });
-    const setDimensions=(src:any)=>{
+    const [imageInfosPremium,setImageInfosPremium]=useState<{src:string,width:string | number,height:string |  number}>({
+        src:sem_imagem,
+        width:"100%",
+        height:"100%",
+    });
+    const setDimensions=(src:any,isPremium:boolean)=>{
         if (typeof src=="string"){
             const img = new Image();
             img.onload = () => {
@@ -72,17 +80,17 @@ function NoticiasCadastro(){
                     heightImage=width / widthImage * heightImage;
                     widthImage=width;
                 }
-                setImageInfos({src, width: widthImage, height: heightImage});
+                isPremium ? setImageInfosPremium({src, width: widthImage, height: heightImage}) : setImageInfos({src, width: widthImage, height: heightImage});
                 // console.log(`Width: ${width}, Height: ${height}`);
 
                 // Aqui você pode atualizar o estado ou fazer algo com as dimensões da imagem
             };
             img.src = src;
         } else {
-            setImageInfos({src:sem_imagem, width: window.innerWidth, height: window.innerHeight / 1280 * 720});
+            isPremium ? setImageInfosPremium({src:sem_imagem, width: window.innerWidth, height: window.innerHeight / 1280 * 720}) : setImageInfos({src:sem_imagem, width: window.innerWidth, height: window.innerHeight / 1280 * 720});
         }
     }
-    const onImagemChange=(e:any)=>{
+    const onImagemChange=(e:any,isPremium:boolean)=>{
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -108,14 +116,14 @@ function NoticiasCadastro(){
                     }
                 }
                 if (fileType && fileType=="jpeg"){
-                    setFilename(file.name);
+                    isPremium ? setFilenamePremium(file.name) : setFilename(file.name);
                     const reader2=new FileReader();
                     reader2.onloadend=()=>{
-                        setDimensions(reader2.result);
+                        setDimensions(reader2.result,isPremium);
                     }
                     reader2.readAsDataURL(file);
                 } else {
-                    setDimensions(null);
+                    setDimensions(null,isPremium);
                     e.target.value="";
                     showError();
                 }
@@ -142,30 +150,14 @@ function NoticiasCadastro(){
                     refs.titulo.current!.value=post.titulo;
                     refs.subtitulo.current!.value=post.subtitulo;
                     refs.textarea.current!.value=post.texto;
-                    post.privado=post.privado!=0;
+                    post.privado=(post.privado & 4)==4;
                     post_edit.current=post;
                     updatePermission();
-                    setDimensions(server+"/images/"+encodeURIComponent(post.imagem));
+                    post.privado && setDimensions(server+"/images/"+encodeURIComponent(post.imagem),true);
+                    setDimensions(server+"/images/"+encodeURIComponent(post.imagem),false);
                 }
             });
         }
-        (async ()=>{
-            const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm";
-            await ffmpeg.current.load({
-                coreURL: await toBlobURL(
-                    `${baseURL}/ffmpeg-core.js`,
-                    "text/javascript"
-                ),
-                wasmURL: await toBlobURL(
-                    `${baseURL}/ffmpeg-core.wasm`,
-                    "application/wasm"
-                ),
-                workerURL: await toBlobURL(
-                    `${baseURL}/ffmpeg-core.worker.js`,
-                    "text/javascript"
-                ),
-            });
-        })();
         cargo.current.addListener(updateCargo);
         return ()=>{
             cargo.current.removeListener(updateCargo);
@@ -183,25 +175,17 @@ function NoticiasCadastro(){
         var subtitulo=refs.subtitulo.current!.value;
         var original_format:boolean=JSON.parse(refs.original_format.current!.value);
         var imagem_data=refs.imagem.current!.files!.length>0 ? refs.imagem.current!.files![0] : null;
+        var imagem_data_d=refs.imagem_premium.current!.files!.length>0 ? refs.imagem_premium.current!.files![0] : null;
         fd.append("type","option");
         edit.current && fd.append("id",post_edit.current!.id.toString());
         imagem_data && fd.append("imagem",imagem_data);
+        refs.permission.current && refs.permission.current.value=="1" && imagem_data_d && fd.append("dImagem",imagem_data_d);
         imagem_data && fd.append("imagens_edit",(true).toString());
         refs.permission.current && fd.append("permission",refs.permission.current.value);
         fd.append("usuario",globals.login.usuario!);
         fd.append("titulo",titulo);
         subtitulo!="" && fd.append("subtitulo", subtitulo);
         original_format && fd.append("original_format",original_format.toString());
-        if (imagem_data){
-            const format=imagem_data.name.split(".").slice(-1)[0];
-            await ffmpeg.current.writeFile("input."+format,await fetchFile(imagem_data));
-            await ffmpeg.current.exec(["-i","input."+format,"-vf","boxblur=30","output."+format]);
-            const data=new Uint8Array(await ffmpeg.current.readFile("output."+format) as ArrayBuffer);
-            const blob = new Blob([data], { type: "image/"+format });
-            // Cria o objeto File a partir do Blob
-            const file = new File([blob], "image."+format, { type: "image/"+format });
-            fd.append("dImagem",file);
-        }
         auth.post(server+"/admin/noticias_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,{arquivo:true}).then((result)=>{
             if (result.error){
                 globals.setRedirectError(result.error);
@@ -229,16 +213,25 @@ function NoticiasCadastro(){
                     refs.imagem.current!.value="";
                     refs.original_format.current!.value="true";
                     setFilename("Upload");
-                    setDimensions(null);
+                    setDimensions(null,true);
+                    setDimensions(null,false);
                 }
             }
         })
     }
-    const ChangeOriginalFormat=()=>{
+    const ChangePermission=(e:any)=>{
+        setPermission(e.target.value=="1");
+    }
+    const ChangeOriginalFormat=(isPremium:boolean)=>{
         const values=["rd","of"];
-        const value=JSON.parse(refs.original_format.current!.value);
-        const image_div=refs.image_element.current!;
-        image_div.classList.replace(values[+!value],values[+value]);
+        if (isPremium){
+            const value=JSON.parse(refs.original_format_premium.current!.value);
+            refs.image_element_premium.current!.classList.replace(values[+!value],values[+value]);
+        } else {
+            const value=JSON.parse(refs.original_format.current!.value);
+            refs.image_element.current!.classList.replace(values[+!value],values[+value]);
+        }
+        
     }
     return (
         <div id="pg" className="nc">
@@ -248,7 +241,7 @@ function NoticiasCadastro(){
                 <form onSubmit={Cadastrar}>
                     {isPremium ? <>
                         <label>Disponível:</label>
-                        <select ref={refs.permission} id="permission" defaultValue="0">
+                        <select onChange={ChangePermission} ref={refs.permission} id="permission" defaultValue="0">
                             <option value="0">Público</option>
                             <option value="1">Premium</option>
                         </select>
@@ -264,17 +257,35 @@ function NoticiasCadastro(){
                         <div ref={refs.imagem_view} id="imagem-view" className="col-12 col-md-6">
                             <img ref={refs.image_element} className="of" src={imageInfos.src}/>
                         </div>
-                        <input className="file" ref={refs.imagem} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg" required/>
+                        <input className="file" ref={refs.imagem} onChange={(e)=>onImagemChange(e,false)} type="file" accept="image/jpg, image/jpeg" required/>
                         <div id="imagem-pt">
                             <div id="imagem" onClick={()=>{refs.imagem.current!.click()}}>
                                 <div className="txt-1">{filename}</div>
                             </div>
-                            <select defaultValue="true" onChange={ChangeOriginalFormat} ref={refs.original_format} id="original_format">
+                            <select defaultValue="true" onChange={()=>ChangeOriginalFormat(false)} ref={refs.original_format} id="original_format">
                                 <option value="true">Formato original</option>
                                 <option value="false">Redimensionar</option>
                             </select>
                         </div>
                     </div>
+                    {permission ? <>
+                        <label>Capa</label>
+                        <div className="imagem-div">
+                            <div ref={refs.imagem_view_premium} id="" className="imagem-view col-12 col-md-6">
+                                <img ref={refs.image_element_premium} className="of" src={imageInfosPremium.src}/>
+                            </div>
+                            <input className="file" ref={refs.imagem_premium} onChange={(e)=>onImagemChange(e,true)} type="file" accept="image/jpg, image/jpeg" required/>
+                            <div className="imagem-pt">
+                                <div className="imagem" onClick={()=>{refs.imagem_premium.current!.click()}}>
+                                    <div className="txt-1">{filenamePremium}</div>
+                                </div>
+                                <select defaultValue="true" onChange={()=>ChangeOriginalFormat(true)} ref={refs.original_format_premium} className="original_format">
+                                    <option value="true">Formato original</option>
+                                    <option value="false">Redimensionar</option>
+                                </select>
+                            </div>
+                        </div>
+                    </> : <></>}
                     <button type="submit" id="button">Enviar</button>
                 </form>
             </div>

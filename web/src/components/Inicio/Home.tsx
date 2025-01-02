@@ -28,6 +28,7 @@ function Home() {
             if (result.error){
                 // globals.setRedirectError(result.error);
             } else {
+                setPosts({isLoaded:false,canal:[],posts:[],st:[]});
                 var l:any=result.data;
                 l.isLoaded=true;
                 setPosts(l);

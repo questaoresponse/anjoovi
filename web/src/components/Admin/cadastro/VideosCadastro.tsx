@@ -364,7 +364,6 @@ function VideosCadastro(){
                     "text/javascript"
                 ),
             });
-            console.log("carregado");
         })();
     },[]);
     const ChangeOriginalFormat=()=>{
@@ -390,17 +389,17 @@ function VideosCadastro(){
                             <div className='txt-1'>{videoInfos.name=="" ? "Upload" : videoInfos.name}</div>
                         </div>
                     </div>
-                    <div id="imagem-div">
+                    <div className="imagem-div">
                         <label>Capa</label>
-                        <div ref={refs.imagem_view} id="imagem-view" className="col-12 col-md-6">
+                        <div ref={refs.imagem_view} className="imagem-view col-12 col-md-6">
                             <img className='of' ref={refs.image_element} style={{width:imageInfos.width,height:imageInfos.height}} src={imageInfos.src}/>
                         </div>
                         <input className="file" ref={refs.file} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg"/>
-                        <div id="imagem-pt">
-                            <div id="imagem" onClick={()=>{refs.file.current!.click()}}>
+                        <div className="imagem-pt">
+                            <div className="imagem" onClick={()=>{refs.file.current!.click()}}>
                                 <div className="txt-1">{imageInfos.name=="" ? "Upload" : imageInfos.name}</div>
                             </div>
-                            <select defaultValue="true" onChange={ChangeOriginalFormat} ref={refs.original_format} id="original_format">
+                            <select defaultValue="true" onChange={ChangeOriginalFormat} ref={refs.original_format} className="original_format">
                                 <option value="true">Formato original</option>
                                 <option value="false">Redimensionar</option>
                             </select>

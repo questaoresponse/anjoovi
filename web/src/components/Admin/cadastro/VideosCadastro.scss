@@ -31,7 +31,7 @@
         width: 100%;
         // aspect-ratio: 16/9;
     }
-    #imagem-div{
+    .imagem-div{
         position: relative;
         display: block;
         width: 100%;
@@ -47,7 +47,7 @@
         border-radius: 10px;
         overflow: hidden;
     }
-    #imagem-view{
+    .imagem-view{
         display: flex;
         padding-bottom: initial;
         // justify-content: initial;
@@ -56,7 +56,7 @@
         height: 100%;
         aspect-ratio: 16/9;
     }
-    #imagem-view img{
+    .imagem-view img{
         position: absolute;
         width:100%;
         height:initial;
@@ -64,7 +64,7 @@
         right: initial;
         top: auto;
     }
-    #imagem-view img.rd{
+    .imagem-view img.rd{
         height: 100%;
     }
     #video-filename{
@@ -105,18 +105,18 @@
         justify-content: center;
         align-items: center;
     }
-    #imagem-pt{
+    .imagem-pt{
         margin-top: 5px;
         height: auto;
     }
-    #imagem{
+    .imagem{
         padding-top: 0;
         border: solid 1px black;
         margin-bottom: 5px;
         padding-left: 5px;
         padding-right: 5px;
     }
-    #original_format{
+    .original_format{
         border: solid 1px black;
         border-radius: 5px;
         height: 2em;
@@ -126,22 +126,22 @@
             display: inline-block;
             width: 49.5%;
         }
-        #imagem-div{
+        .imagem-div{
             display: inline-block;
             width:49.5%;
             margin-left: 1%;
         }
-        #imagem-view{
+        .imagem-view{
             padding-bottom: initial;
         }
-        #imagem-pt{
+        .imagem-pt{
             width: 100%;
             flex-direction: row;
         }
-        #imagem{
+        .imagem{
             width: 49.5%;
         }
-        #original_format{
+        .original_format{
             margin-left: 1%;
             width: 49.5%;
             height: 2em;

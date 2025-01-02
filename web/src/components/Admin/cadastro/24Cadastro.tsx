@@ -185,9 +185,6 @@ function Cadastro24(){
         globals.setSelected("publicar");
         (async ()=>{
             const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm";
-            ffmpeg.current.on("log", ({ message }) => {
-                console.log(message);
-            });
             await ffmpeg.current.load({
                 coreURL: await toBlobURL(
                     `${baseURL}/ffmpeg-core.js`,
@@ -202,7 +199,6 @@ function Cadastro24(){
                     "text/javascript"
                 ),
             });
-            console.log("carregado");
         })();
     },[]);
     const ChangeOriginalFormat=()=>{
