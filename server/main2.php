@@ -322,11 +322,11 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 tipo,
                 (
                     CASE 
-                        WHEN LOWER(p.descricao) LIKE '%governo%' THEN 1 
+                        WHEN p.descricao LIKE '%governo%' THEN 1 
                         ELSE 0 
                     END + 
                     CASE 
-                        WHEN LOWER(p.descricao) LIKE '%governo%' THEN 0.5 
+                        WHEN p.descricao LIKE '%governo%' THEN 0.5 
                         ELSE 0 
                     END
                 ) AS accuracy 
@@ -472,7 +472,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 INNER JOIN user p2 ON p.usuario = p2.usuario
                 LEFT JOIN inscritos_check i ON i.usuario = p.usuario
                 WHERE p.privado & 1 = 0 AND p.views_id != ?
-            ) p
+            ) AS p
             INNER JOIN history h ON h.usuario = p.usuario
             ORDER BY accuracy DESC
             LIMIT ". $pt * $limit . "," . ($pt+1)*$limit,[
