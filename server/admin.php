@@ -1692,7 +1692,7 @@ Route::post("/admin/textos_cadastro",function(){
                 $d=get_d();
                 $permission=0;
                 $conn->prepare("INSERT INTO post_texto(nome,usuario,texto,acessos,views_id,id,d,privado) 
-                    SELECT nome, usuario,? AS texto, 0 AS acessos, ? AS views_id, 
+                    SELECT nome, usuario, ? AS texto, 0 AS acessos, ? AS views_id, 
                     ? AS id,
                     ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado FROM user WHERE id=?",[$texto,$views_id,$id,$d,$permission,$permission,$GLOBALS["user_id"]]);
                 // }

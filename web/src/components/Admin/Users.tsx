@@ -83,7 +83,7 @@ const Table=memo((props:{globals:GlobalContextInterface,auth:any,post:any,openEx
                 <div className="opcoesb">
                     <img onClick={Excluir} src={excluirSrc} className="excluir"/>
                     <div className="btt">
-                        <input checked={(Number(post.cargo) & 1)==1} data-anjoovi-user={post.usuario} onChange={onCheckChange} type="checkbox" tabIndex={3}></input>
+                        <input checked={(Number(post.cargo) & 1)==0} data-anjoovi-user={post.usuario} onChange={onCheckChange} type="checkbox" tabIndex={3}></input>
                         <div className="espaco" tabIndex={0}></div>
                         <div className="content">
                             <div className="bttb" tabIndex={1}></div>
