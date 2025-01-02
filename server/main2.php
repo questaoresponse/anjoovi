@@ -476,7 +476,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
             LEFT JOIN history h ON h.usuario = ?
             ORDER BY accuracy DESC
             LIMIT ". $pt * $limit . "," . ($pt+1)*$limit,[
-                '"' . $usuario . '"', "$." . $usuario,$id,
+                '"' . $usuario . '"', '$."' . $usuario . '"',$id,
                 $id,
                 $id,
                 $id,
@@ -973,7 +973,7 @@ Route::get("/noticia/{id}",function($id){
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         (SELECT COUNT(*) AS num FROM comment WHERE tipo='noticia' AND post_id=? AND privado=0) AS n_comment,
         p2.logo,p2.nome,
-        acessos,p.usuario,titulo,subtitulo,texto,imagem,d,views_id,id,'p' AS tipo FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND $clause",['"' . $usuario . '"', "$." . $usuario,$id,$id]);
+        acessos,p.usuario,titulo,subtitulo,texto,imagem,d,views_id,id,'p' AS tipo FROM post p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND $clause",['"' . $usuario . '"', '$."' . $usuario . '"',$id,$id]);
     } else {
         $clause="privado & 2=0 AND privado & 4=0";
         $result=$conn->prepare("SELECT 'false' AS inscrito,
@@ -1078,7 +1078,7 @@ Route::get("/imagem/{id}",function($id){
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         (SELECT COUNT(*) AS num FROM comment WHERE tipo='imagem' AND post_id=? AND privado=0) AS n_comment,
         p2.logo,p2.nome,
-        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id,$id]);
+        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', '$."' . $usuario . '"',$id,$id]);
     } else {
         $result=$conn->prepare("SELECT 'false' AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
@@ -1231,7 +1231,7 @@ Route::get("/texto/{id}",function($id){
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         (SELECT COUNT(*) AS num FROM comment WHERE tipo='texto' AND post_id=? AND privado=0) AS n_comment,
         p2.logo,p2.nome,
-        id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id,$id]);
+        id,acessos,p.usuario,texto,d,views_id,'t' AS tipo FROM post_texto p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', '$."' . $usuario . '"',$id,$id]);
     } else {
         $result=$conn->prepare("SELECT 'false' AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
@@ -1287,7 +1287,7 @@ Route::get("/video/{id}",function($id){
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         (SELECT COUNT(*) AS num FROM comment WHERE tipo='video' AND post_id=? AND privado=0) AS n_comment,
         p2.logo,p2.nome,
-        id,acessos,p.usuario,titulo,JSON_ARRAY(video,imagem) AS imagem,texto,d,views_id,'v' AS tipo FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $user . '"', "$." . $user,$id,$id]);
+        id,acessos,p.usuario,titulo,JSON_ARRAY(video,imagem) AS imagem,texto,d,views_id,'v' AS tipo FROM post_video p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $user . '"', '$."' . $user . '"',$id,$id]);
     } else {
         $result=$conn->prepare("SELECT 'false' AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
@@ -1405,7 +1405,7 @@ Route::get("/product/{id}",function($id){
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         (SELECT COUNT(*) AS num FROM comment WHERE tipo='product' AND post_id=? AND privado=0) AS n_comment,
         p2.logo,p2.nome,
-        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_product p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', "$." . $usuario,$id,$id]);
+        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_product p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado=0",['"' . $usuario . '"', '$."' . $usuario . '"',$id,$id]);
     } else {
         $result=$conn->prepare("SELECT 'false' AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
