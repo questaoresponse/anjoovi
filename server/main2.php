@@ -474,7 +474,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 WHERE p.privado & 1 = 0 AND p.views_id != ?
             ) AS p
             LEFT JOIN history h ON h.usuario = ?
-            ORDER BY accuracy DESC, p.acessos DESC
+            ORDER BY accuracy DESC, p.views_id DESC
             LIMIT ". $pt * $limit . "," . ($pt+1)*$limit,[
                 '"' . $usuario . '"', '$."' . $usuario . '"',$id,
                 $id,
