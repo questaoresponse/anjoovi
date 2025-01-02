@@ -278,6 +278,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
             p2.logo,p2.nome,
             (SELECT COUNT(*) FROM comment WHERE post_id=p.id AND tipo='product') AS n_comment,";
     }
+    echo $usuario;
     if ($usuario){
             return p($conn->prepare("WITH history AS (
                 SELECT 
