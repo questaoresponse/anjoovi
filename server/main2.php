@@ -322,11 +322,11 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 tipo,
                 (
                     CASE 
-                        WHEN p.descricao LIKE '%governo%' THEN 1 
+                        WHEN LOWER(IFNULL(IFNULL(p.titulo,p.descricao),p.texto)) LIKE LOWER(h.latest_text) THEN 1 
                         ELSE 0 
                     END + 
                     CASE 
-                        WHEN p.descricao LIKE '%governo%' THEN 0.5 
+                        WHEN LOWER(IFNULL(IFNULL(p.titulo,p.descricao),p.texto)) LIKE LOWER(h.second_latest_text) THEN 0.5 
                         ELSE 0 
                     END
                 ) AS accuracy 
@@ -473,7 +473,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 LEFT JOIN inscritos_check i ON i.usuario = p.usuario
                 WHERE p.privado & 1 = 0 AND p.views_id != ?
             ) AS p
-            INNER JOIN history h ON h.usuario = p.usuario
+            LEFT JOIN history h ON h.usuario = p.usuario
             ORDER BY accuracy DESC
             LIMIT ". $pt * $limit . "," . ($pt+1)*$limit,[
                 '"' . $usuario . '"', "$." . $usuario,$id,
@@ -2951,24 +2951,24 @@ Route::post("/ups",function(){
 //     // echo "." . $e;
 // });
 Route::post("/ajeitar",function(){
-    $conn=$GLOBALS["conn"];
-    $r=p($conn->query("WITH history AS (
-                SELECT 
-                    h.usuario,
-                    MAX(CASE WHEN h.rnk = 1 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS latest_text,
-                    MAX(CASE WHEN h.rnk = 2 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS second_latest_text
-                FROM (
-                    SELECT 
-                        usuario,
-                        texto,
-                        ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
-                    FROM historico
-                ) h
-                WHERE h.rnk <= 2
-                GROUP BY h.usuario
-            )
-            SELECT CASE WHEN p.descricao LIKE '%governo%' THEN 1 ELSE 0 END AS accuracy, p.descricao, id FROM (SELECT NULL AS titulo, descricao, id FROM post_imagem p WHERE p.privado & 1=0 UNION ALL SELECT titulo, NULL AS descricao, id FROM post p WHERE p.privado & 1=0) p ORDER BY accuracy DESC LIMIT 2"));
-    echo json_encode($r);
+    // $conn=$GLOBALS["conn"];
+    // $r=p($conn->query("WITH history AS (
+    //             SELECT 
+    //                 h.usuario,
+    //                 MAX(CASE WHEN h.rnk = 1 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS latest_text,
+    //                 MAX(CASE WHEN h.rnk = 2 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS second_latest_text
+    //             FROM (
+    //                 SELECT 
+    //                     usuario,
+    //                     texto,
+    //                     ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
+    //                 FROM historico
+    //             ) h
+    //             WHERE h.rnk <= 2
+    //             GROUP BY h.usuario
+    //         )
+    //         SELECT CASE WHEN p.descricao LIKE '%governo%' THEN 1 ELSE 0 END AS accuracy, p.descricao, id FROM (SELECT NULL AS titulo, descricao, id FROM post_imagem p WHERE p.privado & 1=0 UNION ALL SELECT titulo, NULL AS descricao, id FROM post p WHERE p.privado & 1=0) p INNER JOIN history ORDER BY accuracy DESC LIMIT 2"));
+    // echo json_encode($r);
 
     // $r=p($conn->query("SELECT usuario FROM user"));
     // foreach ($r as $rs){
