@@ -322,11 +322,11 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                 tipo,
                 (
                     CASE 
-                        WHEN LOWER(p.descricao) LIKE LOWER('%governo%') THEN 1 
+                        WHEN LOWER(p.descricao) LIKE '%governo%' THEN 1 
                         ELSE 0 
                     END + 
                     CASE 
-                        WHEN LOWER(p.descricao) LIKE LOWER('%governo%') THEN 0.5 
+                        WHEN LOWER(p.descricao) LIKE '%governo%' THEN 0.5 
                         ELSE 0 
                     END
                 ) AS accuracy 
