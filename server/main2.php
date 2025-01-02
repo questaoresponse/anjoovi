@@ -2952,7 +2952,7 @@ Route::post("/ups",function(){
 //     // echo "." . $e;
 // });
 Route::post("/ajeitar",function(){
-    // $conn=$GLOBALS["conn"];
+    $conn=$GLOBALS["conn"];
     // $r=p($conn->prepare("WITH history AS (
     //             SELECT 
     //                 h.usuario,
@@ -2971,11 +2971,11 @@ Route::post("/ajeitar",function(){
     //         SELECT CASE WHEN h.latest_text IS NOT NULL AND p.descricao LIKE LOWER(h.latest_text) THEN 1 ELSE 0 END AS accuracy, p.descricao, id FROM (SELECT NULL AS titulo, descricao, id FROM post_imagem p WHERE p.privado & 1=0 UNION ALL SELECT titulo, NULL AS descricao, id FROM post p WHERE p.privado & 1=0) p LEFT JOIN history h ON h.usuario=? ORDER BY accuracy DESC LIMIT 2",['usuario']));
     // echo json_encode($r);
 
-    // $r=p($conn->query("SELECT usuario FROM user"));
-    // foreach ($r as $rs){
-    //     $hash=get_token(["usuario"=>$rs["usuario"]]);
-    //     $conn->prepare("UPDATE user SET hash=? WHERE usuario=?",[$hash,$rs["usuario"]]);
-    // }
+    $r=p($conn->query("SELECT usuario FROM user"));
+    foreach ($r as $rs){
+        $hash=get_token(["usuario"=>$rs["usuario"]]);
+        $conn->prepare("UPDATE user SET hash=? WHERE usuario=?",[$hash,$rs["usuario"]]);
+    }
     // $r=p($conn->query("SELECT nome FROM user WHERE nome='amostradinho'"));
     // $t1=0;
     // $t2=0;
