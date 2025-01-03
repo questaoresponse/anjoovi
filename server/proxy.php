@@ -14,10 +14,14 @@ $headers = getallheaders();
 $curl_headers = [];
 $ca=["Cookie"];
 foreach ($headers as $key => $value) {
-    // $curl_headers[] = "$key: $value";
-    // echo $key;
-    // echo $value;
+    if (!in_array($key,$ca)){
+        $curl_headers[] = "$key: $value";
+        // echo $key;
+        // echo $value;
+    }
 }
+
+// curl_setopt($ch, CURLOPT_INTERFACE, '[2800:3f0:4001:817::200a]:443');
 
 curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
 
@@ -29,7 +33,7 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_ENCODING, "");
 
 // Execute a requisição
-$response = curl_exec($ch); 
+$response = curl_exec($ch);
 
 // Capture informações sobre a resposta
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
