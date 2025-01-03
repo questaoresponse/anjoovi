@@ -138,6 +138,7 @@ function NoticiasCadastro(){
     const updatePermission=()=>{
         if (isPremium){
             refs.permission.current!.value=post_edit.current!.privado ? "1" : "0";
+            setPermission(true);
         }
     }
     useEffect(()=>{
@@ -150,7 +151,7 @@ function NoticiasCadastro(){
                     refs.titulo.current!.value=post.titulo;
                     refs.subtitulo.current!.value=post.subtitulo;
                     refs.textarea.current!.value=post.texto;
-                    post.privado=(post.privado & 4)==4;
+                    post.privado=(post.privado & 2)==2;
                     post_edit.current=post;
                     updatePermission();
                     post.privado && setDimensions(server+"/images/"+encodeURIComponent(post.imagem),true);
@@ -174,18 +175,20 @@ function NoticiasCadastro(){
         var titulo=refs.titulo.current!.value;
         var subtitulo=refs.subtitulo.current!.value;
         var original_format:boolean=JSON.parse(refs.original_format.current!.value);
+        var original_format_d:boolean=JSON.parse(refs.original_format_premium.current!.value);
         var imagem_data=refs.imagem.current!.files!.length>0 ? refs.imagem.current!.files![0] : null;
         var imagem_data_d=refs.imagem_premium.current!.files!.length>0 ? refs.imagem_premium.current!.files![0] : null;
         fd.append("type","option");
         edit.current && fd.append("id",post_edit.current!.id.toString());
         imagem_data && fd.append("imagem",imagem_data);
-        refs.permission.current && refs.permission.current.value=="1" && imagem_data_d && fd.append("dImagem",imagem_data_d);
-        imagem_data && fd.append("imagens_edit",(true).toString());
+        imagem_data_d && fd.append("dImagem",imagem_data_d);
+        (imagem_data || imagem_data_d) && fd.append("imagens_edit",(true).toString());
         refs.permission.current && fd.append("permission",refs.permission.current.value);
         fd.append("usuario",globals.login.usuario!);
         fd.append("titulo",titulo);
         subtitulo!="" && fd.append("subtitulo", subtitulo);
         original_format && fd.append("original_format",original_format.toString());
+        original_format_d && fd.append("original_format",original_format_d.toString());
         auth.post(server+"/admin/noticias_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,{arquivo:true}).then((result)=>{
             if (result.error){
                 globals.setRedirectError(result.error);
@@ -231,7 +234,6 @@ function NoticiasCadastro(){
             const value=JSON.parse(refs.original_format.current!.value);
             refs.image_element.current!.classList.replace(values[+!value],values[+value]);
         }
-        
     }
     return (
         <div id="pg" className="nc">
@@ -253,16 +255,16 @@ function NoticiasCadastro(){
                     <label>Texto</label>
                     <textarea ref={refs.textarea}></textarea>
                     <label>Capa</label>
-                    <div id="imagem-div">
-                        <div ref={refs.imagem_view} id="imagem-view" className="col-12 col-md-6">
+                    <div className="imagem-div">
+                        <div ref={refs.imagem_view} className="imagem-view col-12 col-md-6">
                             <img ref={refs.image_element} className="of" src={imageInfos.src}/>
                         </div>
                         <input className="file" ref={refs.imagem} onChange={(e)=>onImagemChange(e,false)} type="file" accept="image/jpg, image/jpeg" required/>
-                        <div id="imagem-pt">
-                            <div id="imagem" onClick={()=>{refs.imagem.current!.click()}}>
+                        <div className="imagem-pt">
+                            <div className="imagem" onClick={()=>{refs.imagem.current!.click()}}>
                                 <div className="txt-1">{filename}</div>
                             </div>
-                            <select defaultValue="true" onChange={()=>ChangeOriginalFormat(false)} ref={refs.original_format} id="original_format">
+                            <select defaultValue="true" onChange={()=>ChangeOriginalFormat(false)} ref={refs.original_format} className="original_format">
                                 <option value="true">Formato original</option>
                                 <option value="false">Redimensionar</option>
                             </select>

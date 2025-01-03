@@ -12,15 +12,17 @@ interface postInterface{
     titulo:string,
     subtitulo:string,
     texto:string,
-    imagem:string
+    imagem:string,
+    privado:boolean,
 }
 function VideosCadastro(){
     const globals=useGlobal();
-    const { server, navigate }=globals;
+    const { server, navigate, cargo }=globals;
     const auth=useAuth();
     const edit=useRef(false);
     const post_edit=useRef<postInterface>();
     const refs={
+        permission:useRef<HTMLSelectElement | null>(null),
         titulo:useRef<HTMLTextAreaElement>(null),
         original_format:useRef<HTMLSelectElement>(null),
         video_input:useRef<HTMLInputElement>(null),
@@ -28,6 +30,10 @@ function VideosCadastro(){
         file:useRef<HTMLInputElement>(null),
         imagem_view:useRef<HTMLDivElement>(null),
         image_element:useRef<HTMLImageElement>(null),
+        file_premium:useRef<HTMLInputElement>(null),
+        original_format_premium:useRef<HTMLSelectElement>(null),
+        imagem_view_premium:useRef<HTMLDivElement>(null),
+        image_element_premium:useRef<HTMLImageElement>(null),
     }
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
@@ -38,20 +44,33 @@ function VideosCadastro(){
         width:"100%",
         height:"100%",
     });
-    const frameImage=useRef<{file:Blob,name:string,src:string,width:string | number,height:string | number} | null>();
-    const [imageInfos,setImageInfos]=useState<{isFile:boolean,isVideoFrame:boolean,file?:File | Blob,name:string,src:string,width:string | number,height:string | number}>({
+    const frameImage=useRef<{file:Blob,name:string,src:string} | null>();
+    const [imageInfos,setImageInfos]=useState<{isFile:boolean,isVideoFrame:boolean,file?:File | Blob,name:string,src:string}>({
         isFile:false,
         isVideoFrame:false,
         name:"",
         src:sem_imagem,
-        width:"100%",
-        height:"100%",
     });
+    const [imageInfosPremium,setImageInfosPremium]=useState<{isFile:boolean,file?:File | Blob,name:string,src:string}>({
+        isFile:false,
+        name:"",
+        src:sem_imagem,
+    });
+    const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
+    const [permission,setPermission]=useState(false);
     const [isUploading,setIsUploading]=useState(false);
     const [porcentagem,setPorcentagem]=useState(0);
     const ffmpeg = useRef(new FFmpeg());
 
-    const setDimensions=(videoOptions?:{file?:Blob,name:string,url:string},frameOptions?:{file:Blob,name:string,url:string},imageOptions?:{file?:File | Blob,name:string,url:string})=>{
+    const setDimensions=(isPremium:boolean,videoOptions?:{file?:Blob,name:string,url:string},frameOptions?:{file:Blob,name:string,url:string},imageOptions?:{file?:File | Blob,name:string,url:string})=>{
+        if (isPremium && imageOptions){
+            const img = new Image();
+            img.onload = () => setImageInfosPremium({ isFile:true, file:imageOptions.file, name:imageOptions.name, src:imageOptions.url });
+                // console.log(`Width: ${width}, Height: ${height}`);
+
+            img.src = imageOptions.url;
+            return;
+        }
         if (videoOptions){
             const video = document.createElement("video");
             video.onloadedmetadata = () => {
@@ -74,44 +93,20 @@ function VideosCadastro(){
         if (frameOptions){
             const img = new Image();
             img.onload = () => {
-                const width=refs.imagem_view.current!.offsetWidth;
-                const height=refs.imagem_view.current!.offsetHeight;
-                var widthImage = img.width;
-                var heightImage = img.height;
-                if (width / widthImage * heightImage>height){
-                    widthImage=height / heightImage * widthImage;
-                    heightImage=height;
-                } else {
-                    heightImage=width / widthImage * heightImage;
-                    widthImage=width;
-                }
-                frameImage.current={ file:frameOptions.file, name: frameOptions.name, src:frameOptions.url, width:widthImage, height: heightImage };
+                frameImage.current={ file:frameOptions.file, name: frameOptions.name, src:frameOptions.url };
                 setImageInfos((imageInfos)=>{
                     if (imageInfos.isFile && !imageInfos.isVideoFrame){
                         return imageInfos;
                     };
-                    return { isFile:true, isVideoFrame:true, file:frameOptions.file, name:frameOptions.name, src:frameOptions.url, width: widthImage, height: heightImage }
+                    return { isFile:true, isVideoFrame:true, file:frameOptions.file, name:frameOptions.name, src:frameOptions.url };
                 });
-                // console.log(`Width: ${width}, Height: ${height}`);
             }
             img.src = frameOptions.url;
         }
         if (imageOptions && !frameOptions){
             const img = new Image();
             img.onload = () => {
-                const width=refs.imagem_view.current!.offsetWidth;
-                const height=refs.imagem_view.current!.offsetHeight;
-                var widthImage = img.width;
-                var heightImage = img.height;
-                if (width / widthImage * heightImage>height){
-                    widthImage=height / heightImage * widthImage;
-                    heightImage=height;
-                } else {
-                    heightImage=width / widthImage * heightImage;
-                    widthImage=width;
-                }
-                setImageInfos({ isFile:true, isVideoFrame:false, file:imageOptions.file, name:imageOptions.name, src:imageOptions.url, width: widthImage, height: heightImage });
-                // console.log(`Width: ${width}, Height: ${height}`);
+                setImageInfos({ isFile:true, isVideoFrame:false, file:imageOptions.file, name:imageOptions.name, src:imageOptions.url });
             }
             img.src = imageOptions.url;
         }
@@ -119,9 +114,10 @@ function VideosCadastro(){
     const resetDimensions=()=>{
         setVideoInfos({ isFile:false, name:"", src:sem_imagem, width:"100%", height:"100%" });
         frameImage.current=null;
-        setImageInfos({ isFile:false ,isVideoFrame:false, name:"", src:sem_imagem, width:"100%", height:"100%" });
+        setImageInfos({ isFile:false ,isVideoFrame:false, name:"", src:sem_imagem });
+        setImageInfosPremium({ isFile:false, name:"", src:sem_imagem });
     }
-    const onImagemChange=(e:any)=>{
+    const onImagemChange=(e:any,isPremium:boolean)=>{
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -147,28 +143,36 @@ function VideosCadastro(){
                 if (fileType=="jpeg"){
                     const reader2=new FileReader();
                     reader2.onloadend=()=>{
-                        setDimensions(undefined,undefined,{ file, name:file.name, url:reader2.result as string });
+                        setDimensions(isPremium,undefined,undefined,{ file, name:file.name, url:reader2.result as string });
                     }
                     reader2.readAsDataURL(file);
                 } else {
-                    setImageInfos(()=>{
-                        if (frameImage.current){
-                            return { isFile: true, isVideoFrame:true, file:frameImage.current.file, name:frameImage.current.name, src: frameImage.current.src, width: frameImage.current.width, height:frameImage.current.height };
-                        }
-                        return { isFile: false, isVideoFrame:false, name:"", src:sem_imagem, width:"100%", height:"100%" };
-                    });
+                    if (isPremium){
+                        setImageInfosPremium({ isFile: false, name:"", src:sem_imagem });
+                    } else {
+                        setImageInfos(()=>{
+                            if (frameImage.current){
+                                return { isFile: true, isVideoFrame:true, file:frameImage.current.file, name:frameImage.current.name, src: frameImage.current.src };
+                            }
+                            return { isFile: false, isVideoFrame:false, name:"", src:sem_imagem };
+                        });
+                    }
                     e.target.value="";
                     showError();
                 }
             }
             reader.readAsArrayBuffer(file);
         } else {
-            setImageInfos(()=>{
-                if (frameImage.current){
-                    return { isFile: true, isVideoFrame:true, file:frameImage.current.file, name:frameImage.current.name, src: frameImage.current.src, width: frameImage.current.width, height:frameImage.current.height };
-                }
-                return { isFile: false, isVideoFrame:false, name:"", src:sem_imagem, width:"100%", height:"100%" };
-            });
+            if (isPremium){
+                setImageInfosPremium({ isFile: false, name:"", src:sem_imagem });
+                } else {
+                setImageInfos(()=>{
+                    if (frameImage.current){
+                        return { isFile: true, isVideoFrame:true, file:frameImage.current.file, name:frameImage.current.name, src: frameImage.current.src };
+                    }
+                    return { isFile: false, isVideoFrame:false, name:"", src:sem_imagem };
+                });
+            }
         }
     }
     const onChangeVideo=(e:any)=>{
@@ -202,7 +206,7 @@ function VideosCadastro(){
                     const videoUrl=URL.createObjectURL(videoBlob);
                     const imageBlob=new Blob([fileData.buffer],{ type:"image/jpg" });
                     const imageUrl=URL.createObjectURL(imageBlob);
-                    setDimensions({
+                    setDimensions(false,{
                         file:videoBlob,
                         name:file.name,
                         url:videoUrl,
@@ -217,7 +221,7 @@ function VideosCadastro(){
                     frameImage.current=null;
                     setImageInfos((imageInfos)=>{ 
                         if (imageInfos.isVideoFrame){
-                            return {isFile:false, isVideoFrame:false, name:"", src:sem_imagem, width:"100%", height:"100%" };
+                            return {isFile:false, isVideoFrame:false, name:"", src:sem_imagem };
                         };
                         return imageInfos;
                     });
@@ -231,7 +235,7 @@ function VideosCadastro(){
             frameImage.current=null;
             setImageInfos((imageInfos)=>{ 
                 if (imageInfos.isVideoFrame){
-                    return {isFile:false, isVideoFrame:false, name:"", src:sem_imagem, width:"100%", height:"100%" };
+                    return {isFile:false, isVideoFrame:false, name:"", src:sem_imagem };
                 };
                 return imageInfos;
             });
@@ -249,6 +253,7 @@ function VideosCadastro(){
         const video_file=videoInfos.file!;
         const imagem_file=imageInfos.file;
         const original_format:boolean=JSON.parse(refs.original_format.current!.value);
+        const original_format_d:boolean=JSON.parse(refs.original_format_premium.current!.value);
         fd.append("type","option");
         edit.current && fd.append("id",post_edit.current!.id.toString());
         imagem_file && fd.append("imagem",imagem_file,imageInfos.name);
@@ -259,6 +264,7 @@ function VideosCadastro(){
             setIsUploading(true);
         }
         original_format && fd.append("original_format",original_format.toString());
+        original_format_d && fd.append("original_format",original_format_d.toString());
         var result:resultInterface=await auth.post(server+"/admin/videos_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,edit.current ? {arquivo:true} : {arquivo:true,porcentagem:VerifyUpload});
         if (result.error){
             globals.setRedirectError(result.error);
@@ -306,6 +312,15 @@ function VideosCadastro(){
         // }
     // };
     edit.current=location.pathname=="/admin/videos_edit";
+    const updateCargo=(cargo:number)=>{
+        setIsPremium((cargo & 4)==4);
+    }
+    const updatePermission=()=>{
+        if (isPremium){
+            refs.permission.current!.value=post_edit.current!.privado ? "1" : "0";
+            setPermission(true);
+        }
+    }
     useEffect(()=>{
         globals.setSelected("publicar");
         if (edit.current){
@@ -313,9 +328,18 @@ function VideosCadastro(){
                 if (result.data.result=="true"){
                     refs.file.current!.required=false;
                     const post=result.data.post_edit[0];
+                    post.privado=(post.privado & 2)==2;
                     post_edit.current=post;
+                    updatePermission();
                     refs.titulo.current!.value=post.titulo;
-                    setDimensions({
+                    if (post.privado){
+                        setDimensions(true,undefined,undefined,
+                        post.imagem ? {
+                            name:post.imagem.split("_").slice(3).join("_"),
+                            url:server+"/images/"+encodeURIComponent(post.imagem.slice(2))
+                        } : undefined);
+                    }
+                    setDimensions(false,{
                         name:post.video.split("_").slice(3).join("_"),
                         url:server+"/videos/"+encodeURIComponent(post.video)
                     },
@@ -335,7 +359,7 @@ function VideosCadastro(){
                         await ffmpeg.current.deleteFile("output.jpg");
                         const imageBlob=new Blob([fileData.buffer],{ type:"image/jpg" });
                         const imageUrl=URL.createObjectURL(imageBlob);
-                        setDimensions(undefined,
+                        setDimensions(false,undefined,
                         {
                             file:imageBlob,
                             name:name.split(".").slice(0,-1).join(".")+".jpg",
@@ -345,9 +369,6 @@ function VideosCadastro(){
                 }
             });
         }
-        // ffmpeg.current.on("log", ({ message }) => {
-        //     console.log(message);
-        // })
         (async ()=>{
             const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm";
             await ffmpeg.current.load({
@@ -365,11 +386,28 @@ function VideosCadastro(){
                 ),
             });
         })();
+        cargo.current.addListener(updateCargo);
+        return ()=>{
+            cargo.current.removeListener(updateCargo);
+        }
     },[]);
-    const ChangeOriginalFormat=()=>{
+    useEffect(()=>{
+        if (post_edit.current){
+            updatePermission();
+        }
+    },[isPremium]);
+    const ChangePermission=(e:any)=>{
+        setPermission(e.target.value=="1");
+    }
+    const ChangeOriginalFormat=(isPremium:boolean)=>{
         const values=["rd","of"];
-        const value=JSON.parse(refs.original_format.current!.value);
-        refs.image_element.current!.classList.replace(values[+!value],values[+value]);
+        if (isPremium){
+            const value=JSON.parse(refs.original_format_premium.current!.value);
+            refs.image_element_premium.current!.classList.replace(values[+!value],values[+value]);
+        } else {
+            const value=JSON.parse(refs.original_format.current!.value);
+            refs.image_element.current!.classList.replace(values[+!value],values[+value]);
+        }
     }
     return (
         <div id="pg" className='vc'>
@@ -377,6 +415,13 @@ function VideosCadastro(){
                 <Publicar/>
                 <div id="msg1">Cadastrar vídeo</div>
                 <form onSubmit={Cadastrar}>
+                    {isPremium ? <>
+                            <label>Disponível:</label>
+                            <select onChange={ChangePermission} ref={refs.permission} id="permission" defaultValue="0">
+                                <option value="0">Público</option>
+                                <option value="1">Premium</option>
+                            </select>
+                        </> : <></>}
                     <label>Título</label>
                     <textarea ref={refs.titulo} className="input" id="titulo"/>
                     <div id="video-div">
@@ -392,19 +437,35 @@ function VideosCadastro(){
                     <div className="imagem-div">
                         <label>Capa</label>
                         <div ref={refs.imagem_view} className="imagem-view col-12 col-md-6">
-                            <img className='of' ref={refs.image_element} style={{width:imageInfos.width,height:imageInfos.height}} src={imageInfos.src}/>
+                            <img className='of' ref={refs.image_element} src={imageInfos.src}/>
                         </div>
-                        <input className="file" ref={refs.file} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg"/>
+                        <input className="file" ref={refs.file} onChange={(e)=>onImagemChange(e,false)} type="file" accept="image/jpg, image/jpeg"/>
                         <div className="imagem-pt">
                             <div className="imagem" onClick={()=>{refs.file.current!.click()}}>
                                 <div className="txt-1">{imageInfos.name=="" ? "Upload" : imageInfos.name}</div>
                             </div>
-                            <select defaultValue="true" onChange={ChangeOriginalFormat} ref={refs.original_format} className="original_format">
+                            <select defaultValue="true" onChange={()=>ChangeOriginalFormat(false)} ref={refs.original_format} className="original_format">
                                 <option value="true">Formato original</option>
                                 <option value="false">Redimensionar</option>
                             </select>
                         </div>
                     </div>
+                    {permission ? <div className='premium-image-div'>
+                        <label>Capa</label>
+                        <div ref={refs.imagem_view_premium} className="imagem-view col-12 col-md-6">
+                            <img className='of' ref={refs.image_element_premium} src={imageInfosPremium.src}/>
+                            </div>
+                            <input className="file" ref={refs.file_premium} onChange={(e)=>onImagemChange(e,true)} type="file" accept="image/jpg, image/jpeg"/>
+                            <div className="imagem-pt">
+                                <div className="imagem" onClick={()=>{refs.file_premium.current!.click()}}>
+                                    <div className="txt-1">{imageInfosPremium.name=="" ? "Upload" : imageInfosPremium.name}</div>
+                                </div>
+                                <select defaultValue="true" onChange={()=>ChangeOriginalFormat(true)} ref={refs.original_format_premium} className="original_format">
+                                    <option value="true">Formato original</option>
+                                    <option value="false">Redimensionar</option>
+                                </select>
+                            </div>
+                    </div> : <></>}
                     <button type="submit" id="button">Enviar</button>
                 </form>
                 <div id="uploadd" style={{display:isUploading ? "flex" : "none"}}>

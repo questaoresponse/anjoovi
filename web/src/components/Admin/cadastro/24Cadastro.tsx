@@ -216,16 +216,16 @@ function Cadastro24(){
                     <label>Título</label>
                     <input ref={refs.titulo} className="input" id="titulo" placeholder="Insira um título"/>
                     <label>Capa</label>
-                    <div id="imagem-div">
-                        <div ref={refs.imagem_view} id="imagem-view" className="col-12 col-md-6">
+                    <div className="imagem-div">
+                        <div ref={refs.imagem_view} className="imagem-view col-12 col-md-6">
                             {fileInfos.type=="mp4" ? <video ref={refs.image_element as MutableRefObject<HTMLVideoElement>} controls className="of" src={fileInfos.src}></video> : <img ref={refs.image_element as MutableRefObject<HTMLImageElement>} className='of' src={fileInfos.src}/>};
                         </div>
                         <input className="file" ref={refs.file} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg, video/mp4" required/>
-                        <div id="imagem-pt">
-                            <div id="imagem" onClick={()=>{refs.file.current!.click()}}>
+                        <div className="imagem-pt">
+                            <div className="imagem" onClick={()=>{refs.file.current!.click()}}>
                                 <div className="txt-1">{fileInfos.name}</div>
                             </div>
-                            <select defaultValue="true" onChange={ChangeOriginalFormat} ref={refs.original_format} id="original_format">
+                            <select defaultValue="true" onChange={ChangeOriginalFormat} ref={refs.original_format} className="original_format">
                                 <option value="true">Formato original</option>
                                 <option value="false">Redimensionar</option>
                             </select>

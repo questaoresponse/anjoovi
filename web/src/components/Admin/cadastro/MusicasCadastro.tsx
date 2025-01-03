@@ -11,11 +11,12 @@ interface postInterface{
     id:number,
     titulo:string,
     imagem:string,
-    arquivo:string[]
+    arquivo:string[],
+    privado:boolean
 }
 function MusicasCadastro(){
     const globals=useGlobal();
-    const { server, navigate }=globals;
+    const { server, navigate, cargo }=globals;
     const auth=useAuth();
     const [editState,setEditState]=useState(false);
     const edit=useRef(false);
@@ -28,11 +29,18 @@ function MusicasCadastro(){
     const [isAdd,setIsAdd]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
     const [errorCadastro,setErrorCadastro]=useState(false);
+    const [filenamePremium,setFilenamePremium]=useState("Upload");
+    const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
+    const [permission,setPermission]=useState(false);
     const ffmpeg = useRef(new FFmpeg());
     const refs={
+        permission:useRef<HTMLSelectElement | null>(null),
         titulo:useRef<HTMLInputElement>(null),
         imagem:useRef<HTMLInputElement>(null),
         imagem_view:useRef<HTMLDivElement>(null),
+        imagem_premium:useRef<HTMLInputElement>(null),
+        imagem_view_premium:useRef<HTMLDivElement>(null),
+        image_element_premium:useRef<HTMLImageElement>(null),
     }
     const showErrorCadastro=()=>{
         setErrorCadastro(true);
@@ -49,6 +57,11 @@ function MusicasCadastro(){
         },2000);
     }
     const [imageInfos,setImageInfos]=useState<{src:string,width:string | number,height:string |  number}>({
+        src:sem_imagem,
+        width:"100%",
+        height:"100%",
+    });
+    const [imageInfosPremium,setImageInfosPremium]=useState<{src:string,width:string | number,height:string |  number}>({
         src:sem_imagem,
         width:"100%",
         height:"100%",
@@ -166,6 +179,7 @@ function MusicasCadastro(){
                 },2000);
                 refs.titulo.current!.value="";
                 refs.imagem.current!.value="";
+                setFilenamePremium("Upload");
                 setFilename("Upload");
                 setMusicas([{titulo:"",input:createRef()}]);
                 setDimensions(null);
@@ -268,6 +282,14 @@ function MusicasCadastro(){
     },[musicas]);
     edit.current=location.pathname=="/admin/musicas_edit";
     const progress=useRef<{length:number,finished:number,executed:boolean}>({length:0,finished:0,executed:false});
+    const updateCargo=(cargo:number)=>{
+        setIsPremium((cargo & 4)==4);
+    }
+    const updatePermission=()=>{
+        if (isPremium){
+            refs.permission.current!.value=post_edit.current!.privado ? "1" : "0";
+        }
+    }
     useEffect(()=>{
         globals.setSelected("publicar");
         setEditState(edit.current);
@@ -280,7 +302,9 @@ function MusicasCadastro(){
                     refs.titulo.current!.value=post.titulo;
                     post.arquivo=JSON.parse(post.arquivo);
                     setMusicas(Array.from({length:post.arquivo.length},(_,i)=>{return {titulo:post.arquivo[i].replace(/\.[^/.]+$/, ""),input:createRef<HTMLInputElement>()}}))
+                    post.privado=(post.privado & 2)==2;
                     post_edit.current=post;
+                    updatePermission();
                     setDimensions(server+"/images/"+encodeURIComponent(post.imagem));
                 }
             });
@@ -308,7 +332,16 @@ function MusicasCadastro(){
                 });
             })();
         }
+        cargo.current.addListener(updateCargo);
+        return ()=>{
+            cargo.current.removeListener(updateCargo);
+        }
     },[]);
+    useEffect(()=>{
+        if (post_edit.current){
+            updatePermission();
+        }
+    },[isPremium]);
     const addListMusic=()=>{
         setIsAdd(false);
         setMusicas((musicas)=>([...musicas,{titulo:"",input:createRef<HTMLInputElement>()}]));
@@ -376,6 +409,9 @@ function MusicasCadastro(){
             })
         }
     };
+    const ChangePermission=(e:any)=>{
+        setPermission(e.target.value=="1");
+    }
     return (
         // <div id="pg" className="mc">
         <div id="pg" className="mc">
@@ -383,6 +419,13 @@ function MusicasCadastro(){
             <Publicar/>
             <div id="msg1">Cadastrar música</div>
                 <form onSubmit={Cadastrar}>
+                    {isPremium ? <>
+                            <label>Disponível:</label>
+                            <select onChange={ChangePermission} ref={refs.permission} id="permission" defaultValue="0">
+                                <option value="0">Público</option>
+                                <option value="1">Premium</option>
+                            </select>
+                        </> : <></>}
                     <label>Título</label>
                     <input ref={refs.titulo} className="input" id="titulo" placeholder="Insira um título" required/>
                     <label>Música</label>
@@ -413,6 +456,20 @@ function MusicasCadastro(){
                             </div>
                         </div>
                     </div>
+                    {permission ? <>
+                        <label>Capa</label>
+                        <div className="imagem-div">
+                            <div ref={refs.imagem_view_premium} className="imagem-view">
+                                <img  className="col-12 col-md-6" style={{width:imageInfosPremium.width,height:imageInfosPremium.height}} src={imageInfosPremium.src}/>
+                            </div>
+                            <input className="file" ref={refs.imagem_premium} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg" required/>
+                            <div className="imagem-pt">
+                                <div className="imagem" onClick={()=>{refs.imagem_premium.current!.click()}}>
+                                    <div className="txt-1">{filenamePremium}</div>
+                                </div>
+                            </div>
+                        </div>
+                        </> : <></>}
                     <button type="submit" id="button">Enviar</button>
                 </form>
                 <div id="uploadd" style={{display:isUploading ? "flex" : "none"}}>

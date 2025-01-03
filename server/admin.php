@@ -9,22 +9,25 @@ if (!function_exists("cargo")){
         $imagem=null;
         $views_id=null;
         $user=null;
+        $permission=null;
         if ($usuario){
-            $q=$conn->prepare("SELECT imagem,views_id FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
+            $q=$conn->prepare("SELECT imagem,views_id,privado FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
             if ($q->num_rows==0) return;
             $q=p($q)[0];
             $imagem=$q["imagem"];
             $views_id=$q["views_id"];
             $user=$usuario;
+            $permission=($q["privado"] & 2)==2;
             $conn->prepare("DELETE FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
             $conn->prepare("UPDATE views SET excluido='true' WHERE tipo='post' AND excluido='false' AND id=? AND usuario=?",[$views_id,$usuario]);
         } else {
-            $q=$conn->prepare("SELECT usuario,imagem,views_id FROM post WHERE id=?",[$id]);
+            $q=$conn->prepare("SELECT usuario,imagem,views_id,privado FROM post WHERE id=?",[$id]);
             if ($q->num_rows==0) return;
             $q=p($q)[0];
             $imagem=$q["imagem"];
             $views_id=$q["views_id"];
             $user=$q["usuario"];
+            $permission=($q["privado"] & 2)==2;
             $conn->prepare("DELETE FROM post WHERE id=?",[$id]);
             $conn->prepare("UPDATE views SET excluido='true' WHERE tipo='post' AND  excluido='false' AND id=?",[$views_id]);
         }
@@ -32,6 +35,9 @@ if (!function_exists("cargo")){
         $conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts - 1,0) WHERE usuario=?",[$user]);
 
         unlink(__DIR__ . '/../public_html/images/'.$imagem);
+        if ($permission){
+            unlink(__DIR__ . '/../public_html/images/'. substr($imagem,2));
+        }
     }
     function delete_24($conn,$id,$usuario=null){
         $type=null;
@@ -487,6 +493,7 @@ Route::post("/admin/noticias_cadastro", function(){
                 // if (strlen($titulo)==0) return;
                 $subtitulo=isset($dados["subtitulo"]) ? $dados["subtitulo"] : null;
                 $original_format=isset($dados["original_format"]);
+                $original_format_d=isset($dados["original_format_d"]);
                 $acessos=0;
                 $texto=null;
                 $old_image=null;
@@ -510,38 +517,45 @@ Route::post("/admin/noticias_cadastro", function(){
                 $texto=isset($dados["texto"]) ? $dados["texto"] : null;
                 $hasDImage=$permission==2;
                 // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
-                if (($isCadastro || isset($dados["imagens_edit"])) && request()->has("imagem") && (!$hasDImage || request()->has("dImagem"))) {
+                if (($isCadastro || isset($dados["imagens_edit"])) && (request()->has("imagem") || ($hasDImage && request()->has("dImagem")))) {
                     $file = request()->file("imagem");
                     $dFile = request()->file("dImagem");
-                    if (mime_content_type($file->file["tmp_name"]) === 'image/jpeg' && (!$hasDImage || mime_content_type($dFile->file["tmp_name"]) === 'image/jpeg')){
+                    if (mime_content_type($file->file["tmp_name"]) === 'image/jpeg' || mime_content_type($dFile->file["tmp_name"]) === 'image/jpeg'){
                         $caminhoDestino = __DIR__ . "/../public_html/images/";
-                        if ($imagem){
-                            unlink($caminhoDestino . $imagem);
-                            if ($old_permission==2){
-                                unlink($caminhoDestino . substr($imagem,2));
+                        $filename=null;
+                        if (!$imagem || ($imagem && $file)){
+                            if ($imagem){
+                                unlink($caminhoDestino . $imagem);
                             }
-                        }
-                        // if permission has changed and new permission is public;
-                        // Salvar a imagem em um diretório
-                        $filename = $file->getClientOriginalName("webp");
-                        $imagem=(($permission&2)==2 ? "p_" : "") . $id . "_p_" . $filename;
-                        $file->createwebp($caminhoDestino,$imagem);
-                        $img=imagem($caminhoDestino.$imagem);
-                        if ($original_format){
-                            $img->resize(null,720);
-                        } else {
-                            $img->resize(1280,720);
-                        }
-                        if ($hasDImage){
-                            $dImagem=$id . "_p_" . $filename;
-                            $dFile->createwebp($caminhoDestino,$dImagem);
-                            $img=imagem($caminhoDestino.$dImagem);
+                            $filename = $file->getClientOriginalName("webp");
+                            $imagem=(($permission & 2)==2 ? "p_" : "") . $id . "_p_" . $filename;
+                            $file->createwebp($caminhoDestino,$imagem);
+                            $img=imagem($caminhoDestino.$imagem);
                             if ($original_format){
                                 $img->resize(null,720);
                             } else {
                                 $img->resize(1280,720);
                             }
+                        } else {
+                            $filename=$imagem;
                         }
+                        if ($permission==2 && $dFile){
+                            if ($old_permission){
+                                unlink($caminhoDestino . substr($imagem,2));
+                            }
+                            if ($hasDImage && $dFile){
+                                $dImagem=$id . "_p_" . $filename;
+                                $dFile->createwebp($caminhoDestino,$dImagem);
+                                $img=imagem($caminhoDestino.$dImagem);
+                                if ($original_format_d){
+                                    $img->resize(null,720);
+                                } else {
+                                    $img->resize(1280,720);
+                                }
+                            }
+                        }
+                        // if permission has changed and new permission is public;
+                        // Salvar a imagem em um diretório
                     } else {
                         return response()->json(["result"=>"false","type"=>"mimeType"]);
                     }
