@@ -14,7 +14,7 @@ $headers = getallheaders();
 $curl_headers = [];
 $ca=["Cookie"];
 foreach ($headers as $key => $value) {
-    $curl_headers[] = "$key: $value";
+    // $curl_headers[] = "$key: $value";
     // echo $key;
     // echo $value;
 }
@@ -29,7 +29,7 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_ENCODING, "");
 
 // Execute a requisição
-$response = curl_exec($ch);
+$response = curl_exec($ch); 
 
 // Capture informações sobre a resposta
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
