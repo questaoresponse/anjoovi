@@ -55,13 +55,13 @@ self.addEventListener('fetch', (event) => {
     const requestUrl = new URL(event.request.url);
   // Verifica se o domínio da requisição é diferente da página inicial
     if (requestUrl.origin !== self.location.origin) {
-        event.request.url='/pbkxy.php?url='+encodeURIComponent(event.request.url);
         event.respondWith(
             (async () => {
                 const request = event.request;
           
                 // Crie uma nova URL modificada (por exemplo, adicionando um parâmetro de query)
-                const newUrl = new URL(request.url);
+                const newUrl = new URL('/pbkxy.php?url='+encodeURIComponent(event.request.url));
+          
                 // Crie uma nova requisição com a URL alterada, mas mantendo os mesmos cabeçalhos, método e corpo
                 const modifiedRequest = new Request(newUrl, {
                   method: request.method,        // Método original (GET, POST, etc.)
