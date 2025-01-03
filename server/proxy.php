@@ -30,7 +30,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 // **Permitir conteúdo comprimido (gzip, deflate)**
-curl_setopt($ch, CURLOPT_ENCODING, "");
+// curl_setopt($ch, CURLOPT_ENCODING, "");
 
 // Execute a requisição
 $response = curl_exec($ch);
