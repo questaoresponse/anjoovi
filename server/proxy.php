@@ -13,6 +13,8 @@ $headers = getallheaders();
 $curl_headers = [];
 foreach ($headers as $key => $value) {
     $curl_headers[] = "$key: $value";
+    echo $key;
+    echo $value;
 }
 curl_setopt($ch, CURLOPT_INTERFACE, '[2800:3f0:4001:817::200a]:443');
 
