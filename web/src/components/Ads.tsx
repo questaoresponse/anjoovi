@@ -6,18 +6,10 @@ function Ads(props:any){
     const [cargoValue,setCargoValue]=useState<number | null>(null);
     const loaded=useRef(false);
     useEffect(()=>{
-        if (loaded.current==false && cargoValue!=null && cargoValue<=1){
+        if (loaded.current==false && cargoValue!=null && (cargoValue & 1)==0 ){
             loaded.current=true;
             setIsAds(true);
             renderAds();
-        }
-        if (anuncioRef.current){
-            // anuncioRef.current!.style.setProperty("padding-bottom","20%","important"); // Redefine a propriedade
-            // const observer = new MutationObserver(() => {
-            //     console.log("foie");
-            //     anuncioRef.current!.style.setProperty("min-height","20%","important"); // Redefine a propriedade
-            // });
-            // observer.observe(anuncioRef.current!, { attributes: true, attributeFilter: ["style"] });
         }
         return ()=>{
             setIsAds(false);
@@ -41,11 +33,12 @@ function Ads(props:any){
         cargo.current.addListener(updateCargo);
         window.addEventListener("resize",resize);
         return ()=>{
+            console.log("retirado");
             cargo.current.removeListener(updateCargo);
             window.removeEventListener("resize",resize);
         }
     },[]);
-    return <div ref={anuncioRef} className="anunciodiv" style={{display: cargoValue!==null && cargoValue<=1 ? "block" : "none"}}>
+    return <div ref={anuncioRef} className="anunciodiv" style={{display: cargoValue!==null && (cargoValue & 1)==0 ? "block" : "none"}}>
             <ins className="adsbygoogle" style={{position:"absolute",display:"block",width:size.width, height:size.height}} data-ad-client="ca-pub-4004929109745703" data-ad-slot={props.slot}></ins>
         </div>
 }

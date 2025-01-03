@@ -226,8 +226,7 @@ const GlobalProvider = ({ children }:{children:any}) => {
     };
     // atauliza os anúncios conforme o necessário
     const renderAds=()=>{
-      window.adsbygoogle=(window.adsbygoogle || []);
-      window.adsbygoogle.push({});
+      window.adsbygoogle=[{}];
     }
     const variables=
     {
