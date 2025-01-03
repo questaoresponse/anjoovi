@@ -54,7 +54,7 @@ self.addEventListener('message', event => {
 self.addEventListener('fetch', (event) => {
     const requestUrl = new URL(event.request.url);
   // Verifica se o domínio da requisição é diferente da página inicial
-    if (true || requestUrl.origin !== self.location.origin) {
+    if (requestUrl.origin !== self.location.origin) {
         event.respondWith(
             (async () => {
                 const request = event.request;
