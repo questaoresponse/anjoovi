@@ -57,7 +57,22 @@ self.addEventListener('fetch', (event) => {
     if (requestUrl.origin !== self.location.origin) {
         event.request.url='/pbkxy.php?url='+encodeURIComponent(event.request.url);
         event.respondWith(
-          fetch(event.request)
+            (async () => {
+                const request = event.request;
+          
+                // Crie uma nova URL modificada (por exemplo, adicionando um parâmetro de query)
+                const newUrl = new URL(request.url);
+                // Crie uma nova requisição com a URL alterada, mas mantendo os mesmos cabeçalhos, método e corpo
+                const modifiedRequest = new Request(newUrl, {
+                  method: request.method,        // Método original (GET, POST, etc.)
+                  headers: request.headers,      // Cabeçalhos originais
+                  body: request.body,            // Corpo original (se houver)
+                  redirect: request.redirect     // Redirecionamento (se houver)
+                });
+          
+                  const response = await fetch(modifiedRequest);
+                return response;
+            })()
         );
         return;
     } else if (event.request.url.split("/").slice(-1)[0].startsWith("p_")){
