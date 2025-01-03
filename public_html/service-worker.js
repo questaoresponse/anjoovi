@@ -52,9 +52,7 @@ self.addEventListener('message', event => {
     }
 });
 self.addEventListener('fetch', (event) => {
-    console.time("ai");
     const requestUrl = new URL(event.request.url);
-    console.timeEnd("ai");
   // Verifica se o domínio da requisição é diferente da página inicial
     if (requestUrl.origin !== self.location.origin) {
         event.respondWith(
