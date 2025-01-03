@@ -7,7 +7,7 @@ function GlobalFunction(){
     const location=useLocation();
     const auth=useAuth();
     const navigatess=useNavigate();
-    const { player, setHeader, loadedInfos,server,navigate,navigateClass,setMobile,verifyStories,currentLogin,modules,redirectTo,redirectError,isLoadedPage,peer, cargo, login }=useGlobal();
+    const { player, setHeader, loadedInfos,server,navigate,navigateClass,setMobile,verifyStories,currentLogin,modules,redirectTo,redirectError,isLoadedPage,peer, cargo, login, renderAds }=useGlobal();
     
     function gtag(..._:any){window.dataLayer.push(arguments);}
     const verifyHeader=(pathname:string)=>{
@@ -33,58 +33,10 @@ function GlobalFunction(){
                 setHeader("normal");
             };
         }
-          // const c2=document.querySelectorAll("*");
-          // for (var c of c2){
-          //   if (c.scrollTop>0){
-          //     console.log(c,c!.scrollTop);
-          //     c!.scrollTop=0;
-          //   }
-          // }
-          // document.querySelector("html")!.style.overflow="hidden";
-          // setTimeout(()=>{
-          // document.querySelector("html")!.scrollIntoView
-            
-          // },1000);
     };
     const onPopstate=()=>{
         navigate(window.location.href.split(window.location.host)[1],{changeURL:false});
     };
-    useEffect(()=>{
-        function navigateFn(pathname:string,changeURL?:boolean,lookTop?:boolean){
-            if (changeURL){
-                navigatess(pathname);
-            }
-            if (lookTop && location.pathname!=pathname.split("?")[0] && window.scrollY>0){
-                window.scrollTo({top:0,behavior:"instant"});
-            }
-        };
-        const handleSize=()=>{
-            setMobile(window.innerWidth < 769 ? true : false);
-        }
-        window.addEventListener("resize",handleSize);
-        const verifyStoriesFn=(route:any)=>{
-            navigate!(currentLogin.current.isLoged=="true" ? route : "/admin?origin="+encodeURIComponent(route));
-        }
-        verifyStories.current=verifyStoriesFn;
-        
-        document.body.style.cssText+="padding: initial !important"
-
-        navigateClass.current.setNavigateCurrent(navigateFn);
-        
-        window.dataLayer=[];
-        const script=document.createElement("script");
-        script.src="https://www.googletagmanager.com/gtag/js?id=G-ZXT801SFX9";
-        script.crossOrigin="anonymous";
-        document.body.appendChild(script);
-        gtag('js', new Date());
-        gtag('config', 'G-ZXT801SFX9');
-        navigateClass.current.addListener(verifyHeader);
-        verifyHeader(location.pathname);
-        return ()=>{
-            window.removeEventListener("resize",handleSize);
-            navigateClass.current.removeListener(verifyHeader);
-        } 
-    },[]);
     useEffect(()=>{
         var mutation=redirectError;
         if (mutation){
@@ -106,26 +58,6 @@ function GlobalFunction(){
             isLoadedPage.current=false;
         }
     },[location.search,location.pathname]);
-    useEffect(()=>{
-        gtag('config', 'G-ZXT801SFX9', {
-            'page_path': window.location.pathname
-        });
-    },[location.pathname,location.search]);
-    // useEffect(()=>{
-    //     var mutation=globals.user;
-    //     if (mutation!==undefined){
-    //         if (globals.user!==null){
-    //             globals.setIsLoged("true");
-    //         } else {
-    //             globals.setIsLoged("false");
-    //         }
-    //     }
-    // },[globals.user]);
-    // useEffect(()=>{
-    //     const mobile=windowWidth<769 ? true : false;
-    //     const pesquisa=pesquisaRef.current;
-    //     pesquisa.style.display=mobile ? "none" : "block"; 
-    // },[globals.mobile]);
     const peer_id=useRef("");
     const send=(message:any)=>{
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
@@ -166,28 +98,42 @@ function GlobalFunction(){
         }
     }
     useEffect(()=>{
+        renderAds();
         const scriptUrl = document.querySelector("script")!.src;
         const scriptName = scriptUrl.substring(scriptUrl.lastIndexOf("/") + 1);
         fetch("/pkg/busca_bg.wasm?n="+scriptName)
         .then(result=>result.arrayBuffer())
         .then(async result=>{
-            // const myWorker = new Worker('/pkg/t.js');
-            // myWorker.postMessage(result);
-            // myWorker.onmessage=async (e)=>{
                 initSync(result);
                 modules.current={Data,Canvas};
-            // }
-            // globals.modules.current={Data,Canvas};
-            // let c2=new Data();
-            // auth.post(globals.server+"/admin/metricas",{type:"info"}).then(async result=>{
-            //     console.log(result.data);
-            //     console.time("t");
-            //     let date=new Date();
-            //     c2.teste(JSON.stringify(result.data),date.getFullYear(),date.getMonth,date.getDate());
-            //     console.timeEnd("t");
-            //     console.log(c2.get());
-            // });
         });
+        function navigateFn(pathname:string,changeURL?:boolean,lookTop?:boolean){
+            if (changeURL){
+                navigatess(pathname);
+            }
+            if (lookTop && location.pathname!=pathname.split("?")[0] && window.scrollY>0){
+                window.scrollTo({top:0,behavior:"instant"});
+            }
+        };
+        const handleSize=()=>{
+            setMobile(window.innerWidth < 769 ? true : false);
+        }
+        const verifyStoriesFn=(route:any)=>{
+            navigate!(currentLogin.current.isLoged=="true" ? route : "/admin?origin="+encodeURIComponent(route));
+        }
+        verifyStories.current=verifyStoriesFn;
+        
+        document.body.style.cssText+="padding: initial !important"
+
+        navigateClass.current.setNavigateCurrent(navigateFn);
+        
+        window.dataLayer=[];
+        const script=document.createElement("script");
+        script.src="https://www.googletagmanager.com/gtag/js?id=G-ZXT801SFX9";
+        script.crossOrigin="anonymous";
+        document.body.appendChild(script);
+        gtag('js', new Date());
+        gtag('config', 'G-ZXT801SFX9');
         navigator.serviceWorker.addEventListener("message",event=>{
             if (event.data.type=="send"){
                 const { tipo, modify, newPeer, deletePeer }=event.data.data;
@@ -196,11 +142,21 @@ function GlobalFunction(){
         });
         window.addEventListener("beforeunload",deletar);
         window.addEventListener("popstate",onPopstate);
+        window.addEventListener("resize",handleSize);
+        navigateClass.current.addListener(verifyHeader);
+        verifyHeader(location.pathname);
         return ()=>{
             window.removeEventListener("beforeunload",deletar);
             window.removeEventListener("popstate",onPopstate);
+            window.removeEventListener("resize",handleSize);
+            navigateClass.current.removeListener(verifyHeader);
         }
     },[]);
+    useEffect(()=>{
+        gtag('config', 'G-ZXT801SFX9', {
+            'page_path': window.location.pathname
+        });
+    },[location.pathname,location.search]);
     const c=useRef(0);
     useEffect(()=>{
         c.current++;

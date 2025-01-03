@@ -33,7 +33,6 @@ function Ads(props:any){
         cargo.current.addListener(updateCargo);
         window.addEventListener("resize",resize);
         return ()=>{
-            console.log("retirado");
             cargo.current.removeListener(updateCargo);
             window.removeEventListener("resize",resize);
         }
