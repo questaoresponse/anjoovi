@@ -21,7 +21,7 @@ foreach ($headers as $key => $value) {
     }
 }
 
-// curl_setopt($ch, CURLOPT_INTERFACE, '[2800:3f0:4001:817::200a]:443');
+curl_setopt($ch, CURLOPT_INTERFACE, $url);
 
 curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
 
