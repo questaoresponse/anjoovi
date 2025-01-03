@@ -23,7 +23,7 @@ function Ads(props:any){
     const anuncioRef=useRef<HTMLDivElement>(null);
     const [size,setSize]=useState({width:0,height:0});
     const resize=()=>{
-        if (cargoRef.current!==null && cargoRef.current<=1){
+        if (cargoRef.current!==null && (cargoRef.current & 1)==0){
             const rect=anuncioRef.current!.getBoundingClientRect();
             setSize({width:rect.width,height:rect.height});
         }
