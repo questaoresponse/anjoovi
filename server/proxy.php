@@ -8,7 +8,6 @@ $ch = curl_init();
 // Defina a URL que será chamada pelo proxy
 curl_setopt($ch, CURLOPT_URL, $url);
 
-curl_setopt($ch, CURLOPT_COOKIE, "");
 
 // Copie todos os headers da requisição original
 $headers = getallheaders();
@@ -18,6 +17,8 @@ foreach ($headers as $key => $value) {
     echo $key;
     echo $value;
 }
+curl_setopt($ch, CURLOPT_COOKIE, "");
+
 curl_setopt($ch, CURLOPT_INTERFACE, '[2800:3f0:4001:817::200a]:443');
 
 curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
