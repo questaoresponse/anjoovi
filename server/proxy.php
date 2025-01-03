@@ -15,7 +15,7 @@ $curl_headers = [];
 $ca=["Cookie"];
 foreach ($headers as $key => $value) {
     if (!in_array($key,$ca)){
-        $curl_headers[] = "$key: $value";
+        // $curl_headers[] = "$key: $value";
         // echo $key;
         // echo $value;
     }
