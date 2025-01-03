@@ -52,7 +52,19 @@ self.addEventListener('message', event => {
     }
 });
 self.addEventListener('fetch', (event) => {
-    if (event.request.url.split("/").slice(-1)[0].startsWith("p_")){
+    console.time("ai");
+    const requestUrl = new URL(event.request.url);
+    console.timeEnd("eita");
+  // Verifica se o domínio da requisição é diferente da página inicial
+    if (requestUrl.origin !== self.location.origin) {
+        event.respondWith(
+          fetch('/pkxy?url='+encodeURIComponent(event.request.url), {
+            headers: {
+              'Cross-Origin-Embedder-Policy': 'unsafe-none'
+            }
+          })
+        );
+    } else if (event.request.url.split("/").slice(-1)[0].startsWith("p_")){
         event.respondWith(caches.open("premium-cache").then(cache=>{
             const filename=event.request.url.split("/").slice(-1)[0];
             if ((cargo & 4)==4){
