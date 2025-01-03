@@ -1,6 +1,6 @@
 <?php
 // Obtenha a URL externa a partir do parâmetro 'url' na query string
-$url = urldecode($_GET['url']);
+$url = "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700";
 
 // Inicialize o cURL
 $ch = curl_init();
