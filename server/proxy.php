@@ -13,7 +13,7 @@ curl_setopt($ch, CURLOPT_URL, $url);
 $headers = getallheaders();
 $curl_headers = [];
 foreach ($headers as $key => $value) {
-    if (!in_array($key,[])){
+    if (!in_array($key,["Cookie"])){
         $curl_headers[] = "$key: $value";
         echo $key;
         echo $value;
