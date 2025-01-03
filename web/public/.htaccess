@@ -22,8 +22,6 @@ AddType application/wasm .wasm
 
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header set Cross-Origin-Opener-Policy "same-origin"
-    Header set Cross-Origin-Embedder-Policy "require-corp"
     Header set Access-Control-Allow-Origin %{HTTP_ORIGIN}e env=ORIGIN_MATCH
 </IfModule>
 
@@ -47,7 +45,7 @@ AddType application/wasm .wasm
     RewriteCond %{REQUEST_URI} /p_ [NC]
     RewriteCond %{REQUEST_URI} \.webp [NC]
     RewriteRule ^ verify.php [L]
-    
+
     RewriteCond %{REQUEST_METHOD} POST
     RewriteRule ^ index.php [L]
     # Handle Authorization Header

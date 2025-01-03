@@ -66,7 +66,7 @@ function MusicasCadastro(){
         width:"100%",
         height:"100%",
     });
-    const setDimensions=(src:any)=>{
+    const setDimensions=(src:any,isPremium:boolean)=>{
         if (typeof src=="string"){
             const img = new Image();
             img.onload = () => {
@@ -81,17 +81,17 @@ function MusicasCadastro(){
                     heightImage=width / widthImage * heightImage;
                     widthImage=width;
                 }
-                setImageInfos({src, width: widthImage, height: heightImage});
+                isPremium ? setImageInfosPremium({src, width: widthImage, height: heightImage}) : setImageInfos({src, width: widthImage, height: heightImage});
                 // console.log(`Width: ${width}, Height: ${height}`);
 
                 // Aqui você pode atualizar o estado ou fazer algo com as dimensões da imagem
             };
             img.src = src;
         } else {
-            setImageInfos({src:sem_imagem, width: window.innerWidth, height: window.innerHeight / 1280 * 720});
+            isPremium ? setImageInfosPremium({src:sem_imagem, width: window.innerWidth, height: window.innerHeight / 1280 * 720}) : setImageInfos({src:sem_imagem, width: window.innerWidth, height: window.innerHeight / 1280 * 720});
         }
     }
-    const onImagemChange=(e:any)=>{
+    const onImagemChange=(e:any,isPremium:boolean)=>{
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -117,14 +117,14 @@ function MusicasCadastro(){
                     }
                 }
                 if (fileType && fileType=="jpeg"){
-                    setFilename(file.name);
+                    isPremium ? setFilenamePremium(file.name) : setFilename(file.name);
                     const reader2=new FileReader();
                     reader2.onloadend=()=>{
-                        setDimensions(reader2.result);
+                        setDimensions(reader2.result,isPremium);
                     }
                     reader2.readAsDataURL(file);
                 } else {
-                    setDimensions(null);
+                    setDimensions(null,isPremium);
                     e.target.value="";
                     showError();
                 }
@@ -182,7 +182,8 @@ function MusicasCadastro(){
                 setFilenamePremium("Upload");
                 setFilename("Upload");
                 setMusicas([{titulo:"",input:createRef()}]);
-                setDimensions(null);
+                setDimensions(null,true);
+                setDimensions(null,false);
             }
         });
     }
@@ -305,7 +306,8 @@ function MusicasCadastro(){
                     post.privado=(post.privado & 2)==2;
                     post_edit.current=post;
                     updatePermission();
-                    setDimensions(server+"/images/"+encodeURIComponent(post.imagem));
+                    setDimensions(server+"/images/"+encodeURIComponent(post.imagem.slice(2)),true);
+                    setDimensions(server+"/images/"+encodeURIComponent(post.imagem),false);
                 }
             });
         } else {
@@ -449,7 +451,7 @@ function MusicasCadastro(){
                         <div ref={refs.imagem_view} className="imagem-view">
                             <img  className="col-12 col-md-6" style={{width:imageInfos.width,height:imageInfos.height}} src={imageInfos.src}/>
                         </div>
-                        <input className="file" ref={refs.imagem} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg" required/>
+                        <input className="file" ref={refs.imagem} onChange={(e)=>onImagemChange(e,false)} type="file" accept="image/jpg, image/jpeg" required/>
                         <div className="imagem-pt">
                             <div className="imagem" onClick={()=>{refs.imagem.current!.click()}}>
                                 <div className="txt-1">{filename}</div>
@@ -462,7 +464,7 @@ function MusicasCadastro(){
                             <div ref={refs.imagem_view_premium} className="imagem-view">
                                 <img  className="col-12 col-md-6" style={{width:imageInfosPremium.width,height:imageInfosPremium.height}} src={imageInfosPremium.src}/>
                             </div>
-                            <input className="file" ref={refs.imagem_premium} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg" required/>
+                            <input className="file" ref={refs.imagem_premium} onChange={(e)=>onImagemChange(e,true)} type="file" accept="image/jpg, image/jpeg" required/>
                             <div className="imagem-pt">
                                 <div className="imagem" onClick={()=>{refs.imagem_premium.current!.click()}}>
                                     <div className="txt-1">{filenamePremium}</div>

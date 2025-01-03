@@ -2,8 +2,9 @@ import React, {useEffect, useState, useCallback, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Canal from './Inicio/Canal.tsx';
 import { useGlobal } from './Global.tsx';
+import './Erro.scss';
 const ErroConteudo = () => (
-    <div style={{ background: "white", display: "flex", justifyContent: "center", alignItems: "center", width: "100%", height: "100vh" }}>
+    <div id="err">
       <h1>OOPS ESSA PÁGINA NÃO EXISTE!</h1>
     </div>
   );
