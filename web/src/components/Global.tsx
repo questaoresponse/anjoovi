@@ -51,7 +51,7 @@ interface GlobalContextInterface {
 export default GlobalContextInterface;
 declare global {
   interface Window {
-    adsbygoogle:any,
+    adsbygoogle:any[],
     dataLayer:any[]
   }
   interface ImportMeta{
@@ -197,7 +197,6 @@ const GlobalProvider = ({ children }:{children:any}) => {
     const [inicioSelected,setInicioSelected]=useState<string>();
     const [redirectTo,redirect]=useState<string | null>(null);
     const cargo=useRef<Cargo>(new Cargo());
-    const countAds=useRef(0);
     const peer=useRef<MyPeer>(new MyPeer());
     const modules=useRef(null);
     const myStorage=useRef(false);
@@ -226,27 +225,8 @@ const GlobalProvider = ({ children }:{children:any}) => {
       };
     };
     // atauliza os anúncios conforme o necessário
-    const renderAds=(remove=false)=>{
-        function add(){
-          if (script.current) {
-              script.current.remove();
-              script.current=null;
-              window.adsbygoogle=null;
-          }
-          if (!remove){
-            add2();
-          }
-        }
-        function add2(){
-          countAds.current++;
-          window.adsbygoogle=Array.from({length:countAds.current},()=>{return {}});
-          script.current=document.createElement("script");
-          script.current.async=true;
-          script.current.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4004929109745703";
-          script.current.crossOrigin="anonymous";
-          document.body.appendChild(script.current);
-        }
-        add();
+    const renderAds=()=>{
+        (window.adsbygoogle || []).push({});
     }
     const variables=
     {

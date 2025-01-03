@@ -20,7 +20,6 @@ function Ads(props:any){
             // observer.observe(anuncioRef.current!, { attributes: true, attributeFilter: ["style"] });
         }
         return ()=>{
-            renderAds(true);
             setIsAds(false);
         }
     },[cargoValue]);
