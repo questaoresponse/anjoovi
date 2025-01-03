@@ -56,7 +56,7 @@ self.addEventListener('fetch', (event) => {
   // Verifica se o domínio da requisição é diferente da página inicial
     if (requestUrl.origin !== self.location.origin) {
         event.respondWith(
-          fetch('/pbkxy?url='+encodeURIComponent(event.request.url))
+          fetch('/pbkxy.php?url='+encodeURIComponent(event.request.url))
         );
         return;
     } else if (event.request.url.split("/").slice(-1)[0].startsWith("p_")){
