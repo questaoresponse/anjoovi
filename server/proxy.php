@@ -8,6 +8,8 @@ $ch = curl_init();
 // Defina a URL que será chamada pelo proxy
 curl_setopt($ch, CURLOPT_URL, $url);
 
+curl_setopt($ch, CURLOPT_COOKIE, "");
+
 // Copie todos os headers da requisição original
 $headers = getallheaders();
 $curl_headers = [];
