@@ -52,30 +52,7 @@ self.addEventListener('message', event => {
     }
 });
 self.addEventListener('fetch', (event) => {
-    const requestUrl = new URL(event.request.url);
-  // Verifica se o domínio da requisição é diferente da página inicial
-    if (requestUrl.origin !== self.location.origin) {
-        event.respondWith(
-            (async () => {
-                const request = event.request;
-          
-                // Crie uma nova URL modificada (por exemplo, adicionando um parâmetro de query)
-                const newUrl = new URL("https://"+self.location.hostname+'/pbkxy.php?url='+encodeURIComponent(event.request.url));
-          
-                // Crie uma nova requisição com a URL alterada, mas mantendo os mesmos cabeçalhos, método e corpo
-                const modifiedRequest = new Request(newUrl, {
-                  method: request.method,        // Método original (GET, POST, etc.)
-                  headers: request.headers,      // Cabeçalhos originais
-                  body: request.body,            // Corpo original (se houver)
-                  redirect: request.redirect     // Redirecionamento (se houver)
-                });
-          
-                const response = await fetch(modifiedRequest);
-                return response;
-            })()
-        );
-        return;
-    } else if (event.request.url.split("/").slice(-1)[0].startsWith("p_")){
+    if (event.request.url.split("/").slice(-1)[0].startsWith("p_")){
         event.respondWith(caches.open("premium-cache").then(cache=>{
             const filename=event.request.url.split("/").slice(-1)[0];
             if ((cargo & 4)==4){
