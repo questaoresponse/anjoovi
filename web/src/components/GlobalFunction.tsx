@@ -7,7 +7,7 @@ function GlobalFunction(){
     const location=useLocation();
     const auth=useAuth();
     const navigatess=useNavigate();
-    const { player, setHeader, loadedInfos,server,navigate,navigateClass,setMobile,verifyStories,currentLogin,modules,redirectTo,redirectError,isLoadedPage,peer, cargo, login, renderAds }=useGlobal();
+    const { player, setHeader, loadedInfos,server,navigate,navigateClass,setMobile,verifyStories,currentLogin,modules,redirectTo,redirectError,isLoadedPage,peer, cargo, login }=useGlobal();
     
     function gtag(..._:any){window.dataLayer.push(arguments);}
     const verifyHeader=(pathname:string)=>{
@@ -98,7 +98,6 @@ function GlobalFunction(){
         }
     }
     useEffect(()=>{
-        renderAds();
         const scriptUrl = document.querySelector("script")!.src;
         const scriptName = scriptUrl.substring(scriptUrl.lastIndexOf("/") + 1);
         fetch("/pkg/busca_bg.wasm?n="+scriptName)
