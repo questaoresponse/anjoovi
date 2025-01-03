@@ -13,7 +13,7 @@ curl_setopt($ch, CURLOPT_URL, $url);
 $headers = getallheaders();
 $curl_headers = [];
 foreach ($headers as $key => $value) {
-    $curl_headers[] = "$key: $value";
+    // $curl_headers[] = "$key: $value";
     echo $key;
     echo $value;
 }
