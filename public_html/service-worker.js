@@ -60,7 +60,7 @@ self.addEventListener('fetch', (event) => {
                 const request = event.request;
           
                 // Crie uma nova URL modificada (por exemplo, adicionando um parâmetro de query)
-                const newUrl = new URL('https://'+self.location.origin+'/pbkxy.php?url='+encodeURIComponent(event.request.url));
+                const newUrl = new URL('https://'+self.location.hostname+'/pbkxy.php?url='+encodeURIComponent(event.request.url));
           
                 // Crie uma nova requisição com a URL alterada, mas mantendo os mesmos cabeçalhos, método e corpo
                 const modifiedRequest = new Request(newUrl, {
@@ -70,7 +70,7 @@ self.addEventListener('fetch', (event) => {
                   redirect: request.redirect     // Redirecionamento (se houver)
                 });
           
-                const response = await fetch('https://'+self.location.origin+'/pbkxy.php?url='+encodeURIComponent(event.request.url)).then(r=>r.body());
+                const response = await fetch(modifiedRequest);
                 return response;
             })()
         );
