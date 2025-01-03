@@ -60,7 +60,7 @@ self.addEventListener('fetch', (event) => {
                 const request = event.request;
           
                 // Crie uma nova URL modificada (por exemplo, adicionando um parâmetro de query)
-                const newUrl = new URL('https://'+self.location.hostname+'/pbkxy.php?url='+encodeURIComponent(event.request.url));
+                const newUrl = new URL(self.location.hostname+'/pbkxy.php?url='+encodeURIComponent(event.request.url));
           
                 // Crie uma nova requisição com a URL alterada, mas mantendo os mesmos cabeçalhos, método e corpo
                 const modifiedRequest = new Request(newUrl, {
