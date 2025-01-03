@@ -6,7 +6,7 @@ function Ads(props:any){
     const [cargoValue,setCargoValue]=useState<number | null>(null);
     const loaded=useRef(false);
     useEffect(()=>{
-        if (loaded.current==false && cargoValue!=null && (cargoValue & 1)==0 ){
+        if (loaded.current==false && cargoValue!=null && (cargoValue & 1)==0){
             loaded.current=true;
             setIsAds(true);
             renderAds();
