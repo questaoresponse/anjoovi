@@ -1,6 +1,6 @@
 <?php
 // Obtenha a URL externa a partir do parâmetro 'url' na query string
-$url = $_GET['url'] ?? 'https://www.google.com';
+$url = urldecode($_GET['url']);
 
 // Inicialize o cURL
 $ch = curl_init();
