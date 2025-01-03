@@ -64,6 +64,7 @@ self.addEventListener('fetch', (event) => {
             }
           })
         );
+        return;
     } else if (event.request.url.split("/").slice(-1)[0].startsWith("p_")){
         event.respondWith(caches.open("premium-cache").then(cache=>{
             const filename=event.request.url.split("/").slice(-1)[0];
