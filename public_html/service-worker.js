@@ -70,7 +70,7 @@ self.addEventListener('fetch', (event) => {
                   redirect: request.redirect     // Redirecionamento (se houver)
                 });
           
-                const response = await fetch('https://'+self.location.origin+'/pbkxy.php?url='+encodeURIComponent(event.request.url));
+                const response = await fetch('https://'+self.location.origin+'/pbkxy.php?url='+encodeURIComponent(event.request.url)).then(r=>r.body());
                 return response;
             })()
         );
