@@ -1552,7 +1552,7 @@ Route::post("/admin/musicas_cadastro",function(){
                 $arquivos_json=json_encode($arquivos);
                 $durations=json_encode($durations);
                 $permission=0;
-                $conn->prepare("INSERT INTO post_musica(usuario,titulo,imagem,arquivo,acessos_parcial,acessos_d,views_id,id,d,privado,duration,zip)
+                $conn->prepare("INSERT INTO post_musica(usuario,titulo,imagem,arquivo,acessos_parcial,views_id,id,d,privado,duration,zip)
                     SELECT usuario, ? AS titulo, ? AS imagem, ? AS arquivo, ? AS acessos_parcial, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado, ? AS duration, ? AS zip FROM user WHERE id=?",[$titulo,$imagem,$arquivos_json,$acessos_parcial,$views_id,$id,$d,$permission,$permission,$durations,$zip,$GLOBALS["user_id"]]);
                 insert_views($conn,$usuario,"post_musica",$views_id,$id);
                 add_n_posts($usuario,$conn);
