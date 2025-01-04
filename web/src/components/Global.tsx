@@ -229,12 +229,12 @@ const GlobalProvider = ({ children }:{children:any}) => {
       if (script.current){
         script.current.remove();
       }
-      window.adsbygoogle=Array.from({length:document.querySelectorAll("ins").length},()=>{return {}});
+      window.adsbygoogle=Array.from({length:document.querySelectorAll("ins").length-1},()=>{return {}});
       const e=document.createElement("script");
       e.async=true;
       e.crossOrigin="anonymous";
       e.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4004929109745703";
-      document.appendChild(e);
+      document.body.appendChild(e);
       script.current=e;
     }
     const variables=
