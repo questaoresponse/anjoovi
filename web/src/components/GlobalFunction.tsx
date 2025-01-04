@@ -3,6 +3,7 @@ import { useNavigate,useLocation } from "react-router-dom";
 import { useGlobal } from "./Global.tsx";
 import { resultInterface, useAuth } from "./Auth.jsx";
 import { initSync,Data,Canvas } from '../../public/pkg/busca.js';
+import { globalState } from "mobx/dist/internal";
 function GlobalFunction(){
     const location=useLocation();
     const auth=useAuth();
@@ -37,16 +38,6 @@ function GlobalFunction(){
     const onPopstate=()=>{
         navigate(window.location.href.split(window.location.host)[1],{changeURL:false});
     };
-    useEffect(()=>{
-        var mutation=redirectError;
-        if (mutation){
-            if (mutation=="/admin"){
-               navigate!("/admin");
-            } else if (mutation=="/erro"){
-                navigate!("/erro?origin="+encodeURIComponent(window.location.href));
-            }
-        };
-    },[redirectError]);
     useEffect(()=>{
         if (redirectTo){
             navigate!(redirectTo);
@@ -144,6 +135,13 @@ function GlobalFunction(){
         window.addEventListener("resize",handleSize);
         navigateClass.current.addListener(verifyHeader);
         verifyHeader(location.pathname);
+        redirectError.current=(pathname:string)=>{
+            if (pathname=="/admin"){
+                navigate("/admin");
+            } else if (pathname=="/error"){
+                navigate("/error?origin="+encodeURIComponent(window.location.href));
+            }
+        };
         return ()=>{
             window.removeEventListener("beforeunload",deletar);
             window.removeEventListener("popstate",onPopstate);

@@ -60,10 +60,8 @@ const AuthProvider = ({ children }:{children:any}) => {
       } else {
         globals.redirect(res.data.header_location);
       }
-    // r({error:res.data.header_location});
-    console.log(res.data.header_erro);
     } else if (res.data.header_erro || (res.data.result=="false" && res.data.type=="not_logged")){
-        globals.setRedirectError("/erro");
+        globals.redirectError.current("/erro");
     } else {
       const lgs=localStorage.getItem("lg");
       var lg:{usuario:string,lsrc:string,token:string} | null=null;

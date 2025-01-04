@@ -31,8 +31,7 @@ interface GlobalContextInterface {
   get:MutableRefObject<((initial?:boolean)=>void) | undefined>,
   setMobile:Dispatch<SetStateAction<boolean>>,
   verifyStories:MutableRefObject<((route:string)=>void) | null>,
-  redirectError:string | null,
-  setRedirectError:Dispatch<SetStateAction<string | null>>,
+  redirectError:MutableRefObject<(pathname:string)=>void>,
   navigate:(pathname:string,options?:OptionsNavigate)=>void,
   navigateClass:MutableRefObject<NavigateClass>,
   redirectTo:string | null,
@@ -174,7 +173,7 @@ const GlobalProvider = ({ children }:{children:any}) => {
 
     const [header,setHeader]=useState<string | boolean>(false);
     // const [redirectTo,setRedirectTo]=useState(null);
-    const [redirectError,setRedirectError]=useState<string | null>(null);
+    const redirectError=useRef<(pathname:string)=>void>(()=>{});
     const [login,setLoginState]=useState({
       usuario:lg && lg.usuario ? lg.usuario : null,
       isLoged:lg && lg.usuario ? "true" : "false",
@@ -228,7 +227,6 @@ const GlobalProvider = ({ children }:{children:any}) => {
       navigate:navigateClass.current.navigate,
       navigateClass:navigateClass,
       redirectError:redirectError,
-      setRedirectError:setRedirectError,
       mobile:mobile,
       setMobile:setMobile,
       cript:cript,
