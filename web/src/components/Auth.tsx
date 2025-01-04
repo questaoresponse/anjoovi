@@ -38,7 +38,7 @@ const AuthProvider = ({ children }:{children:any}) => {
     globals.myStorage.current=true;
     localStorage.removeItem('lsrc');
   }
-  const a=useCallback((res:any,resolve:any)=>{
+  const a=(res:any,resolve:any)=>{
     if (res.data.cargo){
       globals.cargo.current.cargo!=res.data.cargo && globals.cargo.current.setCargo(res.data.cargo);
     }
@@ -88,7 +88,7 @@ const AuthProvider = ({ children }:{children:any}) => {
       }
       resolve(res);
     }
-  },[globals]);
+  };
     const variable:authInterface={
       post:async (url,data,...p)=>{
         if (!import.meta.env.DEV){
