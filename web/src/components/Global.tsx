@@ -190,7 +190,6 @@ const GlobalProvider = ({ children }:{children:any}) => {
     const [mobile,setMobile]=useState(window.innerWidth < 769 ? true : false);
     const [homeInfo,setHomeInfo]=useState();
     const [isAds,setIsAds]=useState<boolean>();
-    const script=useRef<any>();
     const logoClick=useRef(false);
     const verifyStories=useRef<((route:string)=>void) | null>(null);
     const [selected,setSelected]=useState<string>();
@@ -224,9 +223,19 @@ const GlobalProvider = ({ children }:{children:any}) => {
         currentLogin.current=value;
       };
     };
+    const script=useRef<HTMLScriptElement | null>();
     // atauliza os anúncios conforme o necessário
     const renderAds=()=>{
+      if (script.current){
+        script.current.remove();
+      }
       window.adsbygoogle=Array.from({length:document.querySelectorAll("ins").length},()=>{return {}});
+      const e=document.createElement("script");
+      e.async=true;
+      e.crossOrigin="anonymous";
+      e.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4004929109745703";
+      document.appendChild(e);
+      script.current=e;
     }
     const variables=
     {
