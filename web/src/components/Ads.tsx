@@ -16,12 +16,12 @@ function Ads(props:any){
         }
     },[cargoValue]);
     const updateCargo=(cargo:number)=>{
-        resize();
         cargoRef.current=cargo;
         setCargoValue(cargo);
+        resize();
     }
     const anuncioRef=useRef<HTMLDivElement>(null);
-    const [size,setSize]=useState({width:0,height:0});
+    const [size,setSize]=useState({width:100,height:100});
     const resize=()=>{
         if (cargoRef.current!==null && (cargoRef.current & 1)==0){
             const rect=anuncioRef.current!.getBoundingClientRect();
@@ -29,6 +29,8 @@ function Ads(props:any){
         }
     };
     useEffect(()=>{
+        const rect=anuncioRef.current!.getBoundingClientRect();
+        setSize({width:rect.width,height:rect.height});
         cargo.current.cargo!==null && updateCargo(cargo.current.cargo);
         cargo.current.addListener(updateCargo);
         window.addEventListener("resize",resize);
@@ -38,7 +40,7 @@ function Ads(props:any){
         }
     },[]);
     return <div ref={anuncioRef} className="anunciodiv" style={{display: cargoValue!==null && (cargoValue & 1)==0 ? "block" : "none"}}>
-            <ins className="adsbygoogle" style={{position:"absolute",display:"block",width:size.width, height:size.height}} data-ad-client="ca-pub-4004929109745703" data-ad-slot={props.slot}></ins>
+            <ins className="adsbygoogle" style={{position:"relative",display:"block",width:size.width+"px", height:size.height+"px"}} data-ad-client="ca-pub-4004929109745703" data-ad-slot={props.slot}></ins>
         </div>
 }
 export default Ads;
