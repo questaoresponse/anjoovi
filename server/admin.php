@@ -947,39 +947,53 @@ Route::post("/admin/settings",function(){
         $config=$conn->prepare("SELECT logo,banner,id FROM user WHERE usuario=?",[$usuario]);
         $config=p($config)[0];
         if ($type=="logo"){
-            if (isset($config["logo"])){
-                unlink(__DIR__ . "/../public_html/images/".$config["logo"]);
+            if (request("operation")=="d"){
+                if (isset($config["logo"])){
+                    unlink(__DIR__ . "/../public_html/images/" . $config["logo"]);
+                }
+                $s=$conn->prepare("UPDATE user SET logo=NULL WHERE usuario=?",[$usuario]);
+            } else {
+                if (isset($config["logo"])){
+                    unlink(__DIR__ . "/../public_html/images/" . $config["logo"]);
+                }
+                $logo=null;
+                if (request()->has("logo")) {
+                    $file = request()->file("logo");
+                    $caminhoDestino = __DIR__ . "/../public_html/images/";
+                    $logo = $file->getClientOriginalName();
+                    $logo=$config["id"] . "_logo_" . $logo;
+                    $file->move($caminhoDestino,$logo);
+                    // Caminho para a imagem original
+                    $img=imagem($caminhoDestino.$logo);
+                    $img->resize(800,800);
+                }
+                $s=$conn->prepare("UPDATE user SET logo=? WHERE usuario=?",[$logo,$usuario]);
+                response()->json(["result"=>"true","usuario"=>$usuario,"lsrc"=>$logo]);
             }
-            $logo=null;
-            if (request()->has("logo")) {
-                $file = request()->file("logo");
-                $caminhoDestino = __DIR__ . "/../public_html/images/";
-                $logo = $file->getClientOriginalName();
-                $logo=$config["id"] . "_logo_" . $logo;
-                $file->move($caminhoDestino,$logo);
-                // Caminho para a imagem original
-                $img=imagem($caminhoDestino.$logo);
-                $img->resize(800,800);
-            }
-            $s=$conn->prepare("UPDATE user SET logo=? WHERE usuario=?",[$logo,$usuario]);
-            response()->json(["result"=>"true","usuario"=>$usuario,"lsrc"=>$logo]);
         }
         if ($type=="banner"){
-            if (isset($config["banner"])){
-                unlink(__DIR__ . "/../public_html/images/".$config["banner"]);
+            if (request("operation")=="d"){
+                if (isset($config["banner"])){
+                    unlink(__DIR__ . "/../public_html/images/" . $config["banner"]);
+                }
+                $s=$conn->prepare("UPDATE user SET banner=NULL WHERE usuario=?",[$usuario]);
+            } else {
+                if (isset($config["banner"])){
+                    unlink(__DIR__ . "/../public_html/images/" . $config["banner"]);
+                }
+                $banner=null;
+                if (request()->has("banner")) {
+                    $file = request()->file("banner");
+                    $caminhoDestino = __DIR__ . "/../public_html/images/";
+                    $banner = $file->getClientOriginalName();
+                    $banner=$config["id"] . "_banner_" . $banner;
+                    $file->move($caminhoDestino,$banner);
+                    $img=imagem($caminhoDestino.$banner);
+                    $img->resize(2048,512);
+                }
+                $s=$conn->prepare("UPDATE user SET banner=? WHERE usuario=?",[$banner,$usuario]);
+                response()->json(["result"=>"true","usuario"=>$usuario,"banner"=>$banner]);
             }
-            $banner=null;
-            if (request()->has("banner")) {
-                $file = request()->file("banner");
-                $caminhoDestino = __DIR__ . "/../public_html/images/";
-                $banner = $file->getClientOriginalName();
-                $banner=$config["id"] . "_banner_" . $banner;
-                $file->move($caminhoDestino,$banner);
-                $img=imagem($caminhoDestino.$banner);
-                $img->resize(2048,512);
-            }
-            $s=$conn->prepare("UPDATE user SET banner=? WHERE usuario=?",[$banner,$usuario]);
-            response()->json(["result"=>"true","usuario"=>$usuario,"banner"=>$banner]);
         }
     } else {
         response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/settings/main.html'));

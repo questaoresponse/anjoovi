@@ -38,7 +38,7 @@
         width:100%;
         height:40vh;
     }
-    #imagem-view{
+    .imagem-view{
         display: flex;
         padding-bottom: initial;
         // justify-content: initial;
@@ -51,7 +51,7 @@
             padding-bottom: initial;
         }
     }
-    #imagem-view img{
+    .imagem-view img{
         position: absolute;
         width:100%;
         height:initial;
@@ -59,7 +59,7 @@
         right: initial;
         top: auto;
     }
-    #imagem-view img.rd{
+    .imagem-view img.rd{
         height: 100%;
     }
     #uploadd{

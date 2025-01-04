@@ -17,10 +17,19 @@ function LogoComponent({option,globals,auth}:{option:string,globals:GlobalContex
             } else {
                 setConfig((conf:any)=>({...conf,logo:result.data.lsrc}));
             }
-        })
+        });
     }
     const Alterar=()=>{
         inputRef.current!.click();
+    }
+    const Excluir=()=>{
+        auth.post(server+"/admin/settings?type=logo&operation=d",{type:"option"}).then((result:resultInterface)=>{
+            if (result.error){
+                globals.setRedirectError(result.error);
+            } else {
+                setConfig((conf:any)=>({...conf,logo:null}));
+            }
+        });
     }
     // useEffect(()=>{
     //     get();
@@ -29,6 +38,7 @@ function LogoComponent({option,globals,auth}:{option:string,globals:GlobalContex
         <div className='logo-div'>
             {config ? <Logo logo={ config.logo || null} usuario={globals.login.usuario} width="20vh"/> : null}
             <div id="alterar" onClick={Alterar}>Alterar</div>
+            <div id="excluir" onClick={Excluir}>Excluir</div>
             <input style={{display:"none"}} ref={inputRef} onChange={AlterarPermanente} type="file" accept='image/jpeg, image/jpg'/>
         </div>
     : <></>;

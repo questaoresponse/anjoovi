@@ -23,10 +23,20 @@ function Banner({option,globals,auth}:{option:string,globals:GlobalContextInterf
     const Alterar=()=>{
         inputRef.current!.click();
     }
+    const Excluir=()=>{
+        auth.post(server+"/admin/settings?type=banner&operation=d",{type:"option"}).then((result:resultInterface)=>{
+            if (result.error){
+                globals.setRedirectError(result.error);
+            } else {
+                setConfig((conf:any)=>({...conf,banner:null}));
+            }
+        });
+    }
     return option=="banner" ? 
         <div className='banner-div'>
             <img className='banner-img' src={config && config.banner ? server+"/images/"+encodeURIComponent(config.banner) : sem_imagem}/>
             <div id="alterar" onClick={Alterar}>Alterar</div>
+            <div id="excluir" onClick={Excluir}>Excluir</div>
             <input style={{display:"none"}} ref={inputRef} onChange={AlterarPermanente} type="file" accept="image/jpeg, image/jpg"/>
         </div>
     : <></>;

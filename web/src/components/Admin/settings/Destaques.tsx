@@ -189,7 +189,7 @@ function Destaques({option,globals,auth,location}:{option:any,globals:GlobalCont
         <div style={{"display":option=="destaque" ? "block" : "none"}} className='destaques-div'>
             <div id="avs">Obs: caso uma divisão não tenha um destaque selecionado, aparecerá o destaque geral.</div>
             <div id="list">{options.map((option:{title:string,name:string},index:number)=>{
-                const json=destaques[option.name].src ? verifyJson(destaques[option.name].src!) : false;
+                const json= destaques[option.name] && destaques[option.name].src ? verifyJson(destaques[option.name].src!) : false;
                 return <div key={index} className='list-item'>
                     <label>{option.title}</label>
                     <div className='btn-d'>
@@ -199,7 +199,7 @@ function Destaques({option,globals,auth,location}:{option:any,globals:GlobalCont
                     <div className='content'>
                         <div id="geral-d">
                             <div className="imagem-view">
-                                {!json || json[1]=="i" ? <img className="imagem-content" src={destaques[option.name].src ? server+"/images/"+encodeURIComponent(destaques[option.name].src!) : sem_imagem}/> : json && json[1]=="v" ? <video className="imagem-content" src={server+"/videos/"+encodeURIComponent(json[0])}/> : <div>{json[0]}</div>}
+                                {!json || json[1]=="i" ? <img className="imagem-content" src={destaques[option.name] && destaques[option.name].src ? server+"/images/"+encodeURIComponent(destaques[option.name].src!) : sem_imagem}/> : json && json[1]=="v" ? <video className="imagem-content" src={server+"/videos/"+encodeURIComponent(json[0])}/> : <div>{json[0]}</div>}
                             </div>
                         </div>
                         <div className={"select"+(open==option.name ? " open" : "")} onClick={()=>{openPesquisa(option.name)}}>selecionar</div> 
