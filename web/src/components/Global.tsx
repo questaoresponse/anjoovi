@@ -223,19 +223,21 @@ const GlobalProvider = ({ children }:{children:any}) => {
         currentLogin.current=value;
       };
     };
+    const isLoaded2=useRef(false);
     const script=useRef<HTMLScriptElement | null>();
     // atauliza os anúncios conforme o necessário
     const renderAds=()=>{
       if (script.current){
         script.current.remove();
       }
-      window.adsbygoogle=Array.from({length:document.querySelectorAll("ins").length-1},()=>{return {}});
+      window.adsbygoogle=Array.from({length:document.querySelectorAll("ins").length-(isLoaded2.current ? 1 : 0)},()=>{return {}});
       const e=document.createElement("script");
       e.async=true;
       e.crossOrigin="anonymous";
       e.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4004929109745703";
       document.body.appendChild(e);
       script.current=e;
+      isLoaded2.current=true;
     }
     const variables=
     {
