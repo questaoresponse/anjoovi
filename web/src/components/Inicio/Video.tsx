@@ -4,7 +4,7 @@ import Link from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
 import './Video.scss'
-import Ads from '../Ads.jsx';
+// import Ads from '../Ads.jsx';
 import Comentarios from './Comentarios.jsx';
 import Conteudo from './Conteudo.tsx';
 import Denuncia from './Denuncia.tsx';
@@ -81,7 +81,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
                     </div>
                     <Denuncia tipo="video"></Denuncia>
                 </div>
-            </Link> : <div className='video'>
+            </Link> : <div className='video pm'>
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className="titulo-video">{post.titulo.map((line,i)=>{
                     return <>
@@ -119,11 +119,11 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
             <div id="pg" className={'vi cont' + (id ? " playlist" : "")}> 
                 <div id="bottom">
                     <div id="s1">
-                        {post.id ? <Ads slot="7693763089"/> : <></>}
+                        {/* {post.id ? <Ads slot="7693763089"/> : <></>} */}
                         <Nt post={post}></Nt>
                         <Elements></Elements>
                     </div>
-                    {!globals.mobile && <Ads slot="7577017868"/>}
+                    {/* {!globals.mobile && <Ads slot="7577017868"/>} */}
                     {!globals.mobile && !isPlaylist ? <Comentarios postAtual={post}/> : <></> }
 
                     {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}

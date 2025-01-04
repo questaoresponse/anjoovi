@@ -3,7 +3,7 @@ import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
 import './Musica.scss';
-import Ads from '../Ads.jsx';
+// import Ads from '../Ads.jsx';
 import Comentarios from './Comentarios.jsx';
 import Denuncia from './Denuncia.tsx';
 import Conteudo from './Conteudo.tsx';
@@ -132,7 +132,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                 <Conteudo auth={auth} globals={globals} infos={post as { nome: string; usuario: string; logo: string | null; visualizacoes: number; inscrito: boolean | null; }}></Conteudo>
                 <div className="top">
                     <div className="titulo-musica txt">{post.titulo.map((texto:string,index:number)=>{
-                        return texto.length>1 && texto[0]=="@" ? <Link className='tag' key={index} to={"/@"+encodeURIComponent(texto.slice(1,-1))}>{texto + ( post.titulo.length-1>index ? " " : "" )}</Link> : texto + ( post.titulo.length-1>index ? " " : "" )
+                        return texto.length>1 && texto[0]=="@" ? <Link className='tag' key={index} to={"/@"+encodeURIComponent(texto.slice(1))}>{texto + ( post.titulo.length-1>index ? " " : "" )}</Link> : texto + ( post.titulo.length-1>index ? " " : "" )
                     })}</div>
                     <div className='top2'>
                         <div className="imagemd">{post.imagem ? <img className="imagem" src={post.imagem}/> : <></>}</div>
@@ -155,11 +155,11 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                         return <MusicaList music={music} onClickMusic={player.current.onClickMusic} getTime={player.current.getTime} getData={getData} index={index} key={index}/>
                     })}
                 </div>
-            </Link> : <div className="musica">
+            </Link> : <div className="musica pm">
                 <Conteudo auth={auth} globals={globals} infos={post as { nome: string; usuario: string; logo: string | null; visualizacoes: number; inscrito: boolean | null; }}></Conteudo>
                 <div className="top">
                     <div className="titulo-musica txt">{post.titulo.map((texto:string,index:number)=>{
-                            return texto.length>1 && texto[0]=="@" ? <Link className='tag' key={index} to={"/@"+encodeURIComponent(texto.slice(1,-1))}>{texto + ( post.titulo.length-1>index ? " " : "" )}</Link> : texto + ( post.titulo.length-1>index ? " " : "" )
+                            return texto.length>1 && texto[0]=="@" ? <Link className='tag' key={index} to={"/@"+encodeURIComponent(texto.slice(1))}>{texto + ( post.titulo.length-1>index ? " " : "" )}</Link> : texto + ( post.titulo.length-1>index ? " " : "" )
                     })}</div>
                     <div className='top2'>
                         <div className="imagemd">{post.imagem ? <img className="imagem-musica" src={post.imagem}/> : <></>}</div>
@@ -194,7 +194,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
         <div id="pg" className={'mu cont' + (id ? " playlist" : "")} style={{width: "100%",minHeight:"100%"}}>
             <div id="bottom">
                 <div id="s1">
-                    {post.id ? <Ads solt="7693763089"/> : <></>}
+                    {/* {post.id ? <Ads solt="7693763089"/> : <></>} */}
                     {/* <audio onCanPlayThrough={onLoadedData} ref={audioRef} src={src.audio} onPlay={setChange} onPause={setChange} onTimeUpdate={onTimeUpdate} onLoadedMetadata={onLoadedMetadata} id="audiod" style={{display:"none"}}></audio> */}
                     <Nt post={post} musics={musics}/>
                     <Elements></Elements>

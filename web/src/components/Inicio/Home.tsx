@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
 import './Home.scss';
-import Ads from '../Ads.jsx';
+// import Ads from '../Ads.jsx';
 import Post from './Post.jsx';
 import Storie from './Storie.jsx';
 import Link from '../Link.tsx';
@@ -67,7 +67,7 @@ function Home() {
     <div className='tabela-pai pa'>
         <div id="posts-div">
             <Storie globals={globals} stories={posts}/>
-            <Ads slot="7577017868"/>    
+            {/* <Ads slot="7577017868"/>     */}
             <Post isLoaded={posts.isLoaded} globals={globals} posts={posts.posts}/>
         </div>
         <div id="altas-div">

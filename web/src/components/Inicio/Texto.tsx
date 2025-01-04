@@ -4,7 +4,7 @@ import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
 import './Texto.scss'
-import Ads from '../Ads.jsx';
+// import Ads from '../Ads.jsx';
 import Comentarios from './Comentarios.jsx';
 import Conteudo from './Conteudo.tsx';
 import Denuncia from './Denuncia.tsx';
@@ -61,7 +61,7 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{i
                     </div>
                     <Denuncia tipo="texto"></Denuncia>
                 </div>
-            </Link> : <div className="texto">
+            </Link> : <div className="texto pm">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className={"texto-texto txt " + (!isMain ? " resumo" : "")}>{post.text.map((line:string[],i:number)=>{
                     return <>
@@ -94,11 +94,11 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{i
         <div id="pg" className={'tex cont' + (id ? " playlist" : "")}> 
             <div id="bottom">
                 <div id="s1">
-                    {post.id ? <Ads slot="7693763089"/> : <></>}
+                    {/* {post.id ? <Ads slot="7693763089"/> : <></>} */}
                     <Nt post={post}></Nt>
                     <Elements></Elements>
                 </div>
-                {!globals.mobile && <Ads slot="7577017868"/>}
+                {/* {!globals.mobile && <Ads slot="7577017868"/>} */}
                 {!globals.mobile && !isPlaylist ? <Comentarios postAtual={post}/> : <></> }
 
                 {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}

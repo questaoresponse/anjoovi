@@ -4,7 +4,7 @@ import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
 import './Product.scss'
-import Ads from '../Ads.jsx';
+// import Ads from '../Ads.jsx';
 import Comentarios from './Comentarios.jsx';
 import Conteudo from './Conteudo.tsx';
 import Denuncia from './Denuncia.tsx';
@@ -100,7 +100,7 @@ function Product({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
                 <div className={(post.usuario!="" ? "" : " wait ") + "descricao-imagem txt " + (!isMain ? "resumo" : "")} ref={refs.descricao}>{post.text.map((line:string[],i:number)=>{
                     return <>
                         {line.map((texto:string,index:number)=>{
-                            return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1,-1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )
+                            return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )
                         })}
                         <br></br>
                     </>
@@ -118,12 +118,12 @@ function Product({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
                     </div>
                     <Denuncia tipo="noticia"></Denuncia>
                 </div>
-            </Link> : <div className="imagem">
+            </Link> : <div className="imagem pm">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo> 
                 {summarized ? <div className='descricao-resumo-imagem'><div className="descricao-imagem txt overflow" ref={refs.descricao}>{post.text.map((line:string[],i:number)=>{
                     return <>
                         {line.map((texto:string,index:number)=>{
-                            return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1,-1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )
+                            return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )
                         })}
                         <br></br>
                     </>
@@ -131,7 +131,7 @@ function Product({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
                 <div className={"descricao-imagem txt " + (!isMain ? " resumo" : "")} ref={refs.descricao}>{post.text.map((line:string[],i:number)=>{
                     return <>
                         {line.map((texto:string,index:number)=>{
-                            return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1,-1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )
+                            return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )
                         })}
                         <br></br>
                     </>
@@ -162,7 +162,7 @@ function Product({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
         <div id="pg" className={'pd cont' + (id ? " playlist" : "")}> 
             <div id="bottom">
                 <div id="s1">
-                    {post.id ? <Ads solt="7693763089"/> : <></>}
+                    {/* {post.id ? <Ads solt="7693763089"/> : <></>} */}
                     <Nt post={post}/>
                     <Elements></Elements>
                     {!globals.mobile && !isPlaylist ? <Comentarios postAtual={post}/> : <></> }

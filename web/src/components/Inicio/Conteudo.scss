@@ -192,15 +192,25 @@
         font-size: 120%;
         margin-left: 1em;
         margin-right: 1em;
+    }
+    .pm .n_comment{
         cursor: pointer;
     }
-    .n_comment:active{
+    .pm .n_comment:active{
         opacity: 0.5;
     }
     .n_comment p{
         margin:0;
         padding: 0;
         margin-right: 0.125em;
+    }
+    @media screen and (min-width: 769px) {
+        .pm .n_comment{
+            cursor:default;
+        }
+        .pm .n_comment:active{
+            opacity: initial;
+        }
     }
 }
 .cont .loading{

@@ -19,7 +19,6 @@ interface GlobalContextInterface {
   header:string | boolean,
   setHeader:Dispatch<SetStateAction<string | boolean>>
   mobile:boolean,
-  renderAds:(remove?:boolean)=>void,
   login:loginInterface,
   setLogin:Dispatch<SetStateAction<loginInterface>>,
   currentLogin:MutableRefObject<loginInterface>,
@@ -42,7 +41,6 @@ interface GlobalContextInterface {
   myStorage:any,
   cript:(text:string)=>string,
   descript:(text:string)=>string,
-  setIsAds:Dispatch<SetStateAction<boolean | undefined>>,
   peer:MutableRefObject<MyPeer>,
   cargo:MutableRefObject<Cargo>,
   loadedInfos:MutableRefObject<loadedInfosInterface>,
@@ -189,7 +187,6 @@ const GlobalProvider = ({ children }:{children:any}) => {
     });
     const [mobile,setMobile]=useState(window.innerWidth < 769 ? true : false);
     const [homeInfo,setHomeInfo]=useState();
-    const [isAds,setIsAds]=useState<boolean>();
     const logoClick=useRef(false);
     const verifyStories=useRef<((route:string)=>void) | null>(null);
     const [selected,setSelected]=useState<string>();
@@ -223,22 +220,7 @@ const GlobalProvider = ({ children }:{children:any}) => {
         currentLogin.current=value;
       };
     };
-    const isLoaded2=useRef(false);
-    const script=useRef<HTMLScriptElement | null>();
     // atauliza os anúncios conforme o necessário
-    const renderAds=()=>{
-      if (script.current){
-        script.current.remove();
-      }
-      window.adsbygoogle=Array.from({length:isLoaded2.current ? document.querySelectorAll('ins:not(.adsbygoogle)').length : document.querySelectorAll("ins").length},()=>{return {}});
-      const e=document.createElement("script");
-      e.async=true;
-      e.crossOrigin="anonymous";
-      e.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4004929109745703";
-      document.body.appendChild(e);
-      script.current=e;
-      isLoaded2.current=true;
-    }
     const variables=
     {
       server:server,
@@ -253,16 +235,12 @@ const GlobalProvider = ({ children }:{children:any}) => {
       descript:descript,
       homeInfo:homeInfo,
       setHomeInfo:setHomeInfo,
-      isAds:isAds,
-      setIsAds,
-      script:script,
       logoClick:logoClick,
       verifyStories:verifyStories,
       selected,
       setSelected,
       inicioSelected,
       setInicioSelected,
-      renderAds,
       redirectTo,
       redirect,
       get,

@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import Link from '../Link';
 import './Post.scss';
-import Ads from '../Ads';
-function Post({isLoaded,globals,posts,verifyScroll,adsRender,slot}:{isLoaded:any,globals:any,posts:any[],verifyScroll?:any,adsRender?:boolean,slot?:string}){
+// import Ads from '../Ads';
+function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,posts:any[],verifyScroll?:any}){
     const server=globals.server;
     if (!isLoaded){
         posts=Array.from({length:48},()=>{return {imagem:false,titulo:"",usuario:""}});
@@ -10,7 +10,6 @@ function Post({isLoaded,globals,posts,verifyScroll,adsRender,slot}:{isLoaded:any
     return (
         <div onScroll={verifyScroll || (()=>{})} id="tabela" className={'d-flex row p-0 postc'+(!isLoaded ? " loading" : "")}>
             {posts.map((post:any,index:number)=>{
-                const isAds=post=="ads";
                 var l,n,cm="";
                 var content:any=null;
                 if (post.imagem!==false){
@@ -32,8 +31,7 @@ function Post({isLoaded,globals,posts,verifyScroll,adsRender,slot}:{isLoaded:any
                     content=t ? null : <img className='image' src={server+"/images/"+encodeURIComponent(cm)+(cm.startsWith("p_") ? "?c="+(globals.cargo.current.cargo & 4) : "")}/>
                 }
                 const parts=(post.descricao || post.titulo || post.texto || "").split(" ");
-                return isAds ? <Ads slot={slot} globals={globals} isRender={adsRender ? "true" : "false"} key={index}/> : 
-                        <div className='coluna col-12 col-md-3 mb-4' key={index}>
+                return <div className='coluna col-12 col-md-3 mb-4' key={index}>
                             <div className='linha a' >
                                 {post.tipo!="t" && <Link to={ l! } className="a">
                                     <div className='imagemd'>

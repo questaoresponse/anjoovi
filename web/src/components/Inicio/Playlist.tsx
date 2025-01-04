@@ -7,7 +7,7 @@ import './Playlist.scss';
 import Noticia from './Noticia';
 import Imagem from './Imagem';
 import Musica from './Musica';
-import Ads from '../Ads';
+// import Ads from '../Ads';
 import Comentarios from './Comentarios';
 interface infosInterface{
     imagem:string,
@@ -21,6 +21,7 @@ interface postInterface{
     tipo:string
 }
 function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any,onLoaded?:()=>void}){
+    var id=id;
     const globals=useGlobal();
     const { navigate, server }=globals;
     const auth=useAuth();
@@ -253,7 +254,7 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
                         {value}
                     </div>
                 </div>
-            </Link> : <div className="plist">
+            </Link> : <div className="plist pm">
                 <div id="bottom">
                     <div id="content">
                             {value}
@@ -265,7 +266,7 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
     return !isMain ? <Nt post={post}/> : (
         <div>
             <div id="pg" className={'no cont playlist'}> 
-            {id ? <Ads solt="7693763089"/> : <></>}
+            {/* {id ? <Ads solt="7693763089"/> : <></>} */}
                 <div id="bottom">
                     <div id="s1">
                         <Nt post={post}></Nt>

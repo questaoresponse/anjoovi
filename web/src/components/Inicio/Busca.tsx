@@ -4,7 +4,6 @@ import Link from "../Link.tsx";
 import { useGlobal } from "../Global.tsx";
 import { useAuth } from "../Auth.jsx";
 import './Busca.scss';
-import Ads from '../Ads.jsx';
 import Post from './Post.jsx';
 import X from "../X.tsx";
 const reducer=(_:any,action:any)=>{
@@ -15,7 +14,7 @@ const reducer=(_:any,action:any)=>{
 }
 function Busca(){
     const globals=useGlobal();
-    const { server, navigate, renderAds }=globals;
+    const { server, navigate }=globals;
     const auth=useAuth();
     const location=useLocation();
     const [selected,setSelected]=useState(0);
@@ -86,9 +85,6 @@ function Busca(){
             get();
         }
     },[location.search]);
-    useEffect(()=>{
-        renderAds();
-    },[]);
     const updateSelect=(tipo:number)=>{
         setSelected(tipo);
     }
@@ -137,7 +133,7 @@ function Busca(){
                 <p id="p2">{state.registros}</p>
                 <p id="p3">&nbsp;{state.registros>1 ? "registros" : " registro"}</p>
             </div>
-            <Ads slot="7577017868"/>
+            {/* <Ads slot="7577017868"/> */}
             <div id="canals">
                 {state.canals.map((canal:any,index:any)=>{
                     return <div className="canal" key={index}>
