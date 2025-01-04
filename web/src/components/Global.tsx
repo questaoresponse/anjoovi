@@ -230,7 +230,7 @@ const GlobalProvider = ({ children }:{children:any}) => {
       if (script.current){
         script.current.remove();
       }
-      window.adsbygoogle=Array.from({length:document.querySelectorAll("ins").length-1},()=>{return {}});
+      window.adsbygoogle=Array.from({length:isLoaded2.current ? document.querySelectorAll('ins:not(.adsbygoogle)').length : document.querySelectorAll("ins").length},()=>{return {}});
       const e=document.createElement("script");
       e.async=true;
       e.crossOrigin="anonymous";
