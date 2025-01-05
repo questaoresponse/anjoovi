@@ -618,7 +618,7 @@ function Metricas(){
     const get=()=>{
         auth.post(server+"/admin/metricas",{type:"info"}).then((result)=>{
             if (result.error){
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             } else {
                 // if (globals.modules.current){
                 if (c2.current){

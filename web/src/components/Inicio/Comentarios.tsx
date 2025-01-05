@@ -71,7 +71,7 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
                 });
                 auth.post(server+"/comentarios",{type:"option",operation:"comentar",tipo:infos.tipo.current,post_id:infos.id.current.toString(),texto:text}).then((result)=>{
                     if (result.error){
-                        globals.setRedirectError(result.error);
+                        globals.redirectError.current(result.error);
                     } else if (result.data.result=="true"){
                         setLoading(false);
                         if (refs.input.current!.value.trim()!=""){

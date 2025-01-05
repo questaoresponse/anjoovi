@@ -28,7 +28,7 @@ function TextosCadastro(){
         fd.append("texto",texto);
         auth.post(server+"/admin/textos_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,{arquivo:true}).then((result)=>{
             if (result.error){
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             } else {
                 if (result.data.result=="true"){
                     if (edit.current){

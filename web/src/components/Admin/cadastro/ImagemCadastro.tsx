@@ -148,7 +148,7 @@ function ImagemCadastro(){
         original_format_d && fd.append("original_format",original_format_d.toString());
         auth.post(server+"/admin/imagens_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,{arquivo:true}).then((result)=>{
             if (result.error){
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             } else {
                 if (result.data.result=="true"){
                     if (edit.current){

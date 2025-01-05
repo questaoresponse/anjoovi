@@ -1,5 +1,5 @@
 // Exemplo do componente Contact
-import { useRef, memo, useEffect } from 'react';
+import { useRef, memo, useEffect, useState } from 'react';
 import Link from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -46,6 +46,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
         }
     };
     const Nt=({post}:{post:postInterface})=>{
+        const [showComment,setShowComment]=useState(false);
         useEffect(()=>{
             isMain && onLoaded!();
         },[]);

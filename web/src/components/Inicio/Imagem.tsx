@@ -44,6 +44,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
         }
     }
     const Nt=({post}:{post:postInterface})=>{
+        const [showComment,setShowComment]=useState(false);
         useEffect(()=>{
             isMain && onLoaded!();
         },[]);

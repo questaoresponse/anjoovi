@@ -47,7 +47,7 @@ function Stories(){
         auth.post(server+"/stories/"+ids,{type:"option"}).then((result)=>{
             if (result.error){
                 console.log(result.error);
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             }
         });
     },[npe.current]);
@@ -58,7 +58,7 @@ function Stories(){
         var result=await auth.post(server+location.pathname,{type:"info"});
         if (result.error){
             console.log(result.error);
-            globals.setRedirectError(result.error);
+            globals.redirectError.current(result.error);
         } else {
             id.current=Number(location.pathname.split("/")[2]);
             n.current=result.data.posts.findIndex((elemento:{id:number}) => elemento.id === id.current);

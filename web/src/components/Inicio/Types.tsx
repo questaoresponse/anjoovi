@@ -32,7 +32,7 @@ const Elements=(posts:any,func:any,onLinkClick:any)=>{
     }
 }
 function Types(){
-    const { server, setRedirectError, navigate, navigateClass, player }:GlobalContextInterface=useGlobal();
+    const { server, redirectError, navigate, navigateClass, player }:GlobalContextInterface=useGlobal();
     const [link,setLink]=useState<(string | boolean)[]>([false,""]);
     const auth=useAuth();
     const location=useLocation();
@@ -237,7 +237,7 @@ function Types(){
         initial && params.set("i","1");
         var result=await auth.get(server+pathname+"?"+params.toString());
         if (result.error){
-            setRedirectError(result.error);
+            redirectError.current(result.error);
         } else {
             type.current=result.data.post.tipo;
             const t=result.data.post.titulo || result.data.post.descricao || result.data.post.texto || "";

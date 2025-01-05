@@ -123,6 +123,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
         auth.post(server+"/musica/"+id,{type:"download",id:id!.toString()});
     }
     const Nt=({post}:{post:postInterface,musics:musicInterface[]})=>{
+        const [showComment,setShowComment]=useState(false);
         useEffect(()=>{
             isMain && onLoaded!();
         },[]);

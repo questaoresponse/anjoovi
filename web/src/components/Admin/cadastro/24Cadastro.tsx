@@ -156,7 +156,7 @@ function Cadastro24(){
         fd.append("typeMime",fileInfos.type);
         var result:resultInterface=await auth.post(server+"/admin/24_cadastro",fd,{arquivo:true,porcentagem:VerifyUpload});
         if (result.error){
-            globals.setRedirectError(result.error);
+            globals.redirectError.current(result.error);
         } else {
             if (result.data.result=="true"){
                 setIsUploading(false);

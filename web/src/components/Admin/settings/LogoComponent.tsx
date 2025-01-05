@@ -13,7 +13,7 @@ function LogoComponent({option,globals,auth}:{option:string,globals:GlobalContex
         fd.append("logo",inputRef.current!.files![0]);
         auth.post(server+"/admin/settings?type=logo",fd,{arquivo:true}).then((result:resultInterface)=>{
             if (result.error){
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             } else {
                 setConfig((conf:any)=>({...conf,logo:result.data.lsrc}));
             }
@@ -25,7 +25,7 @@ function LogoComponent({option,globals,auth}:{option:string,globals:GlobalContex
     const Excluir=()=>{
         auth.post(server+"/admin/settings?type=logo&operation=d",{type:"option"}).then((result:resultInterface)=>{
             if (result.error){
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             } else {
                 setConfig((conf:any)=>({...conf,logo:null}));
             }

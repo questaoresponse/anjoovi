@@ -3,7 +3,6 @@ import { useNavigate,useLocation } from "react-router-dom";
 import { useGlobal } from "./Global.tsx";
 import { resultInterface, useAuth } from "./Auth.jsx";
 import { initSync,Data,Canvas } from '../../public/pkg/busca.js';
-import { globalState } from "mobx/dist/internal";
 function GlobalFunction(){
     const location=useLocation();
     const auth=useAuth();
@@ -138,8 +137,8 @@ function GlobalFunction(){
         redirectError.current=(pathname:string)=>{
             if (pathname=="/admin"){
                 navigate("/admin");
-            } else if (pathname=="/error"){
-                navigate("/error?origin="+encodeURIComponent(window.location.href));
+            } else if (pathname=="/erro"){
+                navigate("/erro?origin="+encodeURIComponent(window.location.href));
             }
         };
         return ()=>{

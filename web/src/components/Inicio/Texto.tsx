@@ -1,5 +1,5 @@
 // Exemplo do componente Contact
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useState } from 'react';
 import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -37,6 +37,7 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{i
         }
     }
     const Nt=({post}:{post:postInterface})=>{
+        const [showComment,setShowComment]=useState(false);
         useEffect(()=>{
             isMain && onLoaded!();
         },[]);

@@ -537,7 +537,7 @@ html,body{
         @include pc(){
             width: initial;
             height:100%;
-            font-size: $infos-height/2 !important;
+            font-size: calc($infos-height / 2) !important;
             border-radius: 10px;
         }
     }
@@ -555,7 +555,7 @@ html,body{
     #logodiv.stories{
         font-size: calc(calc($width-mobile / 2) - 4px) !important;
         @include pc(){
-            font-size: calc($infos-height/2 - 4px) !important;
+            font-size: calc($infos-height / 2 - 4px) !important;
         }
         border:solid 4px black;
     }

@@ -183,7 +183,7 @@ function Canal(){
         if (initial && !isLoaded.current) isLoaded.current=true;
         var result=await auth.post(server+location.pathname,{type:"info"});
         if (result.error){
-            globals.setRedirectError(result.error);
+            globals.redirectError.current(result.error);
         } else  if (result.data.result=="privado"){
             setPrivado(true);
         } else {
@@ -317,11 +317,11 @@ function Canal(){
     const inscrever=useCallback(async ()=>{
         if (globals.login.isLoged){
             if (globals.login.isLoged=="false"){
-                globals.setRedirectError("/admin");
+                globals.redirectError.current("/admin");
             } else {
                 var result=await auth.post(server+"/@"+values.usuario,{type:"option"});
                 if (result.error){
-                    globals.setRedirectError(result.error);
+                    globals.redirectError.current(result.error);
                 } else if (result.data.result=="privado"){
                     setPrivado(true);
                 } else if (result.data.result=="my"){

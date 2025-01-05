@@ -157,7 +157,7 @@ function MusicasCadastro(){
         files && fd.append("files",JSON.stringify(files));
         auth.post(server+"/admin/musicas_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,edit.current ? {arquivo:true} : {arquivo:true,porcentagem:VerifyUpload}).then((result)=>{
             if (result.error){
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             } else if (result.data.result=="true"){
                 if (edit.current){
                     const params=new URLSearchParams(location.search);

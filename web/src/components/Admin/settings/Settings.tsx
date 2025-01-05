@@ -23,7 +23,7 @@ function Settings(){
     // const get=useCallback(()=>{
     //     auth.post(server+"/admin/settings",{type:"info"}).then((result)=>{
     //         if (result.error){
-    //             globals.setRedirectError(result.error);
+    //             globals.redirectError.current(result.error);
     //         } else {
     //             setConfig(result.data.config);
     //         }

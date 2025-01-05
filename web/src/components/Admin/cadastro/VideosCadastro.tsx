@@ -267,7 +267,7 @@ function VideosCadastro(){
         original_format_d && fd.append("original_format",original_format_d.toString());
         var result:resultInterface=await auth.post(server+"/admin/videos_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,edit.current ? {arquivo:true} : {arquivo:true,porcentagem:VerifyUpload});
         if (result.error){
-            globals.setRedirectError(result.error);
+            globals.redirectError.current(result.error);
         } else {
             if (result.data.result=="true"){
                 if (edit.current){

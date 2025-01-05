@@ -13,7 +13,7 @@ const SettingsProvider=({children,auth,server}:{children:any,auth:any,server:any
     const get=useCallback(()=>{
         auth.post(server+"/admin/settings",{type:"info"}).then((result:resultInterface)=>{
             if (result.error){
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             } else {
                 setConfig(result.data.config);
             }

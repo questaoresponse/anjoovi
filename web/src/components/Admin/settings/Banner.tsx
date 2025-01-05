@@ -14,7 +14,7 @@ function Banner({option,globals,auth}:{option:string,globals:GlobalContextInterf
         fd.append("banner",inputRef.current!.files![0]);
         auth.post(server+"/admin/settings?type=banner",fd,{arquivo:true}).then((result:resultInterface)=>{
             if (result.error){
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             } else {
                 setConfig((conf:any)=>({...conf,banner:result.data.banner}));
             }
@@ -26,7 +26,7 @@ function Banner({option,globals,auth}:{option:string,globals:GlobalContextInterf
     const Excluir=()=>{
         auth.post(server+"/admin/settings?type=banner&operation=d",{type:"option"}).then((result:resultInterface)=>{
             if (result.error){
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             } else {
                 setConfig((conf:any)=>({...conf,banner:null}));
             }

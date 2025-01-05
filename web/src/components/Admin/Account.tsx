@@ -85,7 +85,7 @@ function Account(){
         function get(){
             auth.post(server+"/admin/account",{type:"info"}).then((result)=>{
                 if (result.data.error){
-                    globals.setRedirectError(result.data.error);
+                    globals.redirectError.current(result.data.error);
                 } else {
                     setInfos({nome:result.data.nome,usuario:result.data.usuario,senha:result.data.senha});
                 }

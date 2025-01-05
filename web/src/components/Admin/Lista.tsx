@@ -103,7 +103,7 @@ function Lista(propsl:any){
     const get=useCallback(()=>{
         auth.post(server+location.pathname+location.search,{type:"info"}).then((result)=>{
             if (result.error){
-                globals.setRedirectError(result.error);
+                globals.redirectError.current(result.error);
             } else {
                 result.data.posts=result.data.posts.map((post:any)=>{ return {...post,d:post.d ? JSON.parse(post.d).o.split(":").splice(0,2).join(":") : "",privado:post.privado ? Number(post.privado) : undefined}});
                 Recriar(result.data);
