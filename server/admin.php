@@ -38,6 +38,7 @@ if (!function_exists("cargo")){
         if ($permission){
             unlink(__DIR__ . '/../public_html/images/'. substr($imagem,2));
         }
+        update_sitemap();
     }
     function delete_24($conn,$id,$usuario=null){
         $type=null;
@@ -89,6 +90,7 @@ if (!function_exists("cargo")){
         $conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts - 1,0) WHERE usuario=?",[$user]);
 
         unlink(__DIR__ . '/../public_html/images/'.$imagem);
+        update_sitemap();
     }
     function delete_musica($conn,$id,$usuario=null){
         $imagem=null;
@@ -127,6 +129,7 @@ if (!function_exists("cargo")){
         foreach($arquivos as $arquivo){
             unlink(__DIR__ . "/../public_html/musics/" . $arquivo);
         }
+        update_sitemap();
     }
     function delete_texto($conn,$id,$usuario=null){
         $views_id=null;
@@ -150,6 +153,7 @@ if (!function_exists("cargo")){
         }
         $conn->prepare("DELETE FROM comment WHERE tipo='texto' AND post_id=?",[$id]);
         $conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts - 1,0) WHERE usuario=?",[$user]);
+        update_sitemap();
     }
     function delete_video($conn,$id,$usuario=null){
         $video=null;
@@ -180,6 +184,7 @@ if (!function_exists("cargo")){
         $conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts - 1,0) WHERE usuario=?",[$user]);
 
         unlink(__DIR__ . '/../public_html/videos/'.$video);
+        update_sitemap();
     }
     function delete_account($isAdmin,$usuario){
         $conn=$GLOBALS["conn"];
@@ -259,6 +264,7 @@ if (!function_exists("cargo")){
         if (!$isAdmin) {
             response()->json(["header_location"=>"/admin/sair"]);
         }
+        update_sitemap();
     }
     function get_views_id($conn){
         $rss=$conn->query("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM views");
@@ -270,6 +276,7 @@ if (!function_exists("cargo")){
         $d2=json_encode([]);
         $d=json_encode(["o"=>get_updated_date()]);
         $conn->prepare("INSERT INTO views(usuario,tipo,acessos_d,d2,d,id,id_post,excluido) VALUES(?,?,?,?,?,?,?,?)",[$usuario,$tipo,$acessos_d,$d2,$d,$views_id,$id,$excluido]);
+        update_sitemap();  
     }
     function add_n_posts($usuario,$conn){
         $s=$conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts + 1,1) WHERE usuario=?",[$usuario]);
@@ -280,20 +287,20 @@ if (!function_exists("cargo")){
     function update_sitemap(){
         $arquivo=__DIR__ . '/../public_html/sitemap.xml';
         $dominio="https://www.anjoovi.com";
-        $sitemap = '<?xml version="1.0" encoding="UTF-8"?>';
-        $sitemap .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-        $sitemap .= '<url>
-            <loc>https://www.anjoovi.com/</loc>
-            <lastmod>2025-01-01</lastmod>
-            <changefreq>daily</changefreq>
-            <priority>1.0</priority>
-        </url>';
+        $sitemap = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+        $sitemap .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+        $sitemap .= '    <url>
+        <loc>https://www.anjoovi.com/</loc>
+        <lastmod>2025-01-01</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>' . PHP_EOL . "    ";
         $lines=$GLOBALS["conn"]->query("SELECT * FROM (
             (SELECT NULL AS usuario,id,acessos,d,0 AS inscritos,'p' AS tipo FROM post)
             UNION ALL
-            (SELECT NULL AS usuario,id,acesoss,d,0 AS inscritos,'i' AS tipo FROM post_imagem)
+            (SELECT NULL AS usuario,id,acessos,d,0 AS inscritos,'i' AS tipo FROM post_imagem)
             UNION ALL
-            (SELECT NULL AS usuario,id,acessos,d,0 AS isncritos,'m' AS tipo FROM post_musica)
+            (SELECT NULL AS usuario,id,acessos,d,0 AS inscritos,'m' AS tipo FROM post_musica)
             UNION ALL
             (SELECT NULL AS usuario,id,acessos,d,0 AS inscritos,'t' AS tipo FROM post_texto)
             UNION ALL
@@ -301,23 +308,28 @@ if (!function_exists("cargo")){
             UNION ALL
             (SELECT NULL AS usuario,id,acessos,d,0 AS inscritos,'pd' AS tipo FROM post_product)
             UNION ALL
-            (SELECT usuario,0 id,0 AS acessos,NULL AS d,incritos+1 AS incritos,'c' AS tipo FROM user)
+            (SELECT usuario,0 id,0 AS acessos,d,inscritos+1 AS inscritos,'c' AS tipo FROM user)
         ) AS resultTable ORDER BY inscritos DESC, acessos DESC LIMIT 49999");
         $types=["p"=>"/noticia/","i"=>"/imagem/","m"=>"/musica/","t"=>"/texto/","v"=>"/video/","pd"=>"/product/"];
         foreach ($lines as $line){
             $sitemap .= '<url>';
             if ($line["tipo"]=="c"){
                 $sitemap .= '<loc>' . $dominio . "/@" . $line["usuario"] . '</loc>';
+                $sitemap .= '<lastmod>' . date('Y-m-d', strtotime(json_decode($line['d'],true)["o"])) . '</lastmod>';
+                $sitemap .= '<changefreq>weekly</changefreq>';
+                $sitemap .= '<priority>0.8</priority>';
+                $sitemap .= '</url>';
             } else {
                 $sitemap .= '<loc>' . $dominio . $types[$line["tipo"]] . $line["id"] . '</loc>';
+                $sitemap .= '<lastmod>' . date('Y-m-d', strtotime(json_decode($line['d'],true)["o"])) . '</lastmod>';
+                $sitemap .= '<changefreq>weekly</changefreq>';
+                $sitemap .= '<priority>0.7</priority>';
+                $sitemap .= '</url>';
             }
-            $sitemap .= '<lastmod>' . date('Y-m-d', strtotime(json_decode($line['d']),true)["o"]) . '</lastmod>';
-            $sitemap .= '<changefreq>weekly</changefreq>';
-            $sitemap .= '<priority>0.8</priority>';
-            $sitemap .= '</url>';
+
         }
         
-        $sitemap .= '</urlset>';
+        $sitemap .= PHP_EOL . '</urlset>';
         file_put_contents($arquivo, $sitemap);
 
         $googlePingUrl = 'https://www.google.com/ping?sitemap=' . urlencode('https://www.anjoovi.com/sitemap.xml');
@@ -436,6 +448,7 @@ Route::post('/admin',function(){
                         $user_token=get_token(["usuario"=>$user]);
                         set_cookies("token",$user_token);
                         $s=$conn->prepare("INSERT INTO user(nome,usuario,email,senha,hash,cargo,data_n,n_posts,inscritos,id,d,tokens,peer_tokens) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",[$name,$user,$email,$password,$user_token,$cargo,$data_str,$n_posts,$inscritos,$id,$d,$tokens,$peer_tokens]);
+                        update_sitemap();
                         $json=json_encode([]);
                         $conn->prepare("INSERT INTO inscritos(usuario,inscritos) VALUES(?,?)",[$user,$json]);
                         set_user($user);
@@ -2845,9 +2858,9 @@ Route::post("/admin/users",function(){
         r404();
     }
 });
-Route::post("/ajeitar3",function(){
-    update_sitemap();
-});
+// Route::post("/ajeitar3",function(){
+//     update_sitemap();
+// });
 // bitwise for private:
     // 0: don't private
     // | 1: private post for all users
