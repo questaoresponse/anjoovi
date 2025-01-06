@@ -17,7 +17,7 @@ function Conteudo({infos,auth,globals}:{infos:{nome:string,usuario:string,logo:s
     },[infos]);
     const inscrever=()=>{
         if (globals.login.isLoged=="true"){
-            auth.post(globals.server+"/canal?name="+infos.usuario,{type:"option"}).then((result:any)=>{
+            auth.post(globals.server+"/@"+infos.usuario,{type:"option"}).then((result:any)=>{
                 if (result.data.result=="true"){
                     setInscrito(inscrito=>!inscrito);
                 }
