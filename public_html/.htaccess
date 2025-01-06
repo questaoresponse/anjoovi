@@ -46,7 +46,7 @@ AddType application/wasm .wasm
     RewriteCond %{REQUEST_URI} \.webp [NC]
     RewriteRule ^ verify.php [L]
 
-    RewriteCond %{REQUEST_URI} /worker- [NC]
+    RewriteCond %{REQUEST_URI} worker [NC]
     RewriteRule ^ worker.php [L]
 
     RewriteCond %{REQUEST_METHOD} POST
