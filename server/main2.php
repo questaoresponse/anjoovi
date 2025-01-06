@@ -2109,7 +2109,7 @@ Route::post("/denuncia",function(){
                 $d=json_encode($d);
                 $id=p($conn->query("SELECT COALESCE(MAX(id) + 1,1) AS count FROM denuncia"))[0]["count"];
                 $id=intval($id);
-                $options=["noticia"=>"post","imagem"=>"post_imagem","musica"=>"post_musica","video"=>"post_video"];
+                $options=["noticia"=>"post","imagem"=>"post_imagem","musica"=>"post_musica","video"=>"post_video","product"=>"post_product"];
                 $opt=$options[$post_tipo];
                 $result=$conn->prepare("SELECT titulo FROM $opt WHERE id=?",[$post_id]);
                 if ($result->num_rows>0){
