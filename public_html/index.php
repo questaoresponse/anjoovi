@@ -1,5 +1,5 @@
 <?php
-echo $_SERVER["HTTP_ORIGIN"];
+echo $_SERVER["HTTP_REFERER"];
 function cm($i){
     return strpos($_SERVER["REQUEST_URI"],$i) === 0;
 };
