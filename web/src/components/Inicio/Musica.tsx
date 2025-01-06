@@ -169,7 +169,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                             <div className="infos">
                                 <div className="downloads">Downloads:{post.downloads}</div>
                                 { post.visualizacoes!=-1 ? <div className="visualizacoes"><p>{post.visualizacoes}</p><i className="bi-eye"></i></div> : null }
-                                <div className='n_comment'>
+                                <div className='n_comment' onClick={()=>globals.mobile && setShowComment(showComment=>!showComment)}>
                                     <p>{post.n_comment}</p>
                                     <i className='bi-chat-dots'></i>
                                 </div>
@@ -186,7 +186,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
             </div>}
             {/* {!comentarios ? <div className='comment' onClick={()=>{setComentarios(true)}}>Comentários</div> : <></>} */}
             {/* {comentarios && <Comentarios id_comment={post.id}/>} */}
-            {globals.mobile && !isPlaylist ? <Comentarios postAtual={post}/> : <></> }
+            {globals.mobile && !isPlaylist ? <Comentarios postAtual={post} showComment={showComment}/> : <></> }
             {/* <Ads slot="7693763089"/> */}
             {/* {!props.id && globals.mobile && <Post globals={globals}  posts={infos}/>} */}
         </div>

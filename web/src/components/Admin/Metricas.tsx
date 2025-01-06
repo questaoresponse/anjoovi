@@ -3,29 +3,6 @@ import { useGlobal } from "../Global.tsx";
 import { useAuth } from "../Auth.jsx";
 import ReactECharts from 'echarts-for-react';
 import './Metricas.scss';
-// interface dataInterface{
-//     init:(data:string,year:number,month:number,date:number)=>void,
-//     update:(data:string)=>void,
-//     get_soma:()=>number[],
-//     get_geral:()=>any,
-//     get_post:()=>any,
-//     get_post_24:()=>any,
-//     get_post_imagem:()=>any,
-//     get_post_musica:()=>any,
-//     get_post_texto:()=>any,
-//     get_post_video:()=>any,
-//     get_day_soma:()=>number[][],
-//     get_day_geral:()=>any,
-//     get_day_post:()=>any,
-//     get_day_post_24:()=>any,
-//     get_day_post_imagem:()=>any,
-//     get_day_post_musica:()=>any,
-//     get_day_post_texto:()=>any,
-//     get_day_post_video:()=>any,
-//     update_year:(year:number)=>void,
-//     get_full_years:()=>number[],
-//     [key:string]:any
-// }
 interface canvasInterface{
     resize:(width:number,height:number,ratio:number)=>void,
     init:(width:number,height:number,ratio:number,data:{labels:any,posts:any})=>void,

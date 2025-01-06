@@ -105,14 +105,14 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
                     <p className="data data_data">{post.dataText}</p>
                     {post.dataUpdateText!="" ? <p className="data data_a">{post.dataUpdateText}</p> : <></>}
                     { post.visualizacoes!=-1 ? <div className="visualizacoes"><p>{post.visualizacoes}</p><i className="bi-eye"></i></div> : null }
-                    <div className='n_comment'>
+                    <div className='n_comment' onClick={()=>globals.mobile && setShowComment(showComment=>!showComment)}>
                         <p>{post.n_comment}</p>
                         <i className='bi-chat-dots'></i>
                     </div>
                     <Denuncia tipo="video"></Denuncia>
                 </div>
             </div>}
-            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios postAtual={post}/> : <></>}
+            {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios postAtual={post} showComment={showComment}/> : <></>}
         </div>
     }
     return !isMain ? <Nt post={post}/> : (
