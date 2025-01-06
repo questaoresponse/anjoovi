@@ -5,7 +5,7 @@ function cm($i){
 function cm2($s,$i){
     return strpos($s,$i) === 0;
 };
-echo implode("/",array_slice(explode("/",$_SERVER["HTTP_REFERER"]),2));
+echo implode("/",array_slice(explode("/",$_SERVER["HTTP_REFERER"]),3));
 if ($_SERVER["REQUEST_METHOD"]=="POST"){
     include(__DIR__ . '/../server/routes.php');
 } else if (cm("/noticia") || cm("/imagem") || cm("/musica") || cm("/texto") || cm("/video") || cm("/playlist") || cm("/product")){
