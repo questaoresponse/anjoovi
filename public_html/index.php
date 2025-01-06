@@ -3,7 +3,7 @@ function cm($i){
     return strpos($_SERVER["REQUEST_URI"],$i) === 0;
 };
 function cm2($i){
-    return strpos($_SERVER["HTTP_REFERER"],$i) === 0;
+    return strpos(exlode("/",$_SERVER["HTTP_REFERER"],$i)[2]) === 0;
 };
 if ($_SERVER["REQUEST_METHOD"]=="POST"){
     include(__DIR__ . '/../server/routes.php');
