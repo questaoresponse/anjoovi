@@ -253,7 +253,7 @@ function VideosCadastro(){
         const video_file=videoInfos.file!;
         const imagem_file=imageInfos.file;
         const original_format:boolean=JSON.parse(refs.original_format.current!.value);
-        const original_format_d:boolean=permission ? JSON.parse(refs.original_format_premium.current!.value) : null;
+        const original_format_d:boolean=refs.original_format_premium.current ? JSON.parse(refs.original_format_premium.current!.value) : null;
         fd.append("type","option");
         edit.current && fd.append("id",post_edit.current!.id.toString());
         imagem_file && fd.append("imagem",imagem_file,imageInfos.name);

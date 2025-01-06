@@ -135,12 +135,14 @@ function ProductsCadastro(){
         var fd=new FormData();
         var descricao=refs.descricao.current!.value;
         var imagem_data=refs.imagem.current!.files!.length>0 ? refs.imagem.current!.files![0] : null;
+        var imagem_data_d=refs.imagem_premium.current && refs.imagem_premium.current!.files!.length>0 ? refs.imagem_premium.current!.files![0] : null;
         var original_format=JSON.parse(refs.original_format.current!.value);
-        var original_format_d:boolean=JSON.parse(refs.original_format_premium.current!.value);
+        var original_format_d:boolean=refs.original_format_premium.current ? JSON.parse(refs.original_format_premium.current!.value) : null;
         fd.append("type","option");
         edit.current && fd.append("id",post_edit.current!.id.toString());
         imagem_data && fd.append("imagem",imagem_data);
-        imagem_data && fd.append("imagens_edit",(true).toString());
+        imagem_data_d && fd.append("imagem",imagem_data_d);
+        (imagem_data || imagem_data_d) && fd.append("imagens_edit",(true).toString());
         descricao!="" && fd.append("descricao",descricao);
         original_format && fd.append("original_format",original_format.toString());
         original_format_d && fd.append("original_format",original_format_d.toString());
