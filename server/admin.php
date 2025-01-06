@@ -312,21 +312,24 @@ if (!function_exists("cargo")){
         ) AS resultTable ORDER BY inscritos DESC, acessos DESC LIMIT 49999");
         $types=["p"=>"/noticia/","i"=>"/imagem/","m"=>"/musica/","t"=>"/texto/","v"=>"/video/","pd"=>"/product/"];
         foreach ($lines as $line){
-            $sitemap .= '<url>';
-            if ($line["tipo"]=="c"){
-                $sitemap .= '<loc>' . $dominio . "/@" . $line["usuario"] . '</loc>';
-                $sitemap .= '<lastmod>' . date('Y-m-d', strtotime(json_decode($line['d'],true)["o"])) . '</lastmod>';
-                $sitemap .= '<changefreq>weekly</changefreq>';
-                $sitemap .= '<priority>0.8</priority>';
-                $sitemap .= '</url>';
-            } else {
-                $sitemap .= '<loc>' . $dominio . $types[$line["tipo"]] . $line["id"] . '</loc>';
-                $sitemap .= '<lastmod>' . date('Y-m-d', strtotime(json_decode($line['d'],true)["o"])) . '</lastmod>';
-                $sitemap .= '<changefreq>weekly</changefreq>';
-                $sitemap .= '<priority>0.7</priority>';
-                $sitemap .= '</url>';
+            if ($line["d"]){
+                $sitemap .= '<url>';
+                $t=strtotime(json_decode($line['d'],true)["o"]);
+                $time=1672531200 > $t ? 1672531200 : $t;
+                if ($line["tipo"]=="c"){
+                    $sitemap .= '<loc>' . $dominio . "/@" . $line["usuario"] . '</loc>';
+                    $sitemap .= '<lastmod>' . date('Y-m-d', $time)  . '</lastmod>';
+                    $sitemap .= '<changefreq>weekly</changefreq>';
+                    $sitemap .= '<priority>0.8</priority>';
+                    $sitemap .= '</url>';
+                } else {
+                    $sitemap .= '<loc>' . $dominio . $types[$line["tipo"]] . $line["id"] . '</loc>';
+                    $sitemap .= '<lastmod>' . date('Y-m-d', $time) . '</lastmod>';
+                    $sitemap .= '<changefreq>weekly</changefreq>';
+                    $sitemap .= '<priority>0.7</priority>';
+                    $sitemap .= '</url>';
+                }
             }
-
         }
         
         $sitemap .= PHP_EOL . '</urlset>';
