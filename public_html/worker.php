@@ -1,6 +1,6 @@
 <?php
-function cm($i){
-    return strpos($_SERVER["REQUEST_URI"],$i) === 0;
+function cm2($i){
+    return strpos($s,$i) === 0;
 };
 if ($_SERVER["HTTP_REFERER"]){
     $s=implode("/",array_slice(explode("/",$_SERVER["HTTP_REFERER"]),3));
