@@ -1,4 +1,5 @@
 <?php
+echo "oie";
 function cm($i){
     return strpos($_SERVER["REQUEST_URI"],$i) === 0;
 };
@@ -6,4 +7,4 @@ if (cm("/admin") && (cm("/admin/noticias_cadastro") || cm("/admin/24_cadastro") 
     header("Cross-Origin-Opener-Policy: same-origin");
     header("Cross-Origin-Embedder-Policy: require-corp");
 }
-include(__DIR__ . "/assets\/" . array_splice(explode("/",$_SERVER["REQUEST_URI"]),-1));
+// include(__DIR__ . "/assets\/" . array_splice(explode("/",$_SERVER["REQUEST_URI"]),-1));
