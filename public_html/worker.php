@@ -1,4 +1,5 @@
 <?php
+echo "aian";
 function cm($i){
     return strpos($_SERVER["REQUEST_URI"],$i) === 0;
 };
