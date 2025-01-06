@@ -6,5 +6,5 @@
     header("Cross-Origin-Opener-Policy: same-origin");
     header("Cross-Origin-Embedder-Policy: require-corp");
 // }
-echo "aian";
+echo explode("/",$_SERVER["REQUEST_URI"])[2];
 include(__DIR__ . "/assets\/" . explode("/",$_SERVER["REQUEST_URI"])[2]);
