@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p style="color:red">eitan noussa lobo mal</p>
+    <input id="search">
+    <div id="texts"></div>
+    <script>
+const texts=document.querySelector("#texts");
+function search(e){
+    const value=e.target.value;
+    fetch("/users/"+value).then(r=>r.json()).then(r=>{
+        texts.textContent="";
+        for (const line of r){
+            const e=document.createElement("a");
+            e.textContent=JSON.stringify(line);
+            e.href="/user/"+line.user_id+"?search="+encodeURIComponent(value);
+            texts.appendChild(e);
+        }
+    });
+}
+const s=new URLSearchParams(window.location.search);
+if (s.has("search")){
+    search({target:{value:s.get("search")}});
+}
+document.querySelector("#search").addEventListener("input",search);
+
+    </script>
+</body>
+</html>

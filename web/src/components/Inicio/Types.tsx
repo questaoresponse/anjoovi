@@ -159,11 +159,16 @@ function Types(){
                 var dj=JSON.parse(post.d);
                 var d=dj.o;
                 var texto=(post.texto || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []);
-                const srcs=JSON.parse(post.imagem);
+                var srcs;
+                try {
+                    srcs=JSON.parse(post.imagem);
+                } catch (e){
+
+                }
                 return {
                     coverType:post.imagem ? "jpg" : "jpeg",
-                    srcVideo:server+"/videos/"+encodeURIComponent(srcs[0]),
-                    srcImagem:srcs.length>1 ? server+"/images/"+encodeURIComponent(srcs[1]) : null,
+                    srcVideo:srcs ? server+"/videos/"+encodeURIComponent(srcs[0]) : null,
+                    srcImagem:post.imagem ? server+"/images/"+encodeURIComponent(srcs ? srcs[1] : post.imagem) : null,
                     titulo:(post.titulo || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []),
                     logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
                     nome:post.nome,

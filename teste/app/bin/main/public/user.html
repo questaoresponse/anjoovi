@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p style="color:red">eitan noussa lobo mal</p>
+    <script>
+    fetch("/api/user/"+window.location.pathname.split("/")[2]).then(r=>r.json()).then(r=>{
+        const e=document.createElement("a");
+        e.textContent=JSON.stringify(r);
+        const s=new URLSearchParams(window.location.search);
+        e.href="/?search="+s.get("search");
+        document.body.appendChild(e);
+    });
+
+    </script>
+</body>
+</html>

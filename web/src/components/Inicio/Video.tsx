@@ -14,7 +14,7 @@ import VideoController from './VideoController.tsx';
 interface postInterface{
     coverType:string
     srcVideo:string,
-    srcImagem:string | null,
+    srcImagem:string,
     titulo:string[][],
     logo:string | null,
     nome:string,
@@ -62,7 +62,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
                     </>
                 })}</div>
                 <div className="campo-video">
-                    {post.srcImagem ? <img className='campo-video-content' src={post.srcImagem}></img> : post.srcVideo ? <video className='campo-video-content' src={post.srcVideo}/> : <></>}
+                    <img className='campo-video-content' src={post.srcImagem}></img>
                 </div>
                 {/* <div className={"texto-video txt " + (!isMain ? " resumo" : "")}>{post.text.map((line:string[],i:number)=>{
                     return <>

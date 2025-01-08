@@ -22,8 +22,6 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                     if (playlist){
                         const imgs=JSON.parse(post.imagem);
                         cm=JSON.parse(post.posts).map((post:any)=>imgs.filter((img:any)=>post in img)[0][post])[0];
-                    } else if (v){
-                        cm=JSON.parse(post.imagem)[1];
                     } else {
                         cm=post.imagem;
                     }
