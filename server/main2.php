@@ -793,7 +793,7 @@ Route::post("/busca",function(){
                             UNION
                             ( SELECT id,usuario,NULL AS titulo,texto,'' AS imagem FROM post_texto WHERE ( texto LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 7=0)
                             UNION
-                            ( SELECT id,usuario,titulo,NULL AS texto,video,imagem FROM post_video WHERE ( titulo LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 5=0)
+                            ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post_video WHERE ( titulo LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 5=0)
                             UNION
                             ( SELECT id,usuario,titulo,NULL AS texto,
                             (
