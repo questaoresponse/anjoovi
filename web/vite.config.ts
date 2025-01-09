@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import fs from 'fs';
-// import mkcert from 'vite-plugin-mkcert'
+import mkcert from 'vite-plugin-mkcert'
 
 // https://vitejs.dev/config/
 import builtins from 'rollup-plugin-node-builtins';
@@ -49,7 +49,7 @@ export default defineConfig({
     hmr: {
       host: 'www.anjoovi.com',
       port: 3001
-    }
+    },
   },
   build: {
       outDir: __dirname+"/../public_html" 

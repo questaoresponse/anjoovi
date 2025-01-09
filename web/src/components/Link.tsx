@@ -21,8 +21,8 @@ const Link = forwardRef<HTMLAnchorElement,{ to:string, onClick?:(e:eventInterfac
     return (
         <a href={to} ref={ref} className={className} id={id} style={style} onClick={(e)=>{ 
             e.preventDefault();
-            e.preventDefault=()=>{executeAction=false};
             var executeAction=true;
+            e.preventDefault=()=>{executeAction=false};
             onClick && onClick(e);
             executeAction && handleClick();
         }} {...props}>

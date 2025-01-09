@@ -314,20 +314,23 @@ if (!function_exists("cargo")){
         foreach ($lines as $line){
             if ($line["d"]){
                 $sitemap .= '<url>';
-                $t=strtotime(json_decode($line['d'],true)["o"]);
-                $time=1672531200 > $t ? 1672531200 : $t;
-                if ($line["tipo"]=="c"){
-                    $sitemap .= '<loc>' . $dominio . "/@" . $line["usuario"] . '</loc>';
-                    $sitemap .= '<lastmod>' . date('Y-m-d', $time)  . '</lastmod>';
-                    $sitemap .= '<changefreq>weekly</changefreq>';
-                    $sitemap .= '<priority>0.8</priority>';
-                    $sitemap .= '</url>';
-                } else {
-                    $sitemap .= '<loc>' . $dominio . $types[$line["tipo"]] . $line["id"] . '</loc>';
-                    $sitemap .= '<lastmod>' . date('Y-m-d', $time) . '</lastmod>';
-                    $sitemap .= '<changefreq>weekly</changefreq>';
-                    $sitemap .= '<priority>0.7</priority>';
-                    $sitemap .= '</url>';
+                $t=json_decode($line['d'],true);
+                if (isset($t["o"])){
+                    $t=strtotime($t["o"]);
+                    $time=1672531200 > $t ? 1672531200 : $t;
+                    if ($line["tipo"]=="c"){
+                        $sitemap .= '<loc>' . $dominio . "/@" . $line["usuario"] . '</loc>';
+                        $sitemap .= '<lastmod>' . date('Y-m-d', $time)  . '</lastmod>';
+                        $sitemap .= '<changefreq>weekly</changefreq>';
+                        $sitemap .= '<priority>0.8</priority>';
+                        $sitemap .= '</url>';
+                    } else {
+                        $sitemap .= '<loc>' . $dominio . $types[$line["tipo"]] . $line["id"] . '</loc>';
+                        $sitemap .= '<lastmod>' . date('Y-m-d', $time) . '</lastmod>';
+                        $sitemap .= '<changefreq>weekly</changefreq>';
+                        $sitemap .= '<priority>0.7</priority>';
+                        $sitemap .= '</url>';
+                    }
                 }
             }
         }
