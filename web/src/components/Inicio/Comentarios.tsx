@@ -25,6 +25,7 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
     const refs={
         input:useRef<HTMLInputElement>(null),
         btn:useRef<HTMLButtonElement>(null),
+        currentPointer:useRef<HTMLDivElement>(null)
     }
     const infos={
         tipo:useRef(values.tipo || location.pathname.split("/")[1]),
@@ -54,7 +55,7 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
     }
     useEffect(()=>{
         update(window.location.pathname);
-    },[]);
+    },[postAtual]);
     const Comentar=useCallback((e:any)=>{
         e.preventDefault();
         if (globals.login.isLoged=="false"){
@@ -87,12 +88,12 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
             }
         }
     },[infos,refs,loading]);
-    const Excluir=useCallback((e:any)=>{
+    const Excluir=useCallback((id:number)=>{
         if (loading) return;
         setCount(count => count - 1);
         var commentRemove:(commentInterface | number)[]=[];
         setComentarios(comentarios =>comentarios.filter((comment,i) =>{
-            const v=comment.id !=e.target.dataset.id;
+            const v=comment.id!=id;
             if (!v){
                 commentRemove=[comment,i];
             }
@@ -103,7 +104,7 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
             operation:"excluir",
             tipo:infos.tipo.current,
             post_id:infos.id.current.toString(),
-            id:e.target.dataset.id
+            id:id.toString()
         }).then(result => {
         if (result.data.result != "true") {
             setComentarios(comentarios=>comentarios.splice(commentRemove[1] as number,0,commentRemove[0] as commentInterface))
@@ -112,6 +113,22 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
         });
         setOptionsShow(-1);
     }, [comentarios, loading]);
+    const verifyColision=useCallback((e:any)=>{
+        if (refs.currentPointer.current && optionsShow!=-1){
+            const r=refs.currentPointer.current.getBoundingClientRect();
+            const p={x:e.pageX || e.touches[0].x,y:e.pageY || e.touches[0].y};
+            if ((p.x < r.left || p.x > r.left + r.width) || (p.y < r.top && p.y > r.top+r.height)){
+                setOptionsShow(-1);
+            }
+            console.log("foie");
+        }
+    },[optionsShow]);
+    useEffect(()=>{
+        document.body.addEventListener("click",verifyColision);
+        return ()=>{
+            document.body.removeEventListener("click",verifyColision);
+        }
+    },[]);
     const verifyInput=(e:any)=>{
         refs.btn.current!.disabled=e.target.value.trim()==""; 
     };
@@ -132,14 +149,14 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
                                 <div className="ndivtd">
                                     <Link to={"/@"+encodeURIComponent(comment.usuario)} className="ndivn">@{comment.usuario}</Link>
                                     <div className="ndivt txt">{comment.texto.map((texto:string,index:number)=>{
-                                        return texto.length >0 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={index} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( comment.texto.length-1>index ? " " : "" )}</Link> : texto + ( comment.texto.length-1>index ? " " : "" )
+                                        return texto.length>0 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={index} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( comment.texto.length-1>index ? " " : "" )}</Link> : texto + ( comment.texto.length-1>index ? " " : "" )
                                     })}</div>
                                 </div>
                                 <svg onClick={()=>setOptionsShow(index)} className="ndivopts-btn" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                     <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
                                 </svg>
-                                <div className="ndivopts" style={{display:optionsShow==index ? "block" : "none"}}>
-                                    {globals.login.isLoged=="true" && globals.login.usuario==comment.usuario ? <div onClick={Excluir} className={"ndivopt"+(comment.loading ? " disabled" : "")} data-id={comment.id}><img className="delete-img" src={excluirSrc}></img><div className="delete-div">Excluir</div></div> : <></>}
+                                <div className="ndivopts" ref={optionsShow==index ? refs.currentPointer : null} style={{display:optionsShow==index ? "block" : "none"}}>
+                                    {globals.login.isLoged=="true" && globals.login.usuario==comment.usuario ? <div onClick={()=>Excluir(comment.id)} className={"ndivopt"+(comment.loading ? " disabled" : "")} data-id={comment.id}><img className="delete-img" src={excluirSrc}></img><div className="delete-div">Excluir</div></div> : <></>}
                                 </div>
                             </div>
                         )

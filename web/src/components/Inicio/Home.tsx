@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
 import './Home.scss';
@@ -40,7 +40,7 @@ function Home() {
     get(true);
     const pt=useRef(0);
     const awaitingLoad=useRef(false);
-    const verifyScroll=()=>{
+    const verifyScroll=useCallback(()=>{
         if (window.scrollY+800>document.documentElement.scrollHeight && !awaitingLoad.current){
             pt.current+=1;
             setIsLoading(true);
@@ -53,7 +53,7 @@ function Home() {
                 }
             });
         }
-    };
+    },[]);
     useEffect(()=>{
         document.title="Anjoovi";
         globals.get.current=get;

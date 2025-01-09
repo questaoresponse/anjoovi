@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useNavigate,useLocation } from "react-router-dom";
 import { useGlobal } from "./Global.tsx";
 import { resultInterface, useAuth } from "./Auth.jsx";
@@ -34,9 +34,9 @@ function GlobalFunction(){
             };
         }
     };
-    const onPopstate=()=>{
+    const onPopstate=useCallback(()=>{
         navigate(window.location.href.split(window.location.host)[1],{changeURL:false});
-    };
+    },[]);
     useEffect(()=>{
         if (redirectTo){
             navigate!(redirectTo);
@@ -54,10 +54,10 @@ function GlobalFunction(){
             navigator.serviceWorker.controller!.postMessage({...message,origin:"client"});
         }
     }
-    const deletar=()=>{
+    const deletar=useCallback(()=>{
         send({type:"deletePeer",peer_id:peer_id.current});
         // enviar(true,true);
-    }
+    },[]);
     const toExecute=(userChanged:boolean=false)=>{
         if (loadedInfos.current.loaded && !userChanged){
             return;
@@ -106,10 +106,10 @@ function GlobalFunction(){
         };
         const handleSize=()=>{
             setMobile(window.innerWidth < 769 ? true : false);
-        }
+        };
         const verifyStoriesFn=(route:any)=>{
             navigate!(currentLogin.current.isLoged=="true" ? route : "/admin?origin="+encodeURIComponent(route));
-        }
+        };
         verifyStories.current=verifyStoriesFn;
         
         document.body.style.cssText+="padding: initial !important"

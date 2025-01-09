@@ -11,7 +11,7 @@ interface valuesInterface{
     step:number,
     plan:number,
 }
-const Prices=({buy}:{buy:(type:number)=>void})=>{
+const Prices=({buy}:{buy:(e:any,type:number)=>void})=>{
     return <div id="margin">
             <div id="msg">Faça upgrade para Premium</div>
             <div id="blocks">
@@ -23,7 +23,7 @@ const Prices=({buy}:{buy:(type:number)=>void})=>{
                         <p>Acesso a conteúdo sem publicidade.</p>
                         <p>Duração de 30 dias após a compra da licença.</p>
                     </div>
-                    <div className="buyBtn" onClick={()=>buy(1)}>Assinar</div>
+                    <div className="buyBtn" onClick={(e)=>buy(e,1)}>Assinar</div>
                 </div>
                 <div className="block">
                     <div className="title">PREMIUM PRO</div>
@@ -33,7 +33,7 @@ const Prices=({buy}:{buy:(type:number)=>void})=>{
                         <p>Acesso a conteúdo sem publicidade.</p>
                         <p>Duração de 60 dias após a compra da licença.</p>
                     </div>
-                    <div className="buyBtn" onClick={()=>buy(2)}>Assinar</div>
+                    <div className="buyBtn" onClick={(e)=>buy(e,2)}>Assinar</div>
                 </div>
                 <div className="block">
                     <div className="title">PREMIUM PLUS</div>
@@ -43,7 +43,7 @@ const Prices=({buy}:{buy:(type:number)=>void})=>{
                         <p>Acesso a conteúdo sem publicidade.</p>
                         <p>Duração de 90 dias após a compra da licença.</p>
                     </div>
-                    <div className="buyBtn" onClick={()=>buy(3)}>Assinar</div>
+                    <div className="buyBtn" onClick={(e)=>buy(e,3)}>Assinar</div>
                 </div>
                 <div className="block">
                     <div className="title">PREMIUM ULTRA</div>
@@ -53,7 +53,7 @@ const Prices=({buy}:{buy:(type:number)=>void})=>{
                         <p>Acesso a conteúdo sem publicidade.</p>
                         <p>Duração de 360 dias após a compra da licença.</p>
                     </div>
-                    <div className="buyBtn" onClick={()=>buy(4)}>Assinar</div>
+                    <div className="buyBtn" onClick={(e)=>buy(e,4)}>Assinar</div>
                 </div>
             </div>
             <div id="note">
@@ -342,48 +342,28 @@ function Premium(){
         premium:useRef<HTMLDivElement>(null),
         iframe:useRef<HTMLIFrameElement>(null)
     }
-    const buy=(type:number)=>{
+    const buy=(e:any,type:number)=>{
         const ids=[2415251,2416145,2416726,2431416];
-        window.open("https://sun.eduzz.com/"+ids[type-1]);
-        // Eduzz("Widget",ids[type-1],e);
+        Eduzz("Widget",ids[type-1],e);
         setValues({step:1,plan:type});
         setIsPaying(true);
     };
-    // function  () {
-    // window.EdzLs = [];
-    // const Eduzz = (t:any, a:any, c:any)=>{
-    //     window.EdzLs.push({type: t, args: a, caller: c});
-    //     if (window.edz) window.edz();
-    // };
+    window.EdzLs = [];
+    const Eduzz = (t:any, a:any, c:any)=>{
+        window.EdzLs.push({type: t, args: a, caller: c});
+        if (window.edz) window.edz();
+    };
     useEffect(()=>{
         document.title="Anjoovi Premium"
-        // window.addEventListener("message",(event)=>{
-        //     const data=JSON.parse(event.data);
-        //     if (data.type=="close"){
-        //         setIsPaying(false);
-        //     }
-        // });
-        // var s = document.createElement("script");
-        // s.type = "text/javascript";
-        // s.async = true;
-        // s.defer = true;
-        // s.src = "https://sun.eduzz.com/widget/main.js";
-        // window.edzScript = s;
-        // document.body.appendChild(s);
-        // fetch("https://sun.eduzz.com/widget/main.js").then(response=>response.text()).then(response=>{
-        //     s.textContent=response;
-        //     document.body.appendChild(s);
-        // });
-        // auth.get("https://api64.ipify.org?format=json").then((r:resultInterface)=>console.log(r.data));
+        var s = document.createElement("script");
+        s.type = "text/javascript";
+        s.async = true;
+        s.defer = true;
+        s.src = "https://sun.eduzz.com/widget/main.js";
+        window.edzScript = s;
+        document.body.appendChild(s);
     },[]);
 
-    // clientId: 25b00ead-bbc0-40a3-a4f1-5a980461dac6
-    // clientSecret: aa4ed14dd98acb34f885c2bbee7059d9024b5adc0165bc3c3901d67eefee70aa
-
-        // var x = document.getElementsByTagName("script")[0];
-        // if (!x) x = document.getElementsByTagName("body")[0].firstChild();
-        // x.parentNode.insertBefore(s, x);
-    //   }
     return <div className={isPaying ? "paying" : ""} ref={refs.premium} id="premium">
         {/* <div id="header">
             <Link to="/">

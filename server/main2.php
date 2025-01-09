@@ -962,6 +962,7 @@ Route::get("/noticia/{id}",function($id){
             unset($r["views"]);
             unset($r["acessos"]);
             unset($r["views_id"]);
+            $r["id"]=$id;
             $response=["result"=>"true","usuario"=>$usuario,"comments"=>$comentarios,"post"=>$r];
             if (isset($_GET["i"])){
                 $response["posts"]=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
@@ -1066,6 +1067,7 @@ Route::get("/imagem/{id}",function($id){
             unset($r["views"]);
             unset($r["acessos"]);
             unset($r["views_id"]);
+            $r["id"]=$id;
             $response=["result"=>"true","usuario"=>$usuario,"comments"=>$comentarios,"post"=>$r];
             if (isset($_GET["i"])){
                 $response["posts"]=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
@@ -1115,6 +1117,7 @@ Route::get("/musica/{id}",function($id){
         // $acessos_d=json_decode(p($conn->prepare("SELECT d2 FROM views WHERE id=?",[$views_id]))[0]["acessos_d"],true);
         // $d=get_updated_date();
         if (is_js()){
+            $r["id"]=$id;
             $response=["result"=>"true","usuario"=>$usuario,"comments"=>$comentarios,"post"=>$r];
             if (isset($_GET["i"])){
                 $response["posts"]=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
@@ -1219,6 +1222,7 @@ Route::get("/texto/{id}",function($id){
             unset($r["views"]);
             unset($r["acessos"]);
             unset($r["views_id"]);
+            $r["id"]=$id;
             $response=["result"=>"true","usuario"=>$usuario,"comments"=>$comentarios,"post"=>$r];
             if (isset($_GET["i"])){
                 $response["posts"]=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
@@ -1266,6 +1270,7 @@ Route::get("/video/{id}",function($id){
             $r=p($result)[0];
             $views_id=$r["views_id"];
             $comentarios=p($conn->prepare("SELECT c.usuario,c.texto,c.d,c.id,u.logo FROM comment AS c LEFT JOIN user AS u ON c.user_id=u.id WHERE c.tipo='video' AND c.post_id=? AND c.privado=0 ORDER BY c.id DESC LIMIT 50",[$id]));
+            $r["id"]=$id;
             $response=["result"=>"true","usuario"=>$user,"comments"=>$comentarios,"post"=>$r];
             if (isset($_GET["i"])){
                 $response["posts"]=getAlgoritmoNoticia(false,$conn,$user,$views_id,0,24);
@@ -1338,6 +1343,7 @@ Route::get("/playlist/{id}",function($id){
     if ($r->num_rows>0){
         $r=p($r)[0];
         if (is_js()){
+            $r["id"]=$id;
             $response=["result"=>"true","usuario"=>$usuario,"post"=>$r];
             if (isset($_GET["i"])){
                 $response["posts"]=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
@@ -1393,6 +1399,7 @@ Route::get("/product/{id}",function($id){
             unset($r["views"]);
             unset($r["acessos"]);
             unset($r["views_id"]);
+            $r["id"]=$id;
             $response=["result"=>"true","usuario"=>$usuario,"comments"=>$comentarios,"post"=>$r];
             if (isset($_GET["i"])){
                 $response["posts"]=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
@@ -1739,9 +1746,13 @@ Route::post("/inscricoes",function(){
                         JOIN user u ON t.usuario=u.usuario
                         ORDER BY t.id DESC
                     ) AS temp",[$up,$up]));
-                response()->json(["result"=>"true","posts"=>$r,"st"=>$r2,"usuario"=>$usuario]);
+                    $response=["result"=>"true","posts"=>$r,"st"=>$r2,"usuario"=>$usuario];
+                    if (count($rk)==0){
+                        $response["noSubscribes"]="true";
+                    }
+                response()->json($response);
             } else {
-                response()->json(["result"=>"true","canal"=>[],"posts"=>[],"st"=>[],"usuario"=>$usuario]);
+                response()->json(["result"=>"true","noSubscribes"=>"true","posts"=>[],"st"=>[],"usuario"=>$usuario]);
             }
         } else {
             response()->json(file_get_contents(__DIR__ . '/../public_html/templates/inscricoes/main.html'));
@@ -1937,7 +1948,7 @@ Route::post("/comentarios",function(){
                 response()->json(["result"=>"true","usuario"=>$usuario,"id"=>$id]);
             }
         } else if ($operation=="excluir"){
-            $id=request("id");
+            $id=intval(request("id"));
             $conn->prepare("DELETE FROM comment WHERE usuario=? AND tipo=? AND post_id=? AND id=?",[$usuario,$tipo,$post_id,$id]);
             response()->json(["result"=>"true","usuario"=>$usuario]);
         }

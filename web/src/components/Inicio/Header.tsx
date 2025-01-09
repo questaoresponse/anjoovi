@@ -9,17 +9,10 @@ import Logo from '../Logo.jsx';
 import LogoAnjoovi from '../LogoAnjoovi.tsx';
 const Header = () => {
     const globals = useGlobal();
-    const { navigate }=globals;
+    const { navigate, login, currentLogin }=globals;
     const [menu,setMenu] = useState(false);
-    // const currentIsLoged=useRef<string | null>(null);
     const getLogadoValue=()=>{
-      return globals.login.isLoged=="true";
-      // if (!currentIsLoged.current || globals.login.isLoged!=currentIsLoged.current){
-      //   currentIsLoged.current=globals.login.isLoged;
-      //   return globals.login.isLoged=="true";
-      // } else {
-      //   return globals.login.isLoged=="true";
-      // }
+      return currentLogin.current.isLoged=="true";
     }
     const [isLogado,setIsLogado]=useState(getLogadoValue());
     const [lupaSrc, _] = useState(lupa);
@@ -41,7 +34,7 @@ const Header = () => {
     }
     useEffect(() => {
       setIsLogado(getLogadoValue());
-    }, [globals.login]);
+    }, [login]);
 
     const onClickMenu = () => {
     	setMenu((menu)=>(!menu));

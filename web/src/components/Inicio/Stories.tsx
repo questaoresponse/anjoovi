@@ -95,9 +95,9 @@ function Stories(){
             }   
         }
     };
-    const ver2=()=>{
+    const ver2=useCallback(()=>{
         ver(new Date().toISOString());
-    }
+    },[]);
     useEffect(()=>{
         window.addEventListener("popstate",ver2);
         

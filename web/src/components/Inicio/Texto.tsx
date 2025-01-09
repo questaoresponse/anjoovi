@@ -85,7 +85,6 @@ function Texto({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{i
             </div>}
             {globals.mobile ? !isMain || isPlaylist ? <></> : <Comentarios postAtual={post} showComment={showComment}/> : <></>}
 
-
             {/* <Ads slot="7693763089"/> */}
             {/* {!props.id && globals.mobile && <Post globals={globals} posts={infos.alta}/>} */}
         </div>
