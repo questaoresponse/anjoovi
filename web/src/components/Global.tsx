@@ -74,7 +74,7 @@ class NavigateClass{
 
   navigate(pathname:string,options:OptionsNavigate={changeURL:true,lookTop:true,callHandle:true}):void{
     const urls=["/admin/noticias_cadastro","/admin/24_cadastro","/admin/imagens_cadastro","/admin/musicas_cadastro","/admin/textos_cadastro","/admin/playlists_cadastro","/admin/products_cadastro"];
-    if ((this.pathname.startsWith("/admin") || pathname.startsWith("/admin")) && ( ( urls.includes(pathname.split("/").slice(0,3).join("/")) && !urls.includes(this.pathname.split("/").slice(0,3).join("/")) ) || ( urls.includes(this.pathname.split("/").slice(0,3).join("/")) && !urls.includes(pathname.split("/").slice(0,3).join("/")) ) ) ){
+    if ((this.pathname.startsWith("/admin") || pathname.startsWith("/admin")) && ((urls.includes(pathname.split("/").slice(0,3).join("/")) && !urls.includes(this.pathname.split("/").slice(0,3).join("/"))) || (urls.includes(this.pathname.split("/").slice(0,3).join("/")) && !urls.includes(pathname.split("/").slice(0,3).join("/"))))){
       window.location.href=pathname;
     }
     if (!("changeURL" in options)){
