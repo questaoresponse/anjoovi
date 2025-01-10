@@ -584,7 +584,7 @@ Route::post("/admin/noticias_cadastro", function(){
                 // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
                 if (($isCadastro || isset($dados["imagens_edit"])) && (request()->has("imagem") || ($hasDImage && request()->has("dImagem")))) {
                     $file = request()->file("imagem");
-                    $dFile = request()->file("dImagem");
+                    $dFile = request()->has("dImagem") ? request()->file("dImagem") : null;
                     if (mime_content_type($file->file["tmp_name"]) === 'image/jpeg' || mime_content_type($dFile->file["tmp_name"]) === 'image/jpeg'){
                         $caminhoDestino = __DIR__ . "/../public_html/images/";
                         $filename=null;
@@ -593,14 +593,9 @@ Route::post("/admin/noticias_cadastro", function(){
                                 unlink($caminhoDestino . $imagem);
                             }
                             $filename = $file->getClientOriginalName("webp");
-                            $imagem=(($permission & 2)==2 ? "p_" : "") . $id . "_p_" . $filename;
+                            $imagem=(($permission & 2)==2 ? "p_" : "") . (!$original_format ? "r_" : "") . $id . "_p_" . $filename;
                             $file->createwebp($caminhoDestino,$imagem);
                             $img=imagem($caminhoDestino.$imagem);
-                            if ($original_format){
-                                $img->resize(null,720);
-                            } else {
-                                $img->resize(1280,720);
-                            }
                         } else {
                             $filename=$imagem;
                         }
@@ -609,14 +604,9 @@ Route::post("/admin/noticias_cadastro", function(){
                                 unlink($caminhoDestino . substr($imagem,2));
                             }
                             if ($hasDImage && $dFile){
-                                $dImagem=$id . "_p_" . $filename;
+                                $dImagem=(!$original_format ? "r_" : "") . $id . "_p_" . $filename;
                                 $dFile->createwebp($caminhoDestino,$dImagem);
                                 $img=imagem($caminhoDestino.$dImagem);
-                                if ($original_format_d){
-                                    $img->resize(null,720);
-                                } else {
-                                    $img->resize(1280,720);
-                                }
                             }
                         }
                         // if permission has changed and new permission is public;
@@ -823,7 +813,7 @@ Route::post("/admin/24_cadastro",function(){
                             $file->createwebpwithquality($caminhoDestino,$filename);
                             $img=imagem($caminhoDestino.$filename);
                             // $img->resize(1280,720);
-                            if ($original_format){
+                            if (!$original_format){
                                 $img->resize(720,null);
                             } else {
                                 $img->resize(1280,720);
@@ -1331,14 +1321,9 @@ Route::post("/admin/imagens_cadastro", function(){
                     $file = request()->file("imagem");
                     // Salvar a imagem em um diretório
                     $imagem = $file->getClientOriginalName("webp");
-                    $imagem=$id . "_i_" . $imagem;
+                    $imagem=(!$original_format ? "r_" : "") . $id . "_i_" . $imagem;
                     $file->createwebp($caminhoDestino,$imagem);
                     $img=imagem($caminhoDestino.$imagem);
-                    if ($original_format){
-                        $img->resize(null,720);
-                    } else {
-                        $img->resize(1280,720);
-                    }
                 } else {
                     if ($isCadastro){
                         return response()->json(["result"=>"false","type"=>"image"]);
@@ -1968,14 +1953,9 @@ Route::post("/admin/videos_cadastro",function(){
                     $original_format=isset($_POST["original_format"]);
                     // Salvar a imagem em um diretório
                     $imagem = $file->getClientOriginalName("webp");
-                    $imagem=$id . "_v_i_" . $imagem;
+                    $imagem=(!$original_format ? "r_" : "") . $id . "_v_i_" . $imagem;
                     $file->createwebp($caminhoDestino,$imagem);
                     $img=imagem($caminhoDestino.$imagem);
-                    if ($original_format){
-                        $img->resize(null,720);
-                    } else {
-                        $img->resize(1280,720);
-                    }
                     // Agora a imagem foi salva no diretório especificado
             }
             if ($isCadastro){
@@ -2256,7 +2236,7 @@ Route::post("/admin/products_cadastro", function(){
                     $imagem=$id . "_i_" . $imagem;
                     $file->createwebp($caminhoDestino,$imagem);
                     $img=imagem($caminhoDestino.$imagem);
-                    if ($original_format){
+                    if (!$original_format){
                         $img->resize(null,720);
                     } else {
                         $img->resize(1280,720);

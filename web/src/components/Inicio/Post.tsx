@@ -26,7 +26,7 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                         cm=post.imagem;
                     }
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;
-                    content=t ? null : <img className='image' src={server+"/images/"+encodeURIComponent(cm)+(cm.startsWith("p_") ? "?c="+(globals.cargo.current.cargo & 4) : "")}/>
+                    content=t ? null : <img className={'image' + (cm.slice(0,2) =="r_" || cm.slice(2,4)=="r_" ? " rd" : "")} src={server+"/images/"+encodeURIComponent(cm)+(cm.startsWith("p_") ? "?c="+(globals.cargo.current.cargo & 4) : "")}/>
                 }
                 const parts=(post.descricao || post.titulo || post.texto || "").split(" ");
                 return <div className='coluna col-12 col-md-3 mb-4' key={index}>
