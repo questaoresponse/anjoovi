@@ -56,7 +56,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
                 <div className="titulo-video">{post.titulo.map((line,i)=>{
                     return <>
                         {line.map((titulo,index)=>{
-                            return titulo.length>0 && (titulo[0]=="#" || titulo[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={titulo[0]=="#" ? "/busca?q="+encodeURIComponent(titulo) : "/@"+encodeURIComponent(titulo.slice(1))}>{titulo + ( post.titulo.length-1>index ? " " : "" )}</Link> : titulo + ( post.titulo.length-1>index ? " " : "" )
+                            return titulo.length>0 && (titulo[0]=="#" || titulo[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={titulo[0]=="#" ? "/busca?q="+encodeURIComponent(titulo) : "/@"+encodeURIComponent(titulo.slice(1))}>{titulo + (line.length-1>index ? " " : "")}</Link> : titulo + (line.length-1>index ? " " : "")
                         })}
                         <br></br>
                     </>
@@ -87,7 +87,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
                 <div className="titulo-video">{post.titulo.map((line,i)=>{
                     return <>
                         {line.map((titulo,index)=>{
-                            return titulo.length>0 && (titulo[0]=="#" || titulo[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={titulo[0]=="#" ? "/busca?q="+encodeURIComponent(titulo) : "/@"+encodeURIComponent(titulo.slice(1))}>{titulo + ( post.titulo.length-1>index ? " " : "" )}</Link> : titulo + ( post.titulo.length-1>index ? " " : "" )
+                            return titulo.length>0 && (titulo[0]=="#" || titulo[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={titulo[0]=="#" ? "/busca?q="+encodeURIComponent(titulo) : "/@"+encodeURIComponent(titulo.slice(1))}>{titulo + (line.length-1>index ? " " : "")}</Link> : titulo + (line.length-1>index ? " " : "")
                         })}
                         <br></br>
                     </>
