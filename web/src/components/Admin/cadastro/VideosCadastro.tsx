@@ -197,7 +197,7 @@ function VideosCadastro(){
                     ffmpeg.current.writeFile(filename,await fetchFile(file));
                     const output="output."+filename.split(".").slice(-1);
                     await ffmpeg.current.exec(["-i",filename,"-t","00:01:00","-c","copy",output]);
-                    await ffmpeg.current.exec(['-i', filename, '-ss','0','-frames:v','1','output%03d.jpg']);
+                    await ffmpeg.current.exec(['-i', filename, '-ss','0','-frames:v','1', 'output%03d.jpg']);
                     const data=new Uint8Array(await ffmpeg.current.readFile(output) as ArrayBuffer);
                     const fileData=new Uint8Array(await ffmpeg.current.readFile("output001.jpg") as ArrayBuffer);
                     await ffmpeg.current.deleteFile(filename);

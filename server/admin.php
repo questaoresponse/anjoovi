@@ -1965,7 +1965,7 @@ Route::post("/admin/videos_cadastro",function(){
                     if ($imagem){
                         unlink($caminhoDestino . $imagem);
                     }
-                    $original_format=isset($_POST["original_format"]) ? $_POST["original_format"] : null;
+                    $original_format=isset($_POST["original_format"]);
                     // Salvar a imagem em um diretório
                     $imagem = $file->getClientOriginalName("webp");
                     $imagem=$id . "_v_i_" . $imagem;

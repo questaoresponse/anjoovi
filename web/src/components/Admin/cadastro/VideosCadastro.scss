@@ -42,7 +42,7 @@
         padding-bottom: initial;
         align-items: center;
         width: 100%;
-        background-color: gray;
+        background-color: #e0e0e0;
         aspect-ratio: 16/9;
         border-radius: 10px;
         overflow: hidden;
@@ -58,12 +58,12 @@
     }
     .imagem-view img{
         position: absolute;
-        width:100%;
         height:initial;
         left: initial;
         right: initial;
         top: auto;
     }
+    .i
     .imagem-view img.rd{
         height: 100%;
     }
