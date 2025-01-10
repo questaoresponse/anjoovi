@@ -313,14 +313,9 @@ function MusicasCadastro(){
         } else {
             (async ()=>{
                 const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm";
-                // const baseURL = window.location.href.split("/")[0];
-                // ffmpeg.current.on("log", ({ message }) => {
-                //     console.log(message);
-                // })
-                ffmpeg.current.on("progress",onProgress);
                 await ffmpeg.current.load({
                     coreURL: await toBlobURL(
-                        `${baseURL}/ffmpeg-core.js`,
+                        `/ffmpeg-core.js`,
                         "text/javascript"
                     ),
                     wasmURL: await toBlobURL(
@@ -328,7 +323,7 @@ function MusicasCadastro(){
                         "application/wasm"
                     ),
                     workerURL: await toBlobURL(
-                        `${baseURL}/ffmpeg-core.worker.js`,
+                        `/ffmpeg-core.worker.js`,
                         "text/javascript"
                     ),
                 });
