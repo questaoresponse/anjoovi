@@ -9,6 +9,7 @@
         "axios": "^1.1.2"
     },
     "dependencies": {
+        "cors": "^2.8.5",
         "express": "^4.21.1",
         "fluent-ffmpeg": "^2.1.3",
         "mkcert": "^3.2.0",

@@ -193,16 +193,17 @@ function VideosCadastro(){
                 
 
                 if (type === 'ftyp' && validMp4Signatures.includes(String.fromCharCode(...uint8Array.slice(8, 12)))) {
-                    ffmpeg.current.writeFile(file.name,await fetchFile(file));
-                    const output="output."+file.name.split(".").slice(-1);
-                    ffmpeg.current.exec(["-i",file.name,"-t","00:01:00","-c","copy",output]);
-                    ffmpeg.current.exec(['-i', file.name,'-vf', 'select=eq(n\\,0)','-q:v', '3','-frames:v', '1','output.jpg']);
+                    const filename="teste.mp4";
+                    ffmpeg.current.writeFile(filename,await fetchFile(file));
+                    const output="output."+filename.split(".").slice(-1);
+                    await ffmpeg.current.exec(["-i",filename,"-t","00:01:00","-c","copy",output]);
+                    await ffmpeg.current.exec(['-i', filename, '-ss','0','-frames:v','1','output%03d.jpg']);
                     const data=new Uint8Array(await ffmpeg.current.readFile(output) as ArrayBuffer);
-                    const fileData=new Uint8Array(await ffmpeg.current.readFile("output.jpg") as ArrayBuffer);
-                    await ffmpeg.current.deleteFile(file.name);
+                    const fileData=new Uint8Array(await ffmpeg.current.readFile("output001.jpg") as ArrayBuffer);
+                    await ffmpeg.current.deleteFile(filename);
                     await ffmpeg.current.deleteFile(output);
-                    await ffmpeg.current.deleteFile("output.jpg");
-                    const videoBlob=new Blob([data.buffer],{ type:"video/"+file.name.split(".").slice(-1) });
+                    await ffmpeg.current.deleteFile("output001.jpg");
+                    const videoBlob=new Blob([data.buffer],{ type:"video/"+filename.split(".").slice(-1) });
                     const videoUrl=URL.createObjectURL(videoBlob);
                     const imageBlob=new Blob([fileData.buffer],{ type:"image/jpg" });
                     const imageUrl=URL.createObjectURL(imageBlob);

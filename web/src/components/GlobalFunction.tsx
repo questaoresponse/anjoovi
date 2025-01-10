@@ -141,6 +141,43 @@ function GlobalFunction(){
                 navigate("/erro?origin="+encodeURIComponent(window.location.href));
             }
         };
+        // const originalLog = console.log;
+        // const originalWarn = console.warn;
+        // const originalError = console.error;
+
+        // console.log = function (...args) {
+        //     fetch("https://h0rnsgzt-4123.brs.devtunnels.ms/", {
+        //         method: 'POST',
+        //         headers: {
+        //           'Content-Type': 'application/json', // Definindo o tipo de conteúdo
+        //         },
+        //         body: JSON.stringify({...args}) // Convertendo os dados para JSON
+        //     });
+        //     // Processar a saída do log antes de mostrar no console
+        //     originalLog.apply(console, args); // Chama a implementação original
+        // };
+        // console.warn = function (...args) {
+        //     fetch("https://h0rnsgzt-4123.brs.devtunnels.ms/", {
+        //         method: 'POST',
+        //         headers: {
+        //           'Content-Type': 'application/json', // Definindo o tipo de conteúdo
+        //         },
+        //         body: JSON.stringify({...args}) // Convertendo os dados para JSON
+        //     });
+        //     // Processar o aviso antes de mostrar no console
+        //     originalWarn.apply(console, args); // Chama a implementação original
+        // };
+        // console.error = function (...args) {
+        //     fetch("https://h0rnsgzt-4123.brs.devtunnels.ms/", {
+        //         method: 'POST',
+        //         headers: {
+        //           'Content-Type': 'application/json', // Definindo o tipo de conteúdo
+        //         },
+        //         body: JSON.stringify({...args}) // Convertendo os dados para JSON
+        //     });
+        //     // Processar o erro antes de mostrar no console
+        //     originalError.apply(console, args); // Chama a implementação original
+        // };
         return ()=>{
             window.removeEventListener("beforeunload",deletar);
             window.removeEventListener("popstate",onPopstate);
