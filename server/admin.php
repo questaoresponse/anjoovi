@@ -627,29 +627,14 @@ Route::post("/admin/noticias_cadastro", function(){
                     $d=get_d();
                     $views_id=get_views_id($conn);
                     $conn->prepare("INSERT INTO post(nome,usuario,titulo,subtitulo,texto,imagem,acessos,views_id,id,d,privado) 
-                        SELECT nome, usuario, ? AS titulo, ? AS subtitulo, ? AS texto, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d,(CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado FROM user WHERE usuario=?",[$titulo,$subtitulo,$texto,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$usuario]);
+                        SELECT nome, usuario, ? AS titulo, ? AS subtitulo, ? AS texto, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d,(CASE WHEN cargo & 1=1 THEN ? | 8 ELSE ? END) AS privado FROM user WHERE usuario=?",[$titulo,$subtitulo,$texto,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$usuario]);
                     insert_views($conn,$usuario,"post",$views_id,$id);
                     add_n_posts($usuario,$conn);
                 } else {
                     $d=json_decode($d,true);
                     $d["a"]=get_updated_date();
                     $d=json_encode($d);
-                    // if (new permission is premium only){
-                        // if (flag of private channel in cargo){
-                            // a=1 << 2 (4);
-                        // } else {
-                            // a=0<< 2 (0);
-                        // }
-                        // return a | 2;
-                    //} else {
-                        // if (flag of private channel in cargo){
-                            // a=1 << 2 (4);
-                        // } else {
-                            // a=0<< 2 (0);
-                        // }
-                        // return a & ~2;
-                    //}
-                    $conn->prepare("UPDATE post SET titulo=?,subtitulo=?,texto=?,imagem=?,d=?,privado=CASE WHEN ? & 2=2 THEN ((? & 1) << 2) | 2 ELSE ((? & 1) << 2) & ~2 END WHERE usuario=? AND id=?",[$titulo,$subtitulo,$texto,$imagem,$d,$permission,$GLOBALS["cargo"],$GLOBALS["cargo"],$usuario,$id]);
+                    $conn->prepare("UPDATE post SET titulo=?,subtitulo=?,texto=?,imagem=?,d=?,privado=CASE WHEN ?==2 THEN privado | 2 ELSE privado & ~2 END WHERE usuario=? AND id=?",[$titulo,$subtitulo,$texto,$imagem,$d,$permission,$usuario,$id]);
                 }
                 response()->json(["result"=>"true","usuario"=>$usuario]);
             }
@@ -738,7 +723,7 @@ Route::post("/admin/noticias_lista",function(){
                 if ($operation){
                     $user=null;
                     $li=$operation=="privado";
-                    $case=$li ? "privado | 1" : "privado & ~1"; 
+                    $case=($GLOBALS["cargo"] & 2)==2 ? ($li ? "privado | 4" : "privado & ~4") : ($li ? "privado | 1" : "privado & ~1"); 
                     $sum=$li ? -1 : 1;
                     if (($cargo & 2)==2){
                         $result=$conn->prepare("UPDATE post SET privado=$case WHERE id=?",[$id]);
@@ -1335,7 +1320,7 @@ Route::post("/admin/imagens_cadastro", function(){
                     $views_id=get_views_id($conn);
                     $permission=0;
                     $conn->prepare("INSERT INTO post_imagem(nome,usuario,descricao,imagem,acessos,views_id,id,d,privado) 
-                        SELECT nome, usuario, ? AS descricao, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado FROM user WHERE id=?",[$descricao,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$GLOBALS["user_id"]]);
+                        SELECT nome, usuario, ? AS descricao, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 8 ELSE ? END) AS privado FROM user WHERE id=?",[$descricao,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$GLOBALS["user_id"]]);
                     insert_views($conn,$usuario,"post_imagem",$views_id,$id);
                     add_n_posts($usuario,$conn);
                 } else {
@@ -1617,7 +1602,7 @@ Route::post("/admin/musicas_cadastro",function(){
                 $durations=json_encode($durations);
                 $permission=0;
                 $conn->prepare("INSERT INTO post_musica(usuario,titulo,imagem,arquivo,acessos_parcial,views_id,id,d,privado,duration,zip)
-                    SELECT usuario, ? AS titulo, ? AS imagem, ? AS arquivo, ? AS acessos_parcial, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado, ? AS duration, ? AS zip FROM user WHERE id=?",[$titulo,$imagem,$arquivos_json,$acessos_parcial,$views_id,$id,$d,$permission,$permission,$durations,$zip,$GLOBALS["user_id"]]);
+                    SELECT usuario, ? AS titulo, ? AS imagem, ? AS arquivo, ? AS acessos_parcial, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 8 ELSE ? END) AS privado, ? AS duration, ? AS zip FROM user WHERE id=?",[$titulo,$imagem,$arquivos_json,$acessos_parcial,$views_id,$id,$d,$permission,$permission,$durations,$zip,$GLOBALS["user_id"]]);
                 insert_views($conn,$usuario,"post_musica",$views_id,$id);
                 add_n_posts($usuario,$conn);
             } else { 
@@ -1772,7 +1757,7 @@ Route::post("/admin/textos_cadastro",function(){
                 $conn->prepare("INSERT INTO post_texto(nome,usuario,texto,acessos,views_id,id,d,privado) 
                     SELECT nome, usuario, ? AS texto, 0 AS acessos, ? AS views_id, 
                     ? AS id,
-                    ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado FROM user WHERE id=?",[$texto,$views_id,$id,$d,$permission,$permission,$GLOBALS["user_id"]]);
+                    ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 8 ELSE ? END) AS privado FROM user WHERE id=?",[$texto,$views_id,$id,$d,$permission,$permission,$GLOBALS["user_id"]]);
                 // }
                 insert_views($conn,$user,"post_texto",$views_id,$id);
                 add_n_posts($user,$conn);
@@ -1963,7 +1948,7 @@ Route::post("/admin/videos_cadastro",function(){
                 $views_id=get_views_id($conn);
                 $permission=0;
                 $conn->prepare("INSERT INTO post_video(nome,usuario,titulo,texto,video,imagem,acessos,views_id,id,d,privado)
-                    SELECT nome, usuario, ? AS titulo, ? AS texto, ? AS video, ? AS imagem, 0 AS acessos, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado FROM user WHERE id=?",[$titulo,$texto,$video,$imagem,$views_id,$id,$d,$permission,$permission,$GLOBALS["user_id"]]);
+                    SELECT nome, usuario, ? AS titulo, ? AS texto, ? AS video, ? AS imagem, 0 AS acessos, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 8 ELSE ? END) AS privado FROM user WHERE id=?",[$titulo,$texto,$video,$imagem,$views_id,$id,$d,$permission,$permission,$GLOBALS["user_id"]]);
                 insert_views($conn,$user,"post_video",$views_id,$id); 
                 add_n_posts($user,$conn);
             } else {
@@ -2252,7 +2237,7 @@ Route::post("/admin/products_cadastro", function(){
                     $views_id=get_views_id($conn);
                     $permission=0;
                     $conn->prepare("INSERT INTO post_product(nome,usuario,descricao,imagem,acessos,views_id,id,d,privado) 
-                        SELECT nome, usuario, ? AS descricao, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, (CASE WHEN cargo & 1=1 THEN ? | 4 ELSE ? END) AS privado FROM user WHERE id=?",[$nome,$usuario,$descricao,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$GLOBALS["user"]]);
+                        SELECT nome, usuario, ? AS descricao, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, (CASE WHEN cargo & 1=1 THEN ? | 8 ELSE ? END) AS privado FROM user WHERE id=?",[$nome,$usuario,$descricao,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$GLOBALS["user"]]);
                     insert_views($conn,$usuario,"post_product",$views_id,$id);
                     add_n_posts($usuario,$conn);
                 } else {
@@ -2819,7 +2804,7 @@ Route::post("/admin/users",function(){
                     $name=request("name");
                     $conn=$GLOBALS["conn"];
                     $private_user=intval(p($conn->prepare("SELECT cargo FROM user WHERE usuario=?",[$name]))[0]["cargo"]) ^ 1;
-                    $private_clause=$private_user & 1==1 ? "privado | 4" : "privado & ~4";
+                    $private_clause=$private_user & 1==1 ? "privado | 8" : "privado & ~8";
                     $conn->prepare("UPDATE post_24 SET privado=$private_clause WHERE usuario=?",[$name]);
                     $conn->prepare("UPDATE post SET privado=$private_clause WHERE usuario=?",[$name]);
                     $conn->prepare("UPDATE post_imagem SET privado=$private_clause WHERE usuario=?",[$name]);
@@ -2851,4 +2836,5 @@ Route::post("/admin/users",function(){
     // 0: don't private
     // | 1: private post for all users
     // | 2: private post for non-premium only
-    // | 4: private channel for ADM
+    // | 4: private post for ADM
+    // | 8: private post due to deprivation of a channel by ADM

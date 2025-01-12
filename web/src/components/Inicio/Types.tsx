@@ -44,7 +44,7 @@ function Types(){
         return Number(number) < 10 ? "0"+number : String(number);
     }
     function get_date_s(d:any){
-        const [datePart, timePart] = new Date(d + ' -03:00').toLocaleString().split(', ');
+        const [datePart, timePart] = new Date((d - 10800) * 1000).toLocaleString().split(', ');
         const [day, month, year] = datePart.split('/');
         const data:any = new Date(`${year}-${month}-${day}T${timePart}`);
         const dia = zero(data.getDate());

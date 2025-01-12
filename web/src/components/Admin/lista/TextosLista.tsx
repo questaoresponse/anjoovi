@@ -10,12 +10,12 @@ import Link from '../../Link.tsx';
 function TextosLista(){
     const globals=useGlobal();
     const Opcoes=(props:any)=>{
-        const [isChecked,setIsChecked]=useState((props.post.privado & 1)==0 && (props.post.privado & 4)==0);
+        const [isChecked,setIsChecked]=useState((globals.cargo.current.cargo! & 2)==0 ? (props.post.privado & 13)==0 : (props.post.privado & 4)==0);
         const auth=props.auth;
         const server=props.globals.server;
         const location=props.location;
         const onPublicChange=useCallback((e:any)=>{
-            auth.post(server+"/admin/textos_lista"+location.search,{type:"option",id:props.post.id,operation:e.target.checked ? "privado":"publico"}).then((result:resultInterface)=>{
+            auth.post(server+"/admin/textos_lista"+location.search,{type:"option",id:props.post.id,operation:e.target.checked ? "publico":"privado"}).then((result:resultInterface)=>{
                 if (result.data.result=="true"){
                     setIsChecked(isChecked ? false : true);
                 }

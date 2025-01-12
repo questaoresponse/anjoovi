@@ -76,6 +76,7 @@ class NavigateClass{
     const urls=["/admin/noticias_cadastro","/admin/noticias_edit","/admin/24_cadastro","/admin/imagens_cadastro","/admin/imagens_edit","/admin/musicas_cadastro","/admin/musicas_edit","/admin/textos_cadastro","/admin/textos_edit","/admin/videos_cadastro","/admin/videos_edit","/admin/playlists_cadastro","/admin/playlists_edit","/admin/products_cadastro","/admin/products_edit"];
     if ((this.pathname.startsWith("/admin") || pathname.startsWith("/admin")) && ((urls.includes(pathname.split("/").slice(0,3).join("/")) && !urls.includes(this.pathname.split("/").slice(0,3).join("/"))) || (urls.includes(this.pathname.split("/").slice(0,3).join("/")) && !urls.includes(pathname.split("/").slice(0,3).join("/"))))){
       window.location.href=pathname;
+      return;
     }
     if (!("changeURL" in options)){
       options.changeURL=true;

@@ -101,11 +101,30 @@ function Lista(propsl:any){
     // o.classList.add("opcoes");
     // l.appendChild(o);
     const get=useCallback(()=>{
+        function zero(number:string | number){
+            return Number(number) < 10 ? "0"+number : String(number);
+        }
         auth.post(server+location.pathname+location.search,{type:"info"}).then((result)=>{
             if (result.error){
                 globals.redirectError.current(result.error);
             } else {
-                result.data.posts=result.data.posts.map((post:any)=>{ return {...post,d:post.d ? JSON.parse(post.d).o.split(":").splice(0,2).join(":") : "",privado:post.privado ? Number(post.privado) : undefined}});
+                result.data.posts=result.data.posts.map((post:any)=>{ 
+                    if (post.d){
+                        post.d=JSON.parse(post.d)["o"];
+                        const [datePart, timePart] = new Date((post.d - 10800) * 1000).toLocaleString().split(', ');
+                        const [day, month, year] = datePart.split('/');
+                        const data:any = new Date(`${year}-${month}-${day}T${timePart}`);
+                        const dia = zero(data.getDate());
+                        const mes = zero(data.getMonth() + 1); // Os meses em JavaScript são base 0 (janeiro é 0, fevereiro é 1, etc.)
+                        const ano = data.getFullYear();
+                        const hora = zero(data.getHours());
+                        const minuto=zero(data.getMinutes());
+                        post.d=`${ano}-${mes}-${dia} ${hora}:${minuto}`;
+                    } else {
+                        post.d="";
+                    }
+                    return {...post,privado:post.privado ? Number(post.privado) : undefined}
+                });
                 Recriar(result.data);
             }
         })
