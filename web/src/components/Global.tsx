@@ -56,6 +56,7 @@ declare global {
   }
 }
 class NavigateClass{
+  atualizePage:boolean=false;
   navigateFn:()=>void=()=>{};
   listeners:((pathname:string)=>void)[]=[];
   navigateCurrent:((pathname:string,changeURL:boolean,lookTop:boolean)=>void) | undefined;
@@ -75,8 +76,12 @@ class NavigateClass{
   navigate(pathname:string,options:OptionsNavigate={changeURL:true,lookTop:true,callHandle:true}):void{
     const urls=["/admin/noticias_cadastro","/admin/noticias_edit","/admin/24_cadastro","/admin/imagens_cadastro","/admin/imagens_edit","/admin/musicas_cadastro","/admin/musicas_edit","/admin/textos_cadastro","/admin/textos_edit","/admin/videos_cadastro","/admin/videos_edit","/admin/playlists_cadastro","/admin/playlists_edit","/admin/products_cadastro","/admin/products_edit"];
     if ((this.pathname.startsWith("/admin") || pathname.startsWith("/admin")) && ((urls.includes(pathname.split("/").slice(0,3).join("/")) && !urls.includes(this.pathname.split("/").slice(0,3).join("/"))) || (urls.includes(this.pathname.split("/").slice(0,3).join("/")) && !urls.includes(pathname.split("/").slice(0,3).join("/"))))){
-      window.location.href=pathname;
-      return;
+      if (urls.includes(this.pathname.split("/").slice(0,3).join("/")) && pathname!="/admin/sair"){
+        window.location.href=pathname;
+        return;
+      } else {
+        this.atualizePage=true;
+      }
     }
     if (!("changeURL" in options)){
       options.changeURL=true;

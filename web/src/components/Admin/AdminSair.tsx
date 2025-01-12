@@ -41,7 +41,11 @@ function AdminSair(){
             localStorage.removeItem("lg");
             globals.setLogin({usuario:null,isLoged:"false",logo:null});
             globals.cargo.current.setCargo((globals.cargo.current.cargo || 0) & ~2);
-            navigate!("/");
+            if (globals.navigateClass.current.atualizePage){
+                window.location.href="/";
+            } else {
+                navigate!("/");
+            }
         }
         logout();
     },[]);
