@@ -41,8 +41,8 @@ export default defineConfig({
     // port:3000,
     // host:"192.168.18.113",
     https: {
-      key: fs.readFileSync(__dirname + "/ssl/anjoovi/key.pem"),
-      cert: fs.readFileSync(__dirname + "/ssl/anjoovi/crt.pem")
+      key: fs.readFileSync(__dirname + "/../ssl/anjoovi/key.pem"),
+      cert: fs.readFileSync(__dirname + "/../ssl/anjoovi/crt.pem")
     },
     host: "www.anjoovi.com",
     port: 3001,

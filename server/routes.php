@@ -5,7 +5,7 @@ if (isset($_SERVER["HTTP_ORIGIN"])) {
     $servers=[
         "https://localhost:4000"=>"h0rnsgzt-4000.brs.devtunnels.ms",
         "https://www.anjoovi.com"=>".www.anjoovi.com",
-        "https://192.168.18.113:4000"=>"192.168.18.113"
+        "https://192.168.18.93:4000"=>"192.168.18.93"
     ];
     $server=$servers[implode("/",array_slice(explode("/",$_SERVER["HTTP_ORIGIN"]),0,3))];
     $GLOBALS["domain_cookie"] = $server;

@@ -46,16 +46,8 @@ const AuthProvider = ({ children }:{children:any}) => {
       if (res.data.header_location=="/admin"){
         // globals.setUser(false);
         globals.setLogin(_=>{return {logo:null,usuario:null,isLoged:"false"}});
-        if (localStorage.getItem("token")){
-          globals.myStorage.current=true;
-          localStorage.removeItem('token');
-          globals.myStorage.current=true;
-          localStorage.removeItem('us');
-          globals.myStorage.current=true;
-          localStorage.removeItem('lsrc');
-        }
+        localStorage.getItem("lg") && localStorage.removeItem("lg");
         globals.myStorage.current=true;
-        localStorage.removeItem("lg");
         globals.redirect("/admin");
       } else {
         globals.redirect(res.data.header_location);
@@ -63,26 +55,28 @@ const AuthProvider = ({ children }:{children:any}) => {
     } else if (res.data.header_erro || (res.data.result=="false" && res.data.type=="not_logged")){
         globals.redirectError.current("/erro");
     } else {
-      const lgs=localStorage.getItem("lg");
-      var lg:{usuario:string,lsrc:string,token:string} | null=null;
-      lgs && (lg=JSON.parse(lgs));
-      var u=res.data.hasOwnProperty("usuario") ? res.data.usuario : lg ? lg.usuario : null;
-      var t=res.data.hasOwnProperty("token") ? res.data.token : lg ? lg.token : null;
-      var l=res.data.hasOwnProperty("lsrc") ? globals.cript(res.data.lsrc) : lg ? lg.lsrc : null;
-      if (!lg || (lg && (lg.usuario!=u || lg.token!=t || lg.lsrc!=l))){
-        globals.setLogin((login)=>{
-          return {
-            usuario:res.data.hasOwnProperty("usuario") ? res.data.usuario : login.usuario,
-            isLoged:res.data.hasOwnProperty("usuario") ? res.data.usuario ? "true" : "false" : login.isLoged,
-            logo:res.data.hasOwnProperty("lsrc") ? res.data.lsrc : login.logo,
-          }
-        });
-        globals.myStorage.current=true;
-        localStorage.setItem("lg",JSON.stringify({
-          usuario:u,
-          token:t,
-          lsrc:l,
-        }));
+      if (globals.currentLogin.current.isLoged!="false" || res.data.usuario){
+        const lgs=localStorage.getItem("lg");
+        var lg:{usuario:string,lsrc:string,token:string} | null=null;
+        lgs && (lg=JSON.parse(lgs));
+        var u=res.data.hasOwnProperty("usuario") ? res.data.usuario : lg ? lg.usuario : null;
+        var t=res.data.hasOwnProperty("token") ? res.data.token : lg ? lg.token : null;
+        var l=res.data.hasOwnProperty("lsrc") ? globals.cript(res.data.lsrc) : lg ? lg.lsrc : null;
+        if (!lg || (lg && (lg.usuario!=u || lg.token!=t || lg.lsrc!=l))){
+          globals.setLogin((login)=>{
+            return {
+              usuario:res.data.hasOwnProperty("usuario") ? res.data.usuario : login.usuario,
+              isLoged:res.data.hasOwnProperty("usuario") ? res.data.usuario ? "true" : "false" : login.isLoged,
+              logo:res.data.hasOwnProperty("lsrc") ? res.data.lsrc : login.logo,
+            }
+          });
+          globals.myStorage.current=true;
+          localStorage.setItem("lg",JSON.stringify({
+            usuario:u,
+            token:t,
+            lsrc:l,
+          }));
+        }
       }
       resolve(res);
     }

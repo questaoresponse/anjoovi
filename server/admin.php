@@ -798,10 +798,10 @@ Route::post("/admin/24_cadastro",function(){
                             $file->createwebpwithquality($caminhoDestino,$filename);
                             $img=imagem($caminhoDestino.$filename);
                             // $img->resize(1280,720);
-                            if (!$original_format){
+                            if ($original_format){
                                 $img->resize(720,null);
                             } else {
-                                $img->resize(1280,720);
+                                $img->resize(720,1280);
                             }
                         }
                     } else {
@@ -2221,7 +2221,7 @@ Route::post("/admin/products_cadastro", function(){
                     $imagem=$id . "_i_" . $imagem;
                     $file->createwebp($caminhoDestino,$imagem);
                     $img=imagem($caminhoDestino.$imagem);
-                    if (!$original_format){
+                    if ($original_format){
                         $img->resize(null,720);
                     } else {
                         $img->resize(1280,720);

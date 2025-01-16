@@ -29,18 +29,10 @@ function AdminSair(){
         async function logout(){
             await peer_logout();
             await auth.post(server+"/admin/sair",{type:"info"});
-            if (localStorage.getItem("token")){
-                globals.myStorage.current=true;
-                localStorage.removeItem("token");
-                globals.myStorage.current=true;
-                localStorage.removeItem("us");
-                globals.myStorage.current=true;
-                localStorage.removeItem("lsrc");
-            }
+            localStorage.getItem("lg") && localStorage.removeItem("lg");
             globals.myStorage.current=true;
-            localStorage.removeItem("lg");
             globals.setLogin({usuario:null,isLoged:"false",logo:null});
-            globals.cargo.current.setCargo((globals.cargo.current.cargo || 0) & ~2);
+            globals.cargo.current.setCargo(128);
             if (globals.navigateClass.current.atualizePage){
                 window.location.href="/";
             } else {

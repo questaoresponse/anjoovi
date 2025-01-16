@@ -31,3 +31,6 @@ public_html/videos/
 public_html/sitemap.xml
 
 .vscode/
+
+minecraft/
+javap/
