@@ -397,7 +397,7 @@ html,body{
     // }
     #destaque{
         position:relative;
-        display:block;
+        display:flex;
         border-radius: 20px;
         overflow: hidden;
         width: var(--div-width);
@@ -406,6 +406,7 @@ html,body{
         margin-left: var(--div-margin);
         margin-top: 1.9vw;
         text-decoration: none;
+        justify-content: center;
     }
     #dl2{
         position: relative;
@@ -466,7 +467,7 @@ html,body{
             margin-left: 0;
             // padding-bottom: calc(100% / 3 / 1280 * 720);
             // padding-top: 50%;
-            display: inline-block;
+            display: inline-flex;
             margin-top:0;
             width: $destaque-pc;
             // width: ;
@@ -494,9 +495,8 @@ html,body{
     }
     #destaque{
         .imagem-canal{
-            width:100%;
+            max-width:100%;
             height:100%;
-            position: absolute;
         }
         .texto-canal{
             position: relative;

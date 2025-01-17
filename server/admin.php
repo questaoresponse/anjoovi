@@ -452,12 +452,11 @@ Route::post('/admin',function(){
                         $tokens=json_encode($tokens);
                         $peer_tokens=json_encode([]);
                         $user_token=get_token(["usuario"=>$user]);
-                        set_cookies("token",$user_token);
                         $s=$conn->prepare("INSERT INTO user(nome,usuario,email,senha,hash,cargo,data_n,n_posts,inscritos,id,d,tokens,peer_tokens) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",[$name,$user,$email,$password,$user_token,$cargo,$data_str,$n_posts,$inscritos,$id,$d,$tokens,$peer_tokens]);
                         update_sitemap();
                         $json=json_encode([]);
                         $conn->prepare("INSERT INTO inscritos(usuario,inscritos) VALUES(?,?)",[$user,$json]);
-                        set_user($user);
+                        set_cookie("token",$user);
                         $GLOBALS["cargo"]=0;
                         response()->json(["result"=>"true","token"=>"token","tokenId"=>$token,"usuario"=>$user]);
                     }
@@ -2704,7 +2703,7 @@ Route::post('/admin/account',function(){
                         $conn->prepare("UPDATE payments SET user=? WHERE user=?",[$novo_usuario,$usuario]);
                         $conn->prepare("UPDATE mensagem SET usuario=? WHERE usuario=?",[$novo_usuario,$usuario]);
                         $conn->prepare("UPDATE historico SET usuario=? WHERE usuario=?",[$novo_usuario,$usuario]);
-                        set_user($novo_usuario);
+                        set_cookie("token",$novo_usuario);
                         response()->json(["result"=>"true","usuario"=>$novo_usuario,"token"=>"token"]);
                     } else {
                         response()->json(["result"=>"false"]);
