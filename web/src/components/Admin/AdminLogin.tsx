@@ -289,11 +289,9 @@ const Cadastro3=({mobile,get_origin,globals,auth,setType,values}:{mobile:boolean
             }
             auth.post(server+"/admin",{type:"cadastro",...values.current}).then((result:resultInterface)=>{
                 if (result.data.result=="true"){
-                    var st=setTimeout(()=>{
-                        setHeader("admin");
-                        navigate!(get_origin());
-                        clearTimeout(st);
-                    },20);
+                    globals.setLogin({usuario:result.data.usuario,isLoged:"true",logo:null});
+                    setHeader("admin");
+                    navigate!(get_origin());
                 }
             })
         }

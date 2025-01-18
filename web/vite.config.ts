@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import fs from 'fs';
-import mkcert from 'vite-plugin-mkcert'
 
 // https://vitejs.dev/config/
 import builtins from 'rollup-plugin-node-builtins';

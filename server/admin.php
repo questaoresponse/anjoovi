@@ -453,11 +453,11 @@ Route::post('/admin',function(){
                         $peer_tokens=json_encode([]);
                         $user_token=get_token(["usuario"=>$user]);
                         $s=$conn->prepare("INSERT INTO user(nome,usuario,email,senha,hash,cargo,data_n,n_posts,inscritos,id,d,tokens,peer_tokens) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",[$name,$user,$email,$password,$user_token,$cargo,$data_str,$n_posts,$inscritos,$id,$d,$tokens,$peer_tokens]);
-                        update_sitemap();
                         $json=json_encode([]);
                         $conn->prepare("INSERT INTO inscritos(usuario,inscritos) VALUES(?,?)",[$user,$json]);
-                        set_cookie("token",$user);
+                        set_cookie("token",$user_token);
                         $GLOBALS["cargo"]=0;
+                        update_sitemap();
                         response()->json(["result"=>"true","token"=>"token","tokenId"=>$token,"usuario"=>$user]);
                     }
                 } else {
