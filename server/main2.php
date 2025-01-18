@@ -177,20 +177,13 @@ function get_date($q,$tipo){
     return implode(":",$q);
 }
 function delete_file_temps($conn){
-    $r2s=p($conn->query("SELECT d,id,views_id,type,filename FROM post_24"));
-    $dataInicial = new DateTime();
+    $r2s=p($conn->query("SELECT d,id,views_id,type,filename FROM post_24 WHERE JSON_UNQUOTE(JSON_EXTRACT(d,'$.o'))<UNIX_TIMESTAMP(NOW() - INTERVAL 1 DAY)"));
     foreach ($r2s as $rs){
-        $formato = "Y-m-d H:i:s"; // Formato da string de data
-        $d=json_decode($rs["d"],true);
-        $dataFinal = DateTime::createFromFormat($formato, $d["o"]);
-        $diferenca = $dataInicial->diff($dataFinal);
-        if ($diferenca->days>=1) {
-            $id=$rs["id"];
-            $views_id=$rs["views_id"];
-            $rs["type"]=="mp4" ? unlink(__DIR__ . '/../public_html/videos/' . $rs["filename"]) : unlink(__DIR__ . '/../public_html/images/' . $rs["filename"]);
-            $conn->prepare("DELETE FROM post_24 WHERE id=?",[$id]);
-            $conn->prepare("UPDATE views SET excluido='true' WHERE excluido='false' AND tipo='post_24' AND id=?",[$views_id]);
-        }
+        $id=$rs["id"];
+        $views_id=$rs["views_id"];
+        $rs["type"]=="mp4" ? unlink(__DIR__ . '/../public_html/videos/' . $rs["filename"]) : unlink(__DIR__ . '/../public_html/images/' . $rs["filename"]);
+        $conn->prepare("DELETE FROM post_24 WHERE id=?",[$id]);
+        $conn->prepare("UPDATE views SET excluido='true' WHERE excluido='false' AND tipo='post_24' AND id=?",[$views_id]);
     }
     // $r2s=p($conn->query("SELECT usuario,id,d,views_id,video,imagem FROM post_video"));
     // foreach($r2s as $rs){
