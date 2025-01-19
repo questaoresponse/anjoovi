@@ -5,7 +5,7 @@ function Logo(props:any){
     const globals=useGlobal();
     const server=globals.server;
     return (
-        <div className='logo_c' style={{
+        <div className='logo_c' onClick={props.onClick} style={{
             width:props.width,
             height:props.width,
             fontSize:`calc(${props.width} / 2)`,

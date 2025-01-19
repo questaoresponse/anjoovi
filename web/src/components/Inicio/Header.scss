@@ -301,6 +301,16 @@ html,body{
     top:6.5px;
     left:2px;
 }
+.cbi #menu-options{
+    position: absolute;
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+}
+.cbi #menu-options.visible{
+    display: block;
+}
 @media screen and (max-width:768px){
     .cbi.x #x{
         display: none;
@@ -372,6 +382,14 @@ html,body{
     }
     .cbi #logado{
         top:3.75px;
+        cursor: pointer;
+        user-select: none;
+    }
+    .cbi #login:hover{
+        opacity: 0.5;
+    }
+    .cbi #login:active{
+        opacity: 0.5;
     }
     .cbi #pesquisa{
         top:0;

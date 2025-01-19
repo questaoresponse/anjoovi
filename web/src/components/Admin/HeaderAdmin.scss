@@ -184,6 +184,14 @@
         overflow: hidden;
         top:calc(var(--menu-height)/2 - 21.25px);
         right:30px;
+        cursor: pointer;
+        user-select: none;
+    }
+    .logo_c:hover{
+        opacity: 0.5;
+    }
+    .logo_c:active{
+        opacity: 0.5;
     }
     .logo_c img{
         width:100%;

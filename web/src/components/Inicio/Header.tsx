@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, memo, useLayoutEffect } from 'react';
+import { useEffect, useState, useRef, memo, useLayoutEffect, MutableRefObject } from 'react';
 import { useGlobal } from '../Global.tsx';
 import { useLocation } from 'react-router-dom';
 import Link from '../Link.tsx';
@@ -7,6 +7,7 @@ import lupa from '../static/lupa.png';
 import xSrc from '../static/x.png';
 import Logo from '../Logo.jsx';
 import LogoAnjoovi from '../LogoAnjoovi.tsx';
+import UserOptions from '../Shared/UserOptions.tsx';
 const Header = () => {
     const globals = useGlobal();
     const { navigate, login, currentLogin }=globals;
@@ -15,13 +16,14 @@ const Header = () => {
       return currentLogin.current.isLoged=="true";
     }
     const [isLogado,setIsLogado]=useState(getLogadoValue());
+    const [userOptions,setUserOptions]=useState(false);
     const [lupaSrc, _] = useState(lupa);
     const refs={
       pai:useRef<HTMLDivElement>(null),
       pesquisa:useRef<HTMLInputElement>(null),
       voltar:useRef<HTMLDivElement>(null),
       lupa:useRef<HTMLDivElement>(null),
-      login:useRef<HTMLAnchorElement>(null),
+      login:useRef<HTMLDivElement | HTMLAnchorElement>(null),
       logo:useRef<HTMLAnchorElement>(null),
     }
 
@@ -153,17 +155,19 @@ const Header = () => {
           {/* <path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z"></path> */}
           <path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z"></path>
         </svg>
-        <Link  className={"l-l" + (!isLogado ? " login" : "")} ref={!isLogado ? refs.login : null}  to="/admin">
+        <Link className={"l-l" + (!isLogado ? " login" : "")} ref={!isLogado ? refs.login as MutableRefObject<HTMLAnchorElement> : null} to="/admin">
           <div id="btn_login" style={{ display: !globals.mobile && !isLogado ? "flex" : "none" }}>
             Fazer login
           </div>
         </Link>
-        <Link className={isLogado ? "login" : ""} ref={isLogado ? refs.login : null} to="/admin">
+        <div className={isLogado ? "login" : ""} ref={isLogado ? refs.login as MutableRefObject<HTMLDivElement> : null} onClick={()=>setUserOptions(value=>!value)}>
           <div id="logado" className="nlogado" style={{ display:!globals.mobile && isLogado ? "flex" : "none" }}>
             <Logo logo={globals.login.logo} usuario={globals.login.usuario} width="42.5px"/>
           </div>
-        </Link>
+        </div>
         <div onClick={onClickMenu} id="menu-a" className={menu ? "menu-aberto" : "menu-fechado"}></div>
+        <div onClick={()=>setUserOptions(false)} id="menu-options" className={userOptions ? "visible" : "hide"}></div>
+        <UserOptions show={userOptions} setShow={setUserOptions}></UserOptions>
         {/* <img id="load" src={x} style={{ display: "none" }} alt="Ícone de carregamento" /> */}
       </div>
     );

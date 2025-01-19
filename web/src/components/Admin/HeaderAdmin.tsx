@@ -7,11 +7,13 @@ import Logo from "../Logo.tsx";
 import "../Logo.scss";
 import { useAuth } from "../Auth.tsx";
 import LogoAnjoovi from "../LogoAnjoovi.tsx";
+import UserOptions from "../Shared/UserOptions.tsx";
 function HeaderAdmin(){
     const globals=useGlobal();
     const { server, cargo }=useGlobal();
     const auth=useAuth();
     const [cMenu,setCMenu]=useState(false);
+    const [userOptions,setUserOptions]=useState(false);
     const location=useLocation();
     const onMenuClick=()=>{
         setCMenu((cMenu)=>(!cMenu));
@@ -62,8 +64,9 @@ function HeaderAdmin(){
             <svg id="bt-menu" onClick={onMenuClick}>
                 <path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z"></path>
             </svg>
-            <Logo logo={globals.login.logo} usuario={globals.login.usuario} width="42.5px"/>
+            <Logo onClick={()=>setUserOptions(value=>!value)} logo={globals.login.logo} usuario={globals.login.usuario} width="42.5px"/>
             <Link data-color="inicio" to='/'><LogoAnjoovi id="logo"/></Link>
+            <UserOptions show={userOptions} setShow={setUserOptions}></UserOptions>
         </div>
         </div>
     )

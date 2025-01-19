@@ -1,0 +1,25 @@
+#uo{
+    position: absolute;
+    border-radius: 20px;
+    background-color: hsl(0, 0%, 89%);
+    width: 150px;
+    height: 200px;
+    top:50px;
+    right:30px;
+    padding-top: 5px;
+    font-size: 120%;
+
+    .uo-item{
+        display: block;
+        text-decoration: none;
+        color: black;
+        width: fit-content;
+        margin-left: 20px;
+    }
+    .uo-item:hover{
+        opacity: 0.5; 
+    }
+    .uo-item:active{
+        opacity: 0.5;
+    }
+}
