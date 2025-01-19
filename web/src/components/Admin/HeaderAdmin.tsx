@@ -47,7 +47,6 @@ function HeaderAdmin(){
                 <Link to='/admin/settings'><div className={"i-menu"+(globals.selected=="settings" ? " selected" : "")} id="settings">Configurações</div></Link>
                 <Link to='/admin/account'><div className={"i-menu"+(globals.selected=="account" ? " selected" : "")} id="settings">Conta</div></Link>
                 <Link to='/admin/premium'><div className={"i-menu"+(globals.selected=="premium" ? " selected" : "")} id="settings">Premium</div></Link>
-                <Link to='/admin/sair'><div className="i-menu" id="sair">Sair</div></Link>
             </div>
             : 
             <div id="c_menu" className={cMenu ? "aberto" : "fechado"}>
@@ -57,7 +56,6 @@ function HeaderAdmin(){
                 <Link to='/admin/account'><div className={"i-menu"+(globals.selected=="account" ? " selected" : "")} id="settings">Conta</div></Link>
                 <Link to='/admin/users'><div className={"i-menu"+(globals.selected=="users" ? " selected" : "")} id="users">Usuários</div></Link>
                 <Link to='/admin/denuncias_lista'><div className={"i-menu"+(globals.selected=="denuncias_lista" ? " selected" : "")} id="denuncias_lista">Denúncias</div></Link>
-                <Link to='/admin/sair'><div className="i-menu" id="sair">Sair</div></Link>
             </div>
             }
             <div onClick={onMenuClick} id="menu-a" className={cMenu ? "aberto" : "fechado"}></div>
