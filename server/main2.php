@@ -3099,12 +3099,12 @@ Route::post("/verifyPeerId",function(){
     }
 });
 Route::post("/simple",function(){
-    $ffi = FFI::cdef(
-        "const char* saudacao();",   // Define a assinatura da função
-        "/teste.so"       // Caminho para a DLL (ou .so)
-    );
-    
-    // Chamar a função da DLL
-    echo $ffi->saudacao();
+    // $ffi = FFI::cdef(
+    //     "const char* saudacao();",   // Define a assinatura da função
+    //     "/teste.so"       // Caminho para a DLL (ou .so)
+    // );
+    // // Chamar a função da DLL
+    // echo $ffi->saudacao();
+    phpinfo();
 });
 include(__DIR__ . '/admin.php');
