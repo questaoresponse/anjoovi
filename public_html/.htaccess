@@ -1,5 +1,4 @@
 AddType application/wasm .wasm
-php_flag ffi 1
 <IfModule mod_php.c>
     php_value max_input_time 1800
     php_value max_execution_time 1800
