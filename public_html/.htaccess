@@ -35,8 +35,9 @@ AddType application/wasm .wasm
     RewriteCond %{REQUEST_URI} ^/updateCode$
     RewriteRule ^(.*)$ updateCode.php [L]
 
-    RewriteCond %{REQUEST_URI} !^/updateCode
+    RewriteCond %{REQUEST_URI} !^/updateCodes
     RewriteRule ^ teste.php [L]
+
 </IfModule>
 
 <Files 403.shtml>
