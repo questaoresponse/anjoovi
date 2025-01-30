@@ -9,18 +9,22 @@
         "axios": "^1.1.2"
     },
     "dependencies": {
+        "canvas": "^3.1.0",
         "cors": "^2.8.5",
         "dgram": "^1.0.1",
+        "electron": "^34.0.1",
         "express": "^4.21.2",
         "fluent-ffmpeg": "^2.1.3",
         "mkcert": "^3.2.0",
         "multer": "^1.4.5-lts.1",
         "node-aplay": "^1.0.3",
+        "node-gyp": "^11.0.0",
         "pdf-parse": "^1.1.1",
         "pdfkit": "^0.15.2",
         "play-sound": "^1.1.6",
         "puppeteer": "^23.11.1",
         "react-native": "^0.76.6",
-        "sudo-prompt": "^9.2.1"
+        "sudo-prompt": "^9.2.1",
+        "ws": "^8.18.0"
     }
 }
