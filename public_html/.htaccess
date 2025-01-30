@@ -1,5 +1,7 @@
 AddType application/wasm .wasm
-    
+Options +ExecCGI
+AddHandler cgi-script .cgi .pl .sh
+
 <IfModule mod_php.c>
     php_value max_input_time 1800
     php_value max_execution_time 1800
