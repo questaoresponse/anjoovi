@@ -57,7 +57,7 @@ int main() {
         // Se você quiser controlar a quantidade de consumo de CPU, pode adicionar um pequeno delay
         std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Delay de 1ms entre as iterações
         main++;
-        if (main==10000){
+        if (main==1000){
             break;
         }
 
