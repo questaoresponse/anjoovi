@@ -7,8 +7,8 @@
 #include <ctime>
 
 int main() {
-    pid_t pid = fork();
-
+    // pid_t pid = fork();
+    int pid=1;
     if (pid < 0) {
         // Se o fork falhar
         perror("Falha ao criar o processo filho");
@@ -35,14 +35,14 @@ int main() {
     }
 
     // Fecha as descrições de arquivos padrão (stdin, stdout, stderr)
-    close(STDIN_FILENO);
-    close(STDOUT_FILENO);
-    close(STDERR_FILENO);
+    // close(STDIN_FILENO);
+    // close(STDOUT_FILENO);
+    // close(STDERR_FILENO);
 
     // Redireciona as saídas para /dev/null
-    open("/dev/null", O_RDONLY);  // stdin
-    open("/dev/null", O_WRONLY);  // stdout
-    open("/dev/null", O_WRONLY);  // stderr
+    // open("/dev/null", O_RDONLY);  // stdin
+    // open("/dev/null", O_WRONLY);  // stdout
+    // open("/dev/null", O_WRONLY);  // stderr
 
     // Daemon executando por 10 horas
     printf("Daemon executando por 10 horas...\n");
