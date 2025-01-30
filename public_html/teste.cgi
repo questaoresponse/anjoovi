@@ -1,2 +1,2 @@
 #!/bin/bash
-./../server/main
+/home/server/main
