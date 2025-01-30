@@ -48,17 +48,15 @@ int main() {
     printf("Daemon executando por 10 segundos...\n");
     
     time_t start_time = time(NULL);
-    int main=0;
-    // Verifica se 10 segundos se passaram
+
+        // Verifica se 10 segundos se passaram
     while (true) {
         // Realiza cálculos simples para gerar carga no processador
         double result = std::sin(123.45) * std::cos(678.90);
         
         // Se você quiser controlar a quantidade de consumo de CPU, pode adicionar um pequeno delay
         std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Delay de 1ms entre as iterações
-        main++;
-        if (main==1000){
-            break;
+        if (difftime(time(NULL), start_time) >= 5) {
         }
 
     }
