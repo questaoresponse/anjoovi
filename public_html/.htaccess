@@ -6,9 +6,9 @@
 #     php_value upload_max_filesize 75M
 #     php_value post_max_size 100M
 # </IfModule>
-<IfModule mod_headers.c>
-    Header set Cache-Control "max-age=2592000, public"
-</IfModule>
+# <IfModule mod_headers.c>
+#     Header set Cache-Control "max-age=2592000, public"
+# </IfModule>
 # <FilesMatch "\.html$">
 #     Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
 #     Header set Pragma "no-cache"
