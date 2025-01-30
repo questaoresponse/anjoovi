@@ -22,17 +22,17 @@ int main() {
     }
 
     // Processo filho se torna um daemon
-    pid_t sid = setsid();
-    if (sid < 0) {
-        perror("Falha ao criar uma nova sessão");
-        exit(1);
-    }
+    // pid_t sid = setsid();
+    // if (sid < 0) {
+        // perror("Falha ao criar uma nova sessão");
+        // exit(1);
+    // }
 
     // Desconecta do terminal
-    if (chdir("/") < 0) {
-        perror("Falha ao mudar o diretório de trabalho");
-        exit(1);
-    }
+    //if (chdir("/") < 0) {
+        //perror("Falha ao mudar o diretório de trabalho");
+        //exit(1);
+    //}
 
     // Fecha as descrições de arquivos padrão (stdin, stdout, stderr)
     // close(STDIN_FILENO);
