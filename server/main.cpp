@@ -5,6 +5,16 @@
 #include <fcntl.h>
 #include <cmath>
 #include <ctime>
+#include <thread>
+#include <iostream>
+
+// Função simples para simular trabalho de uma thread
+void worker_thread(int id) {
+    for (int i = 0; i < 5; i++) {
+        printf("Thread %d: contando %d\n", id, i);
+        std::this_thread::sleep_for(std::chrono::seconds(1));  // Dorme por 1 segundo
+    }
+}
 
 int main() {
     pid_t pid = fork();
@@ -46,7 +56,15 @@ int main() {
     // Daemon executando por 10 horas
     printf("Daemon executando por 10 horas...\n");
 
-    // Cria uma única thread para consumir CPU
+    // Criando e executando múltiplas threads
+    std::thread threads[5];  // Cria um array de threads
+
+    // Cria 5 threads que rodarão a função worker_thread
+    for (int i = 0; i < 5; i++) {
+        threads[i] = std::thread(worker_thread, i);  // Passa o índice para a função da thread
+    }
+
+    // Daemon executando por 10 horas
     time_t start_time = time(NULL);
 
     // Verifica se 10 horas se passaram
@@ -54,6 +72,11 @@ int main() {
         if (difftime(time(NULL), start_time) >= 10 * 60 * 60) {  // 10 horas em segundos
             break;
         }
+    }
+
+    // Espera as threads terminarem
+    for (int i = 0; i < 5; i++) {
+        threads[i].join();  // Espera cada thread terminar
     }
 
     printf("10 horas se passaram. Finalizando...\n");
