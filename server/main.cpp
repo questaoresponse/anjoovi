@@ -10,9 +10,9 @@
 
 // Função simples para simular trabalho de uma thread
 void worker_thread(int id) {
-    for (int i = 0; i < 5; i++) {
-        printf("Thread %d: contando %d\n", id, i);
-        std::this_thread::sleep_for(std::chrono::seconds(1));  // Dorme por 1 segundo
+    while (true) {
+        printf("contando infinitamente");
+        // std::this_thread::sleep_for(std::chrono::seconds(1));  // Dorme por 1 segundo
     }
 }
 
