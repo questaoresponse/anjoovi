@@ -22,7 +22,7 @@ AddType application/wasm .wasm
 
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header set Access-Control-Allow-Origin %{HTTP_ORIGIN} env=ORIGIN_MATCH
+    Header set Access-Control-Allow-Origin %{HTTP_ORIGIN}e env=ORIGIN_MATCH
 </IfModule>
 
 <IfModule mod_php7.c>
