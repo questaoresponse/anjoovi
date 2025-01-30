@@ -37,3 +37,6 @@ javap/
 
 teste/
 tools/
+
+server/send
+server/send.cpp

