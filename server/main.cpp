@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <cmath>
+#include <thread>
 
 int main() {
     pid_t pid = fork();
@@ -45,7 +47,13 @@ int main() {
     // Daemon executando por 10 segundos
     printf("Daemon executando por 10 segundos...\n");
     
-    sleep(10);  // Dorme por 10 segundos de forma eficiente
+    while (true) {
+        // Realiza cálculos simples para gerar carga no processador
+        double result = std::sin(123.45) * std::cos(678.90);
+        
+        // Se você quiser controlar a quantidade de consumo de CPU, pode adicionar um pequeno delay
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Delay de 1ms entre as iterações
+    }
 
     printf("10 segundos se passaram. Finalizando...\n");
 
