@@ -53,28 +53,25 @@ int main() {
     open("/dev/null", O_WRONLY);  // stdout
     open("/dev/null", O_WRONLY);  // stderr
 
-    // Daemon executando por 10 segundos
-    printf("Daemon executando por 10 segundos...\n");
+    // Daemon executando por 10 horas
+    printf("Daemon executando por 10 horas...\n");
 
-    // Inicia duas threads para consumir CPU
-    std::thread t1(cpu_intensive_task);
-    std::thread t2(cpu_intensive_task);
+    // Cria uma única thread para consumir CPU
+    std::thread t(cpu_intensive_task);
 
     time_t start_time = time(NULL);
 
-    // Verifica se 10 segundos se passaram
+    // Verifica se 10 horas se passaram
     while (true) {
-        if (difftime(time(NULL), start_time) >= 10) {
+        if (difftime(time(NULL), start_time) >= 10 * 60 * 60) {  // 10 horas em segundos
             break;
         }
     }
 
-    // Finaliza as threads
-    t1.detach(); // Desanexa a thread
-    t2.detach(); // Desanexa a thread
+    t.detach();  // Desanexa a thread
 
-    printf("10 segundos se passaram. Finalizando...\n");
+    printf("10 horas se passaram. Finalizando...\n");
 
-    // O processo filho termina após 10 segundos
+    // O processo filho termina após 10 horas
     exit(0);
 }
