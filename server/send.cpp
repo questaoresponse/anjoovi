@@ -12,10 +12,23 @@ int main(int argc, char* argv[]) {
 
     // Criar a URL base para a requisição GET
     std::string base_url = "https://www.anjoovi.com/teste.php?command=";
+
+     // Substituir os espaços por '%20' e '+' por '%2B' antes de codificar
+    std::string argument = argv[1];
+    for (size_t i = 0; i < argument.length(); i++) {
+        if (argument[i] == ' ') {
+            argument[i] = '%';  // Substitui espaço por '%'
+            argument.insert(i + 1, "20");  // Adiciona '20' após o '%'
+        } else if (argument[i] == '+') {
+            argument[i] = '%';  // Substitui '+' por '%'
+            argument.insert(i + 1, "2B");  // Adiciona '2B' após o '%'
+        }
+    }
+    const char* arg = argument.c_str();
     
     CURL* curl = curl_easy_init();
 
-    char* encoded_param = curl_easy_escape(curl, argv[1], strlen(argv[1]));
+    char* encoded_param = curl_easy_escape(curl, arg, strlen(arg));
     if (!encoded_param) {
         std::cerr << "Erro ao codificar o argumento!" << std::endl;
         return 1;
