@@ -9,5 +9,5 @@ output=$(/home/anjoov00/server/main)  # Captura a saída do programa
 # Exibe a saída do programa dentro do HTML
 echo "<pre>$output</pre>" 
 
-echo "<h2>Programa finalizado!</h2>"
+echo "<h2>Programa finaslizado!</h2>"
 echo "</body></html>"
