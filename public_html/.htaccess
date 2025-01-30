@@ -1,11 +1,11 @@
 # AddType application/wasm .wasm
     
-<IfModule mod_php.c>
-    php_value max_input_time 1800
-    php_value max_execution_time 1800
-    php_value upload_max_filesize 75M
-    php_value post_max_size 100M
-</IfModule>
+# <IfModule mod_php.c>
+#     php_value max_input_time 1800
+#     php_value max_execution_time 1800
+#     php_value upload_max_filesize 75M
+#     php_value post_max_size 100M
+# </IfModule>
 <IfModule mod_headers.c>
     Header set Cache-Control "max-age=2592000, public"
 </IfModule>
