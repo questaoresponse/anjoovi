@@ -4,16 +4,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <cmath>
-#include <thread>
 #include <ctime>
-
-// Função para gerar carga na CPU
-void cpu_intensive_task() {
-    while (true) {
-        // Realiza cálculos simples para consumir CPU
-        double result = std::sin(123.45) * std::cos(678.90);
-    }
-}
 
 int main() {
     pid_t pid = fork();
@@ -57,8 +48,6 @@ int main() {
     printf("Daemon executando por 10 horas...\n");
 
     // Cria uma única thread para consumir CPU
-    std::thread t(cpu_intensive_task);
-
     time_t start_time = time(NULL);
 
     // Verifica se 10 horas se passaram
@@ -67,8 +56,6 @@ int main() {
             break;
         }
     }
-
-    t.detach();  // Desanexa a thread
 
     printf("10 horas se passaram. Finalizando...\n");
 
