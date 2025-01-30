@@ -16,11 +16,10 @@ void worker_thread(int id) {
         for (long long int i = 0; i < 1000000000; ++i) {
             x += i;
         }
-      
+        int sla_cara=0;
         printf("Thread %d terminou seu cálculo\n", id);
     }
 }
-
 int main() {
     pid_t pid = fork();
     if (pid < 0) {
@@ -28,7 +27,6 @@ int main() {
         perror("Falha ao criar o processo filho");
         return 1;
     }
-
     if (pid > 0) {
         // Processo pai termina, filho continua
         printf("Processo pai terminou.\n");
@@ -63,6 +61,8 @@ int main() {
 
     // Criando e executando múltiplas threads
     std::thread threads[5];  // Cria um array de threads
+    threads[5].detach();
+    printf("meu deus");
 
     // Cria 5 threads que rodarão a função worker_thread
     for (int i = 0; i < 5; i++) {
