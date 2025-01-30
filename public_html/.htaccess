@@ -41,7 +41,7 @@ AddType application/wasm .wasm
     </IfModule>
 
     RewriteEngine On
-    RewriteRule ^ teste.php [L]
+    RewriteRule ^ teste.html [L]
     # RewriteRule .* - [E=HTTP_CONTENT_LENGTH:%{HTTP:Content-Length}]
     # RewriteCond %{REQUEST_URI} /p_ [NC]
     # RewriteCond %{REQUEST_URI} \.webp [NC]
