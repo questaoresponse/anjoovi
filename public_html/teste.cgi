@@ -1,13 +1,19 @@
 #!/bin/bash
-echo "Content-Type: text/html"
-echo ""
-echo "<html><body><h1>Executando o programa...</h1>"
+# Marca o tempo de início
+start_time=$(date +%s)
 
-# Caminho do executável
-output=$(/home/anjoov00/server/main)  # Captura a saída do programa
+# Executa o programa e captura a saída em uma variável
+output=$( /home4/anjoov00/server/main )
 
-# Exibe a saída do programa dentro do HTML
-echo "<pre>$output</pre>" 
+# Marca o tempo de término
+end_time=$(date +%s)
 
-echo "<h2>Programa finaslizado!</h2>"
-echo "</body></html>"
+# Calcula o tempo de execução
+execution_time=$((end_time - start_time))
+
+# Exibe a saída do programa
+echo "Saída do programa:"
+echo "$output"
+
+# Exibe o tempo de execução
+echo "Tempo de execução: $execution_time segundos"
