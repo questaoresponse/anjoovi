@@ -1,19 +1,20 @@
 #!/bin/bash
-# Marca o tempo de início
-start_time=$(date +%s)
+#!/bin/bash
 
-# Executa o programa e captura a saída em uma variável
-output=$( /home4/anjoov00/server/main )
+# Recupera a URL completa (CGI envia como variável de ambiente)
+url="$REQUEST_URI"  # Essa variável contém a URL requisitada
 
-# Marca o tempo de término
-end_time=$(date +%s)
+# Recupera o cabeçalho HTTP_ORIGIN
+origin="$HTTP_ORIGIN"  # O servidor passa o valor do cabeçalho HTTP_ORIGIN
 
-# Calcula o tempo de execução
-execution_time=$((end_time - start_time))
+# Exibe as informações para o browser (opcional)
+echo "Content-Type: text/html"
+echo ""
+echo "<html><body>"
+echo "<h1>Dados da Requisição</h1>"
+echo "<p><strong>URL:</strong> $url</p>"
+echo "<p><strong>HTTP_ORIGIN:</strong> $origin</p>"
 
-# Exibe a saída do programa
-echo "Saída do programa:"
-echo "$output"
-
-# Exibe o tempo de execução
-echo "Tempo de execução: $execution_time segundos"
+# Passa os dados como parâmetros para o executável C++
+# Exemplo de chamada de executável C++ passando os dados como parâmetros
+../server/cgi/cgi "$url" "$origin"

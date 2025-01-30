@@ -16,6 +16,7 @@ void worker_thread(int id) {
         for (long long int i = 0; i < 1000000000; ++i) {
             x += i;
         }
+      
         printf("Thread %d terminou seu cálculo\n", id);
     }
 }
