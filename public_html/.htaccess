@@ -1,9 +1,7 @@
 AddType application/wasm .wasm
-    
+
 <IfModule mod_php.c>
-    php_value max_input_time 1800
-    php_value max_execution_time 1800
-    php_value upload_max_filesize 75M
+    php_value upload_max_filesize 100M
     php_value post_max_size 100M
 </IfModule>
 <IfModule mod_headers.c>
@@ -14,18 +12,10 @@ AddType application/wasm .wasm
     Header set Pragma "no-cache"
     Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
 </FilesMatch>
-<FilesMatch "^p_.*">
-    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-    Header set Pragma "no-cache"
-    Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
-</FilesMatch>
-
-<IfModule mod_headers.c>
-    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header set Access-Control-Allow-Origin %{HTTP_ORIGIN} env=ORIGIN_MATCH
-</IfModule>
 
 <IfModule mod_php7.c>
+    php_value memory_limit 256M
+    php_value max_execution_time = 900
     php_flag opcache.enable On
     php_flag opcache.memory_consumption 128
     php_flag opcache.interned_strings_buffer 8
@@ -41,26 +31,19 @@ AddType application/wasm .wasm
     </IfModule>
 
     RewriteEngine On
-    RewriteRule .* - [E=HTTP_CONTENT_LENGTH:%{HTTP:Content-Length}]
-    RewriteCond %{REQUEST_URI} /p_ [NC]
-    RewriteCond %{REQUEST_URI} \.webp [NC]
-    RewriteRule ^ verify.php [L]
+    
+    RewriteCond %{REQUEST_URI} ^/updateCode$
+    RewriteRule ^(.*)$ updateCode.php [L]
 
-    RewriteCond %{REQUEST_URI} /assets/worker [NC]
-    RewriteCond %{REQUEST_URI} \.js [NC]
-    RewriteRule ^ worker.php [L]
-
-    RewriteCond %{REQUEST_METHOD} POST
-    RewriteRule ^ index.php [L]
-    RewriteCond %{HTTP:Authorization} . 
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
-
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+    RewriteCond %{REQUEST_URI} !^/updateCode
+    RewriteRule ^ teste.php [L]
 </IfModule>
 
+<Files 403.shtml>
+order allow,deny
+allow from all
+</Files>
+
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php83___lsphp .php .php8 .phtml
+</IfModule>
