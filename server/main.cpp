@@ -4,7 +4,7 @@
 
 int main() {
     // Carrega a biblioteca compartilhada
-    void* handle = dlopen("./libminha_biblioteca.so", RTLD_LAZY);
+    void* handle = dlopen("./main.so", RTLD_LAZY);
     if (!handle) {
         std::cerr << "Erro ao carregar a biblioteca: " << dlerror() << std::endl;
         return 1;
