@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
-#include <time.h>
 
 int main() {
     pid_t pid = fork();
@@ -21,7 +20,6 @@ int main() {
     }
 
     // Processo filho se torna um daemon
-    // Cria uma nova sessão e torna o processo líder dessa sessão
     pid_t sid = setsid();
     if (sid < 0) {
         perror("Falha ao criar uma nova sessão");
@@ -45,17 +43,11 @@ int main() {
     open("/dev/null", O_WRONLY);  // stderr
 
     // Daemon executando por 10 segundos
-    time_t start_time = time(NULL);
+    printf("Daemon executando por 10 segundos...\n");
+    
+    sleep(10);  // Dorme por 10 segundos de forma eficiente
 
-    while (1) {
-        // Verifica se 10 segundos se passaram
-        if (difftime(time(NULL), start_time) >= 10) {
-            printf("Daemon executado por 10 segundos. Finalizando...\n");
-            break;  // Sai do loop após 10 segundos
-        }
-
-        // Você pode adicionar o que o daemon faria aqui, se necessário.
-    }
+    printf("10 segundos se passaram. Finalizando...\n");
 
     // O processo filho termina após 10 segundos
     exit(0);
