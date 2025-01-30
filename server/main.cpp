@@ -11,8 +11,12 @@
 // Função simples para simular trabalho de uma thread
 void worker_thread(int id) {
     while (true) {
-        printf("contando infinitamente");
-        // std::this_thread::sleep_for(std::chrono::seconds(1));  // Dorme por 1 segundo
+        // Realiza um cálculo simples, mas com muitas repetições para aumentar a carga
+        volatile long long int x = 0;
+        for (long long int i = 0; i < 1000000000; ++i) {
+            x += i;
+        }
+        printf("Thread %d terminou seu cálculo\n", id);
     }
 }
 
