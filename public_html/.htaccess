@@ -1,24 +1,24 @@
-# AddType application/wasm .wasm
+AddType application/wasm .wasm
     
-# <IfModule mod_php.c>
-#     php_value max_input_time 1800
-#     php_value max_execution_time 1800
-#     php_value upload_max_filesize 75M
-#     php_value post_max_size 100M
-# </IfModule>
-# <IfModule mod_headers.c>
-#     Header set Cache-Control "max-age=2592000, public"
-# </IfModule>
-# <FilesMatch "\.html$">
-#     Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-#     Header set Pragma "no-cache"
-#     Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
-# </FilesMatch>
-# <FilesMatch "^p_.*">
-#     Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-#     Header set Pragma "no-cache"
-#     Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
-# </FilesMatch>
+<IfModule mod_php.c>
+    php_value max_input_time 1800
+    php_value max_execution_time 1800
+    php_value upload_max_filesize 75M
+    php_value post_max_size 100M
+</IfModule>
+<IfModule mod_headers.c>
+    Header set Cache-Control "max-age=2592000, public"
+</IfModule>
+<FilesMatch "\.html$">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+</FilesMatch>
+<FilesMatch "^p_.*">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+</FilesMatch>
 
 # <IfModule mod_headers.c>
 #     Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
