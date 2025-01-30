@@ -1,39 +1,39 @@
-# AddType application/wasm .wasm
+AddType application/wasm .wasm
     
-# <IfModule mod_php.c>
-#     php_value max_input_time 1800
-#     php_value max_execution_time 1800
-#     php_value upload_max_filesize 75M
-#     php_value post_max_size 100M
-# </IfModule>
-# <IfModule mod_headers.c>
-#     Header set Cache-Control "max-age=2592000, public"
-# </IfModule>
-# <FilesMatch "\.html$">
-#     Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-#     Header set Pragma "no-cache"
-#     Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
-# </FilesMatch>
-# <FilesMatch "^p_.*">
-#     Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-#     Header set Pragma "no-cache"
-#     Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
-# </FilesMatch>
+<IfModule mod_php.c>
+    php_value max_input_time 1800
+    php_value max_execution_time 1800
+    php_value upload_max_filesize 75M
+    php_value post_max_size 100M
+</IfModule>
+<IfModule mod_headers.c>
+    Header set Cache-Control "max-age=2592000, public"
+</IfModule>
+<FilesMatch "\.html$">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+</FilesMatch>
+<FilesMatch "^p_.*">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+</FilesMatch>
 
-# <IfModule mod_headers.c>
-#     Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-#     Header set Access-Control-Allow-Origin %{HTTP_ORIGIN}e env=ORIGIN_MATCH
-# </IfModule>
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Origin %{HTTP_ORIGIN}e env=ORIGIN_MATCH
+</IfModule>
 
-# <IfModule mod_php7.c>
-#     php_flag opcache.enable On
-#     php_flag opcache.memory_consumption 128
-#     php_flag opcache.interned_strings_buffer 8
-#     php_flag opcache.max_accelerated_files 4000
-#     php_flag opcache.revalidate_freq 2
-#     php_flag opcache.fast_shutdown On
-#     php_value opcache.enable_cli 0
-# </IfModule>
+<IfModule mod_php7.c>
+    php_flag opcache.enable On
+    php_flag opcache.memory_consumption 128
+    php_flag opcache.interned_strings_buffer 8
+    php_flag opcache.max_accelerated_files 4000
+    php_flag opcache.revalidate_freq 2
+    php_flag opcache.fast_shutdown On
+    php_value opcache.enable_cli 0
+</IfModule>
 
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
@@ -41,31 +41,30 @@
     </IfModule>
 
     RewriteEngine On
-    RewriteRule ^ teste.html [L]
-    # RewriteRule .* - [E=HTTP_CONTENT_LENGTH:%{HTTP:Content-Length}]
-    # RewriteCond %{REQUEST_URI} /p_ [NC]
-    # RewriteCond %{REQUEST_URI} \.webp [NC]
-    # RewriteRule ^ verify.php [L]
+    RewriteRule .* - [E=HTTP_CONTENT_LENGTH:%{HTTP:Content-Length}]
+    RewriteCond %{REQUEST_URI} /p_ [NC]
+    RewriteCond %{REQUEST_URI} \.webp [NC]
+    RewriteRule ^ verify.php [L]
 
-    # RewriteCond %{REQUEST_URI} /assets/worker [NC]
-    # RewriteCond %{REQUEST_URI} \.js [NC]
-    # RewriteRule ^ worker.php [L]
+    RewriteCond %{REQUEST_URI} /assets/worker [NC]
+    RewriteCond %{REQUEST_URI} \.js [NC]
+    RewriteRule ^ worker.php [L]
 
-    # RewriteCond %{REQUEST_METHOD} POST
-    # RewriteRule ^ index.php [L]
-    # # Handle Authorization Header
-    # RewriteCond %{HTTP:Authorization} . 
-    # RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteCond %{REQUEST_METHOD} POST
+    RewriteRule ^ index.php [L]
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} . 
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # # Redirect Trailing Slashes If Not A Folder...
-    # RewriteCond %{REQUEST_FILENAME} !-d
-    # RewriteCond %{REQUEST_URI} (.+)/$
-    # RewriteRule ^ %1 [L,R=301]
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
 
-    # # Send Requests To Front Controller...
-    # RewriteCond %{REQUEST_FILENAME} !-d
-    # RewriteCond %{REQUEST_FILENAME} !-f
-    # RewriteRule ^ index.php [L]
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
 </IfModule>
 
 # <Files 403.shtml>
