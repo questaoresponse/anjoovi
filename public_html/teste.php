@@ -1,3 +1,3 @@
 <?php
-echo "iaaaa";
+    shell_exec("../server/main & disown");
 ?>
