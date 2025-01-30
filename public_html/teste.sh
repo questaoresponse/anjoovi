@@ -1,2 +1,2 @@
 #!/bin/bash
-./../server/main
+echo "Esta é uma mensagem do script shell!"
