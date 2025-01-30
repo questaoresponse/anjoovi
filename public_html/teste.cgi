@@ -1,2 +1,2 @@
 #!/bin/bash
-/home/server/main
+/home/anjoov00/server/main
