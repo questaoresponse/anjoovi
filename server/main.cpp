@@ -8,18 +8,18 @@
 
 int main() {
     // pid_t pid = fork();
-    int pid=1;
-    if (pid < 0) {
+    // int pid=1;
+    // if (pid < 0) {
         // Se o fork falhar
-        perror("Falha ao criar o processo filho");
-        return 1;
-    }
+        // perror("Falha ao criar o processo filho");
+        // return 1;
+    // }
 
-    if (pid > 0) {
+    // if (pid > 0) {
         // Processo pai termina, filho continua
-        printf("Processo pai terminou.\n");
-        return 0;
-    }
+        // printf("Processo pai terminou.\n");
+        // return 0;
+    // }
 
     // Processo filho se torna um daemon
     // pid_t sid = setsid();
