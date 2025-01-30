@@ -55,7 +55,7 @@ int main() {
         double result = std::sin(123.45) * std::cos(678.90);
         
         // Se você quiser controlar a quantidade de consumo de CPU, pode adicionar um pequeno delay
-        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Delay de 1ms entre as iterações
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Delay de 1ms entre as iterações
         if (difftime(time(NULL), start_time) >= 10) {
             break;
         }
