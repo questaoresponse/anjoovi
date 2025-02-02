@@ -2833,7 +2833,6 @@ Route::post("/admin/users",function(){
         r404();
     }
 });
-<
 // Route::post("/ajeitar3",function(){
 //     update_sitemap();
 // });
