@@ -345,11 +345,6 @@ if (!function_exists("cargo")){
         $response = curl_exec($ch);
         curl_close($ch);
     }
-    function mime_content_type($url){
-        $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->file($url);
-    }
-
 }
 Route::post("/admin_header",function(){
     $usuario=$GLOBALS["user"];
