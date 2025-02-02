@@ -781,7 +781,7 @@ Route::post("/admin/24_cadastro",function(){
                     if (($typeMime=="mp4" && $fileType === 'video/mp4') || ($typeMime=="jpeg" && $fileType === "image/jpeg")){
                         if ($typeMime=="mp4"){
                             $duration=shell_exec($GLOBALS["ffprobe_path"] . ' "' . $file->file["tmp_name"]. '" -show_entries format=duration -v quiet -of csv="p=0"');
-                            if (filter_var($duration, FILTER_VALIDATE_FLOAT) !== false && intval($duration)<16){
+                            if (filter_var($duration, FILTER_VALIDATE_FLOAT) !== false && intval($duration)<=60){
                                     $caminhoDestino = __DIR__ . "/../public_html/videos/";
                                     $filename = $file->getClientOriginalName("mp4");
                                     $filename =$id . '_24_' . $filename;
