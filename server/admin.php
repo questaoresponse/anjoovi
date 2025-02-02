@@ -745,7 +745,6 @@ Route::post("/admin/noticias_lista",function(){
             } else {
                 gpa($tipo);
             }
-            // $num=$conn->query("SELECT COUNT(*) AS num FROM post WHERE usuario")
         } else {
             response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/noticias_lista/admin.html'));
         }
