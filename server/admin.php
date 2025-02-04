@@ -1,4 +1,5 @@
 <?php
+putenv('PATH=' . getenv('PATH') . ':/home/anjoov00/ffmpeg');
 if (!function_exists("cargo")){
     function cargo($usuario){
         $conn=$GLOBALS["conn"];
