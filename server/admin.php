@@ -1913,6 +1913,7 @@ Route::post("/admin/videos_cadastro",function(){
                         echo $GLOBALS["ffprobe_path"] . ".";
                         echo $file->file["tmp_name"] . ".";
                         echo $duration;
+                        echo "nossa";
                         if (filter_var($duration, FILTER_VALIDATE_FLOAT) !== false && intval($duration)<61){
                             if (mime_content_type($file->file["tmp_name"]) === 'video/mp4'){
                                 $caminhoDestino = __DIR__ . "/../public_html/videos/";
