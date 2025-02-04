@@ -66,7 +66,7 @@ if ($valid){
             }
         }
     }   
-    echo "finisheds";
+    echo "finished";
 } else {
     http_response_code(404);
 }
