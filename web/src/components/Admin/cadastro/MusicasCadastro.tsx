@@ -196,7 +196,7 @@ function MusicasCadastro(){
         var currentPercentage:{[key:string]:any}={};
         async function uploadMusic(music:{ file:File | Blob, name:string }){
             const file=music.file;
-            const chunkSize = 1024 * 1024; // 1 MB por chunk
+            const chunkSize = 1400; // 1 MB por chunk
             const totalChunks = Math.ceil(file.size / chunkSize);
             // Função para enviar cada chunk
             for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
