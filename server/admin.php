@@ -1914,6 +1914,7 @@ Route::post("/admin/videos_cadastro",function(){
                         echo $file->file["tmp_name"] . ".";
                         echo $duration;
                         echo "nossa";
+                        echo getenv("PATH");
                         if (filter_var($duration, FILTER_VALIDATE_FLOAT) !== false && intval($duration)<61){
                             if (mime_content_type($file->file["tmp_name"]) === 'video/mp4'){
                                 $caminhoDestino = __DIR__ . "/../public_html/videos/";
