@@ -1909,7 +1909,7 @@ Route::post("/admin/videos_cadastro",function(){
                 if (request()->has("video")){
                     $file = request()->file("video");
                     if ($_FILES["video"]["error"] !==  UPLOAD_ERR_INI_SIZE){
-                        $duration=shell_exec($GLOBALS["ffprobe_path"] . ' "' . $file->file["tmp_name"] . '" -show_entries format=duration -v quiet -of csv="p=0"');
+                        $duration=shell_exec($GLOBALS["ffprobe_path"] . ' "' . $file->file["tmp_name"] . '" -show_entries format=duration -v quiet -of csv="p=0" 2>&1');
                         echo $GLOBALS["ffprobe_path"] . ".";
                         echo $file->file["tmp_name"] . ".";
                         echo $duration;
