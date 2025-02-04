@@ -68,5 +68,5 @@ if ($valid){
     }   
     echo "finished";
 } else {
-    header('HTTP/1.1 404');
+    http_response_code(404);
 }

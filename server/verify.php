@@ -33,8 +33,8 @@ class sqli{
         return $q2;
     }
 }
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0"); // Cache por 1 hora (3600 segundos)
-header("Expires: Wed, 11 Jan 1984 05:00:00 GMT");  // Define a data de expiração
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Expires: Wed, 11 Jan 1984 05:00:00 GMT"); 
 header("Content-Type: image/webp");
 $arr=explode("/",explode("?",$_SERVER["REQUEST_URI"])[0]);
 $filename=array_splice($arr,-1)[0];
