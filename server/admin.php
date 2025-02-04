@@ -1910,11 +1910,6 @@ Route::post("/admin/videos_cadastro",function(){
                     $file = request()->file("video");
                     if ($_FILES["video"]["error"] !==  UPLOAD_ERR_INI_SIZE){
                         $duration=shell_exec($GLOBALS["ffprobe_path"] . ' "' . $file->file["tmp_name"] . '" -show_entries format=duration -v quiet -of csv="p=0" 2>&1');
-                        echo $GLOBALS["ffprobe_path"] . ".";
-                        echo $file->file["tmp_name"] . ".";
-                        echo $duration;
-                        echo "nossa";
-                        echo getenv("PATH");
                         if (filter_var($duration, FILTER_VALIDATE_FLOAT) !== false && intval($duration)<61){
                             if (mime_content_type($file->file["tmp_name"]) === 'video/mp4'){
                                 $caminhoDestino = __DIR__ . "/../public_html/videos/";
