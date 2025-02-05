@@ -36,7 +36,7 @@ if (isset($_GET["key"]) && $_GET["key"]==$GLOBALS["updateKey"]){
     }
 }
 if ($valid){
-    if ($_GET["type"]=="restore"){
+    if (isset($_GET["type"]) && $_GET["type"]=="restore"){
         $restoreValue=$_GET["restoreValue"];
         $commands=["git fetch origin","git checkout origin/main~$restoreValue ../server","git checkout origin/main~$restoreValue ../public_html"];
         foreach ($commands as $command){
@@ -46,7 +46,7 @@ if ($valid){
             $return_var = 0;
 
             // Executa o comando
-            exec($command, $output, $return_var);
+            exec($command . " 2>&1", $output, $return_var);
             foreach ($output as $line) {
                 echo $line . "\n";
             }

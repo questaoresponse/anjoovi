@@ -18,7 +18,6 @@
 //     while (ftell($handle) < filesize($filePath)) {
 //         $chunkType = fread($handle, 4);
 //         $chunkSize = unpack('V', fread($handle, 4))[1];
-
 //         if ($chunkType === 'fmt ') {
 //             // Pula para o início dos dados de áudio
 //             fseek($handle, $chunkSize - 8, SEEK_CUR);
