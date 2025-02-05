@@ -46,7 +46,7 @@ if ($valid){
             $return_var = 0;
 
             // Executa o comando
-            exec($command . " 2>&1", $output, $return_var);
+            exec($command, $output, $return_var);
             foreach ($output as $line) {
                 echo $line . "\n";
             }
@@ -60,7 +60,7 @@ if ($valid){
             $return_var = 0;
 
             // Executa o comando
-            exec($command, $output, $return_var);
+            exec($command . " 2>&1", $output, $return_var);
             foreach ($output as $line) {
                 echo $line . "\n";
             }
