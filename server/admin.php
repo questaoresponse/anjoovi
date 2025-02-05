@@ -2685,7 +2685,6 @@ Route::post('/admin/account',function(){
                         //     ?
                         // ) WHERE JSON_CONTAINS(usuarios,CONCAT('\"',REPLACE(?, '\"', '\\\"'),'\"'),'$')",[$usuario,$novo_usuario,$usuario]);
                         // $t=$conn->prepare("SELECT JSON_SEARCH(usuarios, 'one', CONCAT('\"',REPLACE(?, '\"', '\\\"'),'\"')) AS r FROM chat WHERE JSON_CONTAINS(usuarios,CONCAT('\"',REPLACE(?, '\"', '\\\"'),'\"'),'$')",[$usuario,$usuario]);
-                        
                         // $t=$conn->prepare("SELECT  
                         //     CASE WHEN JSON_UNQUOTE(JSON_EXTRACT(usuarios,'$[0]'))=? 
                         //     THEN JSON_ARRAY(?,JSON_UNQUOTE(JSON_EXTRACT(usuarios,'$[1]'))) 
