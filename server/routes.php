@@ -574,6 +574,7 @@ class Route
     }
 }
 Route::init();
+// include(__DIR__ . '/mp3file.class.php');
 include(__DIR__ . '/main.php');
 Route::dispatch($_SERVER["REQUEST_METHOD"]=="PUT" ? "GET" : $_SERVER["REQUEST_METHOD"],parse_url($_SERVER["REQUEST_URI"])['path']);
 
