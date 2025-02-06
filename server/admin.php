@@ -2030,7 +2030,6 @@ Route::post("/admin/videos_lista",function(){
                 $operation=request("operation") ? request("operation") : null;
                 $conn = $GLOBALS["conn"];
                 if ($operation){
-                    $user=null;
                     $li=$operation=="privado";
                     $case=($GLOBALS["cargo"] & 2)==2 ? ($li ? "privado | 4" : "privado & ~4") : ($li ? "privado | 1" : "privado & ~1"); 
                     $sum=$li ? -1 : 1;
