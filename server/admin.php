@@ -2024,17 +2024,35 @@ Route::post("/admin/videos_lista",function(){
             gpa($tipo,$cargo,$user);
         } else if (request("type")=="option"){
             if ($tipo=="normal"){
-                $cargo=cargo($user);
-                $id=$_POST["id"];
-                $conn=$GLOBALS["conn"];
-                if (($cargo & 2)==2){
-                    delete_video($conn,$id);
+                $cargo=$GLOBALS["cargo"];
+                $id=request("id");
+                $operation=request("operation") ? request("operation") : null;
+                $conn = $GLOBALS["conn"];
+                if ($operation){
+                    $user=null;
+                    $li=$operation=="privado";
+                    $case=($GLOBALS["cargo"] & 2)==2 ? ($li ? "privado | 4" : "privado & ~4") : ($li ? "privado | 1" : "privado & ~1"); 
+                    $sum=$li ? -1 : 1;
+                    if (($cargo & 2)==2){
+                        $result=$conn->prepare("UPDATE post_video SET privado=$case WHERE id=?",[$id]);
+                        $user=p($conn->prepare("SELECT usuario FROM post_video WHERE id=?",[$id]))[0]["usuario"];
+                    } else {
+                        $result=$conn->prepare("UPDATE post_video SET privado=$case WHERE usuario=? AND id=?",[$usuario,$id]);
+                        $user=$usuario;
+                    }
+                    $sum_str=$sum== 1 ? " + 1" : " - 1";
+                    $s=$conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts" . $sum_str . ",0) WHERE usuario=? ORDER BY id DESC",[$user]);
+                    response()->json(["result"=>"true","usuario"=>$usuario]);
                 } else {
-                    delete_video($conn,$id,$user);
+                    if (($cargo & 2)==2){
+                        delete_video($conn,$id);
+                    } else {
+                        delete_video($conn,$id,$usuario);
+                    }
+                    gpa($tipo);
                 }
-                gpa($tipo,$cargo,$user);
             } else {
-                gpa($tipo,$cargo,$user);
+                gpa($tipo);
             }
         }
     } else {
