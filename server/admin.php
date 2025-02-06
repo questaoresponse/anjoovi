@@ -2024,6 +2024,7 @@ Route::post("/admin/videos_lista",function(){
             gpa($tipo,$cargo,$user);
         } else if (request("type")=="option"){
             if ($tipo=="normal"){
+                $requested_user;
                 $cargo=$GLOBALS["cargo"];
                 $id=request("id");
                 $operation=request("operation") ? request("operation") : null;
@@ -2035,14 +2036,14 @@ Route::post("/admin/videos_lista",function(){
                     $sum=$li ? -1 : 1;
                     if (($cargo & 2)==2){
                         $result=$conn->prepare("UPDATE post_video SET privado=$case WHERE id=?",[$id]);
-                        $user=p($conn->prepare("SELECT usuario FROM post_video WHERE id=?",[$id]))[0]["usuario"];
+                        $requested_user=p($conn->prepare("SELECT usuario FROM post_video WHERE id=?",[$id]))[0]["usuario"];
                     } else {
-                        $result=$conn->prepare("UPDATE post_video SET privado=$case WHERE usuario=? AND id=?",[$usuario,$id]);
-                        $user=$usuario;
+                        $result=$conn->prepare("UPDATE post_video SET privado=$case WHERE usuario=? AND id=?",[$user,$id]);
+                        $requested_user=$user;
                     }
                     $sum_str=$sum== 1 ? " + 1" : " - 1";
-                    $s=$conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts" . $sum_str . ",0) WHERE usuario=? ORDER BY id DESC",[$user]);
-                    response()->json(["result"=>"true","usuario"=>$usuario]);
+                    $s=$conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts" . $sum_str . ",0) WHERE usuario=? ORDER BY id DESC",[$requested_user]);
+                    response()->json(["result"=>"true","usuario"=>$user]);
                 } else {
                     if (($cargo & 2)==2){
                         delete_video($conn,$id);
