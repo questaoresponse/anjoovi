@@ -39,7 +39,7 @@ if (!function_exists("cargo")){
         if ($permission){
             unlink(__DIR__ . '/../public_html/images/'. substr($imagem,2));
         }
-        update_sitemap();
+        // update_sitemap();
     }
     function delete_24($conn,$id,$usuario=null){
         $type=null;
@@ -91,7 +91,7 @@ if (!function_exists("cargo")){
         $conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts - 1,0) WHERE usuario=?",[$user]);
 
         unlink(__DIR__ . '/../public_html/images/'.$imagem);
-        update_sitemap();
+        // update_sitemap();
     }
     function delete_musica($conn,$id,$usuario=null){
         $imagem=null;
@@ -130,7 +130,7 @@ if (!function_exists("cargo")){
         foreach($arquivos as $arquivo){
             unlink(__DIR__ . "/../public_html/musics/" . $arquivo);
         }
-        update_sitemap();
+        // update_sitemap();
     }
     function delete_texto($conn,$id,$usuario=null){
         $views_id=null;
@@ -154,7 +154,7 @@ if (!function_exists("cargo")){
         }
         $conn->prepare("DELETE FROM comment WHERE tipo='texto' AND post_id=?",[$id]);
         $conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts - 1,0) WHERE usuario=?",[$user]);
-        update_sitemap();
+        // update_sitemap();
     }
     function delete_video($conn,$id,$usuario=null){
         $video=null;
@@ -185,7 +185,7 @@ if (!function_exists("cargo")){
         $conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts - 1,0) WHERE usuario=?",[$user]);
 
         unlink(__DIR__ . '/../public_html/videos/'.$video);
-        update_sitemap();
+        // update_sitemap();
     }
     function delete_account($isAdmin,$usuario){
         $conn=$GLOBALS["conn"];
@@ -265,7 +265,7 @@ if (!function_exists("cargo")){
         if (!$isAdmin) {
             response()->json(["header_location"=>"/admin/sair"]);
         }
-        update_sitemap();
+        // update_sitemap();
     }
     function get_views_id($conn){
         $rss=$conn->query("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM views");
@@ -277,7 +277,7 @@ if (!function_exists("cargo")){
         $d2=json_encode([]);
         $d=json_encode(["o"=>get_updated_date()]);
         $conn->prepare("INSERT INTO views(usuario,tipo,acessos_d,d2,d,id,id_post,excluido) VALUES(?,?,?,?,?,?,?,?)",[$usuario,$tipo,$acessos_d,$d2,$d,$views_id,$id,$excluido]);
-        update_sitemap();  
+        // update_sitemap();  
     }
     function add_n_posts($usuario,$conn){
         $s=$conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts + 1,1) WHERE usuario=?",[$usuario]);
@@ -458,7 +458,7 @@ Route::post('/admin',function(){
                         $conn->prepare("INSERT INTO inscritos(usuario,inscritos) VALUES(?,?)",[$user,$json]);
                         set_cookie("token",$user_token);
                         $GLOBALS["cargo"]=0;
-                        update_sitemap();
+                        // update_sitemap();
                         response()->json(["result"=>"true","token"=>"token","tokenId"=>$token,"usuario"=>$user]);
                     }
                 } else {
