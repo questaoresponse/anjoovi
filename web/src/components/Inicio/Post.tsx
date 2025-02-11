@@ -26,14 +26,14 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                         cm=post.imagem;
                     }
                     var isRd=false;
-                    const matches = cm.match(/\d+(?=_)/);
+                    const matches = cm.match(/^(\d+)(?=_\d+_i)/);
                     if (matches) {
-                        const r = parseInt(matches[0], 10);
+                        const r = Number(matches[0]);
                         isRd=(r & 2)==2;
                     }
 
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;
-                    content=t ? null : <img className={'image' + (isRd ? " rd" : "")} src={server+"/images/"+encodeURIComponent(cm)+(cm.startsWith("p_") ? "?c="+(globals.cargo.current.cargo & 4) : "")}/>
+                    content=t ? null : <img className={'image' + (isRd ? " rd" : "")} src={server+"/images/"+encodeURIComponent(cm) + (matches ? "?q="+Math.floor(Math.random() * 4294967296) : "")}/>
                 }
                 const parts=(post.descricao || post.titulo || post.texto || "").split(/(?:\r\n| )/);
                 return <div className='coluna col-12 col-md-3 mb-4' key={index}>

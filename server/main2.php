@@ -3036,7 +3036,10 @@ Route::post("/ajeitar",function(){
         foreach ($texto as $imagem){
             if (substr($imagem,0,2)!="0_") {
                 $newImage="0_" . $imagem;
-                rename($dir . $imagem, $dir . $newImage);
+                $old_image=$dir . $imagem;
+                if (file_exists($old_image)){
+                    rename($old_image, $dir . $newImage);
+                }
                 array_push($newImages,$newImage);
             } else {
                 array_push($newImages,$imagem);

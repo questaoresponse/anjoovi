@@ -38,6 +38,11 @@ header("Expires: Wed, 11 Jan 1984 05:00:00 GMT");
 header("Content-Type: image/webp");
 $arr=explode("/",explode("?",$_SERVER["REQUEST_URI"])[0]);
 $filename=array_splice($arr,-1)[0];
+function get_filename($filename){
+    if (preg_match('/^(\d+)(_\d+_i)/',$filename,$matches)){
+        return (intval($matches[1]) & ~1) + $matches[2] + "_premium.webp";
+    }
+}
 if (isset($_COOKIE["token"])){
     $GLOBALS["conn"]=new sqli("anjoov00_posts");
     $r=$GLOBALS["conn"]->prepare("SELECT usuario,cargo FROM user WHERE hash=?",[$_COOKIE["token"]]);
@@ -48,11 +53,11 @@ if (isset($_COOKIE["token"])){
         if (($GLOBALS["cargo"] & 4)==4){
             readfile(__DIR__ . '/../public_html/images/' . $filename);
         } else {
-            readfile(__DIR__ . '/../public_html/images/' . substr($filename,2));
+            readfile(__DIR__ . '/../public_html/images/' . get_premium($filename));
         }
     } else {
-        readfile(__DIR__ . '/../public_html/images/' . substr($filename,2));
+        readfile(__DIR__ . '/../public_html/images/' . get_premium($filename));
     }
 } else {
-    readfile(__DIR__ . '/../public_html/images/' . substr($filename,2));
+    readfile(__DIR__ . '/../public_html/images/' . get_premium($filename));
 }

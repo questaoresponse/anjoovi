@@ -32,18 +32,26 @@ self.addEventListener('message', event => {
         },9000);
         enviar(undefined,[event.data.peer_id]);
     } else if (event.data.type=="deleteAllPeer"){
-        clients={};
+        Object.keys(clients).forEach(key => delete clients[key]);
         event.source.postMessage({origin:"worker",type:"sendDeletePeer",url:server+"/view",data:{type:"infos",tipo:tipo,modify:undefined,newPeer:undefined,deletePeer:peer_ids}});
-        peer_ids.length=0; 
+        peer_ids.length=0;
+        if (st) clearInterval(st);
     } else if (event.data.type=="cargo"){
-        if (cargo!=event.data.cargo){
+        if (cargo!=event.data.cargo && (!cargo || (cargo & 4)!=(event.data.cargo & 4))){
             caches.open("premium-cache").then(cache=>{
                 cache.keys().then(requests => {
                     requests.forEach(request => {
                         const filename=request.url.split("/").splice(-1)[0];
-                        if ((cargo & 4)==4 && !filename.startsWith("p_")){
-                            cache.delete(filename.slice(2));
-                        } else if ((cargo & 4)==0 && filename.startsWith("p_")){
+                        const matches=filename.match(/^(\d+)(_\d+_i)/);
+                        var isFilenamePremium=false;
+                        if (matches) {
+                            matches[1]=Number(matches[1]);
+                            isFilenamePremium=(matches[1] & 1)==1;
+                        };
+                        if ((cargo & 4)==4 && !isFilenamePremium){
+                            const premiumFilename=(matches[1] & ~1) + matches[2] + "_premium.webp"
+                            cache.delete(premiumFilename);
+                        } else if ((cargo & 4)==0 && isFilenamePremium){
                             cache.delete(filename);
                         }
                     });
@@ -54,9 +62,15 @@ self.addEventListener('message', event => {
     }
 });
 self.addEventListener('fetch', (event) => {
-    if (event.request.url.split("/").slice(-1)[0].startsWith("p_")){
+    var isFile=false;
+    var initialFilename=event.request.url.split("/").slice(-1)[0];
+    const matches=initialFilename.match(/^(\d+)(_\d+_i).*\.webp\?.*/);
+    if (matches){
+        const filename=initialFilename.split("?").slice(0,-1).join("?");
+        matches[1]=Number(matches[1]);
+        isFile=(matches[1] & 1)==1;
+        const bFilename=(matches[1] & ~1) + matches[2] + "_premium.webp";
         event.respondWith(caches.open("premium-cache").then(cache=>{
-            const filename=event.request.url.split("/").slice(-1)[0];
             if ((cargo & 4)==4){
                 return cache.match(filename).then(value=>{
                     if (value){
@@ -82,13 +96,12 @@ self.addEventListener('fetch', (event) => {
                     }
                 });
             } else {
-                const bFilename=filename.slice(2);
                 return cache.match(bFilename).then(value=>{
                     if (value){
                         return value;
                     } else {
                         var newURL=event.request.url.split("/");
-                        newURL[newURL.length-1]=newURL[newURL.length-1].slice(2);
+                        newURL[newURL.length-1]=bFilename;
                         newURL=newURL.join("/");
                         return fetch(newURL,{
                             method:"GET",

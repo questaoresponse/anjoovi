@@ -47,7 +47,7 @@ interface postInterface{
 //     duration:string,
 //     n_comment:number,
 // }
-const MusicaList=({music,onClickMusic,getTime,getData,index}:{music:musicInterface,onClickMusic:(index:number,{page_id,musics}:{user:string,page_id:number,musics:musicInterface[]})=>void,getTime:(value:number)=>string,getData:()=>{user:string,page_id:number,musics:musicInterface[]},index:number})=>{
+const MusicaList=({getPostId,syncMusics,music,onClickMusic,getTime,getData,index}:{getPostId:()=>number,syncMusics:(index:number,page_id:number)=>void,music:musicInterface,onClickMusic:(index:number,{page_id,musics}:{user:string,page_id:number,musics:musicInterface[]})=>void,getTime:(value:number)=>string,getData:()=>{user:string,page_id:number,musics:musicInterface[]},index:number})=>{
     const refs={
         currentTime:useRef<HTMLDivElement>(null),
         totalTime:useRef<HTMLDivElement>(null),
@@ -61,6 +61,7 @@ const MusicaList=({music,onClickMusic,getTime,getData,index}:{music:musicInterfa
         refs.totalTime.current!.textContent=getTime(music.duration);
         music.setCurrentTime=setCurrentTime;
         music.setPlay=setPlay;
+        syncMusics(index,getPostId());
         return ()=>{
             music.setCurrentTime=null;
             music.setPlay=null;
@@ -119,6 +120,9 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
         }
         return {user:post.usuario,page_id:post.id,musics:musicsRef.current};
     }
+    const getPostId=()=>{
+        return post.id;
+    }
     const Download=()=>{
         auth.post(server+"/musica/"+post.id,{type:"download",id:post.id.toString()});
     }
@@ -153,7 +157,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                 </div>
                 <div className='music-list'>
                     {musics.map((music,index)=>{
-                        return <MusicaList music={music} onClickMusic={player.current.onClickMusic} getTime={player.current.getTime} getData={getData} index={index} key={index}/>
+                        return <MusicaList getPostId={getPostId} syncMusics={player.current.syncMusics} music={music} onClickMusic={player.current.onClickMusic} getTime={player.current.getTime} getData={getData} index={index} key={index}/>
                     })}
                 </div>
             </Link> : <div className="p-musica pm">
@@ -180,7 +184,7 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                 </div>
                 <div className='music-list'>
                     {musics.map((music,index)=>{
-                        return <MusicaList music={music} onClickMusic={player.current.onClickMusic} getTime={player.current.getTime} getData={getData} index={index} key={index}/>
+                        return <MusicaList getPostId={getPostId} syncMusics={player.current.syncMusics} music={music} onClickMusic={player.current.onClickMusic} getTime={player.current.getTime} getData={getData} index={index} key={index}/>
                     })}
                 </div>
             </div>}

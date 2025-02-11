@@ -4,8 +4,6 @@ import { resultInterface, useAuth } from "../../Auth.js";
 import sem_imagem from '../../static/sem-imagem.jpg';
 import './MusicasCadastro.scss';
 import Publicar from "../Publicar.js";
-import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { toBlobURL, fetchFile } from "@ffmpeg/util";
 
 interface postInterface{
     id:number,
@@ -32,7 +30,6 @@ function MusicasCadastro(){
     const [filenamePremium,setFilenamePremium]=useState("Upload");
     const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
     const [permission,setPermission]=useState(false);
-    const ffmpeg = useRef(new FFmpeg());
     const refs={
         permission:useRef<HTMLSelectElement | null>(null),
         titulo:useRef<HTMLInputElement>(null),
@@ -182,24 +179,7 @@ function MusicasCadastro(){
                 setDimensions(null,false);
             }
         });
-        // setUploading(true);
-
-        
     },[musicas,isAdd]);
-    const onProgress=useCallback(({ progress:progressValue }:{ progress:number }) => {
-        if (progress.current.finished==-1){
-            progress.current.finished=0;
-        }
-        const t=50 / progress.current.length;
-        VerifyUpload(t * progress.current.finished + progressValue / 1 * t);
-
-        if (progressValue==1 && progress.current.length>progress.current.finished){
-            progress.current.finished++;
-        }
-        if (progress.current.length==progress.current.finished){
-            progress.current.finished=-1;
-        }
-    },[musicas]);
     edit.current=location.pathname=="/admin/musicas_edit";
     const progress=useRef<{length:number,finished:number,executed:boolean}>({length:0,finished:0,executed:false});
     const updateCargo=(cargo:number)=>{
@@ -229,24 +209,6 @@ function MusicasCadastro(){
                     setDimensions(server+"/images/"+encodeURIComponent(post.imagem),false);
                 }
             });
-        } else {
-            (async ()=>{
-                const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm";
-                await ffmpeg.current.load({
-                    coreURL: await toBlobURL(
-                        `/ffmpeg-core.js`,
-                        "text/javascript"
-                    ),
-                    wasmURL: await toBlobURL(
-                        `${baseURL}/ffmpeg-core.wasm`,
-                        "application/wasm"
-                    ),
-                    workerURL: await toBlobURL(
-                        `/ffmpeg-core.worker.js`,
-                        "text/javascript"
-                    ),
-                });
-            })();
         }
         cargo.current.addListener(updateCargo);
         return ()=>{

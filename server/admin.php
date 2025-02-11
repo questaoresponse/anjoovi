@@ -68,22 +68,25 @@ if (!function_exists("cargo")){
         $imagens=null;
         $views_id=null;
         $user=null;
+        $privado=null;
         if ($usuario){
-            $q=$conn->prepare("SELECT imagem,views_id FROM post_imagem WHERE id=? AND usuario=?",[$id,$usuario]);
+            $q=$conn->prepare("SELECT imagem,views_id,privado FROM post_imagem WHERE id=? AND usuario=?",[$id,$usuario]);
             if ($q->num_rows==0) return;
             $q=p($q)[0];
             $imagens=$q["imagem"];
             $views_id=$q["views_id"];
+            $privado=$q["privado"];
             $user=$usuario;
             $conn->prepare("DELETE FROM post_imagem WHERE id=? AND usuario=?",[$id,$usuario]);
             $conn->prepare("UPDATE views SET excluido='true' WHERE tipo='post_imagem' AND excluido='false' AND id=? AND usuario=?",[$views_id,$usuario]);
         } else {
-            $q=$conn->prepare("SELECT usuario,imagem,views_id FROM post_imagem WHERE id=?",[$id]);
+            $q=$conn->prepare("SELECT usuario,imagem,views_id,privado FROM post_imagem WHERE id=?",[$id]);
             if ($q->num_rows==0) return;
             $q=p($q)[0];
             $user=$q["usuario"];
             $imagens=$q["imagem"];
             $views_id=$q["views_id"];
+            $privado=$q["privado"];
             $conn->prepare("DELETE FROM post_imagem WHERE id=?",[$id]);
             $conn->prepare("UPDATE views SET excluido='true' WHERE tipo='post_imagem' AND excluido='false' AND id=?",[$views_id]);
         }
@@ -92,10 +95,13 @@ if (!function_exists("cargo")){
         $imagens=json_decode($imagens,true);
         foreach ($imagens as $image){
             unlink(__DIR__ . '/../public_html/images/' . $image);
-            preg_match('/\d+(?=_)/', $image, $matches);
-            $r=intval($matches[0]);
+            
+        }
+        if (($privado & 2)==2){
+            preg_match('/^(\d+)(_\d+_i)/', $imagens[0], $matches);
+            $r=intval($matches[1]);
             if (($r & 1)==1) {
-                unlink(__DIR__ . '/../public_html/images/' . preg_replace('/\d+(?=_)/', ($r & ~1), $image,1));
+                unlink(__DIR__ . '/../public_html/images/' . ($r & ~1) . $matches[2] . "_premium.webp");
             }
         }
         // update_sitemap();
@@ -193,6 +199,22 @@ if (!function_exists("cargo")){
 
         unlink(__DIR__ . '/../public_html/videos/'.$video);
         // update_sitemap();
+    }
+    function delete_playlist($conn,$id,$usuario=null){
+        $user=null;
+        if ($usuario){
+            $q=$conn->prepare("SELECT usuario FROM playlist WHERE id=? AND usuario=?",[$id,$usuario]);
+            if ($q->num_rows==0) return;
+            $user=$usuario;
+            $conn->prepare("DELETE FROM playlist WHERE id=? AND usuario=?",[$id,$usuario]);
+        } else {
+            $q=$conn->prepare("SELECT usuario FROM playlist WHERE id=?",[$id]);
+            if ($q->num_rows==0) return;
+            $user=p($q)[0]["usuario"];
+            $conn->prepare("DELETE FROM playlist WHERE id=?",[$id]);
+        }
+        $conn->prepare("DELETE FROM comment WHERE tipo='playlist' AND post_id=?",[$id]);
+        $conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts - 1,0) WHERE usuario=?",[$user]);
     }
     function delete_account($isAdmin,$usuario){
         $conn=$GLOBALS["conn"];
@@ -745,7 +767,7 @@ Route::post("/admin/noticias_lista",function(){
                         $result=$conn->prepare("UPDATE post SET privado=$case WHERE usuario=? AND id=?",[$usuario,$id]);
                         $user=$usuario;
                     }
-                    $sum_str=$sum== 1 ? " + 1" : " - 1";
+                    $sum_str=$sum==1 ? " + 1" : " - 1";
                     $s=$conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts" . $sum_str . ",0) WHERE usuario=? ORDER BY id DESC",[$user]);
                     response()->json(["result"=>"true","usuario"=>$usuario]);
                 } else {
@@ -1317,23 +1339,18 @@ Route::post("/admin/imagens_cadastro", function(){
                     $caminhoDestino = __DIR__ . "/../public_html/images/";
                     $file = request()->file("imageFile");
                     $file_count=0;
+                    $number=$permission==2 ? 1 : 0;
                     foreach ($_FILES["imageFile"]["tmp_name"] as $key => $tmpName){
-                        // Salvar a imagem em um diretório
-                        $filename = $file->getClientOriginalName("webp",$key);
-                        $number=0;
-                        !$original_format[$key] && ($number=$number | 2);
-                        $image=$number . "_" . $id . "_i_" . $file_count . "_" . $filename;
+                        $image=(!$original_format[$key] ? $number | 2 : $number) . "_" . $id . "_i_" . $file_count . "_file.webp";
                         $file->createwebp($caminhoDestino,$image,$key);
-                        if ($permission==2){
-                            $filePremium=request()->file("imageFilePremium");
-                            $number=$number | 1;
-                            $dImage=$number . "_" . $id . "_i_" . $file_count . "_" . $filename;
-                            $filePremium->createwebp($caminhoDestino,$dImage);
-                            array_push($images,$dImage);
-                        } else {
-                            array_push($images,$image);
-                        }
                         $file_count++;
+                        array_push($images,$image);
+                    }
+                    if ($permission==2){
+                        $filePremium=request()->file("imageFilePremium");
+                        $number=$number & ~1;
+                        $dImage=(!$original_format_premium ? $number | 2 : $number) . "_" . $id . "_i_premium.webp";
+                        $filePremium->createwebp($caminhoDestino,$dImage);
                     }
                     $images=json_encode($images);
                 } else if ($isCadastro){
@@ -2193,9 +2210,9 @@ Route::post("/admin/playlists_lista",function(){
                 $conn=$GLOBALS["conn"];
                 $id=request("id");
                 if (($cargo & 2)==2){
-                    $conn->prepare("DELETE FROM playlist WHERE id=?",[$id]);
+                    delete_playlist($conn);                
                 } else {
-                    $conn->prepare("DELETE FROM playlist WHERE id=? AND usuario=?",[$id,$usuario]);
+                    delete_playlist($conn,$user);
                 }
                 gpa($tipo);
             } else {

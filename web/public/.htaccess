@@ -1,5 +1,7 @@
 AddType application/wasm .wasm
-    
+Options +ExecCGI
+AddHandler cgi-script .cgi .pl .sh
+
 <IfModule mod_php.c>
     php_value max_input_time 1800
     php_value max_execution_time 1800
@@ -14,7 +16,7 @@ AddType application/wasm .wasm
     Header set Pragma "no-cache"
     Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
 </FilesMatch>
-<FilesMatch "^p_.*">
+<FilesMatch "_premium\.webp$">
     Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
     Header set Pragma "no-cache"
     Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
@@ -22,7 +24,7 @@ AddType application/wasm .wasm
 
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header set Access-Control-Allow-Origin %{HTTP_ORIGIN} env=ORIGIN_MATCH
+    Header set Access-Control-Allow-Origin %{HTTP_ORIGIN}e env=ORIGIN_MATCH
 </IfModule>
 
 <IfModule mod_php7.c>

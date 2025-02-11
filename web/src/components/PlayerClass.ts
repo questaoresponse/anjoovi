@@ -40,6 +40,7 @@ class PlayerClass{
         this.changeState=this.changeState.bind(this);
         this.End=this.End.bind(this);
         this.reset=this.reset.bind(this);
+        this.syncMusics=this.syncMusics.bind(this);
     }
     reset(){
         if (!this.paused){
@@ -200,6 +201,13 @@ class PlayerClass{
         const m=Math.floor(value/60);
         const s=Math.floor(value%60);
         return (m<10 ? "0"+m : m)+":"+(s<10 ? "0"+s : s);
+    }
+    syncMusics(index:number,page_id:number){
+        if (this.page_id==page_id && this.music_index!=-1){
+            const currentTime=this.getTime(this.musics[index].currentTime);
+            this.musics[index].setPlay && this.musics[index].setPlay!(this.music_index==index);
+            this.musics[index].setCurrentTime && this.musics[index].setCurrentTime!(currentTime);
+        }
     }
 }
 export default PlayerClass;
