@@ -33,7 +33,6 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                         isRd=(r & 2)==2;
                         isPremiumView=(r & 1)==1;
                     }
-
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;
                     content=t ? null : <img className={'image' + (isRd ? " rd" : "")} src={server+"/images/"+encodeURIComponent(cm) + (isPremiumView || cm.endsWith("premium.webp") ? "?q="+Math.floor(Math.random() * 4294967296) : "")}/>
                 }

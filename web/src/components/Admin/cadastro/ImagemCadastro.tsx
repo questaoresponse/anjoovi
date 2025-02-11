@@ -200,13 +200,14 @@ function ImagemCadastro(){
         setPermission(e.target.value=="1");
     }
     const ChangeOriginalFormat=(isPremium:boolean,index:number)=>{
-        const values=["rd","of"];
+        const values=["r1","r2","r3","r4"];
         if (isPremium){
-            const value=JSON.parse(imagePremium.refs.resize.current!.value);
-            imagePremium.refs.image.current!.classList.replace(values[+value],values[+!value]);
+            const value=imagePremium.refs.resize.current!.value;
+            imagePremium.refs.image.current!.classList.replace(imagePremium.refs.image.current!.classList[imagePremium.refs.image.current!.classList.length - 1],"r"+value);
         } else {
             const value=JSON.parse(images[index].refs.resize.current!.value);
             images[index].refs.image.current!.classList.replace(values[+value],values[+!value]);
+            images[index].refs.image.current!.classList.replace(images[index].refs.image.current!.classList[images[index].refs.image.current!.classList.length - 1],"r"+value);
         }
     }
     const removeImage=(index:number)=>{
@@ -248,8 +249,10 @@ function ImagemCadastro(){
                                 </div>
                                 <div className="options-image">
                                     <select defaultValue="true" onChange={()=>ChangeOriginalFormat(false,index)} ref={image.refs.resize} className="original_format">
-                                        <option value="true">Formato original</option>
-                                        <option value="false">Redimensionar</option>
+                                        <option value="1">Formato original</option>
+                                        <option value="2">Quadrado</option>
+                                        <option value="3">Retangulo</option>
+                                        <option value="4">Quadrado</option>
                                     </select>
                                     <div onClick={()=>removeImage(index)} className={"remove-image" + (index+1<images.length || image.src!=sem_imagem ? "" : " disabled")}>-</div>
                                 </div>
@@ -268,8 +271,10 @@ function ImagemCadastro(){
                             <div className="txt-1">{imagePremium.filename}</div>
                         </div>
                         <select defaultValue="true" onChange={()=>ChangeOriginalFormat(true,0)} ref={imagePremium.refs.resize} className="original_format">
-                            <option value="true">Formato original</option>
-                            <option value="false">Redimensionar</option>
+                            <option value="1">Formato original</option>
+                            <option value="2">Quadrado</option>
+                            <option value="3">Retangulo</option>
+                            <option value="4">Quadrado</option>
                         </select>
                     </div>
                 </div> : <></>}
