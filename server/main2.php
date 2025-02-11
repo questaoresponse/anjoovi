@@ -3033,7 +3033,7 @@ Route::post("/ajeitar",function(){
         if (is_file($arquivo)) {
             $arquivo=explode("/",$arquivo);
             $arquivo=$arquivo[count($arquivo)-1];
-            if (preg_match("/0_(\d+)_/",$arquivo,$matches)){
+            if (preg_match("/0_(\d+)(?=_[^a-zA-Z_])/",$arquivo,$matches)){
                 $id=intval($matches[1]);
                 $r=$conn->prepare("SELECT imagem FROM post_imagem WHERE id=?",[$id]);
                 if ($r->num_rows>0){
