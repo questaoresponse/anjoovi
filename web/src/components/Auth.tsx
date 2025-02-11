@@ -178,11 +178,15 @@ const AuthProvider = ({ children }:{children:any}) => {
     if (lgs){
       const lg:{usuario:string,lsrc:string,token:string}=JSON.parse(lgs);
       globals.setLogin((login)=>{
-        return {
+        const newLogin={
           usuario:lg.hasOwnProperty("usuario") ? lg.usuario : login.usuario,
           isLoged:lg.hasOwnProperty("token") ? lg.token ? "true" : "false" : login.isLoged,
           logo:lg.hasOwnProperty("lsrc") && lg.lsrc ? globals.descript(lg.lsrc) : null,
+        };
+        if (newLogin.usuario != login.usuario || newLogin.isLoged != login.isLoged || newLogin.logo != login.logo){
+          return newLogin;
         }
+        return login;
       });
     } else {
       globals.setLogin({usuario:null,isLoged:"false",logo:null});

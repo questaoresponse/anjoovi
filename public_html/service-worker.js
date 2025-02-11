@@ -1,18 +1,18 @@
 var server="";
 var tipo="";
 const peer_ids=[];
+const clients={};
 var st;
 var cargo=null;
 const enviar=(newPeer,deletePeer)=>{
-    self.clients.matchAll().then(clients => {
-        clients[0].postMessage({origin:"worker",type:"send",url:server+"/view",data:{type:"infos",tipo:tipo,modify:peer_ids,newPeer,deletePeer}});
-    });
+    Object.entries(clients)[0][1].postMessage({origin:"worker",type:"send",url:server+"/view",data:{type:"infos",tipo:tipo,modify:peer_ids,newPeer,deletePeer}});
 };
 self.addEventListener('message', event => {
     if (event.data.type=="data"){
         server=event.data.server;
         tipo=event.data.tipo;
     } else if (event.data.type=="newPeer"){
+        clients[event.source.id]=event.source;
         // event.source.postMessage({ai:"chegou"}   );
         if (st) clearInterval(st);
         st=setInterval(()=>{
@@ -24,6 +24,7 @@ self.addEventListener('message', event => {
         //     client.postMessage({origin:"worker",message:"aian"});
         // };
     } else if (event.data.type=="deletePeer"){
+        delete clients[event.source.id];
         peer_ids.splice(peer_ids.findIndex(peer_id=>peer_id==event.data.peer_id),1);
         if (st) clearInterval(st);
         st=setInterval(()=>{
@@ -31,6 +32,7 @@ self.addEventListener('message', event => {
         },9000);
         enviar(undefined,[event.data.peer_id]);
     } else if (event.data.type=="deleteAllPeer"){
+        clients={};
         event.source.postMessage({origin:"worker",type:"sendDeletePeer",url:server+"/view",data:{type:"infos",tipo:tipo,modify:undefined,newPeer:undefined,deletePeer:peer_ids}});
         peer_ids.length=0; 
     } else if (event.data.type=="cargo"){

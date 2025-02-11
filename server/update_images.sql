@@ -1,0 +1,1 @@
+UPDATE post_imagem SET imagem=JSON_ARRAY(imagem);

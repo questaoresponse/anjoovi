@@ -12,6 +12,17 @@ interface postInterface{
     imagem:string,
     privado:boolean
 }
+interface imagesInterface{
+    filename:string,
+    src:string,
+    resize:boolean,
+    refs:{
+        image_view:MutableRefObject<HTMLDivElement | null>,
+        image:MutableRefObject<HTMLImageElement | null>,
+        input:MutableRefObject<HTMLInputElement | null>,
+        resize:MutableRefObject<HTMLSelectElement | null>
+    }
+}
 declare module './ImagemCadastro.tsx' {
     interface resultInterface{
         data:{post_edit:postInterface},
@@ -26,18 +37,17 @@ function ImagemCadastro(){
     const refs={
         permission:useRef<HTMLSelectElement | null>(null),
         descricao:useRef<HTMLTextAreaElement>(null),
-        imagem:useRef<HTMLInputElement>(null),
-        imagem_view:useRef<HTMLDivElement>(null),
-        imagem_premium:useRef<HTMLInputElement>(null),
-        imagem_view_premium:useRef<HTMLDivElement>(null),
     }
     const location=useLocation();
-    const [images,setImages]=useState<{filename:string,src:string,resize:boolean,refs:{image:MutableRefObject<HTMLImageElement | null>,resize:MutableRefObject<HTMLSelectElement | null>}}[]>([{filename:"Upload",src:sem_imagem,resize:false,refs:{image:createRef(),resize:createRef()}}]);
-    const [imagesPremium,setImagesPremium]=useState<{filename:string,src:string,resize:boolean,refs:{image:MutableRefObject<HTMLImageElement | null>,resize:MutableRefObject<HTMLSelectElement | null>}}[]>([{filename:"Upload",src:sem_imagem,resize:false,refs:{image:createRef(),resize:createRef()}}]);
+    const [images,setImages]=useState<imagesInterface[]>([{filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
+    const [imagePremium,setImagePremium]=useState<imagesInterface>({filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
     const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
     const [permission,setPermission]=useState(false);
+    const verifyShowAddButton=(list?:imagesInterface[])=>{
+        return (list || images).filter(images=>images.src==sem_imagem).length==1;
+    }
     const showError=()=>{
         setErrorImage(true);
         const st=setTimeout(()=>{
@@ -80,11 +90,11 @@ function ImagemCadastro(){
                             src=sem_imagem;
 
                         }
-                        isPremium ? setImagesPremium(images=>{images[index]={...images[index],filename:file.name,src}; return images}) : setImages(images=>{images[index]={...images[index],filename:file.name,src}; return images});
+                        isPremium ? setImagePremium(image=>{ return {...image,filename:file.name,src}}) : setImages(images=>{const v=verifyShowAddButton(images) && images[index].src == sem_imagem; images[index]={...images[index],filename:file.name,src}; return v ? [...images, {filename: "Upload", src: sem_imagem, resize: false, refs: { image_view: createRef(), image: createRef(), input: createRef(), resize: createRef() }}] : [...images]});
                     }
                     reader2.readAsDataURL(file);
                 } else {
-                    isPremium ? setImagesPremium(images=>{images[index]={...images[index],filename:"Upload",src:sem_imagem}; return images}) : setImages(images=>{images[index]={...images[index],filename:"Upload",src:sem_imagem}; return images});
+                    isPremium ? setImagePremium(image=>{ return {...image,filename:"Upload",src:sem_imagem}}) : setImages(images=>{images[index]={...images[index],filename:"Upload",src:sem_imagem}; return [...images]});
                     e.target.value="";
                     showError();
                 }
@@ -98,7 +108,7 @@ function ImagemCadastro(){
     const updatePermission=()=>{
         if (isPremium){
             refs.permission.current!.value=post_edit.current!.privado ? "1" : "0";
-            setPermission(true);
+            setPermission(post_edit.current!.privado);
         }
     }
     useEffect(()=>{
@@ -106,13 +116,12 @@ function ImagemCadastro(){
         globals.setSelected("publicar");
         if (edit.current){
             auth.post(server+"/admin/imagens_edit"+location.search,{type:"info"}).then((result:resultInterface)=>{
-                refs.imagem.current!.required=false;
                 const post=result.data.post_edit;
                 refs.descricao.current!.value=post.descricao;
                 post.privado=(post.privado & 2)==2;
                 post_edit.current=post;
-                updatePermission();
-                setImages([{filename:"Image.webp",src:server+"/images/"+encodeURIComponent(post.imagem),resize:post.imagem.slice(0,2) =="r_" || post.imagem.slice(2,4)=="r_",refs:{image:createRef(),resize:createRef()}}]);
+                const images=JSON.parse(post.imagem);
+                setImages(images.map((image:string)=>{ return {filename:"Image.webp",src:server+"/images/"+encodeURIComponent(image),resize:post.imagem.slice(0,2) =="r_" || post.imagem.slice(2,4)=="r_",refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}}));
             });
         }
         cargo.current.addListener(updateCargo);
@@ -127,26 +136,38 @@ function ImagemCadastro(){
     },[isPremium]);
     const Cadastrar=async (e:any)=>{
         e.preventDefault();
+        
+        const mightPost=verifyShowAddButton();
+        if (!mightPost) return;
+
         var fd=new FormData();
         var descricao=refs.descricao.current!.value;
         const newImages=[];
-        const newImagesPremium=[];
         for (const image of images){
-            newImages.push({original_format:!JSON.parse(image.refs.resize.current!.value)});
+            image.src != sem_imagem && newImages.push(!!JSON.parse(image.refs.resize.current!.value));
         }
-        for (const imagePremium of imagesPremium){
-            newImagesPremium.push({original_format:!JSON.parse(imagePremium.refs.resize.current!.value)});
+
+        if (edit.current){
+            fd.append("id",post_edit.current!.id.toString());
+        } else {
+            const images_data=[];
+            for (const image of images){
+                image.src != sem_imagem && images_data.push(image.refs.input.current!.files!.length > 0 ? image.refs.input.current!.files![0] : null);
+            }
+            images_data.forEach(image=>fd.append("imageFile[]",image!));
+            if (permission){
+                const image_data_premium=imagePremium.refs.input.current!.files!.length > 0 ? imagePremium.refs.input.current!.files![0] : null;
+                fd.append("imageFilePremium",image_data_premium!);
+            }
         }
-        var imagem_data=refs.imagem.current!.files!.length>0 ? refs.imagem.current!.files![0] : null;
-        var imagem_data_d=refs.imagem_premium.current && refs.imagem_premium.current!.files!.length>0 ? refs.imagem_premium.current!.files![0] : null;
         fd.append("type","option");
-        edit.current && fd.append("id",post_edit.current!.id.toString());
-        imagem_data && fd.append("imagem",imagem_data);
-        imagem_data_d && fd.append("dImagem",imagem_data_d);
-        (imagem_data || imagem_data_d) && fd.append("imagens_edit",(true).toString());
         descricao!="" && fd.append("descricao",descricao);
-        fd.append("images",newImages.toString());
-        fd.append("imagesPremium",newImagesPremium.toString());
+        fd.append("original_formats",JSON.stringify(newImages));
+        if (permission){
+            fd.append("permission",(true).toString());
+            const newImagePremium=!!JSON.parse(imagePremium.refs.resize.current!.value);
+            newImagePremium && fd.append("original_format_premium",newImagePremium.toString());
+        }
         auth.post(server+"/admin/imagens_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,{arquivo:true}).then((result)=>{
             if (result.error){
                 globals.redirectError.current(result.error);
@@ -169,9 +190,8 @@ function ImagemCadastro(){
                         clearInterval(st);
                     },2000);
                     refs.descricao.current!.value="";
-                    refs.imagem.current!.value="";
-                    setImages([{filename:"Upload",src:sem_imagem,resize:false,refs:{image:createRef(),resize:createRef()}}]);
-                    setImagesPremium([{filename:"Upload",src:sem_imagem,resize:false,refs:{image:createRef(),resize:createRef()}}]);
+                    setImages([{filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
+                    setImagePremium({filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
                 }
             }
         })
@@ -182,13 +202,23 @@ function ImagemCadastro(){
     const ChangeOriginalFormat=(isPremium:boolean,index:number)=>{
         const values=["rd","of"];
         if (isPremium){
-            const value=JSON.parse(imagesPremium[index].refs.resize.current!.value);
-            imagesPremium[index].refs.image.current!.classList.replace(values[+value],values[+!value]);
+            const value=JSON.parse(imagePremium.refs.resize.current!.value);
+            imagePremium.refs.image.current!.classList.replace(values[+value],values[+!value]);
         } else {
             const value=JSON.parse(images[index].refs.resize.current!.value);
             images[index].refs.image.current!.classList.replace(values[+value],values[+!value]);
         }
     }
+    const removeImage=(index:number)=>{
+        setImages(images=>images.filter((image,i)=>i!=index || image.src==sem_imagem));
+    }
+    useEffect(()=>{
+        if (post_edit.current){
+            for (const image of images){
+                image.refs.input.current && (image.refs.input.current.required=false);
+            }
+        }
+    },[images])
     return (
         <div id="pg" className="ic">
             <div id="dt" className="fechado">
@@ -207,47 +237,42 @@ function ImagemCadastro(){
                 <label>Capa</label>
                 <div className="image-list">
                     {images.map((image,index:number)=>{
-                        console.log(image.src);
                         return <div className="image-item" key={index}>
-                            <div ref={refs.imagem_view} className="imagem-view col-12 col-md-6">
+                            <div ref={image.refs.image_view} className="imagem-view col-12 col-md-6">
                                 <img ref={image.refs.image} className="of" src={image.src}/>
                             </div>
-                            <input className="file" ref={refs.imagem} onChange={(e)=>onImagemChange(e,false,index)} type="file" accept="image/jpg, image/jpeg" required/>
+                            <input className="file" ref={image.refs.input} onChange={(e)=>onImagemChange(e,false,index)} type="file" accept="image/jpg, image/jpeg" required={index==0 || index+1<images.length}/>
                             <div className="imagem-pt">
-                                <div className="imagem" onClick={()=>{refs.imagem.current!.click()}}>
+                                <div className="imagem" onClick={()=>{image.refs.input.current!.click()}}>
                                     <div className="txt-1">{image.filename}</div>
                                 </div>
-                                <select defaultValue="true" onChange={()=>ChangeOriginalFormat(false,index)} ref={image.refs.resize} className="original_format">
-                                    <option value="true">Formato original</option>
-                                    <option value="false">Redimensionar</option>
-                                </select>
+                                <div className="options-image">
+                                    <select defaultValue="true" onChange={()=>ChangeOriginalFormat(false,index)} ref={image.refs.resize} className="original_format">
+                                        <option value="true">Formato original</option>
+                                        <option value="false">Redimensionar</option>
+                                    </select>
+                                    <div onClick={()=>removeImage(index)} className={"remove-image" + (index+1<images.length || image.src!=sem_imagem ? "" : " disabled")}>-</div>
+                                </div>
                             </div>
                         </div>
                     })}
                 </div>
-                {permission ? <>
-                    <label>Capa</label>
-                    <div className="image-list">
-                        {imagesPremium.map((imagePremium,index:number)=>{
-                            return <div className="image-item" key={index}>
-                                <div ref={refs.imagem_view_premium} className="imagem-view col-12 col-md-6">
-                                    <img ref={imagePremium.refs.image} className="of" src={imagePremium.src}/>
-                                </div>
-                                <input className="file" ref={refs.imagem_premium} onChange={(e)=>onImagemChange(e,true,index)} type="file" accept="image/jpg, image/jpeg" required/>
-                                <div className="imagem-pt">
-                                    <div className="imagem" onClick={()=>{refs.imagem_premium.current!.click()}}>
-                                        <div className="txt-1">{imagePremium.filename}</div>
-                                    </div>
-                                    <select defaultValue="true" onChange={()=>ChangeOriginalFormat(true,index)} ref={imagePremium.refs.resize} className="original_format">
-                                        <option value="true">Formato original</option>
-                                        <option value="false">Redimensionar</option>
-                                    </select>
-                                </div>
-                            </div>
-                        })}
+                {permission ? <div className="image-item">
+                    <label>Capa borrada</label>
+                    <div ref={imagePremium.refs.image_view} className="imagem-view col-12 col-md-6">
+                        <img ref={imagePremium.refs.image} className="of" src={imagePremium.src}/>
                     </div>
-                    
-                </> : <></>}
+                    <input className="file" ref={imagePremium.refs.input} onChange={(e)=>onImagemChange(e,true,0)} type="file" accept="image/jpg, image/jpeg" required/>
+                    <div className="imagem-pt">
+                        <div className="imagem" onClick={()=>{imagePremium.refs.input.current!.click()}}>
+                            <div className="txt-1">{imagePremium.filename}</div>
+                        </div>
+                        <select defaultValue="true" onChange={()=>ChangeOriginalFormat(true,0)} ref={imagePremium.refs.resize} className="original_format">
+                            <option value="true">Formato original</option>
+                            <option value="false">Redimensionar</option>
+                        </select>
+                    </div>
+                </div> : <></>}
                 <button type="submit" id="button">Enviar</button>
             </form>
             </div>

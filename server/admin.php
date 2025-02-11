@@ -65,14 +65,14 @@ if (!function_exists("cargo")){
         $type=="mp4" ? unlink(__DIR__ . '/../public_html/videos/'.$filename) : unlink(__DIR__ . '/../public_html/images/'.$filename);
     }
     function delete_imagem($conn,$id,$usuario=null){
-        $imagem=null;
+        $imagens=null;
         $views_id=null;
         $user=null;
         if ($usuario){
             $q=$conn->prepare("SELECT imagem,views_id FROM post_imagem WHERE id=? AND usuario=?",[$id,$usuario]);
             if ($q->num_rows==0) return;
             $q=p($q)[0];
-            $imagem=$q["imagem"];
+            $imagens=$q["imagem"];
             $views_id=$q["views_id"];
             $user=$usuario;
             $conn->prepare("DELETE FROM post_imagem WHERE id=? AND usuario=?",[$id,$usuario]);
@@ -82,15 +82,22 @@ if (!function_exists("cargo")){
             if ($q->num_rows==0) return;
             $q=p($q)[0];
             $user=$q["usuario"];
-            $imagem=$q["imagem"];
+            $imagens=$q["imagem"];
             $views_id=$q["views_id"];
             $conn->prepare("DELETE FROM post_imagem WHERE id=?",[$id]);
             $conn->prepare("UPDATE views SET excluido='true' WHERE tipo='post_imagem' AND excluido='false' AND id=?",[$views_id]);
         }
         $conn->prepare("DELETE FROM comment WHERE tipo='imagem' AND post_id=?",[$id]);
         $conn->prepare("UPDATE user SET n_posts=COALESCE(n_posts - 1,0) WHERE usuario=?",[$user]);
-
-        unlink(__DIR__ . '/../public_html/images/'.$imagem);
+        $imagens=json_decode($imagens,true);
+        foreach ($imagens as $image){
+            unlink(__DIR__ . '/../public_html/images/' . $image);
+            preg_match('/\d+(?=_)/', $image, $matches);
+            $r=intval($matches[0]);
+            if (($r & 1)==1) {
+                unlink(__DIR__ . '/../public_html/images/' . preg_replace('/\d+(?=_)/', ($r & ~1), $image,1));
+            }
+        }
         // update_sitemap();
     }
     function delete_musica($conn,$id,$usuario=null){
@@ -223,8 +230,14 @@ if (!function_exists("cargo")){
             unlink(__DIR__. "/../public_html/images/". $arquivo["imagem"]);
         }
         $result=p($conn->prepare("SELECT imagem FROM post_imagem WHERE usuario=?",[$usuario]));
-        foreach($result as $arquivo){
-            unlink(__DIR__. "/../public_html/images/". $arquivo["imagem"]);
+        foreach ($result as $arquivo){
+            $image=$arquivo["imagem"];
+            unlink(__DIR__ . '/../public_html/images/' . $image);
+            preg_match('/\d+(?=_)/', $image, $matches);
+            $r=intval($matches[0]);
+            if (($r & 1)==1) {
+                unlink(__DIR__ . '/../public_html/images/' . preg_replace('/\d+(?=_)/', ($r & ~1), $image,1));
+            }
         }
         $result=p($conn->prepare("SELECT imagem,zip,arquivo FROM post_musica WHERE usuario=?",[$usuario]));
         foreach ($result as $arquivo){
@@ -1272,61 +1285,73 @@ Route::post("/admin/imagens_cadastro", function(){
             if (($cargo & 2)==2){
                 r404();
             } else if ($type=="cadastro" || $type=="edit"){
+                $dados=request()->all();
+                if (!isset($dados["original_formats"])) return response()->json(["result"=>"false"]);
                 $isCadastro=$type=="cadastro";
                 $conn = $GLOBALS["conn"];
                 // if (!session()->has("key")) return;
-                $dados=request()->all();
                 // if (strlen($titulo)==0) return;
                 $acessos=0;
-                $imagem=null;
-                $original_format=isset($dados["original_format"]);
+                $permission=isset($dados["permission"]) ? 2 : 0;
+                $original_format=json_decode($dados["original_formats"],true);
+                $original_format_premium=isset($dados["original_format_premium"]) ? true : false;
                 $id=$isCadastro ? null : $dados["id"];
                 $descricao=isset($dados["descricao"]) ? $dados["descricao"] : null;
                 // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
                 $id=null;
-                $imagem=null;
                 $d=null;
                 if ($isCadastro){
                     $id=intval(p($conn->query("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM post_imagem"))[0]["id"]);
                 } else {
                     $id=$_POST["id"];
-                    $result=$conn->prepare("SELECT imagem,d FROM post_imagem WHERE usuario=? AND id=?",[$usuario,$id]);
+                    $result=$conn->prepare("SELECT privado,d FROM post_imagem WHERE usuario=? AND id=?",[$usuario,$id]);
                     if ($result->num_rows>0){
-                        ["imagem"=>$imagem,"d"=>$d]=p($result)[0];
+                        ["privado"=>$privado,"d"=>$d]=p($result)[0];
+                        $permission=$privado & 2;
                     } else {
                         return response()->json(["result"=>"false","type"=>"id"]);
                     }
                 }
-                if (($isCadastro || isset($dados["imagens_edit"])) && request()->has("imagem")) {
+                $images=[];
+                if ($isCadastro && request()->has("imageFile") && (($permission==2 && request()->has("imageFilePremium")) || ($permission==0))) {
                     $caminhoDestino = __DIR__ . "/../public_html/images/";
-                    if ($imagem){
-                        unlink($caminhoDestino . $imagem);
+                    $file = request()->file("imageFile");
+                    $file_count=0;
+                    foreach ($_FILES["imageFile"]["tmp_name"] as $key => $tmpName){
+                        // Salvar a imagem em um diretório
+                        $filename = $file->getClientOriginalName("webp",$key);
+                        $number=0;
+                        !$original_format[$key] && ($number=$number | 2);
+                        $image=$number . "_" . $id . "_i_" . $file_count . "_" . $filename;
+                        $file->createwebp($caminhoDestino,$image,$key);
+                        if ($permission==2){
+                            $filePremium=request()->file("imageFilePremium");
+                            $number=$number | 1;
+                            $dImage=$number . "_" . $id . "_i_" . $file_count . "_" . $filename;
+                            $filePremium->createwebp($caminhoDestino,$dImage);
+                            array_push($images,$dImage);
+                        } else {
+                            array_push($images,$image);
+                        }
+                        $file_count++;
                     }
-                    $file = request()->file("imagem");
-                    // Salvar a imagem em um diretório
-                    $imagem = $file->getClientOriginalName("webp");
-                    $imagem=(!$original_format ? "r_" : "") . $id . "_i_" . $imagem;
-                    $file->createwebp($caminhoDestino,$imagem);
-                    $img=imagem($caminhoDestino.$imagem);
-                } else {
-                    if ($isCadastro){
-                        return response()->json(["result"=>"false","type"=>"image"]);
-                    }
+                    $images=json_encode($images);
+                } else if ($isCadastro){
+                    return response()->json(["result"=>"false","type"=>"image"]);
                 }
                 if ($isCadastro){
                     $conn = $GLOBALS["conn"];
                     $d=get_d();
                     $views_id=get_views_id($conn);
-                    $permission=0;
                     $conn->prepare("INSERT INTO post_imagem(nome,usuario,descricao,imagem,acessos,views_id,id,d,privado) 
-                        SELECT nome, usuario, ? AS descricao, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 1=1 THEN ? | 8 ELSE ? END) AS privado FROM user WHERE id=?",[$descricao,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$GLOBALS["user_id"]]);
+                        SELECT nome, usuario, ? AS descricao, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d, (CASE WHEN cargo & 5=5 THEN ? | 8 WHEN cargo & 4=4 THEN ? WHEN cargo & 1=1 THEN 8 ELSE 0 END) AS privado FROM user WHERE id=?",[$descricao,$images,$acessos,$views_id,$id,$d,$permission,$permission,$GLOBALS["user_id"]]);
                     insert_views($conn,$usuario,"post_imagem",$views_id,$id);
                     add_n_posts($usuario,$conn);
                 } else {
                     $d=json_decode($d,true);
                     $d["a"]=get_updated_date();
                     $d=json_encode($d);
-                    $conn->prepare("UPDATE post_imagem SET descricao=?,imagem=?,d=? WHERE usuario=? AND id=?",[$descricao,$imagem,$d,$usuario,$id]);
+                    $conn->prepare("UPDATE post_imagem p LEFT JOIN user u ON p.usuario=u.usuario SET privado=(CASE WHEN cargo & 4=4 THEN privado | ? ELSE privado END),descricao=?,p.d=? WHERE p.usuario=? AND p.id=?",[$privado,$descricao,$d,$usuario,$id]);
                 }
                 response()->json(["result"=>"true","usuario"=>$usuario]);
             }
@@ -1345,9 +1370,9 @@ Route::post("/admin/imagens_edit",function(){
         $conn=$GLOBALS["conn"];
         $result=null;
         if ($GLOBALS["cargo"]=="admin"){
-            $result=$conn->prepare("SELECT imagem,descricao,id FROM post_imagem WHERE id=? AND privado=0",[$id]);
+            $result=$conn->prepare("SELECT privado,imagem,descricao,id FROM post_imagem WHERE id=?",[$id]);
         } else {
-            $result=$conn->prepare("SELECT imagem,descricao,id FROM post_imagem WHERE id=? AND usuario=? AND privado=0",[$id,$usuario]);
+            $result=$conn->prepare("SELECT privado,imagem,descricao,id FROM post_imagem WHERE id=? AND usuario=?",[$id,$usuario]);
         }
         if ($result->num_rows>0){
             $result=p($result)[0];
@@ -1453,57 +1478,58 @@ Route::post("/admin/musicas_cadastro",function(){
     $usuario=$GLOBALS["user"];
     if ($usuario){
         $type=$_GET["type"];
-        if (request("type")=="chunk"){
-            $targetDir=__DIR__ . "/chunks/";
-            $filename = $_POST['filename']; // Nome do arquivo original
-            $totalChunks = $_POST['totalChunks']; // Total de chunks
-            $currentChunk = $_POST['currentChunk']; // Chunk atual
+        // if (request("type")=="chunk"){
+        //     $targetDir=__DIR__ . "/chunks/";
+        //     $filename = $_POST['filename']; // Nome do arquivo original
+        //     $totalChunks = $_POST['totalChunks']; // Total de chunks
+        //     $currentChunk = $_POST['currentChunk']; // Chunk atual
 
-            // Criar um diretório temporário para armazenar os chunks se não existir
-            if (!file_exists($targetDir)) {
-                mkdir($targetDir, 0777, true);
-            }
+        //     // Criar um diretório temporário para armazenar os chunks se não existir
+        //     if (!file_exists($targetDir)) {
+        //         mkdir($targetDir, 0777, true);
+        //     }
 
-            // Caminho do arquivo temporário
-            $tempFile = $targetDir . $filename . ".part" . $currentChunk;
+        //     // Caminho do arquivo temporário
+        //     $tempFile = $targetDir . $filename . ".part" . $currentChunk;
 
-            // Receber o chunk e salvá-lo
-            if (isset($_FILES['file'])) {
-                $file = $_FILES['file'];
+        //     // Receber o chunk e salvá-lo
+        //     if (isset($_FILES['file'])) {
+        //         $file = $_FILES['file'];
                 
-                // Mover o chunk para o diretório temporário
-                move_uploaded_file($file['tmp_name'], $tempFile);
+        //         // Mover o chunk para o diretório temporário
+        //         move_uploaded_file($file['tmp_name'], $tempFile);
                 
-                // Verificar se todos os chunks foram enviados
-                $allChunksReceived = true;
-                for ($i = 0; $i < $totalChunks; $i++) {
-                    if (!file_exists($targetDir . $filename . ".part" . $i)) {
-                        $allChunksReceived = false;
-                        break;
-                    }
-                }
+        //         // Verificar se todos os chunks foram enviados
+        //         $allChunksReceived = true;
+        //         for ($i = 0; $i < $totalChunks; $i++) {
+        //             if (!file_exists($targetDir . $filename . ".part" . $i)) {
+        //                 $allChunksReceived = false;
+        //                 break;
+        //             }
+        //         }
 
-                // Se todos os chunks foram recebidos, juntar os arquivos
-                if ($allChunksReceived) {
-                    $finalFile = fopen($targetDir . $filename, "wb");
+        //         // Se todos os chunks foram recebidos, juntar os arquivos
+        //         if ($allChunksReceived) {
+        //             $finalFile = fopen($targetDir . $filename, "wb");
 
-                    for ($i = 0; $i < $totalChunks; $i++) {
-                        $chunkFile = $targetDir . $filename . ".part" . $i;
-                        $chunkData = file_get_contents($chunkFile);
-                        fwrite($finalFile, $chunkData);
-                        unlink($chunkFile); // Apagar o chunk após a escrita
-                    }
+        //             for ($i = 0; $i < $totalChunks; $i++) {
+        //                 $chunkFile = $targetDir . $filename . ".part" . $i;
+        //                 $chunkData = file_get_contents($chunkFile);
+        //                 fwrite($finalFile, $chunkData);
+        //                 unlink($chunkFile); // Apagar o chunk após a escrita
+        //             }
 
-                    fclose($finalFile);
+        //             fclose($finalFile);
                     
-                    echo json_encode(["result"=>"true"]);
-                } else {
-                    echo json_encode(["result"=>"true","type"=>"partial"]);
-                }
-            } else {
-                echo json_encode(["result"=>"false","type"=>"errorChunk"]);
-            }
-        } else if (request("type")=="info" && ($type=="cadastro" || $type=="edit")){
+        //             echo json_encode(["result"=>"true"]);
+        //         } else {
+        //             echo json_encode(["result"=>"true","type"=>"partial"]);
+        //         }
+        //     } else {
+        //         echo json_encode(["result"=>"false","type"=>"errorChunk"]);
+        //     }
+        // }
+        if (request("type")=="info" && ($type=="cadastro" || $type=="edit")){
             response()->json([]);
         } else if (request("type")=="option"){
             ["titulo"=>$titulo]=$_POST;
@@ -1515,12 +1541,10 @@ Route::post("/admin/musicas_cadastro",function(){
             $acessos_parcial=[];
             $durations=[];
             $zip;
-            $files=null;
             $imagem=null;
             $id=null;
             $d=null;
             if ($isCadastro){
-                $files=json_decode($_POST["files"],true);
                 $id=intval(p($conn->query("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM post_musica"))[0]["id"]);
             } else {
                 $id=$_POST["id"];
@@ -1531,7 +1555,6 @@ Route::post("/admin/musicas_cadastro",function(){
                     return response()->json(["result"=>"false","type"=>"id"]);
                 }
             }
-            $idi=0;
             $validImage=false;
             if (($isCadastro || isset($_POST["imagens_edit"]))  && request()->has("imagem")){
                 if (mime_content_type(request()->file("imagem")->file["tmp_name"]) === 'image/jpeg'){
@@ -1545,41 +1568,33 @@ Route::post("/admin/musicas_cadastro",function(){
                 }
             }
             if ($isCadastro){
-                $isUploaded=false;
-                $zip='zip_' . $id . '_' . preg_replace('/[\/\\:\*\?"<>\|]/', '', $titulo) . ".zip";
-                $zip_name=__DIR__ . '/../public_html/zips/'.$zip;
+                $zip='zip_' . $id . "_archive.zip";
+                $zip_name=__DIR__ . '/../public_html/zips/' . $zip;
                 try {
                     $zip_archive=new ZipArchive();
                     if ($zip_archive->open($zip_name, ZipArchive::CREATE) === TRUE) {
-                        if (request()->has("files")) {
-                            $isUploaded=$files;
-                            foreach ($files as $name){
-                                $file=__DIR__ . "/chunks/" . $name;
+                        if (isset($_FILES["musics"])){
+                            $idi=0;
+                            foreach ($_FILES["musics"]["tmp_name"] as $key=>$tmp_name){
+                                $dir = __DIR__ . "/../public_html/musics/";
+                                $filename=$_FILES["musics"]["name"][$key];
                                 // Salvar a imagem em um diretório
-                                $arquivo=$id . "_m_m_" . $idi . "_" . $name;
-                                $zip_archive->addFile($file,$arquivo);
-                                array_push($arquivos,$arquivo);
-                                $idi++;
-                                array_push($durations,intval(shell_exec($GLOBALS["ffprobe_path"] . ' "' . $file  . '" -show_entries format=duration -v quiet -of csv="p=0"')));
+                                $name="0_" . $id . "_m_m_" . $idi . "_" . $filename;
+                                $absolute_path = $dir . $name;
+                                move_uploaded_file($tmp_name, $absolute_path);
+                                $zip_archive->addFile($absolute_path,$filename);
+                                array_push($arquivos,$name);
+                                array_push($durations,intval(shell_exec($GLOBALS["ffprobe_path"] . ' "' . $absolute_path  . '" -show_entries format=duration -v quiet -of csv="p=0"')));
                                 array_push($acessos_parcial,0);
+                                $idi++;
                             }
                         }
-                            // $zip->addFile(__DIR__ . '/main2.php', 'arquivo2.txt');
-                        // }
                         $zip_archive->close();
                     } else {
                         echo 'Falha ao criar o arquivo ZIP.';
                     }
                 } catch (Exception $e){
                     echo $e->getMessage();
-                }
-                if ($isUploaded){
-                    $idi=0;
-                    for ($i=0;$i<count($files);$i++){
-                        $file=$files[$i];
-                        rename(__DIR__ . "/chunks/" . $file,__DIR__ . '/../public_html/musics/' . $arquivos[$i]);
-                        $idi++;
-                    }
                 }
             }
             if ($validImage){
@@ -2399,13 +2414,13 @@ Route::post('/admin/destaque',function(){
                 }
                 $result=p($conn->prepare("SELECT
                         (SELECT imagem AS materia FROM post WHERE views_id=? AND privado=0 AND usuario=?) AS materia,
-                        (SELECT imagem AS imagem FROM post_imagem WHERE views_id=? AND privado=0 AND usuario=?) AS imagem,
+                        (SELECT JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem FROM post_imagem WHERE views_id=? AND privado=0 AND usuario=?) AS imagem,
                         (SELECT imagem AS musica FROM post_musica WHERE views_id=? AND privado=0 AND usuario=?) AS musica,
                         (SELECT JSON_ARRAY(texto,'t') AS texto FROM post_texto WHERE views_id=? AND privado=0 AND usuario=?) AS texto,
                         (SELECT imagem AS video FROM post_video WHERE views_id=? AND privado=0 AND usuario=?) AS video,
                         (SELECT CASE 
                             WHEN p.tipo='post' THEN (SELECT imagem FROM post WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
-                            WHEN p.tipo='post_imagem' THEN (SELECT imagem FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                            WHEN p.tipo='post_imagem' THEN (SELECT JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                             WHEN p.tipo='post_musica' THEN (SELECT imagem FROM post_musica WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                             WHEN p.tipo='post_texto' THEN (SELECT JSON_ARRAY(texto,'t') AS imagem FROM post_texto WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                             ELSE (SELECT imagem FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
@@ -2468,7 +2483,7 @@ Route::post('/admin/destaque',function(){
                         if ($name=="playlist"){
                             $src=p($conn->prepare("SELECT CASE 
                                 WHEN p.tipo='post' THEN (SELECT imagem FROM post WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
-                                WHEN p.tipo='post_imagem' THEN (SELECT imagem FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
+                                WHEN p.tipo='post_imagem' THEN (SELECT JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem FROM post_imagem WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                                 WHEN p.tipo='post_musica' THEN (SELECT imagem FROM post_musica WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                                 WHEN p.tipo='post_texto' THEN (SELECT NULL AS imagem FROM post_texto WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
                                 ELSE (imagem FROM post_video WHERE id=CAST(REPLACE(JSON_EXTRACT(p.posts,'$[0]'),'\\\"','') AS UNSIGNED) AND privado=0 AND usuario=?)
@@ -2849,9 +2864,4 @@ Route::post("/admin/users",function(){
 // Route::post("/ajeitar3",function(){
 //     update_sitemap();
 // });
-// bitwise for private:
-    // 0: don't private
-    // | 1: private post for all users
-    // | 2: private post for non-premium only
-    // | 4: private post for ADM
-    // | 8: private post due to deprivation of a channel by ADM
+

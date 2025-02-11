@@ -95,7 +95,7 @@ function Product({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
             isMain && onLoaded!();
         },[]);
         return <div className='posts-div'>
-            {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/product/"+post.id,post.id)}} to={"/product/"+post.id} className="imagem disabled">
+            {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/product/"+post.id,post.id)}} to={"/product/"+post.id} className="p-imagem disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo> 
                 <div className={(post.usuario!="" ? "" : " wait ") + "descricao-imagem txt " + (!isMain ? "resumo" : "")} ref={refs.descricao}>{post.text.map((line:string[],i:number)=>{
                     return <>
@@ -118,7 +118,7 @@ function Product({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
                     </div>
                     <Denuncia tipo="noticia"></Denuncia>
                 </div>
-            </Link> : <div className="imagem pm">
+            </Link> : <div className="p-imagem pm">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo> 
                 {summarized ? <div className='descricao-resumo-imagem'><div className="descricao-imagem txt overflow" ref={refs.descricao}>{post.text.map((line:string[],i:number)=>{
                     return <>

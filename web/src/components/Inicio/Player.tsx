@@ -13,7 +13,7 @@ interface mInterface{
 }
 export type { mInterface };
 function Player(){
-    const { player, server }=useGlobal();
+    const { player, server, navigate }=useGlobal();
     const auth=useAuth();
     const [exists,setExists]=useState(false);
     const [infos,setInfos]=useState({user:"",name:""});
@@ -48,7 +48,7 @@ function Player(){
     }
     const navigateToMusic=(e:any)=>{
         e.preventDefault();
-        player.current.updatePosts && player.current.updatePosts("/musica/"+player.current.page_id,player.current.page_id);
+        player.current.updatePosts ? player.current.updatePosts("/musica/"+player.current.page_id,player.current.page_id) : navigate("/musica/"+player.current.page_id);
     }
     return (
         <div draggable={false} id="player" style={{display:exists ? "block" : "none"}}>

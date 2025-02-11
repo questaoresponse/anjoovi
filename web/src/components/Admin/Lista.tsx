@@ -34,11 +34,32 @@ function Lista(propsl:any){
         }
     }
     const [infos,setInfos]=verify();
+    const zero=(number:string | number)=>{
+        return Number(number) < 10 ? "0"+number : String(number);
+    }
     const Recriar=useCallback((data:any,pesquisa=null)=>{
         var n=Number(data.n_registros);
         var nb=n<=10 ? 0 : n/10!=Math.floor(n/10) ? Math.floor(n/10+1) : n/10;
         var params=new URLSearchParams(location.search);
         var pas=0;
+        data.posts=data.posts.map((post:any)=>{ 
+            if (post.d){
+                post.d=JSON.parse(post.d)["o"];
+                const [datePart, timePart] = new Date((post.d - 10800) * 1000).toLocaleString().split(', ');
+                const [day, month, year] = datePart.split('/');
+                const date:any = new Date(`${year}-${month}-${day}T${timePart}`);
+                const dia = zero(date.getDate());
+                const mes = zero(date.getMonth() + 1); // Os meses em JavaScript são base 0 (janeiro é 0, fevereiro é 1, etc.)
+                const ano = date.getFullYear();
+                const hora = zero(date.getHours());
+                const minuto=zero(date.getMinutes());
+                post.d=`${ano}-${mes}-${dia} ${hora}:${minuto}`;
+            } else {
+                post.d="";
+            }
+            return post;
+        });
+        
         if (params.has("pg")){
             pas=Number(params.get("pg"))-1 >= 0 ? Number(Number(params.get("pg")) - 1) : 0;
         }
@@ -101,28 +122,11 @@ function Lista(propsl:any){
     // o.classList.add("opcoes");
     // l.appendChild(o);
     const get=useCallback(()=>{
-        function zero(number:string | number){
-            return Number(number) < 10 ? "0"+number : String(number);
-        }
         auth.post(server+location.pathname+location.search,{type:"info"}).then((result)=>{
             if (result.error){
                 globals.redirectError.current(result.error);
             } else {
                 result.data.posts=result.data.posts.map((post:any)=>{ 
-                    if (post.d){
-                        post.d=JSON.parse(post.d)["o"];
-                        const [datePart, timePart] = new Date((post.d - 10800) * 1000).toLocaleString().split(', ');
-                        const [day, month, year] = datePart.split('/');
-                        const data:any = new Date(`${year}-${month}-${day}T${timePart}`);
-                        const dia = zero(data.getDate());
-                        const mes = zero(data.getMonth() + 1); // Os meses em JavaScript são base 0 (janeiro é 0, fevereiro é 1, etc.)
-                        const ano = data.getFullYear();
-                        const hora = zero(data.getHours());
-                        const minuto=zero(data.getMinutes());
-                        post.d=`${ano}-${mes}-${dia} ${hora}:${minuto}`;
-                    } else {
-                        post.d="";
-                    }
                     return {...post,privado:post.privado ? Number(post.privado) : undefined}
                 });
                 Recriar(result.data);

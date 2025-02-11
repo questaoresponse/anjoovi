@@ -51,7 +51,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
             isMain && onLoaded!();
         },[]);
         return <div className='posts-div'>
-            {!isMain ? <Link onClick={(e:any)=>{e.preventDefault();func("/video/"+post.id,post.id)}} to={"/video/"+post.id} className="video disabled">
+            {!isMain ? <Link onClick={(e:any)=>{e.preventDefault();func("/video/"+post.id,post.id)}} to={"/video/"+post.id} className="p-video disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className="titulo-video">{post.titulo.map((line,i)=>{
                     return <>
@@ -82,7 +82,7 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
                     </div>
                     <Denuncia tipo="video"></Denuncia>
                 </div>
-            </Link> : <div className='video pm'>
+            </Link> : <div className='p-video pm'>
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className="titulo-video">{post.titulo.map((line,i)=>{
                     return <>

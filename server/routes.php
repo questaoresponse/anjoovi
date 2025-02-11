@@ -187,16 +187,17 @@ class fi{
     public function __construct($file){
         $this->file=$file;
     }
-    public function getClientOriginalName($format=null){
-        $name = pathinfo($this->file["name"],PATHINFO_FILENAME);
-        return $format ? $name . '.' . $format : $this->file["name"];
+    public function getClientOriginalName($format=null,$arrayKey=null){
+        $filename = isset($arrayKey) ? $this->file["name"][$arrayKey] : $this->file["name"];
+        $name = pathinfo($filename,PATHINFO_FILENAME);
+        return $format ? $name . '.' . $format : $filename;
     }
-    public function move($d,$n){
-        $nt = $this->file["tmp_name"];
+    public function move($d,$n,$arrayKey=null){
+        $nt = isset($arrayKey) ? $this->file["tmp_name"][$arrayKey] : $this->file["tmp_name"];
         move_uploaded_file($nt,$d.$n);
     }
-    public function createwebp($path,$name){
-        $this->move($path,$name);
+    public function createwebp($path,$name,$arrayKey=null){
+        $this->move($path,$name,$arrayKey);
         $imagem = imagecreatefromjpeg($path . $name);
         imagewebp($imagem, $path . $name, 80); // O terceiro parâmetro é a qualidade (de 0 a 100)
         imagedestroy($imagem);
@@ -578,11 +579,3 @@ Route::init();
 include(__DIR__ . '/main.php');
 Route::dispatch($_SERVER["REQUEST_METHOD"]=="PUT" ? "GET" : $_SERVER["REQUEST_METHOD"],parse_url($_SERVER["REQUEST_URI"])['path']);
 
-// bitwise for cargo:
-    // 1: if the user is private
-    // 2: if the user is ADM
-    // 4: if the user is PREMIUM
-    // 8: if the user is PREMUM START 
-    // 16: if the user is PREMIUM PRO
-    // 32: if the user is PREMIUM PLUS
-    // 64: if the user is PREMIUM ULTRA

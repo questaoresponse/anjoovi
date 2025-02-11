@@ -83,7 +83,7 @@
             padding-left: 10px;
             padding-right: 10px;
             height:2em;
-            margin-bottom: 2%;
+            margin-bottom: 5px;
             width:100%;
             border:solid 1px gray;
             border-radius:5px;
@@ -100,6 +100,7 @@
             height:10vh;
             width:100%;
             cursor:pointer;
+            margin-top: 5px;
             @include pc(){
                 left:0.5%;
                 width:30%;
@@ -114,6 +115,7 @@
             height:49%;
         }
         #button{
+            display: block;
             font-size:110%;
             position:relative;
             background:black;

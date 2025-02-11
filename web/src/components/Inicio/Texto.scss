@@ -36,7 +36,7 @@
         }
     }
 }
-.texto{
+.p-texto{
     display: block;
     position: relative;
     background: white;
@@ -46,12 +46,12 @@
     text-decoration: none;
 }
 @include pc(){
-    .texto{
+    .p-texto{
         width:100%;
         margin-left: 0;
     }
 }
-.texto {
+.p-texto {
 
     // #usuario{
     //     position:relative;

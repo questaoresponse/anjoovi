@@ -83,9 +83,10 @@ function Types(){
                 var dj=JSON.parse(post.d);
                 var d=dj.o;
                 var texto=(post.descricao || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []);
+                const imagem=post.imagem[0]=="[" ? JSON.parse(post.imagem) : [post.imagem];
                 return {
                     alta:[],
-                    srcImagem:server+"/images/"+encodeURIComponent(post.imagem),
+                    srcImagem:imagem.map((imagem:string)=>server+"/images/"+encodeURIComponent(imagem)),
                     logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
                     nome:post.nome,
                     usuario:post.usuario,

@@ -333,7 +333,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     p.descricao, 
                     NULL AS subtitulo, 
                     NULL AS texto, 
-                    p.imagem, 
+                    JSON_UNQUOTE(JSON_EXTRACT(p.imagem, '$[0]')) AS imagem, 
                     NULL AS arquivo, 
                     NULL AS duration, 
                     NULL AS zip, 
@@ -502,7 +502,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     descricao,
                     NULL AS subtitulo,
                     NULL AS texto,
-                    imagem,
+                    JSON_UNQUOTE(JSON_EXTRACT(p.imagem, '$[0]')) AS imagem,
                     NULL AS arquivo,
                     NULL AS duration,
                     NULL AS zip,
@@ -856,7 +856,7 @@ Route::post("/busca",function(){
                         $result = $conn->prepare("SELECT * FROM (
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto, imagem,'p' AS tipo FROM post WHERE ( titulo LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION ALL
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto, JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem,'i' AS tipo FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION ALL
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'m' AS tipo FROM post_musica WHERE ( titulo LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION ALL
@@ -869,7 +869,7 @@ Route::post("/busca",function(){
                                     SELECT CONCAT('[',GROUP_CONCAT(JSON_OBJECT(p2.id,p2.imagem) SEPARATOR ','),']')  FROM (
                                         SELECT id AS id1, NULL AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post
                                         UNION
-                                        SELECT NULL AS id1, id AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post_imagem
+                                        SELECT NULL AS id1, id AS id2, NULL AS id3, NULL AS id4, id, JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem FROM post_imagem
                                         UNION
                                         SELECT NULL AS id1, NULL AS id2, id AS id3, NULL AS id4, id, imagem FROM post_musica
                                         UNION
@@ -897,7 +897,7 @@ Route::post("/busca",function(){
                                 SELECT CONCAT('[',GROUP_CONCAT(JSON_OBJECT(p2.id,p2.imagem) SEPARATOR ','),']')  FROM (
                                     SELECT id AS id1, NULL AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post
                                     UNION
-                                    SELECT NULL AS id1, id AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post_imagem
+                                    SELECT NULL AS id1, id AS id2, NULL AS id3, NULL AS id4, id, JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem FROM post_imagem
                                     UNION
                                     SELECT NULL AS id1, NULL AS id2, id AS id3, NULL AS id4, id, imagem FROM post_musica
                                     UNION
@@ -916,7 +916,7 @@ Route::post("/busca",function(){
                         $result = $conn->prepare("SELECT * FROM (
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'p' AS tipo FROM post WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem,'i' AS tipo FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'m' AS tipo FROM post_musica WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
@@ -929,7 +929,7 @@ Route::post("/busca",function(){
                                 SELECT CONCAT('[',GROUP_CONCAT(JSON_OBJECT(p2.id,p2.imagem) SEPARATOR ','),']')  FROM (
                                     SELECT id AS id1, NULL AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post
                                     UNION
-                                    SELECT NULL AS id1, id AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post_imagem
+                                    SELECT NULL AS id1, id AS id2, NULL AS id3, NULL AS id4, id, JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem FROM post_imagem
                                     UNION
                                     SELECT NULL AS id1, NULL AS id2, id AS id3, NULL AS id4, id, imagem FROM post_musica
                                     UNION
@@ -944,7 +944,7 @@ Route::post("/busca",function(){
                         $result = $conn->prepare("SELECT COUNT(*) AS num FROM (
                             ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post  WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 13=0)
                             UNION
-                            ( SELECT id,usuario,descricao AS titulo,NULL AS texto,imagem FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? ) AND privado & 13=0)
+                            ( SELECT id,usuario,descricao AS titulo,NULL AS texto,JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? ) AND privado & 13=0)
                             UNION
                             ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post_musica WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 13=0)
                             UNION
@@ -957,7 +957,7 @@ Route::post("/busca",function(){
                                 SELECT CONCAT('[',GROUP_CONCAT(JSON_OBJECT(p2.id,p2.imagem) SEPARATOR ','),']')  FROM (
                                     SELECT id AS id1, NULL AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post
                                     UNION
-                                    SELECT NULL AS id1, id AS id2, NULL AS id3, NULL AS id4, id, imagem FROM post_imagem
+                                    SELECT NULL AS id1, id AS id2, NULL AS id3, NULL AS id4, id, JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem FROM post_imagem
                                     UNION
                                     SELECT NULL AS id1, NULL AS id2, id AS id3, NULL AS id4, id, imagem FROM post_musica
                                     UNION
@@ -1132,6 +1132,8 @@ Route::get("/imagem/{id}",function($id){
     $conn = $GLOBALS["conn"];
     $result=null;
     if ($usuario){
+        $rule=($GLOBALS["cargo"] & 4)==4 ? "privado & 13=0" : "privado & 15=0";
+
         $result=$conn->prepare("SELECT 
         (SELECT CASE 
                 WHEN JSON_CONTAINS(JSON_KEYS(inscritos),?, '$') AND JSON_EXTRACT(inscritos,?) IS NOT NULL THEN 'true' 
@@ -1141,7 +1143,7 @@ Route::get("/imagem/{id}",function($id){
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
         (SELECT COUNT(*) AS num FROM comment WHERE tipo='imagem' AND post_id=? AND privado=0) AS n_comment,
         p2.logo,p2.nome,
-        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND privado & 15=0",['"' . $usuario . '"', '$."' . $usuario . '"',$id,$id]);
+        acessos,p.usuario,descricao,imagem,d,views_id,'i' AS tipo FROM post_imagem p INNER JOIN (SELECT views,logo,nome,usuario FROM user) AS p2 ON p.usuario=p2.usuario WHERE id=? AND $rule",['"' . $usuario . '"', '$."' . $usuario . '"',$id,$id]);
     } else {
         $result=$conn->prepare("SELECT 'false' AS inscrito,
         CASE WHEN p2.views='true' THEN acessos ELSE -1 END AS visualizacoes,
@@ -1559,7 +1561,7 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
                 }
                 $info[0]["card"]=json_encode($card);
                 $posts=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,imagem,'p' AS tipo FROM post WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
-                $imagens=p($conn->prepare("SELECT usuario,descricao AS titulo,NULL AS texto,id,views_id,imagem,'i' AS tipo FROM post_imagem WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
+                $imagens=p($conn->prepare("SELECT usuario,descricao AS titulo,NULL AS texto,id,views_id,JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem,'i' AS tipo FROM post_imagem WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
                 $musicas=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,imagem,'m' AS tipo FROM post_musica WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
                 $textos=p($conn->prepare("SELECT usuario,NULL AS titulo,texto,id,views_id,'' AS imagem,'t' AS tipo FROM post_texto WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
                 $videos=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,imagem,'v' AS tipo FROM post_video WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
@@ -3025,6 +3027,25 @@ Route::post("/ups",function(){
 //     // echo "." . $e;
 // });
 Route::post("/ajeitar",function(){
+    $conn=$GLOBALS["conn"];
+    $results=p($conn->query("SELECT imagem,id FROM post_imagem"));
+    foreach ($results as $result){
+        $texto=json_decode($result["imagem"],true);
+        $newImages=[];
+        $dir=__DIR__ . "/../public_html/images/";
+        foreach ($texto as $imagem){
+            if (substr($imagem,0,2)!="0_") {
+                $newImage="0_" . $imagem;
+                rename($dir . $imagem, $dir . $newImage);
+                array_push($newImages,$newImage);
+            } else {
+                array_push($newImages,$imagem);
+            }
+        }
+        $newImages=json_encode($newImages);
+        $conn->prepare("UPDATE post_imagem SET imagem=?",[$newImages]);
+    }
+
     // $conn=$GLOBALS["conn"];
     // $r=p($conn->prepare("WITH history AS (
     //             SELECT 

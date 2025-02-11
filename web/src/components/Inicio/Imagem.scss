@@ -39,7 +39,7 @@
         }
     }
 }
-.imagem{
+.p-imagem{
     position: relative;
     display: block;
     background: white;
@@ -49,7 +49,7 @@
     text-decoration: none;
 } 
 @include pc(){
-    .imagem{
+    .p-imagem{
         width:100%;
         margin-left: 0;
     }
@@ -58,12 +58,12 @@
     }
 }
 @include pc(){
-    .imagem{
+    .p-imagem{
         width:100%;
         margin-left: 0;
     }
 }
-.imagem{
+.p-imagem{
     .visualizacoes{
         font-size: 120%;
         padding-left:1%;
@@ -75,10 +75,14 @@
         display:flex;
         justify-content: center;
         width:70%;
-        height:0;
-        padding-bottom:calc(720 / 1280 * 70%);
+        aspect-ratio: 16/9;
         // border-radius: 20px;
         // overflow: hidden;
+    }
+    .campo-img-imagem img{
+        user-select: none;
+        pointer-events: none;
+        -webkit-user-drag: none;
     }
     // .campo-img-imagem.wait{
     //     background-color: gray;
@@ -121,6 +125,52 @@
         cursor: pointer;
         width: fit-content;
     }
+    .arrow-left{
+        left: 4px;
+        top:calc(50% - 14.5px);
+    }
+    .arrow-right{
+        right: 4px;
+        top:calc(50% - 14.5px);
+    }
+    .arrow-left, .arrow-right{
+        position: absolute;
+        padding:4px;
+        width:24px;
+        height: 24px;
+        cursor: pointer;
+        border-radius: 50%;
+        background-color: rgba(0,0,0,0);
+    }
+    .arrow-left.disabled, .arrow-right.disabled, .arrow-left:hover, .arrow-right:hover, .arrow-left:active, .arrow-right:active{
+        opacity: 0.5;
+    }
+    .arrow-left.disabled, .arrow-right.disabled{
+        cursor: default;
+    }
+    .arrow-left:not(.disabled):hover, .arrow-right:not(.disabled):hover, .arrow-left:not(.disabled):active, .arrow-right:not(.disabled):active{
+        background-color: rgb(128, 128, 128, 1);
+    }
+    .dot-list{
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        margin-left: auto;
+        margin-right: auto;
+        justify-content: center;
+        width: fit-content;
+        height: 16px;
+        bottom: 0px;
+    }
+    .dot-item{
+        transform: scale(2.8);
+        width: 11px;
+        height: 11px;
+        color: rgba(255,255,255,0.5);
+    }
+    .dot-item.selected{
+        color: white;
+    }
     @media screen and (max-width:768px){
         .campo-img-imagem{
             width:100%;
@@ -133,6 +183,5 @@
             width:100%;
             padding-bottom: calc(100% / 1280 * 720);
         }
-
     }
 }

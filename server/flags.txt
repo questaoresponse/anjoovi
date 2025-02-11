@@ -1,0 +1,20 @@
+bitwise for private:
+    0: don't private
+    | 1: private post for all users
+    | 2: private post for non-premium only
+    | 4: private post for ADM
+    | 8: private post due to deprivation of a channel by ADM
+
+bitwise for cargo:
+    1: if the user is private
+    2: if the user is ADM
+    4: if the user is PREMIUM
+    8: if the user is PREMUM START 
+    16: if the user is PREMIUM PRO
+    32: if the user is PREMIUM PLUS
+    64: if the user is PREMIUM ULTRA
+
+bitwise for pubs:
+    0: no flag
+    | 1: if is for PREMIUM
+    | 2 if resize

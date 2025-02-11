@@ -52,7 +52,7 @@ class PlayerClass{
         this.setExists!(false);
 
     }
-    animate(_:any,init2:boolean | null=null){
+    animate(_:any, init2:boolean | null=null, reset?: boolean){
         if (init2!=null){
             this.progress[2]=init2;
         }
@@ -69,6 +69,10 @@ class PlayerClass{
             requestAnimationFrame(this.animate);
         } else {
             this.progress[1]=0;
+            if (reset){
+                const w=(this.progress[0] as number)/(Number(this.refs.range.current!.max));
+                this.refs.progress.current!.style.left=-(98.75 - (w*97.50))+"%";
+            }
         }
     }
     updateMusics(musics:musicInterface[]){
@@ -98,26 +102,7 @@ class PlayerClass{
         }
     }
     onLoadedMetadata(){
-      this.duration=this.refs.audio.current!.duration;
-      var m:number | string=this.duration/60;
-      m=Math.floor(m);
-      var s:number | string=Math.floor(this.duration)-(m*60);
-      m= m<10 ? "0"+m : m;
-      s= s<10 ? "0"+s : s;
-      const time=m+":"+s;
-      this.refs.audio.current!.currentTime=this.musics[this.music_index].currentTime;
-      this.progress[0]=this.musics[this.music_index].currentTime * 1000;
-      this.progress[1]=0;
-      this.animate(0,true);
-      this.musics[this.music_index].duration=this.duration;
-      this.refs.timeTotal.current!.textContent=time;
-      this.refs.range.current!.min=String(0);
-      this.refs.range.current!.max=String(this.duration * 1000);
-      this.updateMusics(this.musics);
-      const currentTime=this.getTime(this.refs.audio.current!.currentTime);
-      this.refs.currentTime.current!.textContent=currentTime;
-      this.musics[this.music_index].setCurrentTime && this.musics[this.music_index].setCurrentTime!(currentTime);
-      this.paused=!this.paused;
+      this.paused=true;
       this.changeState();
     }
     onTimeUpdate(){
@@ -154,35 +139,62 @@ class PlayerClass{
             this.animate(0,false);
             this.onClickMusic(this.music_index+1,{user:this.user,page_id:this.page_id,musics:this.musics});
         } else {
-            // this.updateMusics(musics):;
             this.reset();
         }
     }
     onClickMusic(index:number,{user,page_id,musics}:{user:string,page_id:number,musics:musicInterface[]}){
+        if (this.music_index==index){
+            this.user=user;
+            this.setInfos!({user,name:this.musics[this.music_index].name});
+            this.changeState();
+            return;
+        }
+        this.paused=false;
+
         if (this.music_index==-1){
-            this.paused=false;
-            this.musics=musics;
             this.music_index=index;
+            this.musics=musics;
             this.musics[this.music_index].setPlay && this.musics[this.music_index].setPlay!(true);
             this.setPlay!(true);
             this.page_id=page_id;
             this.setExists!(true);
             this.refs.audio.current!.src=this.musics[index].src;
-        } else if (this.music_index==index){
-            this.changeState();
+            this.updateMusics(this.musics);
+            this.musics[this.music_index].currentTime=0;
         } else {
             if (this.musics[index].currentTime==this.musics[index].duration){
                 this.musics[index].currentTime=0;
             }
-            this.paused=false;
             this.musics[this.music_index].setPlay && this.musics[this.music_index].setPlay!(false);
             this.musics[index].setPlay && this.musics[index].setPlay!(true);
             this.setPlay!(true);
-            this.music_index=index;
             this.refs.audio.current!.src=this.musics[index].src;
+            this.music_index=index;
         }
+
         this.user=user;
         this.setInfos!({user,name:this.musics[this.music_index].name});
+
+        this.duration=this.musics[index].duration;
+        var m:number | string=this.duration/60;
+        m=Math.floor(m);
+        var s:number | string=Math.floor(this.duration)-(m*60);
+        m= m<10 ? "0"+m : m;
+        s= s<10 ? "0"+s : s;
+        const time=m+":"+s;
+        this.musics[this.music_index].duration=this.duration;
+        this.refs.timeTotal.current!.textContent=time;
+        this.refs.range.current!.min=String(0);
+        this.refs.range.current!.max=String(this.duration * 1000);
+        const currentTime=this.getTime(this.musics[this.music_index].currentTime);
+        this.refs.currentTime.current!.textContent=currentTime;
+        this.musics[this.music_index].setCurrentTime && this.musics[this.music_index].setCurrentTime!(currentTime);
+        this.refs.audio.current!.currentTime=this.musics[this.music_index].currentTime;
+        this.progress[0]=this.musics[this.music_index].currentTime * 1000;
+        this.progress[1]=0;
+        this.animate(0,false,true);
+        this.paused=false;
+        this.changeState();
     }
     getTime(value:number){
         const m=Math.floor(value/60);

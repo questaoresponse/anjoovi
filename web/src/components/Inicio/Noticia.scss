@@ -36,7 +36,7 @@
         }
     }
 }
-.noticia{
+.p-noticia{
     display: block;
     position: relative;
     background: white;
@@ -46,12 +46,12 @@
     text-decoration: none;
 }
 @include pc(){
-    .noticia{
+    .p-noticia{
         width:100%;
         margin-left: 0;
     }
 }
-.noticia {
+.p-noticia {
     .titulo-noticia{
         position: relative;
         display: block;
@@ -152,7 +152,7 @@
 
     }
 }
-.noticia.loading{
+.p-noticia.loading{
     .titulo-noticia{
         background-color: hsl(0deg, 0%, 89%);
         width: 100%;
