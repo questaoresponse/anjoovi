@@ -3039,8 +3039,7 @@ Route::post("/ajeitar",function(){
                 if ($r->num_rows>0){
                     $r=p($r);
                     $arr=json_encode([$arquivo]);
-                    echo $arr;
-                    // $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$arr,$id]);
+                    $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$arr,$id]);
                 }
             }
         }
