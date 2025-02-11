@@ -131,7 +131,7 @@ function MusicasCadastro(){
     }
     const VerifyUpload=(p:any)=>{
         setIsUploading(true);
-        setPorcentagem(p.progress * 100);
+        setPorcentagem(Math.floor(p.progress * 100));
     }
     const Cadastrar=useCallback(async (e:any)=>{
         e.preventDefault();
