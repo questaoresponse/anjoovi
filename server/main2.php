@@ -3038,7 +3038,7 @@ Route::post("/ajeitar",function(){
                 $r=$conn->prepare("SELECT imagem FROM post_imagem WHERE id=?",[$id]);
                 if ($r->num_rows>0){
                     $r=p($r);
-                    $l=json_decode($r["imagem"],true);
+                    $l=json_decode($r["imagem"]);
                     if (count($l)==1){
                         $arr=json_encode([$arquivo]);
                         $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$arr,$id]);
