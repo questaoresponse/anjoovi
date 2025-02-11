@@ -3031,6 +3031,8 @@ Route::post("/ajeitar",function(){
     $arquivos = glob(__DIR__ . '/../public_html/images/*'); // Lista todos os arquivos e pastas
     foreach ($arquivos as $arquivo) {
         if (is_file($arquivo)) {
+            $arquivo=str_split($arquivo,"/");
+            $arquivo=$arquivo[count($arquivo)];
             if (preg_match("/0_(\d+)_/",$arquivo,$matches)){
                 $id=intval($matches[1]);
                 $r=$conn->prepare("SELECT imagem FROM post_imagem WHERE id=?",[$id]);
