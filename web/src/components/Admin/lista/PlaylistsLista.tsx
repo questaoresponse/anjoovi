@@ -31,7 +31,7 @@ function PlaylistsLista(){
                         props.globals.redirectError.current(result.error);
 
                     } else {
-                        result.data.posts=result.data.posts.map((post:any)=>{ return {...post,d:post.d ? JSON.parse(post.d).o.split(":").splice(0,2).join(":") : "",privado:post.privado ? Number(post.privado) : undefined}});
+                        result.data.posts=result.data.posts.map((post:any)=>{ return {...post,privado:post.privado ? Number(post.privado) : undefined}});
                         props.recriar(result.data);
                     }
                 })
