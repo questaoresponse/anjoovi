@@ -3028,66 +3028,85 @@ Route::post("/ups",function(){
 // });
 Route::post("/ajeitar",function(){
     $conn=$GLOBALS["conn"];
-    $results=p($conn->query("SELECT imagem,id FROM post_imagem"));
-    foreach ($results as $result){
-        $texto=json_decode($result["imagem"],true);
-        $newImages=[];
-        $dir=__DIR__ . "/../public_html/images/";
-        foreach ($texto as $imagem){
-            if (substr($imagem,0,2)!="0_") {
-                $newImage="0_" . $imagem;
-                $old_image=$dir . $imagem;
-                if (file_exists($old_image)){
-                    rename($old_image, $dir . $newImage);
+    $arquivos = glob(__DIR__ . '/../public_html/images/*'); // Lista todos os arquivos e pastas
+    foreach ($arquivos as $arquivo) {
+        if (is_file($arquivo)) {
+            if (preg_match("/0_(\d+)_/",$arquivo,$matches)){
+                $id=intval($matches[1]);
+                $r=$conn->prepare("SELECT imagem FROM post_imagem WHERE id=?",[$id]);
+                if ($r->num_rows>0){
+                    $r=p($r);
+                    $arr=[$arquivo];
+                    $arr=json_encode($arquivo);
+                    echo $arr;
+                    // $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$arr,$id]);
                 }
-                array_push($newImages,$newImage);
-            } else {
-                array_push($newImages,$imagem);
             }
         }
-        $newImages=json_encode($newImages);
-        $conn->prepare("UPDATE post_imagem SET imagem=?",[$newImages]);
     }
-
-    // $conn=$GLOBALS["conn"];
-    // $r=p($conn->prepare("WITH history AS (
-    //             SELECT 
-    //                 h.usuario,
-    //                 MAX(CASE WHEN h.rnk = 1 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS latest_text,
-    //                 MAX(CASE WHEN h.rnk = 2 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS second_latest_text
-    //             FROM (
-    //                 SELECT 
-    //                     usuario,
-    //                     texto,
-    //                     ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
-    //                 FROM historico
-    //             ) h
-    //             WHERE h.rnk <= 2
-    //             GROUP BY h.usuario
-    //         )
-    //         SELECT CASE WHEN h.latest_text IS NOT NULL AND p.descricao LIKE LOWER(h.latest_text) THEN 1 ELSE 0 END AS accuracy, p.descricao, id FROM (SELECT NULL AS titulo, descricao, id FROM post_imagem p WHERE p.privado & 1=0 UNION ALL SELECT titulo, NULL AS descricao, id FROM post p WHERE p.privado & 1=0) p LEFT JOIN history h ON h.usuario=? ORDER BY accuracy DESC LIMIT 2",['usuario']));
-    // echo json_encode($r);
-
-    // $r=p($conn->query("SELECT usuario FROM user"));
-    // foreach ($r as $rs){
-    //     $hash=get_token(["usuario"=>$rs["usuario"]]);
-    //     $conn->prepare("UPDATE user SET hash=? WHERE usuario=?",[$hash,$rs["usuario"]]);
-    // }
-    // $r=p($conn->query("SELECT nome FROM user WHERE nome='amostradinho'"));
-    // $t1=0;
-    // $t2=0;
-    // for ($i=0;$i<10;$i++){
-    //     $i=microtime(true);
-    //     $r=p($conn->prepare("SELECT u.cargo FROM comment c LEFT JOIN user u ON c.user_id=u.id WHERE c.user_id=?",[$GLOBALS["user_id"]]));
-    //     $pi=microtime(true);
-    //     $i2=microtime(true);
-    //     $r=p($conn->prepare("SELECT u.cargo FROM comment c LEFT JOIN user u ON c.usuario=u.usuario WHERE c.usuario=?",[$GLOBALS["user"]]));
-    //     $pi2=microtime(true);
-    //     $t1+=($pi - $i) * 1000;
-    //     $t2+=($pi2-$i2) * 1000;
-    // }
-    // echo json_encode(["time"=>$t1, "time2"=>$t2]);
 });
+// Route::post("/ajeitar",function(){
+//     $conn=$GLOBALS["conn"];
+//     $results=p($conn->query("SELECT imagem,id FROM post_imagem"));
+//     foreach ($results as $result){
+//         $texto=json_decode($result["imagem"],true);
+//         $newImages=[];
+//         $dir=__DIR__ . "/../public_html/images/";
+//         foreach ($texto as $imagem){
+//             if (substr($imagem,0,2)!="0_") {
+//                 $newImage="0_" . $imagem;
+//                 $old_image=$dir . $imagem;
+//                 if (file_exists($old_image)){
+//                     rename($old_image, $dir . $newImage);
+//                 }
+//                 array_push($newImages,$newImage);
+//             } else {
+//                 array_push($newImages,$imagem);
+//             }
+//         }
+//         $newImages=json_encode($newImages);
+//         $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$newImages,$result["id"]]);
+//     }
+
+//     // $conn=$GLOBALS["conn"];
+//     // $r=p($conn->prepare("WITH history AS (
+//     //             SELECT 
+//     //                 h.usuario,
+//     //                 MAX(CASE WHEN h.rnk = 1 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS latest_text,
+//     //                 MAX(CASE WHEN h.rnk = 2 THEN CONCAT('%', h.texto, '%') ELSE NULL END) AS second_latest_text
+//     //             FROM (
+//     //                 SELECT 
+//     //                     usuario,
+//     //                     texto,
+//     //                     ROW_NUMBER() OVER (PARTITION BY usuario ORDER BY id DESC) AS rnk
+//     //                 FROM historico
+//     //             ) h
+//     //             WHERE h.rnk <= 2
+//     //             GROUP BY h.usuario
+//     //         )
+//     //         SELECT CASE WHEN h.latest_text IS NOT NULL AND p.descricao LIKE LOWER(h.latest_text) THEN 1 ELSE 0 END AS accuracy, p.descricao, id FROM (SELECT NULL AS titulo, descricao, id FROM post_imagem p WHERE p.privado & 1=0 UNION ALL SELECT titulo, NULL AS descricao, id FROM post p WHERE p.privado & 1=0) p LEFT JOIN history h ON h.usuario=? ORDER BY accuracy DESC LIMIT 2",['usuario']));
+//     // echo json_encode($r);
+
+//     // $r=p($conn->query("SELECT usuario FROM user"));
+//     // foreach ($r as $rs){
+//     //     $hash=get_token(["usuario"=>$rs["usuario"]]);
+//     //     $conn->prepare("UPDATE user SET hash=? WHERE usuario=?",[$hash,$rs["usuario"]]);
+//     // }
+//     // $r=p($conn->query("SELECT nome FROM user WHERE nome='amostradinho'"));
+//     // $t1=0;
+//     // $t2=0;
+//     // for ($i=0;$i<10;$i++){
+//     //     $i=microtime(true);
+//     //     $r=p($conn->prepare("SELECT u.cargo FROM comment c LEFT JOIN user u ON c.user_id=u.id WHERE c.user_id=?",[$GLOBALS["user_id"]]));
+//     //     $pi=microtime(true);
+//     //     $i2=microtime(true);
+//     //     $r=p($conn->prepare("SELECT u.cargo FROM comment c LEFT JOIN user u ON c.usuario=u.usuario WHERE c.usuario=?",[$GLOBALS["user"]]));
+//     //     $pi2=microtime(true);
+//     //     $t1+=($pi - $i) * 1000;
+//     //     $t2+=($pi2-$i2) * 1000;
+//     // }
+//     // echo json_encode(["time"=>$t1, "time2"=>$t2]);
+// });
 Route::post("/functions",function(){
     if (isset($_POST["key"]) && $_POST["key"]=="7894j96~-[njd98n705yfhq´-d3=rfekk9"){
         $type=$_POST["type"];
