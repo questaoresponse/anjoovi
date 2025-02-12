@@ -3034,12 +3034,10 @@ Route::post("/ajeitar",function(){
             $arquivo=explode("/",$arquivo);
             $arquivo=$arquivo[count($arquivo)-1];
             if (preg_match("/^0_(\d+)(?=_i_)/",$arquivo,$matches)){
-                echo json_encode($matches);
                 $id=intval($matches[1]);
-                echo $id;
                 $r=$conn->prepare("SELECT imagem FROM post_imagem WHERE id=?",[$id]);
                 if ($r->num_rows>0){
-                    $r=p($r);
+                    $r=p($r)[0];
                     $l=json_decode($r["imagem"],true);
                     if ($l && count($l)==1){
                         $arr=json_encode([$arquivo]);
