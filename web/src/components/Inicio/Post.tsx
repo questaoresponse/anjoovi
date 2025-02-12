@@ -25,12 +25,13 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                     } else {
                         cm=post.imagem;
                     }
+                    const values=["r1","r2","r3","r4"];
                     var isRd=false;
                     var isPremiumView=false;
-                    const matches = cm.match(/^(\d+)(?=_\d+_i)/);
+                    const matches = cm ? cm.match(/^(\d+)(?=_\d+_i)/) : null;
                     if (matches) {
                         const r = Number(matches[1]);
-                        isRd=(r & 2)==2;
+                        isRd=(r & ~1) >> 1;
                         isPremiumView=(r & 1)==1;
                     }
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;

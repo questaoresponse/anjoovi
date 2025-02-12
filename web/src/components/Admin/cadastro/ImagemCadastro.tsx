@@ -1,4 +1,4 @@
-import { createRef, MutableRefObject, useEffect, useRef, useState } from "react";
+import { createRef, MutableRefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useGlobal } from "../../Global.tsx";
 import { resultInterface, useAuth } from "../../Auth.jsx";
@@ -12,7 +12,11 @@ interface postInterface{
     imagem:string,
     privado:boolean
 }
-interface imagesInterface{
+interface imageInterface{
+    imageWidth:number,
+    imageHeight:number,
+    width:string,
+    height:string,
     filename:string,
     src:string,
     resize:boolean,
@@ -39,13 +43,13 @@ function ImagemCadastro(){
         descricao:useRef<HTMLTextAreaElement>(null),
     }
     const location=useLocation();
-    const [images,setImages]=useState<imagesInterface[]>([{filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
-    const [imagePremium,setImagePremium]=useState<imagesInterface>({filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
+    const [images,setImages]=useState<imageInterface[]>([{imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
+    const [imagePremium,setImagePremium]=useState<imageInterface>({imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
     const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
     const [permission,setPermission]=useState(false);
-    const verifyShowAddButton=(list?:imagesInterface[])=>{
+    const verifyShowAddButton=(list?:imageInterface[])=>{
         return (list || images).filter(images=>images.src==sem_imagem).length==1;
     }
     const showError=()=>{
@@ -54,6 +58,37 @@ function ImagemCadastro(){
             setErrorImage(false);
             clearTimeout(st);
         },2000);
+    }
+    const [aspect,setAspect]=useState(1);
+    const calcDimensions:(imageWidth:number,imageHeight:number,image:imageInterface)=>string[]=(imageWidth:number,imageHeight:number,image:imageInterface)=>{
+        const { width, height } = image.refs.image_view.current!.getBoundingClientRect();
+        var newWidth=0;
+        var newHeight=0;
+
+        const n=Number(image.refs.resize.current!.value)-1;
+
+        if (imageWidth < imageHeight){
+            if (n==1 || n==3){
+                newWidth=width;
+                newHeight=imageHeight / imageWidth * height;
+            } else if (n==0){
+                newWidth=imageWidth / imageHeight * width;
+                newHeight=height;
+            } else {
+                newWidth=height * 4/5;
+                newHeight=height;
+            }
+        } else {
+            if (n==1 || n==2){
+                newWidth=imageWidth / imageHeight * width;
+                newHeight=height;
+            } else {
+                newWidth=width;
+                newHeight=imageHeight / imageWidth * height;
+            }
+        }
+        setAspect(newWidth/newHeight);
+        return [ newWidth+"px", newHeight+"px" ];
     }
     const onImagemChange=(e:any,isPremium:boolean,index:number)=>{
         const file = e.target.files[0];
@@ -90,11 +125,17 @@ function ImagemCadastro(){
                             src=sem_imagem;
 
                         }
-                        isPremium ? setImagePremium(image=>{ return {...image,filename:file.name,src}}) : setImages(images=>{const v=verifyShowAddButton(images) && images[index].src == sem_imagem; images[index]={...images[index],filename:file.name,src}; return v ? [...images, {filename: "Upload", src: sem_imagem, resize: false, refs: { image_view: createRef(), image: createRef(), input: createRef(), resize: createRef() }}] : [...images]});
+                        const img=new Image();
+                        img.src=src;
+                        img.onload=()=>{
+                            const { width: imageWidth, height: imageHeight }=img;
+                            const [width,height]=calcDimensions(imageWidth,imageHeight,isPremium ? imagePremium : images[index]);
+                            isPremium ? setImagePremium(image=>{ return {...image,imageWidth,imageHeight,width,height,filename:file.name,src}}) : setImages(images=>{const v=verifyShowAddButton(images) && images[index].src == sem_imagem; images[index]={...images[index],imageWidth,imageHeight,width,height,filename:file.name,src}; return v ? [...images, {imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename: "Upload", src: sem_imagem, resize: false, refs: { image_view: createRef(), image: createRef(), input: createRef(), resize: createRef() }}] : [...images]});
+                        }
                     }
                     reader2.readAsDataURL(file);
                 } else {
-                    isPremium ? setImagePremium(image=>{ return {...image,filename:"Upload",src:sem_imagem}}) : setImages(images=>{images[index]={...images[index],filename:"Upload",src:sem_imagem}; return [...images]});
+                    isPremium ? setImagePremium(image=>{ return {...image,filename:"Upload",src:sem_imagem}}) : setImages(images=>{images[index]={...images[index],imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename:"Upload",src:sem_imagem}; return [...images]});
                     e.target.value="";
                     showError();
                 }
@@ -190,8 +231,8 @@ function ImagemCadastro(){
                         clearInterval(st);
                     },2000);
                     refs.descricao.current!.value="";
-                    setImages([{filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
-                    setImagePremium({filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
+                    setImages([{imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
+                    setImagePremium({imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
                 }
             }
         })
@@ -200,15 +241,12 @@ function ImagemCadastro(){
         setPermission(e.target.value=="1");
     }
     const ChangeOriginalFormat=(isPremium:boolean,index:number)=>{
-        const values=["r1","r2","r3","r4"];
-        if (isPremium){
-            const value=imagePremium.refs.resize.current!.value;
-            imagePremium.refs.image.current!.classList.replace(imagePremium.refs.image.current!.classList[imagePremium.refs.image.current!.classList.length - 1],"r"+value);
-        } else {
-            const value=JSON.parse(images[index].refs.resize.current!.value);
-            images[index].refs.image.current!.classList.replace(values[+value],values[+!value]);
-            images[index].refs.image.current!.classList.replace(images[index].refs.image.current!.classList[images[index].refs.image.current!.classList.length - 1],"r"+value);
-        }
+        const image=isPremium ? imagePremium : images[index];
+        //     imagePremium.refs.image.current!.classList.replace(imagePremium.refs.image.current!.classList[imagePremium.refs.image.current!.classList.length - 1],values[Number(value)-1]);
+        const [width,height]=calcDimensions(image.imageWidth,image.imageHeight,image);
+        isPremium ? setImagePremium(image=>{ return {...image,width,height}}) : setImages(images=>{images[index].width=width; images[index].height=height; return[...images]});
+            // const value=images[index].refs.resize.current!.value;
+            // images[index].refs.image.current!.classList.replace(images[index].refs.image.current!.classList[images[index].refs.image.current!.classList.length - 1],values[Number(value)-1]);
     }
     const removeImage=(index:number)=>{
         setImages(images=>images.filter((image,i)=>i!=index || image.src==sem_imagem));
@@ -219,7 +257,7 @@ function ImagemCadastro(){
                 image.refs.input.current && (image.refs.input.current.required=false);
             }
         }
-    },[images])
+    },[images]);
     return (
         <div id="pg" className="ic">
             <div id="dt" className="fechado">
@@ -238,9 +276,10 @@ function ImagemCadastro(){
                 <label>Capa</label>
                 <div className="image-list">
                     {images.map((image,index:number)=>{
+                        
                         return <div className="image-item" key={index}>
                             <div ref={image.refs.image_view} className="imagem-view col-12 col-md-6">
-                                <img ref={image.refs.image} className="of" src={image.src}/>
+                                <img style={{width:image.width,height:image.height}} ref={image.refs.image} src={image.src}/>
                             </div>
                             <input className="file" ref={image.refs.input} onChange={(e)=>onImagemChange(e,false,index)} type="file" accept="image/jpg, image/jpeg" required={index==0 || index+1<images.length}/>
                             <div className="imagem-pt">
@@ -248,11 +287,11 @@ function ImagemCadastro(){
                                     <div className="txt-1">{image.filename}</div>
                                 </div>
                                 <div className="options-image">
-                                    <select defaultValue="true" onChange={()=>ChangeOriginalFormat(false,index)} ref={image.refs.resize} className="original_format">
-                                        <option value="1">Formato original</option>
-                                        <option value="2">Quadrado</option>
-                                        <option value="3">Retangulo</option>
-                                        <option value="4">Quadrado</option>
+                                    <select defaultValue="2" onChange={()=>ChangeOriginalFormat(false,index)} ref={image.refs.resize} className="original_format">
+                                        <option value="1">Original</option>
+                                        <option value="2">1:1</option>
+                                        <option value="3">4:5</option>
+                                        <option value="4">16:9</option>
                                     </select>
                                     <div onClick={()=>removeImage(index)} className={"remove-image" + (index+1<images.length || image.src!=sem_imagem ? "" : " disabled")}>-</div>
                                 </div>
@@ -263,18 +302,18 @@ function ImagemCadastro(){
                 {permission ? <div className="image-item">
                     <label>Capa borrada</label>
                     <div ref={imagePremium.refs.image_view} className="imagem-view col-12 col-md-6">
-                        <img ref={imagePremium.refs.image} className="of" src={imagePremium.src}/>
+                        <img style={{aspectRatio:aspect,width:aspect > 1 ? "auto" : "100%",height:aspect > 1 ? "100%" : "auto"}} ref={imagePremium.refs.image} src={imagePremium.src}/>
                     </div>
                     <input className="file" ref={imagePremium.refs.input} onChange={(e)=>onImagemChange(e,true,0)} type="file" accept="image/jpg, image/jpeg" required/>
                     <div className="imagem-pt">
                         <div className="imagem" onClick={()=>{imagePremium.refs.input.current!.click()}}>
                             <div className="txt-1">{imagePremium.filename}</div>
                         </div>
-                        <select defaultValue="true" onChange={()=>ChangeOriginalFormat(true,0)} ref={imagePremium.refs.resize} className="original_format">
-                            <option value="1">Formato original</option>
-                            <option value="2">Quadrado</option>
-                            <option value="3">Retangulo</option>
-                            <option value="4">Quadrado</option>
+                        <select defaultValue="2" onChange={()=>ChangeOriginalFormat(true,0)} ref={imagePremium.refs.resize} className="original_format">
+                            <option value="1">Original</option>
+                            <option value="2">1:1</option>
+                            <option value="3">4:5</option>
+                            <option value="4">16:9</option>
                         </select>
                     </div>
                 </div> : <></>}

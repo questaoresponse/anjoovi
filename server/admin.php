@@ -1316,8 +1316,7 @@ Route::post("/admin/imagens_cadastro", function(){
                 $acessos=0;
                 $permission=isset($dados["permission"]) ? 2 : 0;
                 $original_format=json_decode($dados["original_formats"],true);
-                $original_format_premium=isset($dados["original_format_premium"]) ? true : false;
-                $id=$isCadastro ? null : $dados["id"];
+                $original_format_premium=isset($dados["original_format_premium"]) ? $dados["original_format"] : 0;
                 $descricao=isset($dados["descricao"]) ? $dados["descricao"] : null;
                 // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
                 $id=null;
@@ -1341,7 +1340,8 @@ Route::post("/admin/imagens_cadastro", function(){
                     $file_count=0;
                     $number=$permission==2 ? 1 : 0;
                     foreach ($_FILES["imageFile"]["tmp_name"] as $key => $tmpName){
-                        $image=(!$original_format[$key] ? $number | 2 : $number) . "_" . $id . "_i_" . $file_count . "_file.webp";
+                        $flag=$number | (min(max(0,($original_format[$key] || 0)),3) << 1);
+                        $image=$flag . "_" . $id . "_i_" . $file_count . "_file.webp";
                         $file->createwebp($caminhoDestino,$image,$key);
                         $file_count++;
                         array_push($images,$image);
@@ -1349,7 +1349,8 @@ Route::post("/admin/imagens_cadastro", function(){
                     if ($permission==2){
                         $filePremium=request()->file("imageFilePremium");
                         $number=$number & ~1;
-                        $dImage=(!$original_format_premium ? $number | 2 : $number) . "_" . $id . "_i_premium.webp";
+                        $flag=$number | ($min(max(0,($original_format[$key] || 0)),3) << 1);
+                        $dImage=$flag . "_" . $id . "_i_premium.webp";
                         $filePremium->createwebp($caminhoDestino,$dImage);
                     }
                     $images=json_encode($images);
@@ -1872,6 +1873,7 @@ Route::post("/admin/textos_lista",function(){
                 if ($operation){
                     $username=null;
                     $li=$operation=="privado" ? "true" : "false";
+                    $case=$li ? "privado | 1" : "privado & ~1"; 
                     $sum=$li=="true" ? -1 : 1;
                     if (($cargo & 2)==2){
                         $conn->prepare("UPDATE post_texto SET privado=$case WHERE id=?",[$id]);
