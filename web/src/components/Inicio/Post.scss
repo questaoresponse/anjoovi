@@ -86,28 +86,19 @@
         cursor:pointer;
     }
     .image{
-        min-width: initial;
-        max-width: 100%;
-        height:100%;
         user-select: none;
-        position: absolute;
-        top:0;
-        left: auto;
-        right: auto;
-    }
-    .image.rd{
-        width: 100%;
+        position: relative;
     }
     .imagemd{
         overflow:hidden;
         border-radius: calc(2vh);
         width:100%;
-        height:0;
-        padding-bottom:calc(100% / 1280 * 720);
+        height:auto;
         background:hsl(0deg, 0%, 89%);
         position:relative;
         display: flex;
         justify-content: center;
+        align-items: center;
         cursor:pointer;
     }
     @media screen and (min-width: 769px) {
@@ -127,6 +118,9 @@
             margin-left:1% !important;
             width:calc(100% / 2 - 1%) !important;
         }
+        .imagemd{
+            aspect-ratio: 16/9;
+        }
     }
     @media screen and (min-width: 990px) {
         .linha{
@@ -141,6 +135,9 @@
             margin-left:1% !important;
             width:calc(100% / 3 - 1%) !important;
         }
+        .imagemd{
+            aspect-ratio: 16/9;
+        }
     }
     @media screen and (min-width: 1200px){
         .coluna{
@@ -151,6 +148,9 @@
         .coluna:not(.pa .coluna){
             margin-left:1% !important;
             width:calc(100% / 4 - 1%) !important;
+        }
+        .imagemd{
+            aspect-ratio: 16/9;
         }
     }
 }

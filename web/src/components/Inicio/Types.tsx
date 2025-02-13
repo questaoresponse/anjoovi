@@ -86,7 +86,17 @@ function Types(){
                 const imagem=post.imagem[0]=="[" ? JSON.parse(post.imagem) : [post.imagem];
                 return {
                     alta:[],
-                    srcImagem:imagem.map((imagem:string)=>server+"/images/"+encodeURIComponent(imagem)),
+                    srcImagem:imagem.map((imagem:string)=>{
+                        var width="100%";
+                        var height="100%";
+                        const matches = imagem ? imagem.match(/^(\d+)(?=_\d+_i)/) : null;
+                        if (matches) {
+                            const r = Number(matches[1]);
+                            const imgWidth=(r >> 19) / 1000;
+                            height=((((r >> 8) & ((1 << 11)) - 1) / 10) / imgWidth)+"%";
+                        }
+                        return {width,height,src:server+"/images/"+encodeURIComponent(imagem)};
+                    }),
                     logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
                     nome:post.nome,
                     usuario:post.usuario,

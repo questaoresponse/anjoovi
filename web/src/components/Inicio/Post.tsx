@@ -25,17 +25,20 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                     } else {
                         cm=post.imagem;
                     }
-                    const values=["r1","r2","r3","r4"];
+                    var width="100%";
+                    var height="100%";
                     var isRd=false;
                     var isPremiumView=false;
                     const matches = cm ? cm.match(/^(\d+)(?=_\d+_i)/) : null;
                     if (matches) {
                         const r = Number(matches[1]);
-                        isRd=(r & ~1) >> 1;
+                        const imgWidth=(r >> 19) / 1000;
+                        height=((((r >> 8) & ((1 << 11) - 1)) / 10) / imgWidth)+"%";
                         isPremiumView=(r & 1)==1;
                     }
+                    console.log(width,height);
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;
-                    content=t ? null : <img className={'image' + (isRd ? " rd" : "")} src={server+"/images/"+encodeURIComponent(cm) + (isPremiumView || cm.endsWith("premium.webp") ? "?q="+Math.floor(Math.random() * 4294967296) : "")}/>
+                    content=t ? null : <img style={{width,height}} className={'image' + (isRd ? " rd" : "")} src={server+"/images/"+encodeURIComponent(cm) + (isPremiumView || cm.endsWith("premium.webp") ? "?q="+Math.floor(Math.random() * 4294967296) : "")}/>
                 }
                 const parts=(post.descricao || post.titulo || post.texto || "").split(/(?:\r\n| )/);
                 return <div className='coluna col-12 col-md-3 mb-4' key={index}>

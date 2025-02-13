@@ -5,6 +5,9 @@ import { resultInterface, useAuth } from "../../Auth.jsx";
 import './ImagemCadastro.scss';
 import sem_imagem from '../../static/sem-imagem.jpg';
 import Publicar from "../Publicar.jsx";
+
+const initialAspect=(10000n << 18n) | 10000n;
+
 interface postInterface{
     id:number,
     titulo:string,
@@ -13,8 +16,11 @@ interface postInterface{
     privado:boolean
 }
 interface imageInterface{
+    aspect:bigint,
     imageWidth:number,
     imageHeight:number,
+    elementWidth:string,
+    elementHeight:string,
     width:string,
     height:string,
     filename:string,
@@ -43,8 +49,8 @@ function ImagemCadastro(){
         descricao:useRef<HTMLTextAreaElement>(null),
     }
     const location=useLocation();
-    const [images,setImages]=useState<imageInterface[]>([{imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
-    const [imagePremium,setImagePremium]=useState<imageInterface>({imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
+    const [images,setImages]=useState<imageInterface[]>([{aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
+    const [imagePremium,setImagePremium]=useState<imageInterface>({aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
     const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
@@ -59,36 +65,71 @@ function ImagemCadastro(){
             clearTimeout(st);
         },2000);
     }
-    const [aspect,setAspect]=useState(1);
-    const calcDimensions:(imageWidth:number,imageHeight:number,image:imageInterface)=>string[]=(imageWidth:number,imageHeight:number,image:imageInterface)=>{
+    const calcDimensions:(imageWidth:number,imageHeight:number,image:imageInterface)=>(bigint | string)[]=(imageWidth:number,imageHeight:number,image:imageInterface)=>{
         const { width, height } = image.refs.image_view.current!.getBoundingClientRect();
         var newWidth=0;
         var newHeight=0;
 
         const n=Number(image.refs.resize.current!.value)-1;
-
+        var elementWidth=0;
+        var elementHeight=0;
         if (imageWidth < imageHeight){
-            if (n==1 || n==3){
-                newWidth=width;
-                newHeight=imageHeight / imageWidth * height;
-            } else if (n==0){
-                newWidth=imageWidth / imageHeight * width;
-                newHeight=height;
-            } else {
-                newWidth=height * 4/5;
-                newHeight=height;
+            switch (n){
+                case 0:
+                    newWidth=imageWidth / imageHeight * width;
+                    newHeight=height;
+                    elementWidth=newWidth;
+                    elementHeight=newHeight;
+                    break;
+                case 1:
+                    newWidth=width;
+                    newHeight=height;
+                    elementWidth=newWidth;
+                    elementHeight=newHeight;
+                    break;
+                case 2:
+                    newWidth=height * 4/5;
+                    newHeight=height;
+                    elementWidth=newWidth;
+                    elementHeight=newHeight;
+                    break;
+                case 3:
+                    newWidth=width;
+                    newHeight=width * 9/16;
+                    elementWidth=newWidth;
+                    elementHeight=imageHeight / imageWidth * height;
+                    break;
             }
         } else {
-            if (n==1 || n==2){
-                newWidth=imageWidth / imageHeight * width;
-                newHeight=height;
-            } else {
+            if (n==0){
                 newWidth=width;
                 newHeight=imageHeight / imageWidth * height;
+                elementWidth=newWidth;
+                elementHeight=newHeight;
+            } else if (n==1){
+                newWidth=width;
+                newHeight=height;
+                elementWidth=width;
+                elementHeight=height;
+            } else if (n==2){
+                newWidth=height * 4/5;
+                newHeight=height;
+                elementWidth=width;
+                elementHeight=height;
+            } else {
+                newWidth=width;
+                newHeight=width * 9/16;
+                elementWidth=newWidth;
+                elementHeight=newHeight;
             }
         }
-        setAspect(newWidth/newHeight);
-        return [ newWidth+"px", newHeight+"px" ];
+        // const resizeContainer=(n==0 && imageWidth < imageHeight) || (n==2);
+        // shift left the width for 11 positions and reserving the firsts 8 bits to height;
+        // console.log("a",1 / (Math.floor(newWidth / newHeight * 10000) / 10000) * window.innerWidth);
+        // console.log("a",Number(BigInt(Math.floor(newWidth / newHeight * 10000))));
+        const aspect=(BigInt(Math.floor(newWidth / newHeight * 10000)) << 18n) | BigInt(Math.floor(elementWidth / elementHeight * 10000));
+        // console.log("b",1 / (Number(aspect >> 18n) / 10000) * window.innerWidth);
+        return [aspect, elementWidth+"px", elementHeight+"px", newWidth+"px", newHeight+"px" ];
     }
     const onImagemChange=(e:any,isPremium:boolean,index:number)=>{
         const file = e.target.files[0];
@@ -129,8 +170,13 @@ function ImagemCadastro(){
                         img.src=src;
                         img.onload=()=>{
                             const { width: imageWidth, height: imageHeight }=img;
-                            const [width,height]=calcDimensions(imageWidth,imageHeight,isPremium ? imagePremium : images[index]);
-                            isPremium ? setImagePremium(image=>{ return {...image,imageWidth,imageHeight,width,height,filename:file.name,src}}) : setImages(images=>{const v=verifyShowAddButton(images) && images[index].src == sem_imagem; images[index]={...images[index],imageWidth,imageHeight,width,height,filename:file.name,src}; return v ? [...images, {imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename: "Upload", src: sem_imagem, resize: false, refs: { image_view: createRef(), image: createRef(), input: createRef(), resize: createRef() }}] : [...images]});
+                            const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(imageWidth,imageHeight,isPremium ? imagePremium : images[index]);
+                            isPremium ? setImagePremium(image=>{
+                                return {...image,aspect: aspect as bigint,elementWidth: elementWidth as string, elementHeight: elementHeight as string,imageWidth,imageHeight,width: width as string,height: height as string,filename:file.name,src}
+                            }) : setImages(images=>{
+                                const v=verifyShowAddButton(images) && images[index].src == sem_imagem; images[index]={...images[index],aspect: aspect as bigint,imageWidth,imageHeight,elementWidth:elementWidth as string,elementHeight: elementHeight as string,width: width as string,height: height as string,filename:file.name,src};
+                                return v ? [...images, {aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename: "Upload", src: sem_imagem, resize: false, refs: { image_view: createRef(), image: createRef(), input: createRef(), resize: createRef() }}] : [...images]
+                            });
                         }
                     }
                     reader2.readAsDataURL(file);
@@ -152,6 +198,33 @@ function ImagemCadastro(){
             setPermission(post_edit.current!.privado);
         }
     }
+    const onResize=()=>{
+        if (permission){
+            setImagePremium(image=>{
+                if (image.src==sem_imagem) return image;
+                const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(image.imageWidth,image.imageHeight,image);
+                image.aspect=aspect as bigint;
+                image.elementWidth=elementWidth as string;
+                image.elementHeight=elementHeight as string;
+                image.width=width as string;
+                image.height=height as string;
+
+                return {...image};
+            });
+        }
+        setImages(images=>{
+            images=images.map(image=>{
+            if (image.src==sem_imagem) return image;
+                const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(image.imageWidth,image.imageHeight,image);
+                image.aspect=aspect as bigint;
+                image.elementWidth=elementWidth as string;
+                image.elementHeight=elementHeight as string;
+                image.width=width as string;
+                image.height=height as string;
+
+                return image;
+        }); return [...images]});
+    }
     useEffect(()=>{
         edit.current=location.pathname=="/admin/imagens_edit";
         globals.setSelected("publicar");
@@ -159,6 +232,7 @@ function ImagemCadastro(){
             auth.post(server+"/admin/imagens_edit"+location.search,{type:"info"}).then((result:resultInterface)=>{
                 const post=result.data.post_edit;
                 refs.descricao.current!.value=post.descricao;
+                // return if post is private;
                 post.privado=(post.privado & 2)==2;
                 post_edit.current=post;
                 const images=JSON.parse(post.imagem);
@@ -166,8 +240,10 @@ function ImagemCadastro(){
             });
         }
         cargo.current.addListener(updateCargo);
+        window.addEventListener("resize",onResize);
         return ()=>{
             cargo.current.removeListener(updateCargo);
+            window.removeEventListener("resize",onResize);
         }
     },[]);
     useEffect(()=>{
@@ -185,9 +261,9 @@ function ImagemCadastro(){
         var descricao=refs.descricao.current!.value;
         const newImages=[];
         for (const image of images){
-            image.src != sem_imagem && newImages.push(!!JSON.parse(image.refs.resize.current!.value));
+            image.src != sem_imagem && newImages.push(image.aspect);
         }
-
+        console.log(newImages);
         if (edit.current){
             fd.append("id",post_edit.current!.id.toString());
         } else {
@@ -206,7 +282,7 @@ function ImagemCadastro(){
         fd.append("original_formats",JSON.stringify(newImages));
         if (permission){
             fd.append("permission",(true).toString());
-            const newImagePremium=!!JSON.parse(imagePremium.refs.resize.current!.value);
+            const newImagePremium=imagePremium.aspect;
             newImagePremium && fd.append("original_format_premium",newImagePremium.toString());
         }
         auth.post(server+"/admin/imagens_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,{arquivo:true}).then((result)=>{
@@ -231,8 +307,8 @@ function ImagemCadastro(){
                         clearInterval(st);
                     },2000);
                     refs.descricao.current!.value="";
-                    setImages([{imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
-                    setImagePremium({imageWidth:0,imageHeight:0,width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
+                    setImages([{aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
+                    setImagePremium({aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
                 }
             }
         })
@@ -243,8 +319,17 @@ function ImagemCadastro(){
     const ChangeOriginalFormat=(isPremium:boolean,index:number)=>{
         const image=isPremium ? imagePremium : images[index];
         //     imagePremium.refs.image.current!.classList.replace(imagePremium.refs.image.current!.classList[imagePremium.refs.image.current!.classList.length - 1],values[Number(value)-1]);
-        const [width,height]=calcDimensions(image.imageWidth,image.imageHeight,image);
-        isPremium ? setImagePremium(image=>{ return {...image,width,height}}) : setImages(images=>{images[index].width=width; images[index].height=height; return[...images]});
+        const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(image.imageWidth,image.imageHeight,image);
+        isPremium ? setImagePremium(image=>{
+            return {...image, aspect:aspect as bigint,elementWidthwidth:width as string,height:height as string}
+        }) : setImages(images=>{
+            images[index].aspect=aspect as bigint;
+            images[index].elementWidth=elementWidth as string;
+            images[index].elementHeight=elementHeight as string;
+            images[index].width=width as string;
+            images[index].height=height as string;
+            return[...images];
+        });
             // const value=images[index].refs.resize.current!.value;
             // images[index].refs.image.current!.classList.replace(images[index].refs.image.current!.classList[images[index].refs.image.current!.classList.length - 1],values[Number(value)-1]);
     }
@@ -258,6 +343,9 @@ function ImagemCadastro(){
             }
         }
     },[images]);
+    // console.log(Number(images[0].aspect >> 18n) * window.innerWidth);
+    // console.log(images[0].aspect,1 / (Number(images[0].aspect >> 18n) / 10000),1 / (Number(images[0].aspect & ((1n << 18n) - 1n)) / 10000));
+    // console.log(1 / (((images[0].aspect & ((1 << 11) - 1)) / 1000) * 1 / ((images[0].aspect >> 11) / 1000)));
     return (
         <div id="pg" className="ic">
             <div id="dt" className="fechado">
@@ -276,10 +364,11 @@ function ImagemCadastro(){
                 <label>Capa</label>
                 <div className="image-list">
                     {images.map((image,index:number)=>{
-                        
                         return <div className="image-item" key={index}>
                             <div ref={image.refs.image_view} className="imagem-view col-12 col-md-6">
-                                <img style={{width:image.width,height:image.height}} ref={image.refs.image} src={image.src}/>
+                                <div className="image-container" style={{width: image.width, height: image.height}}>
+                                    <img className="image-img" style={{width: image.elementWidth, height: image.elementHeight}} ref={image.refs.image} src={image.src}/>
+                                </div>
                             </div>
                             <input className="file" ref={image.refs.input} onChange={(e)=>onImagemChange(e,false,index)} type="file" accept="image/jpg, image/jpeg" required={index==0 || index+1<images.length}/>
                             <div className="imagem-pt">
@@ -302,7 +391,7 @@ function ImagemCadastro(){
                 {permission ? <div className="image-item">
                     <label>Capa borrada</label>
                     <div ref={imagePremium.refs.image_view} className="imagem-view col-12 col-md-6">
-                        <img style={{aspectRatio:aspect,width:aspect > 1 ? "auto" : "100%",height:aspect > 1 ? "100%" : "auto"}} ref={imagePremium.refs.image} src={imagePremium.src}/>
+                        <img style={{width:(Number(images[0].aspect >> 11n) / 100) + "%",height:(Number(images[0].aspect & ((1n << 11n)-1n)) / 100) + "%"}} ref={imagePremium.refs.image} src={imagePremium.src}/>
                     </div>
                     <input className="file" ref={imagePremium.refs.input} onChange={(e)=>onImagemChange(e,true,0)} type="file" accept="image/jpg, image/jpeg" required/>
                     <div className="imagem-pt">
@@ -317,6 +406,9 @@ function ImagemCadastro(){
                         </select>
                     </div>
                 </div> : <></>}
+                <div style={{display:"flex",justifyContent:"center",alignItems:"center",overflow:"hidden",width:"100%",height: 1 / (Number(images[0].aspect >> 18n) / 10000) * window.innerWidth+"px"}}>
+                    <img src={images[0].src} style={{width:"100%",height: 1 / (Number(images[0].aspect & ((1n << 18n) - 1n)) / 10000) * window.innerWidth+"px"}}></img>
+                </div>
                 <button type="submit" id="button">Enviar</button>
             </form>
             </div>

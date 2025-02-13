@@ -11,7 +11,11 @@ import Denuncia from './Denuncia.tsx';
 import './Conteudo.scss';
 interface postInterface{
   alta:any,
-  srcImagem:string | null,
+  srcImagem:{
+    width:string,
+    height:string,
+    src:string
+  }[],
   logo:string | null,
   nome:string,
   usuario:string,
@@ -80,7 +84,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                     </div>
                 })}</div>
                 <div className="campo-img-imagem">
-                    {post.srcImagem!.length > 0 ? <img src={post.srcImagem![0]}/> : <></>}
+                    {post.srcImagem.length > 0 ? <img src={post.srcImagem[0].src}/> : <></>}
                 </div>
                 <div className="data_d">
                     <p className="data data_data">{post.dataText}</p>
@@ -111,7 +115,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                     </>
                 })}</div> }
                 <div className="campo-img-imagem">
-                    {post.srcImagem!.length > 0 ? <img src={post.srcImagem![index]}/> : <></>}
+                    {post.srcImagem!.length > 0 ? <img style={{width:post.srcImagem[index].width,height:post.srcImagem[index].height}} src={post.srcImagem[index].src}/> : <></>}
                     <svg onClick={onLeftClick} className={'arrow-left' + ( showArrowLeft ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
                         <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/>
                     </svg>
