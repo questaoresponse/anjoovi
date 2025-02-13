@@ -22,8 +22,6 @@ html,body{
     a:hover{
         color:black;
     }
-    @media screen and (min-width:769px){
-    }
     .progress-circle {
         width: 100px;
         height: 100px;
@@ -52,7 +50,7 @@ html,body{
         top:10vh;
         width:10%;
         animation:teste;
-        animation-duration: 1s;
+        animation-duration: 2s;
         animation-iteration-count: infinite;
     }
     @keyframes teste{
@@ -123,16 +121,5 @@ html,body{
     }
     .colinit{
         margin-left:1% !important;
-    }
-    #loading{
-        position: relative;
-        width: 30px;
-        height: 30px;
-        margin-left: calc(50% - 15px);
-    }
-    @include pc(){
-        #loading{
-            margin-left: calc(50% - 15ch - 30px);
-        }
     }
 }

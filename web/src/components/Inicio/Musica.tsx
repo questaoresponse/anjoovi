@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo } from 'react';
+import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -53,9 +53,9 @@ const MusicaList=({getPostId,syncMusics,music,onClickMusic,getTime,getData,index
         totalTime:useRef<HTMLDivElement>(null),
     }
     const [play,setPlay]=useState(false);
-    const setCurrentTime=(time:string)=>{
+    const setCurrentTime=useCallback((time:string)=>{
         refs.currentTime.current!.textContent=time;
-    }
+    },[]);
     useEffect(()=>{
         refs.currentTime.current!.textContent=getTime(music.currentTime);
         refs.totalTime.current!.textContent=getTime(music.duration);
@@ -98,12 +98,12 @@ function Musica({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
         musicsRef.current=post.musics;
         setMusics(post.musics);
     },[post]);
-    const updateMusic=(musics:musicInterface[])=>{
+    const updateMusic=useCallback((musics:musicInterface[])=>{
         if (player.current.page_id==post.id){
             musicsRef.current=musics;
             setMusics(musics);
         }
-    }
+    },[]);
     useEffect(()=>{
         if (isMain){
             player.current.addMusicListener(updateMusic);

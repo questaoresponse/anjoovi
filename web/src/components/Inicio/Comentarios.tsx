@@ -128,7 +128,7 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
         return ()=>{
             document.body.removeEventListener("click",verifyColision);
         }
-    },[]);
+    },[verifyColision]);
     const verifyInput=(e:any)=>{
         refs.btn.current!.disabled=e.target.value.trim()==""; 
     };

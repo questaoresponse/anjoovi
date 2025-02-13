@@ -1,4 +1,4 @@
-import { createRef, MutableRefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createRef, MutableRefObject, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useGlobal } from "../../Global.tsx";
 import { resultInterface, useAuth } from "../../Auth.jsx";
@@ -51,6 +51,7 @@ function ImagemCadastro(){
     const location=useLocation();
     const [images,setImages]=useState<imageInterface[]>([{aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
     const [imagePremium,setImagePremium]=useState<imageInterface>({aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,resize:false,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
+    const [imageFormat,setImageFormat]=useState({normal:1,premium:1});
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
     const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
@@ -65,16 +66,14 @@ function ImagemCadastro(){
             clearTimeout(st);
         },2000);
     }
-    const calcDimensions:(imageWidth:number,imageHeight:number,image:imageInterface)=>(bigint | string)[]=(imageWidth:number,imageHeight:number,image:imageInterface)=>{
+    const calcDimensions:(format:number,imageWidth:number,imageHeight:number,image:imageInterface)=>(bigint | string)[]=(format:number,imageWidth:number,imageHeight:number,image:imageInterface)=>{
         const { width, height } = image.refs.image_view.current!.getBoundingClientRect();
         var newWidth=0;
         var newHeight=0;
-
-        const n=Number(image.refs.resize.current!.value)-1;
         var elementWidth=0;
         var elementHeight=0;
         if (imageWidth < imageHeight){
-            switch (n){
+            switch (format){
                 case 0:
                     newWidth=imageWidth / imageHeight * width;
                     newHeight=height;
@@ -101,34 +100,37 @@ function ImagemCadastro(){
                     break;
             }
         } else {
-            if (n==0){
-                newWidth=width;
-                newHeight=imageHeight / imageWidth * height;
-                elementWidth=newWidth;
-                elementHeight=newHeight;
-            } else if (n==1){
-                newWidth=width;
-                newHeight=height;
-                elementWidth=width;
-                elementHeight=height;
-            } else if (n==2){
-                newWidth=height * 4/5;
-                newHeight=height;
-                elementWidth=width;
-                elementHeight=height;
-            } else {
-                newWidth=width;
-                newHeight=width * 9/16;
-                elementWidth=newWidth;
-                elementHeight=newHeight;
+            switch (format){
+                case 0:
+                    newWidth=width;
+                    newHeight=imageHeight / imageWidth * height;
+                    elementWidth=newWidth;
+                    elementHeight=newHeight;
+                    break;
+                case 1:
+                    newWidth=width;
+                    newHeight=height;
+                    elementWidth=width;
+                    elementHeight=height;
+                    break;
+                case 2:
+                    newWidth=height * 4/5;
+                    newHeight=height;
+                    elementWidth=imageWidth / imageHeight * width;
+                    elementHeight=height;
+                    break;
+                case 3:
+                    newWidth=width;
+                    newHeight=width * 9/16;
+                    elementWidth=newWidth;
+                    elementHeight=newHeight;
+
             }
         }
-        // const resizeContainer=(n==0 && imageWidth < imageHeight) || (n==2);
-        // shift left the width for 11 positions and reserving the firsts 8 bits to height;
-        // console.log("a",1 / (Math.floor(newWidth / newHeight * 10000) / 10000) * window.innerWidth);
-        // console.log("a",Number(BigInt(Math.floor(newWidth / newHeight * 10000))));
-        const aspect=(BigInt(Math.floor(newWidth / newHeight * 10000)) << 18n) | BigInt(Math.floor(elementWidth / elementHeight * 10000));
-        // console.log("b",1 / (Number(aspect >> 18n) / 10000) * window.innerWidth);
+        // shift left the aspectContainer for 18 positions and reserving the 37° bit for original orientation of image and reserving the firsts 18 positions for aspectImage;
+        const aspectContainer=(BigInt(Math.floor(newWidth / newHeight * 10000)) << 18n) & ((1n << 36n) - 1n);
+        const aspectImage=BigInt(Math.floor(elementWidth / elementHeight * 10000)) & ((1n << 18n) - 1n);
+        const aspect=aspectContainer | aspectImage | (elementWidth > width ? (1n << 36n) : 0n);
         return [aspect, elementWidth+"px", elementHeight+"px", newWidth+"px", newHeight+"px" ];
     }
     const onImagemChange=(e:any,isPremium:boolean,index:number)=>{
@@ -169,8 +171,9 @@ function ImagemCadastro(){
                         const img=new Image();
                         img.src=src;
                         img.onload=()=>{
+                            const format=Number(isPremium ? imagePremium.refs.resize.current!.value : images[0].refs.resize.current!.value)-1;
                             const { width: imageWidth, height: imageHeight }=img;
-                            const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(imageWidth,imageHeight,isPremium ? imagePremium : images[index]);
+                            const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(format,imageWidth,imageHeight,isPremium ? imagePremium : images[index]);
                             isPremium ? setImagePremium(image=>{
                                 return {...image,aspect: aspect as bigint,elementWidth: elementWidth as string, elementHeight: elementHeight as string,imageWidth,imageHeight,width: width as string,height: height as string,filename:file.name,src}
                             }) : setImages(images=>{
@@ -202,7 +205,8 @@ function ImagemCadastro(){
         if (permission){
             setImagePremium(image=>{
                 if (image.src==sem_imagem) return image;
-                const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(image.imageWidth,image.imageHeight,image);
+                const format=Number(imagePremium.refs.resize.current!.value)-1;
+                const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(format,image.imageWidth,image.imageHeight,image);
                 image.aspect=aspect as bigint;
                 image.elementWidth=elementWidth as string;
                 image.elementHeight=elementHeight as string;
@@ -215,7 +219,8 @@ function ImagemCadastro(){
         setImages(images=>{
             images=images.map(image=>{
             if (image.src==sem_imagem) return image;
-                const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(image.imageWidth,image.imageHeight,image);
+                const format=Number(images[0].refs.resize.current!.value)-1;
+                const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(format,image.imageWidth,image.imageHeight,image);
                 image.aspect=aspect as bigint;
                 image.elementWidth=elementWidth as string;
                 image.elementHeight=elementHeight as string;
@@ -261,9 +266,8 @@ function ImagemCadastro(){
         var descricao=refs.descricao.current!.value;
         const newImages=[];
         for (const image of images){
-            image.src != sem_imagem && newImages.push(image.aspect);
+            image.src != sem_imagem && newImages.push(Number(image.aspect));
         }
-        console.log(newImages);
         if (edit.current){
             fd.append("id",post_edit.current!.id.toString());
         } else {
@@ -282,7 +286,7 @@ function ImagemCadastro(){
         fd.append("original_formats",JSON.stringify(newImages));
         if (permission){
             fd.append("permission",(true).toString());
-            const newImagePremium=imagePremium.aspect;
+            const newImagePremium=Number(imagePremium.aspect);
             newImagePremium && fd.append("original_format_premium",newImagePremium.toString());
         }
         auth.post(server+"/admin/imagens_cadastro?type="+(edit.current ? "edit" : "cadastro"),fd,{arquivo:true}).then((result)=>{
@@ -316,22 +320,33 @@ function ImagemCadastro(){
     const ChangePermission=(e:any)=>{
         setPermission(e.target.value=="1");
     }
-    const ChangeOriginalFormat=(isPremium:boolean,index:number)=>{
-        const image=isPremium ? imagePremium : images[index];
-        //     imagePremium.refs.image.current!.classList.replace(imagePremium.refs.image.current!.classList[imagePremium.refs.image.current!.classList.length - 1],values[Number(value)-1]);
-        const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(image.imageWidth,image.imageHeight,image);
+    const ChangeOriginalFormat=(isPremium:boolean)=>{
+        const format=Number(isPremium ? imagePremium.refs.resize.current!.value : images[0].refs.resize.current!.value)-1;
         isPremium ? setImagePremium(image=>{
-            return {...image, aspect:aspect as bigint,elementWidthwidth:width as string,height:height as string}
+            if (image.src!=sem_imagem){
+                const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(format,image.imageWidth,image.imageHeight,image);
+                return {...image,aspect:aspect as bigint,elementWidth:elementWidth as string,elementHeight:elementHeight as string,width:width as string,height:height as string}
+            }
+            return image;
         }) : setImages(images=>{
-            images[index].aspect=aspect as bigint;
-            images[index].elementWidth=elementWidth as string;
-            images[index].elementHeight=elementHeight as string;
-            images[index].width=width as string;
-            images[index].height=height as string;
+            images.map(image=>{
+                if (image.src!=sem_imagem){
+                    const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(format,image.imageWidth,image.imageHeight,image);
+                    image.aspect=aspect as bigint;
+                    image.elementWidth=elementWidth as string;
+                    image.elementHeight=elementHeight as string;
+                    image.width=width as string;
+                    image.height=height as string;
+                }
+                return image;   
+            });
             return[...images];
         });
-            // const value=images[index].refs.resize.current!.value;
-            // images[index].refs.image.current!.classList.replace(images[index].refs.image.current!.classList[images[index].refs.image.current!.classList.length - 1],values[Number(value)-1]);
+        const image=isPremium ? imagePremium : images[0];
+        setImageFormat(imageFormat=>{ return {...imageFormat,[isPremium ? "premium" : "normal"]:Number(image.refs.resize.current!.value)-1}});
+        // imagePremium.refs.image.current!.classList.replace(imagePremium.refs.image.current!.classList[imagePremium.refs.image.current!.classList.length - 1],values[Number(value)-1]);
+        // const value=images[index].refs.resize.current!.value;
+        // images[index].refs.image.current!.classList.replace(images[index].refs.image.current!.classList[images[index].refs.image.current!.classList.length - 1],values[Number(value)-1]);
     }
     const removeImage=(index:number)=>{
         setImages(images=>images.filter((image,i)=>i!=index || image.src==sem_imagem));
@@ -343,9 +358,6 @@ function ImagemCadastro(){
             }
         }
     },[images]);
-    // console.log(Number(images[0].aspect >> 18n) * window.innerWidth);
-    // console.log(images[0].aspect,1 / (Number(images[0].aspect >> 18n) / 10000),1 / (Number(images[0].aspect & ((1n << 18n) - 1n)) / 10000));
-    // console.log(1 / (((images[0].aspect & ((1 << 11) - 1)) / 1000) * 1 / ((images[0].aspect >> 11) / 1000)));
     return (
         <div id="pg" className="ic">
             <div id="dt" className="fechado">
@@ -376,7 +388,7 @@ function ImagemCadastro(){
                                     <div className="txt-1">{image.filename}</div>
                                 </div>
                                 <div className="options-image">
-                                    <select defaultValue="2" onChange={()=>ChangeOriginalFormat(false,index)} ref={image.refs.resize} className="original_format">
+                                    <select value={String(imageFormat.normal+1)} onChange={()=>index==0 ? ChangeOriginalFormat(false) : ()=>{}} ref={image.refs.resize} className={"original_format" + (index > 0 ? " disabled" : "")}>
                                         <option value="1">Original</option>
                                         <option value="2">1:1</option>
                                         <option value="3">4:5</option>
@@ -391,14 +403,16 @@ function ImagemCadastro(){
                 {permission ? <div className="image-item">
                     <label>Capa borrada</label>
                     <div ref={imagePremium.refs.image_view} className="imagem-view col-12 col-md-6">
-                        <img style={{width:(Number(images[0].aspect >> 11n) / 100) + "%",height:(Number(images[0].aspect & ((1n << 11n)-1n)) / 100) + "%"}} ref={imagePremium.refs.image} src={imagePremium.src}/>
+                        <div className="image-container" style={{width: imagePremium.width, height: imagePremium.height}}>
+                            <img className="image-img" style={{width: imagePremium.elementWidth, height: imagePremium.elementHeight}} ref={imagePremium.refs.image} src={imagePremium.src}/>
+                        </div>
                     </div>
                     <input className="file" ref={imagePremium.refs.input} onChange={(e)=>onImagemChange(e,true,0)} type="file" accept="image/jpg, image/jpeg" required/>
                     <div className="imagem-pt">
                         <div className="imagem" onClick={()=>{imagePremium.refs.input.current!.click()}}>
                             <div className="txt-1">{imagePremium.filename}</div>
                         </div>
-                        <select defaultValue="2" onChange={()=>ChangeOriginalFormat(true,0)} ref={imagePremium.refs.resize} className="original_format">
+                        <select value={String(imageFormat.premium+1)} onChange={()=>ChangeOriginalFormat(true)} ref={imagePremium.refs.resize} className="original_format">
                             <option value="1">Original</option>
                             <option value="2">1:1</option>
                             <option value="3">4:5</option>
@@ -406,9 +420,6 @@ function ImagemCadastro(){
                         </select>
                     </div>
                 </div> : <></>}
-                <div style={{display:"flex",justifyContent:"center",alignItems:"center",overflow:"hidden",width:"100%",height: 1 / (Number(images[0].aspect >> 18n) / 10000) * window.innerWidth+"px"}}>
-                    <img src={images[0].src} style={{width:"100%",height: 1 / (Number(images[0].aspect & ((1n << 18n) - 1n)) / 10000) * window.innerWidth+"px"}}></img>
-                </div>
                 <button type="submit" id="button">Enviar</button>
             </form>
             </div>

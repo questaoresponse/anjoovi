@@ -42,10 +42,10 @@ self.addEventListener('message', event => {
                 cache.keys().then(requests => {
                     requests.forEach(request => {
                         const filename=request.url.split("/").splice(-1)[0];
-                        const matches=filename.match(/^(\d+)(_\d+_i)/);
+                        const matches=filename.match(/^(.*)(_\d+_i)/);
                         var isFilenamePremium=false;
                         if (matches) {
-                            matches[1]=Number(matches[1]);
+                            matches[1]=Number(parseInt(matches[1],36));
                             isFilenamePremium=(matches[1] & 1)==1;
                         };
                         if ((cargo & 4)==4 && !isFilenamePremium){
@@ -64,12 +64,12 @@ self.addEventListener('message', event => {
 self.addEventListener('fetch', (event) => {
     var isFile=false;
     var initialFilename=event.request.url.split("/").slice(-1)[0];
-    const matches=initialFilename.match(/^(\d+)(_\d+_i).*\.webp\?.*/);
+    const matches=initialFilename.match(/^(.*)(_\d+_i).*\.webp\?.*/);
     if (matches){
         const filename=initialFilename.split("?").slice(0,-1).join("?");
-        matches[1]=Number(matches[1]);
+        matches[1]=Number(parseInt(matches[1],36));
         isFile=(matches[1] & 1)==1;
-        const bFilename=(matches[1] & ~1) + matches[2] + "_premium.webp";
+        const bFilename=(matches[1] & ~1).toString(36) + matches[2] + "_premium.webp";
         event.respondWith(caches.open("premium-cache").then(cache=>{
             if ((cargo & 4)==4){
                 return cache.match(filename).then(value=>{

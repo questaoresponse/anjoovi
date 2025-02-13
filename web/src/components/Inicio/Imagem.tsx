@@ -1,5 +1,5 @@
 // Exemplo do componente Contact
-import {useState, useEffect, useRef, memo } from 'react';
+import {useState, useEffect, useRef, memo, useCallback } from 'react';
 import Link, { eventInterface } from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -12,8 +12,10 @@ import './Conteudo.scss';
 interface postInterface{
   alta:any,
   srcImagem:{
-    width:string,
-    height:string,
+    isWidthBigger:boolean,
+    containerAspect:number,
+    imageAspect:number,
+    originalFormat:boolean,
     src:string
   }[],
   logo:string | null,
@@ -28,6 +30,16 @@ interface postInterface{
   tipo:string,
   n_comment:number,
 }
+interface sizeInterface{
+    containerAspectRatio:string,
+    containerWidth:string,
+    containerHeight:string,
+    elementMaxWidth:string,
+    elementMaxHeight:string,
+    elementObjectFit:any,
+    elementWidth:string,
+    elementHeight:string,
+}
 function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{isPlaylist?:any,id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any,onLoaded?:()=>void}) {
     onLinkClick !="";
   const globals = useGlobal();
@@ -39,6 +51,8 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
     const [index,setIndex]=useState(0);
     const [showArrowLeft,setShowArrowLeft]=useState(false);
     const [showArrowRight,setShowArrowRight]=useState(false);
+    const [size,setSize]=useState<sizeInterface>({containerAspectRatio:"initial",containerWidth:"100%",containerHeight:"auto",elementMaxWidth:"100%",elementMaxHeight:"100%",elementObjectFit:"cover",elementWidth:"initial",elementHeight:"initial"});
+    const countLoaded=useRef(0);
     const onLeftClick=()=>{
         setIndex((index:number)=>{
             index>0 && index--;
@@ -67,11 +81,38 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
           return false;
         }
     }
+    const calcDimensions=useCallback((_:any,isInitial?:boolean)=>{
+        if (isInitial){
+            if (countLoaded.current > 0) return;
+            countLoaded.current++;
+        }
+        const originalFormat=post.srcImagem[index].originalFormat || !globals.mobile;
+        setSize({
+            containerAspectRatio:originalFormat ? "1" : "initial",
+            containerWidth:"100%",
+            containerHeight:originalFormat ? "auto" : (1 / post.srcImagem[index].containerAspect * window.innerWidth * 0.97) + "px",
+            elementMaxWidth:originalFormat ? "100%" : "initial",
+            elementMaxHeight:originalFormat ? "100%" : "initial",
+            elementObjectFit:originalFormat ? "cover" : "initial",
+            elementWidth:originalFormat ?  "initial" : post.srcImagem[index].isWidthBigger ? post.srcImagem[index].imageAspect * window.innerWidth * 0.97 + "px" : "100%",
+            elementHeight:originalFormat ? "initial" : post.srcImagem[index].isWidthBigger ? "100%" : 1 / post.srcImagem[index].imageAspect * window.innerWidth * 0.97 + "px"
+        });
+    },[index,post,globals.mobile]);
+    calcDimensions(false,true);
+    useEffect(()=>{
+        countLoaded.current > 1 && calcDimensions(false);
+        countLoaded.current++;
+        window.addEventListener("resize",calcDimensions);
+        return ()=>{
+            window.removeEventListener("resize",calcDimensions);
+        }
+    },[index,calcDimensions]);
     const Nt=({post}:{post:postInterface})=>{
         const [showComment,setShowComment]=useState(false);
         useEffect(()=>{
             isMain && onLoaded!();
         },[]);
+
         return <div className='posts-div'>
             {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/imagem/"+post.id,post.id)}} to={"/imagem/"+post.id} className="p-imagem disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo> 
@@ -83,8 +124,8 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                         <br></br>
                     </div>
                 })}</div>
-                <div className="campo-img-imagem">
-                    {post.srcImagem.length > 0 ? <img src={post.srcImagem[0].src}/> : <></>}
+                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-imagem">
+                    {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
                 </div>
                 <div className="data_d">
                     <p className="data data_data">{post.dataText}</p>
@@ -114,19 +155,22 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
                         <br></br>
                     </>
                 })}</div> }
-                <div className="campo-img-imagem">
-                    {post.srcImagem!.length > 0 ? <img style={{width:post.srcImagem[index].width,height:post.srcImagem[index].height}} src={post.srcImagem[index].src}/> : <></>}
-                    <svg onClick={onLeftClick} className={'arrow-left' + ( showArrowLeft ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
-                        <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/>
-                    </svg>
-                    <svg onClick={onRightClick} className={'arrow-right' + ( showArrowRight ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
-                    <path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/>
-                    </svg>
-                    <div className='dot-list'>{Array.from({length:post.srcImagem!.length},(_,i:number)=>{
-                        return <svg className={'dot-item' + (i==index ? " selected" : "")} xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-imagem">
+                    {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
+                    
+                    {post.srcImagem!.length > 1 ? <>
+                        <svg onClick={onLeftClick} className={'arrow-left' + ( showArrowLeft ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
+                            <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/>
                         </svg>
-                    })}</div>
+                        <svg onClick={onRightClick} className={'arrow-right' + ( showArrowRight ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
+                        <path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/>
+                        </svg>
+                        <div className='dot-list'>{Array.from({length:post.srcImagem!.length},(_,i:number)=>{
+                            return <svg className={'dot-item' + (i==index ? " selected" : "")} xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                            </svg>
+                        })}</div>
+                    </> : <></>}
                 </div>
                 <div className="data_d">
                     <p className="data data_data">{post.dataText}</p>

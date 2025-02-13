@@ -8,8 +8,35 @@ function GlobalFunction(){
     const auth=useAuth();
     const navigatess=useNavigate();
     const { player, setHeader, loadedInfos,server,navigate,navigateClass,setMobile,verifyStories,currentLogin,modules,redirectTo,redirectError,isLoadedPage,peer, cargo, login }=useGlobal();
+    const peer_id=useRef("");
     
     function gtag(..._:any){window.dataLayer.push(arguments);}
+    useEffect(()=>{
+        if (redirectTo){
+            navigate!(redirectTo);
+        }
+    },[redirectTo]);
+    const currentPage=useRef(location);
+    useEffect(()=>{
+        if (location.pathname!=currentPage.current.pathname || location.search!=currentPage.current.search){
+            isLoadedPage.current=false;
+        }
+    },[location.search,location.pathname]);
+    const send=(message:any)=>{
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller!.postMessage({...message,origin:"client"});
+        }
+    }
+    const deletar=useCallback(()=>{
+        send({type:"deletePeer",peer_id:peer_id.current});
+        // enviar(true,true);
+    },[]);
+    const onPopstate=useCallback(()=>{
+        navigate(window.location.href.split(window.location.host)[1],{changeURL:false});
+    },[]);
+    const handleSize=useCallback(()=>{
+        setMobile(window.innerWidth < 769 ? true : false);
+    },[]);
     const verifyHeader=(pathname:string)=>{
         if (pathname=="/admin"){
             player.current.page_id!=-1 && player.current.reset();
@@ -34,30 +61,7 @@ function GlobalFunction(){
             };
         }
     };
-    const onPopstate=useCallback(()=>{
-        navigate(window.location.href.split(window.location.host)[1],{changeURL:false});
-    },[]);
-    useEffect(()=>{
-        if (redirectTo){
-            navigate!(redirectTo);
-        }
-    },[redirectTo]);
-    const currentPage=useRef(location);
-    useEffect(()=>{
-        if (location.pathname!=currentPage.current.pathname || location.search!=currentPage.current.search){
-            isLoadedPage.current=false;
-        }
-    },[location.search,location.pathname]);
-    const peer_id=useRef("");
-    const send=(message:any)=>{
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller!.postMessage({...message,origin:"client"});
-        }
-    }
-    const deletar=useCallback(()=>{
-        send({type:"deletePeer",peer_id:peer_id.current});
-        // enviar(true,true);
-    },[]);
+
     const toExecute=(userChanged:boolean=false)=>{
         if (loadedInfos.current.loaded && !userChanged){
             return;
@@ -104,9 +108,6 @@ function GlobalFunction(){
                 window.scrollTo({top:0,behavior:"instant"});
             }
         };
-        const handleSize=()=>{
-            setMobile(window.innerWidth < 769 ? true : false);
-        };
         const verifyStoriesFn=(route:any)=>{
             navigate!(currentLogin.current.isLoged=="true" ? route : "/admin?origin="+encodeURIComponent(route));
         };
@@ -129,10 +130,6 @@ function GlobalFunction(){
                 auth.post(event.data.url,{type:"infos",tipo:tipo,modify:modify,new:newPeer,delete:deletePeer});
             }
         });
-        window.addEventListener("beforeunload",deletar);
-        window.addEventListener("popstate",onPopstate);
-        window.addEventListener("resize",handleSize);
-        navigateClass.current.addListener(verifyHeader);
         verifyHeader(location.pathname);
         redirectError.current=(pathname:string)=>{
             if (pathname=="/admin"){
@@ -178,13 +175,20 @@ function GlobalFunction(){
         //     // Processar o erro antes de mostrar no console
         //     originalError.apply(console, args); // Chama a implementação original
         // };
+    },[]);
+    useEffect(()=>{
+        window.addEventListener("beforeunload",deletar);
+        window.addEventListener("popstate",onPopstate);
+        window.addEventListener("resize",handleSize);
+        navigateClass.current.addListener(verifyHeader);
+
         return ()=>{
             window.removeEventListener("beforeunload",deletar);
             window.removeEventListener("popstate",onPopstate);
             window.removeEventListener("resize",handleSize);
             navigateClass.current.removeListener(verifyHeader);
         }
-    },[]);
+    },[deletar,onPopstate,handleSize,verifyHeader]);
     useEffect(()=>{
         gtag('config', 'G-ZXT801SFX9', {
             'page_path': window.location.pathname

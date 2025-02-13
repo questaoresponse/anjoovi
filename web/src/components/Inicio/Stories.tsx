@@ -34,6 +34,7 @@ function Stories(){
     const refs={
         video:useRef<HTMLVideoElement>(null),
     }
+    const isLoaded=useRef(false);
     const go=useCallback(()=>{
         var cs=new URLSearchParams(location.search);
         return cs.has("origin") ? cs.get("origin")! : "/";
@@ -46,36 +47,10 @@ function Stories(){
         if (npe.current) return;
         auth.post(server+"/stories/"+ids,{type:"option"}).then((result)=>{
             if (result.error){
-                console.log(result.error);
                 globals.redirectError.current(result.error);
             }
         });
     },[npe.current]);
-    const isLoaded=useRef(false);
-    const get=useCallback(async (initial=false)=>{
-        if (initial && isLoaded.current) return;
-        if (initial && !isLoaded.current) isLoaded.current=true;
-        var result=await auth.post(server+location.pathname,{type:"info"});
-        if (result.error){
-            console.log(result.error);
-            globals.redirectError.current(result.error);
-        } else {
-            id.current=Number(location.pathname.split("/")[2]);
-            n.current=result.data.posts.findIndex((elemento:{id:number}) => elemento.id === id.current);
-            ids.current=n.current;
-            setPages(result.data.posts);
-            for (var sts of result.data.posts){
-                el.current.push({a:React.createRef<HTMLImageElement>(),i:sts.filename,type:sts.type,id:sts.id});
-                setIsReady(true);
-            }
-        }
-    },[]);
-    get(true);
-    useEffect(()=>{
-        if (isReady && showStory){
-            trocar();
-        }
-    },[isReady,showStory]);
     function mclass(e:any,s:any){
         e.className=s;
     }
@@ -97,13 +72,6 @@ function Stories(){
     };
     const ver2=useCallback(()=>{
         ver(new Date().toISOString());
-    },[]);
-    useEffect(()=>{
-        window.addEventListener("popstate",ver2);
-        
-        return ()=>{
-            window.removeEventListener("popstate",ver2);
-        }
     },[]);
     const agend=useRef<any>(null);
     const aAtual=()=>{
@@ -238,6 +206,37 @@ function Stories(){
             agend.current=null;
         }
     },[showStory]);
+    const get=useCallback(async (initial=false)=>{
+        if (initial && isLoaded.current) return;
+        if (initial && !isLoaded.current) isLoaded.current=true;
+        var result=await auth.post(server+location.pathname,{type:"info"});
+        if (result.error){
+            console.log(result.error);
+            globals.redirectError.current(result.error);
+        } else {
+            id.current=Number(location.pathname.split("/")[2]);
+            n.current=result.data.posts.findIndex((elemento:{id:number}) => elemento.id === id.current);
+            ids.current=n.current;
+            setPages(result.data.posts);
+            for (var sts of result.data.posts){
+                el.current.push({a:React.createRef<HTMLImageElement>(),i:sts.filename,type:sts.type,id:sts.id});
+                setIsReady(true);
+            }
+        }
+    },[]);
+    get(true);
+    useEffect(()=>{
+        if (isReady && showStory){
+            trocar();
+        }
+    },[isReady,showStory]);
+    useEffect(()=>{
+        window.addEventListener("popstate",ver2);
+        
+        return ()=>{
+            window.removeEventListener("popstate",ver2);
+        }
+    },[]);
     return (
         <div id="pg" className="w-100 st" style={{height:"100vh"}}>
             <div id="c" className="d-flex justify-content-center w-100 h-100">

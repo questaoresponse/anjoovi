@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useCallback, useContext, useEffect } from 'react';
 import { useGlobal } from './Global.tsx';
 import axios from 'axios';
 // import axios from 'axios';
@@ -169,7 +169,7 @@ const AuthProvider = ({ children }:{children:any}) => {
         })
       }
     }
-  const verifyStorage=()=>{
+  const verifyStorage=useCallback(()=>{
     if (globals.myStorage.current){
       globals.myStorage.current=false;
       return;
@@ -191,7 +191,7 @@ const AuthProvider = ({ children }:{children:any}) => {
     } else {
       globals.setLogin({usuario:null,isLoged:"false",logo:null});
     }
-  }
+  },[]);
   useEffect(()=>{
     window.addEventListener("storage",verifyStorage);
     return ()=>{

@@ -1,5 +1,5 @@
 // Exemplo do componente Contact
-import { useRef, memo, useEffect, useState } from 'react';
+import { useRef, memo, useEffect, useState, useCallback } from 'react';
 import Link from '../Link.tsx';
 import { useGlobal } from '../Global.tsx';
 import { useAuth } from '../Auth.jsx';
@@ -39,12 +39,12 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
         video:useRef<HTMLVideoElement>(null),
         videoController:useRef<HTMLDivElement>(null),
     }
-    const onTimeUpdate=()=>{
+    const onTimeUpdate=useCallback(()=>{
         if (refs.video.current!.currentTime / refs.video.current!.duration > 0.1 && !isSend.current){
             isSend.current=true;
             auth.post(server+"/video/"+post.id,{type:"view"});
         }
-    };
+    },[]);
     const Nt=({post}:{post:postInterface})=>{
         const [showComment,setShowComment]=useState(false);
         useEffect(()=>{

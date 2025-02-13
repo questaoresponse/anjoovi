@@ -135,7 +135,7 @@ function Canal(){
     });
     const [state,setState]=useState({
         isLoaded:false,
-        posts:Array.from({length:48},(_:any,_2:any)=>{return {imagem:false,titulo:"",usuario:""}}),
+        posts:[],
         classe:-1,
         option:null,
     })

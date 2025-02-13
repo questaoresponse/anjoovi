@@ -1,4 +1,4 @@
-import { useRef, useState, useLayoutEffect, memo } from "react";
+import { useRef, useState, useLayoutEffect, memo, useCallback } from "react";
 import GlobalContextInterface, { useGlobal } from "../Global";
 import { useAuth } from "../Auth";
 import { useLocation } from "react-router-dom";
@@ -87,15 +87,18 @@ function Types(){
                 return {
                     alta:[],
                     srcImagem:imagem.map((imagem:string)=>{
-                        var width="100%";
-                        var height="100%";
-                        const matches = imagem ? imagem.match(/^(\d+)(?=_\d+_i)/) : null;
+                        var containerAspect=0;
+                        var imageAspect=0;
+                        var isWidthBigger=false;
+                        const matches = imagem ? imagem.match(/^(.*)(?=_\d+_i)/) : null;
                         if (matches) {
-                            const r = Number(matches[1]);
-                            const imgWidth=(r >> 19) / 1000;
-                            height=((((r >> 8) & ((1 << 11)) - 1) / 10) / imgWidth)+"%";
+                            const r = BigInt(parseInt(matches[1],36)) >> 8n;
+                            isWidthBigger = (r & (1n << 36n))!=0n;
+                            containerAspect=Number((r >> 18n) & ((1n << 18n) - 1n)) / 10000;
+                            imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
                         }
-                        return {width,height,src:server+"/images/"+encodeURIComponent(imagem)};
+                        const originalFormat=containerAspect==0 && imageAspect==0;
+                        return {isWidthBigger,containerAspect,imageAspect,originalFormat,src:server+"/images/"+encodeURIComponent(imagem)};
                     }),
                     logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
                     nome:post.nome,
@@ -275,14 +278,14 @@ function Types(){
         }
     };
     const postChanged=useRef(false);
-    const updatePosts=(pathname:string,i:number)=>{
+    const updatePosts=useCallback((pathname:string,i:number)=>{
         id.current=i;
         postChanged.current=true;
         window && navigate(pathname,{changeURL:false,lookTop:false});
         history.pushState({page:""},"",pathname);
         get(false,pathname);
-    }
-    const changeId=(pathname:string)=>{
+    },[]);
+    const changeId=useCallback((pathname:string)=>{
         if (postChanged.current){
             postChanged.current=false;
         } else {
@@ -301,7 +304,7 @@ function Types(){
                 get(false,pathname);
             }
         }
-    }
+    },[]);
     get(true,"/"+window.location.pathname.split("/")[1]+"/"+window.location.pathname.split("/")[2]);
     useLayoutEffect(()=>{
         navigateClass.current.addListener(changeId);
@@ -310,10 +313,10 @@ function Types(){
             navigateClass.current.removeListener(changeId);
             player.current.updatePosts=null;
         }
-    },[]);
-    const onLinkClick=(link:string)=>{
+    },[changeId,updatePosts]);
+    const onLinkClick=useCallback((link:string)=>{
         setLink([true,link]);
-    }
+    },[]);
     const goToLink=()=>{
         setLink([false,""]);
         window.open((link[1]!).toString(),"_blank");

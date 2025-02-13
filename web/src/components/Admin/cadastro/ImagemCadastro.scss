@@ -49,9 +49,18 @@
         flex-direction: row;
         height: 49%;
     }
+    .original_format{
+        user-select: none;
+    }
     .image-list .original_format{
         height: 100%;
         display: block;
+    }
+    .image-list .original_format.disabled{
+        color: gray;
+        pointer-events: none;
+        border: solid 1px gray;
+        border-radius: 2px;
     }
     .remove-image{
         position: relative;

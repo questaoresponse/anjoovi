@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, useRef } from 'react';
+import { memo, useEffect, useState, useRef, useCallback } from 'react';
 import './Storie.scss';
 import GlobalContextInterface from '../Global';
 function Storie({globals,stories:storiesV,inscricoes}:{globals:GlobalContextInterface,stories:any,inscricoes?:boolean}){
@@ -12,6 +12,22 @@ function Storie({globals,stories:storiesV,inscricoes}:{globals:GlobalContextInte
     const refs={
         pai:useRef<HTMLDivElement | null>(null)
     }
+    const values=useRef({c:0,isd:false});
+    const onMouseDown=useCallback((e:any)=>{
+        values.current.c=e.clientX;
+        values.current.isd=true;
+    },[]);
+    const onMouseMove=useCallback((e:any)=>{
+        if (!values.current.isd) return;
+        refs.pai.current!.scrollLeft+=(values.current.c-e.clientX) * window.innerWidth/1914;
+        values.current.c=e.clientX;
+    },[]);
+    const onMouseUp=useCallback(()=>{
+        values.current.isd=false;
+    },[]);
+    const onMouseLeave=useCallback(()=>{
+        values.current.isd=false;
+    },[]);
     useEffect(()=>{
         if (stories.length>0){
             if (globals.mobile){
@@ -22,26 +38,22 @@ function Storie({globals,stories:storiesV,inscricoes}:{globals:GlobalContextInte
         }
     },[stories,windowWidth]);
     useEffect(()=>{
-        if (infos.canals.length>0){
-            var c=0;
-            var isd=false;
-            refs.pai.current!.addEventListener("mousedown",(e)=>{
-                c=e.clientX;
-                isd=true;
-            },{ passive:true });
-            refs.pai.current!.addEventListener("mousemove",(e)=>{
-                if (!isd) return;
-                refs.pai.current!.scrollLeft+=(c-e.clientX) * window.innerWidth/1914;
-                c=e.clientX;
-            },{ passive:true });
-            refs.pai.current!.addEventListener("mouseup",()=>{
-                isd=false;
-            },{ passive:true });
-            refs.pai.current!.addEventListener("mouseleave",()=>{
-                isd=false;
-            },{ passive:true });
+        if (infos.canals.length>0 && refs.pai.current){
+            refs.pai.current!.addEventListener("mousedown",onMouseDown,{ passive:true });
+            refs.pai.current!.addEventListener("mousemove",onMouseMove,{ passive:true });
+            refs.pai.current!.addEventListener("mouseup",onMouseUp,{ passive:true });
+            refs.pai.current!.addEventListener("mouseleave",onMouseLeave,{ passive:true });
         }
-    },[infos]);
+
+        return ()=>{
+            if (infos.canals.length>0 && refs.pai.current){
+                refs.pai.current!.removeEventListener("mousedown",onMouseDown);
+                refs.pai.current!.removeEventListener("mousemove",onMouseMove);
+                refs.pai.current!.removeEventListener("mouseup",onMouseUp);
+                refs.pai.current!.removeEventListener("mouseleave",onMouseLeave);
+            }
+        }
+    },[infos,onMouseDown,onMouseMove,onMouseUp,onMouseLeave]);
     useEffect(()=>{
         const setar=()=>{
             setWindowWidth(window.innerWidth);

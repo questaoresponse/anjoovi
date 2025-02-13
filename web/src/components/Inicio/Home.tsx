@@ -6,7 +6,6 @@ import './Home.scss';
 import Post from './Post.jsx';
 import Storie from './Storie.jsx';
 import Link from '../Link.tsx';
-import loading_src from "../static/loading.png";
 interface postsInterface{
     isLoaded:boolean,
     canal:any[],
@@ -20,7 +19,6 @@ function Home() {
     const auth = useAuth();
     const [posts,setPosts]=useState<postsInterface>({isLoaded:false,canal:[],posts:[],st:[]});
     const [altas,setAltas]=useState<{palavra:string,frequencia:number}[]>([]);
-    const [isLoading,setIsLoading]=useState(false);
     const get=async (initial=false)=>{
         if (initial && isLoaded.current) return;
         if (initial && !isLoaded.current) isLoaded.current=true;
@@ -43,12 +41,12 @@ function Home() {
     const verifyScroll=useCallback(()=>{
         if (window.scrollY+800>document.documentElement.scrollHeight && !awaitingLoad.current){
             pt.current+=1;
-            setIsLoading(true);
+           setPosts({...posts,isLoaded:false});
             awaitingLoad.current=true;
             auth.post(server,{type:"posts",pt:pt.current.toString()}).then(result=>{
                 if (result.data.result=="true"){
                     setPosts(posts=>{return {...posts,posts:[...posts.posts,...result.data.posts]}});
-                    setIsLoading(false);
+                    setPosts({...posts,isLoaded:true});
                     awaitingLoad.current=false;
                 }
             });
@@ -78,9 +76,7 @@ function Home() {
                 })}
             </div>
         </div>
-        <div id="loading" style={{opacity:isLoading ? 1 : 0}}>
-            <img src={loading_src} alt="" />
-        </div>
+
     </div>
   );
 }

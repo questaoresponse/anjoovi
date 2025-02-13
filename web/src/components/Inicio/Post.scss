@@ -31,6 +31,7 @@
         margin-right:var(--div-margin) !important;
         padding: 0 !important;
         margin-left:var(--div-margin) !important;
+        display: inline-block;
     }
     .linha{
         background:white;
@@ -100,6 +101,13 @@
         justify-content: center;
         align-items: center;
         cursor:pointer;
+    }
+    #loading{
+        position: relative;
+        width: 35px;
+        height: 35px;
+        margin-left: calc(50% - 15px);
+        margin-top: 10px;
     }
     @media screen and (min-width: 769px) {
         .linha{

@@ -77,7 +77,9 @@
         align-items: center;
         width:70%;
         overflow: hidden;
-        // border-radius: 20px;
+        border-radius: 20px;
+        margin-left: auto;
+        margin-right: auto;
         // overflow: hidden;
     }
     .campo-img-imagem img{
@@ -163,16 +165,12 @@
     }
     @media screen and (max-width:768px){
         .campo-img-imagem{
-            width:100%;
-            height:auto;
             border-radius: 20px;
         }
     }
     @media screen and (min-width:769px){
         .campo-img-imagem{
-            width:100%;
             aspect-ratio: 16/9;
-            height: auto;
         }
     }
 }

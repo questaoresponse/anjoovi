@@ -98,10 +98,10 @@ if (!function_exists("cargo")){
             
         }
         if (($privado & 2)==2){
-            preg_match('/^(\d+)(_\d+_i)/', $imagens[0], $matches);
-            $r=intval($matches[1]);
+            preg_match('/^(.*)(_\d+_i)/', $imagens[0], $matches);
+            $r=intval(base_convert($matches[1],36,10));
             if (($r & 1)==1) {
-                unlink(__DIR__ . '/../public_html/images/' . ($r & ~1) . $matches[2] . "_premium.webp");
+                unlink(__DIR__ . '/../public_html/images/' . base_convert($r & ~1,10,36) . $matches[2] . "_premium.webp");
             }
         }
         // update_sitemap();
@@ -255,10 +255,10 @@ if (!function_exists("cargo")){
         foreach ($result as $arquivo){
             $image=$arquivo["imagem"];
             unlink(__DIR__ . '/../public_html/images/' . $image);
-            preg_match('/\d+(?=_)/', $image, $matches);
-            $r=intval($matches[0]);
+            preg_match('/.*(?=_)/', $image, $matches);
+            $r=intval(base_convert($matches[0],36,10));
             if (($r & 1)==1) {
-                unlink(__DIR__ . '/../public_html/images/' . preg_replace('/\d+(?=_)/', ($r & ~1), $image,1));
+                unlink(__DIR__ . '/../public_html/images/' . preg_replace('/.*(?=_)/', base_convert($r & ~1,10,36), $image,1));
             }
         }
         $result=p($conn->prepare("SELECT imagem,zip,arquivo FROM post_musica WHERE usuario=?",[$usuario]));
@@ -1341,8 +1341,8 @@ Route::post("/admin/imagens_cadastro", function(){
                     $number=$permission==2 ? 1 : 0;
                     foreach ($_FILES["imageFile"]["tmp_name"] as $key => $tmpName){
                         // reset the bits between 28 and 63 and shift the bits between 0 and 27 to 8 positions, leaving free the firsts 8 bits;
-                        $flag=$number | ((($original_format[$key] ? $original_format[$key] : 0) & ((1 << 22) - 1)) << 8);
-                        $image=$flag . "_" . $id . "_i_" . $file_count . "_file.webp";
+                        $flag=$number | ((($original_format[$key] ? $original_format[$key] : 0) & ((1 << 37) - 1)) << 8);
+                        $image=base_convert($flag,10,36) . "_" . $id . "_i_" . $file_count . "_file.webp";
                         $file->createwebp($caminhoDestino,$image,$key);
                         $file_count++;
                         array_push($images,$image);
@@ -1352,8 +1352,8 @@ Route::post("/admin/imagens_cadastro", function(){
                         // deactive the frist bit, because its file is visible for all users non-premium;
                         $number=$number & ~1;
                         // reset the bits between 28 and 63 and shift the bits between 0 and 27 to 8 positions, leaving free the firsts 8 bits;
-                        $flag=$number | (($original_format_premium & ((1 << 22) - 1)) << 8);
-                        $dImage=$flag . "_" . $id . "_i_premium.webp";
+                        $flag=$number | (($original_format_premium & ((1 << 37) - 1)) << 8);
+                        $dImage=base_convert($flag,10,36) . "_" . $id . "_i_premium.webp";
                         $filePremium->createwebp($caminhoDestino,$dImage);
                     }
                     $images=json_encode($images);
