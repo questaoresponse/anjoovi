@@ -8,7 +8,7 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
     const mobile=globals.mobile;
         // posts=Array.from({length:48},()=>{return {imagem:false,titulo:"",usuario:""}});
     return (
-        <div onScroll={verifyScroll || (()=>{})} id="tabela" className={'p-0 postc'+(!isLoaded ? " loading" : "")}>
+        <div onScroll={verifyScroll || (()=>{})} id="tabela" className='p-0 postc'>
             {posts.map((post:any,index:number)=>{
                 var l,n,cm="";
                 var content:any=null;
