@@ -172,7 +172,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
         }
         const originalFormat=post.srcImagem[index].originalFormat || !globals.mobile;
         setSize({
-            containerAspectRatio:originalFormat ? "1" : "initial",
+            containerAspectRatio:originalFormat ? globals.mobile ? "1" : "16/9" : "initial",
             containerWidth:"100%",
             containerHeight:originalFormat ? "auto" : (1 / post.srcImagem[index].containerAspect * window.innerWidth * 0.97) + "px",
             elementMaxWidth:originalFormat ? "100%" : "initial",
