@@ -6,6 +6,7 @@ import loading_src from "../static/loading.png";
 function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,posts:any[],verifyScroll?:any}){
     const server=globals.server;
     const mobile=globals.mobile;
+    const cargo=globals.cargo;
         // posts=Array.from({length:48},()=>{return {imagem:false,titulo:"",usuario:""}});
     return (
         <div onScroll={verifyScroll || (()=>{})} id="tabela" className='p-0 postc'>
@@ -37,10 +38,19 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                     if (matches) {
                         const r_parsed = BigInt(parseInt(matches[1],36));
                         isPremiumView=(r_parsed & 1n)==1n;
-                        const r = r_parsed >> 8n;
-                        isWidthBigger = (r & (1n << 36n))!=0n;
-                        containerAspect=Number((r >> 18n) & ((1n << 18n) - 1n)) / 10000;
-                        imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
+                        if ((r_parsed & 1n)==1n && (cargo.current.cargo! & 4)==0){
+                            const r = r_parsed >> 29n;
+                            isWidthBigger = (r & (1n << 20n))!=0n;
+                            containerAspect=Number((r >> 18n) & ((1n << 2n) - 1n));
+                            containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
+                            imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
+                        } else {
+                            const r = r_parsed >> 8n;
+                            isWidthBigger = (r & (1n << 20n))!=0n;
+                            containerAspect=Number((r >> 18n) & ((1n << 2n) - 1n));
+                            containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
+                            imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
+                        }
                     }
                     const originalFormat=(containerAspect==0 && imageAspect==0) || !mobile;
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;

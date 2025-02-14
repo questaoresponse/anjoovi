@@ -1308,32 +1308,35 @@ Route::post("/admin/imagens_cadastro", function(){
                 r404();
             } else if ($type=="cadastro" || $type=="edit"){
                 $dados=request()->all();
-                if (!isset($dados["original_formats"])) return response()->json(["result"=>"false"]);
                 $isCadastro=$type=="cadastro";
+                if (!isset($dados["original_formats"]) || ($isCadastro && (!isset($_FILES["imageFile"]) || !isset($_FILES["imageFilePremium"])))) return response()->json(["result"=>"false"]);
                 $conn = $GLOBALS["conn"];
                 // if (!session()->has("key")) return;
                 // if (strlen($titulo)==0) return;
                 $acessos=0;
                 $permission=isset($dados["permission"]) ? 2 : 0;
-                $original_format=json_decode($dados["original_formats"],true);
-                $original_format_premium=isset($dados["original_format_premium"]) ? $dados["original_format"] : 0;
+                $old_permission;
+                $original_formats=json_decode($dados["original_formats"],true);
+                $original_format_premium=isset($dados["original_format_premium"]) ? $dados["original_format_premium"] : 0;
                 $descricao=isset($dados["descricao"]) ? $dados["descricao"] : null;
                 // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
                 $id=null;
                 $d=null;
+                $images=[];
                 if ($isCadastro){
                     $id=intval(p($conn->query("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM post_imagem"))[0]["id"]);
                 } else {
                     $id=$_POST["id"];
-                    $result=$conn->prepare("SELECT privado,d FROM post_imagem WHERE usuario=? AND id=?",[$usuario,$id]);
+                    $result=$conn->prepare("SELECT privado,imagem,d FROM post_imagem WHERE usuario=? AND id=?",[$usuario,$id]);
                     if ($result->num_rows>0){
-                        ["privado"=>$privado,"d"=>$d]=p($result)[0];
-                        $permission=$privado & 2;
+                        ["privado"=>$privado,"imagem"=>$images,"d"=>$d]=p($result)[0];
+                        $old_permission=$privado & 2;
+                        $images=json_decode($images,true);
                     } else {
                         return response()->json(["result"=>"false","type"=>"id"]);
                     }
                 }
-                $images=[];
+                if ($old_permission!=$permission && $permission==2 && !isset($_FILES["imageFilePremium"]));
                 if ($isCadastro && request()->has("imageFile") && (($permission==2 && request()->has("imageFilePremium")) || ($permission==0))) {
                     $caminhoDestino = __DIR__ . "/../public_html/images/";
                     $file = request()->file("imageFile");
@@ -1344,7 +1347,7 @@ Route::post("/admin/imagens_cadastro", function(){
                         $filePremium=request()->file("imageFilePremium");
                         // deactive the frist bit, because its file is visible for all users non-premium;
                         // reset the bits between 28 and 63 and shift the bits between 0 and 27 to 8 positions, leaving free the firsts 8 bits;
-                        $flag=($original_format_premium & ((1 << 21) - 1));
+                        $flag=$original_format_premium & ((1 << 21) - 1);
                         $flag_premium=$flag << 29;
                         $flag=2 | ($flag << 8);
                         $dImage=base_convert($flag,10,36) . "_" . $id . "_i_premium.webp";
@@ -1353,17 +1356,60 @@ Route::post("/admin/imagens_cadastro", function(){
                     foreach ($_FILES["imageFile"]["tmp_name"] as $key => $tmpName){
                         // reset the bits between 28 and 63 and shift the bits between 0 and 27 to 8 positions, leaving free the firsts 8 bits;
                         // set 1 to first
-                        $flag=$number | ((($original_format[$key] ? $original_format[$key] : 0) & ((1 << 21) - 1)) << 8) | $flag_premium;
+                        $flag=$number | ((($original_formats[$key] ? $original_formats[$key] : 0) & ((1 << 21) - 1)) << 8) | $flag_premium;
                         $image=base_convert($flag,10,36) . "_" . $id . "_i_" . $file_count . "_file.webp";
                         $file->createwebp($caminhoDestino,$image,$key);
                         $file_count++;
                         array_push($images,$image);
                     }
-                    
-                    $images=json_encode($images);
                 } else if ($isCadastro){
                     return response()->json(["result"=>"false","type"=>"image"]);
                 }
+                if (!$isCadastro){
+                    $caminhoDestino = __DIR__ . "/../public_html/images/";
+                    $number=$permission==2 ? 1 : 0;
+                    $flag_premium=0;
+                    $new_images=[];
+                    if ($old_permission==$permission){
+                        preg_match("/^(.*)(_\d+_i)/",$images[0],$matches);
+                        $flag=(base_convert($matches[1],36,10) >> 29) & ((1 << 21) - 1);
+                        $flag=2 | ($flag << 8);
+                        $old_file=base_convert($flag,10,36) . $matches[2] . "_premium.webp";
+
+                        $flag=0;
+                        $flag=$original_format_premium & ((1 << 21) - 1);
+                        $flag_premium=$flag << 29;
+                        $flag=2 | ($flag << 8);
+                        $file=base_convert($flag,10,36) . "_" . $id . "_i_premium.webp";
+                        rename($caminhoDestino . $old_file, $caminhoDestino . $file);
+                    } else {
+                        if ($permission==2){
+                            $filePremium=request()->file("imageFilePremium");
+                            $flag=$original_format_premium & ((1 << 21) - 1);
+                            $flag_premium=$flag << 29;
+                            $flag=2 | ($flag << 8);
+                            $dImage=base_convert($flag,10,36) . "_" . $id . "_i_premium.webp";
+                            $filePremium->createwebp($caminhoDestino,$dImage);
+                        } else {
+                            preg_match("/^(.*)(_\d+_i)/",$images[0],$matches);
+                            $number=((base_convert($matches[1],36,10) >> 29) << 8) | 2;
+                            $file=base_convert($number,10,36) . $matches[2] . "_premium.webp";
+                            unlink($caminhoDestino . $file);
+                        }
+                    }
+
+                    for ($i=0;$i<count($images);$i++){
+                        $image=$images[$i];
+                        $original_format=isset($original_formats[$i]) ? $original_formats[$i] : 0;
+                        preg_match("/^(.*)(_\d+_i_.*)/",$image,$matches);
+                        $flag=$number | (($original_format & ((1 << 21) - 1)) << 8) | $flag_premium;
+                        $file=base_convert($flag,10,36) . $matches[2];
+                        rename($caminhoDestino . $image, $caminhoDestino . $file);
+                        array_push($new_images,$file);
+                    }
+                    $images=$new_images;
+                }
+                $images=json_encode($images);
                 if ($isCadastro){
                     $conn = $GLOBALS["conn"];
                     $d=get_d();
@@ -1376,7 +1422,7 @@ Route::post("/admin/imagens_cadastro", function(){
                     $d=json_decode($d,true);
                     $d["a"]=get_updated_date();
                     $d=json_encode($d);
-                    $conn->prepare("UPDATE post_imagem p LEFT JOIN user u ON p.usuario=u.usuario SET privado=(CASE WHEN cargo & 4=4 THEN privado | ? ELSE privado END),descricao=?,p.d=? WHERE p.usuario=? AND p.id=?",[$privado,$descricao,$d,$usuario,$id]);
+                    $conn->prepare("UPDATE post_imagem p LEFT JOIN user u ON p.usuario=u.usuario SET privado=(CASE WHEN cargo & 4=4 THEN (CASE WHEN ?=2 THEN privado | 2 ELSE privado & ~2 END) ELSE privado END),descricao=?,p.imagem=?,p.d=? WHERE p.usuario=? AND p.id=?",[$permission,$descricao,$images,$d,$usuario,$id]);
                 }
                 response()->json(["result"=>"true","usuario"=>$usuario]);
             }
@@ -2027,8 +2073,10 @@ Route::post("/admin/videos_lista",function(){
     if ($user){
         $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
         $cargo=cargo($user);
-        function gpa($type,$cargo,$user){
+        function gpa($type){
             $type=isset($_GET["search"]) ? "pesquisa" : "normal";
+            $usuario=$GLOBALS["user"];
+            $cargo=$GLOBALS["cargo"];
             $conn=$GLOBALS["conn"];
             $s=null;
             $num=null;
@@ -2062,7 +2110,7 @@ Route::post("/admin/videos_lista",function(){
             // $result=$conn->prepare("SELECT * FROM post_24 WHERE usuario=? ORDER BY id DESC",[$usuario]);
             // $r=p($result);
             // response()->json(["usuairo"=>$r,"noticias"=>$r,"n_registros"=>$result->num_rows]);
-            gpa($tipo,$cargo,$user);
+            gpa($tipo);
         } else if (request("type")=="option"){
             if ($tipo=="normal"){
                 $requested_user;
@@ -2088,7 +2136,7 @@ Route::post("/admin/videos_lista",function(){
                     if (($cargo & 2)==2){
                         delete_video($conn,$id);
                     } else {
-                        delete_video($conn,$id,$usuario);
+                        delete_video($conn,$id,$user);
                     }
                     gpa($tipo);
                 }

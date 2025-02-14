@@ -67,9 +67,11 @@ self.addEventListener('fetch', (event) => {
     const matches=initialFilename.match(/^(.*)(_\d+_i).*\.webp\?.*/);
     if (matches){
         const filename=initialFilename.split("?").slice(0,-1).join("?");
-        matches[1]=Number(parseInt(matches[1],36));
-        isFile=(matches[1] & 1)==1;
-        const bFilename=(matches[1] & ~1).toString(36) + matches[2] + "_premium.webp";
+        matches[1]=BigInt(parseInt(matches[1],36));
+        isFile=(matches[1] & 1n)==1n;   
+        const number=Number(((matches[1] >> 29n) << 8n) | 2n);
+        console.log(number);
+        const bFilename=number.toString(36) + matches[2] + "_premium.webp";
         event.respondWith(caches.open("premium-cache").then(cache=>{
             if ((cargo & 4)==4){
                 return cache.match(filename).then(value=>{

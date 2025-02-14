@@ -1,4 +1,4 @@
-import { createRef, MutableRefObject, useEffect, useRef, useState } from "react";
+import { createRef, MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useGlobal } from "../../Global.tsx";
 import { resultInterface, useAuth } from "../../Auth.jsx";
@@ -65,8 +65,8 @@ function ImagemCadastro(){
             clearTimeout(st);
         },2000);
     }
-    const calcDimensions:(format:number,imageWidth:number,imageHeight:number,image:imageInterface)=>(bigint | string)[]=(format:number,imageWidth:number,imageHeight:number,image:imageInterface)=>{
-        const { width, height } = image.refs.image_view.current!.getBoundingClientRect();
+    const calcDimensions:(format:number,imageWidth:number,imageHeight:number,image:imageInterface,boundingRect?:{width:number,height:number})=>(bigint | string)[]=(format:number,imageWidth:number,imageHeight:number,image:imageInterface,boundingRect?:{width:number,height:number})=>{
+        const { width, height } = (boundingRect || image.refs.image_view.current!.getBoundingClientRect());
         var newWidth=0;
         var newHeight=0;
         var elementWidth=0;
@@ -96,7 +96,6 @@ function ImagemCadastro(){
                     newHeight=width * 9/16;
                     elementWidth=newWidth;
                     elementHeight=imageHeight / imageWidth * height;
-                    break;
             }
         } else {
             switch (format){
@@ -123,13 +122,13 @@ function ImagemCadastro(){
                     newHeight=width * 9/16;
                     elementWidth=newWidth;
                     elementHeight=newHeight;
-
             }
         }
         // shift left the aspectContainer for 18 positions and reserving the 37° bit for original orientation of image and reserving the firsts 18 positions for aspectImage;
-        const formatAsBit=BigInt(format) << 19n;
         const aspectImage=BigInt(Math.floor(elementWidth / elementHeight * 10000)) & ((1n << 18n) - 1n);
-        const aspect=formatAsBit | aspectImage | (elementWidth > width ? (1n << 18n) : 0n);
+        const formatAsBit=BigInt(format) << 18n;
+        const isWidthBigger=(elementWidth > width ? (1n << 20n) : 0n);
+        const aspect=aspectImage | formatAsBit | isWidthBigger;
         return [aspect, elementWidth+"px", elementHeight+"px", newWidth+"px", newHeight+"px" ];
     }
     const onImagemChange=(e:any,isPremium:boolean,index:number)=>{
@@ -191,16 +190,16 @@ function ImagemCadastro(){
             reader.readAsArrayBuffer(file);
         }
     }
-    const updateCargo=(cargo:number)=>{
+    const updateCargo=useCallback((cargo:number)=>{
         setIsPremium((cargo & 4)==4);
-    }
+    },[]);
     const updatePermission=()=>{
         if (isPremium){
             refs.permission.current!.value=post_edit.current!.privado ? "1" : "0";
             setPermission(post_edit.current!.privado);
         }
     }
-    const onResize=()=>{
+    const onResize=useCallback(()=>{
         if (permission){
             setImagePremium(image=>{
                 if (image.src==sem_imagem) return image;
@@ -228,7 +227,7 @@ function ImagemCadastro(){
 
                 return image;
         }); return [...images]});
-    }
+    },[]);
     useEffect(()=>{
         edit.current=location.pathname=="/admin/imagens_edit";
         globals.setSelected("publicar");
@@ -238,6 +237,8 @@ function ImagemCadastro(){
                 refs.descricao.current!.value=post.descricao;
                 // return if post is private;
                 post.privado=(post.privado & 2)==2;
+                refs.permission.current!.value=post.privado ? "1" : "0";
+                setPermission(post.privado);
                 post_edit.current=post;
                 const postImages=JSON.parse(post.imagem);
                 var n=0;
@@ -250,21 +251,28 @@ function ImagemCadastro(){
                         assignImages[image]={imageWidth,imageHeight};
                         n++;
                         if (n==postImages.length){
-                            var format={normal:0,premium:0};
+                            const { width, height } = images[0].refs.image_view.current!.getBoundingClientRect();
+                            const  boundingRect:{width:number,height:number}={width,height};
+                            var format={ normal:1, premium:1 };
                             const newImages=postImages.map((image:string)=>{
-                                const matches = image.match(/^(.*)(_\d+_i).*\.webp\?.*/);
-                                const r_parsed = BigInt(parseInt(matches![1],36));
-                                if ((r_parsed & 1n)==1n){
-                                    const imagePremium=(r_parsed & ~1n).toString(36) + matches![2] + "_premium.webp";
-                                    // for
-                                }
+                                const matches = image.match(/^(.*)(_\d+_i).*\.webp/);
+                                const r_parsed=BigInt(`0x${BigInt(parseInt(matches![1], 36)).toString(16)}`);
+                                // const r_parsed = BigInt(parseInt(matches![1],36));
                                 const r = r_parsed >> 8n;
-                                const containerAspect=Math.floor((Number((r >> 18n) & ((1n << 18n) - 1n)) / 100));
-                                format.normal=containerAspect==0 ? 0 : containerAspect==100 ? 1 : containerAspect==Math.floor(4/5 * 100) ? 2 : containerAspect==Math.floor(16/9 * 100) ? 3 : 0;
-                                const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(format.normal,assignImages[image].imageWidth,assignImages[image].imageHeight,images[0]);
-                                // isPremium ? setImagePremium(image=>{
-                                //     return {...image,aspect: aspect as bigint,elementWidth: elementWidth as string, elementHeight: elementHeight as string,imageWidth,imageHeight,width: width as string,height: height as string,filename:file.name,src}
-                                // }) : setImages(images=>{
+                                if ((r_parsed & 1n)==1n){
+                                    const r_premium=((r >> 21n) << 8n) | 2n;
+                                    const imagePremium=(r_premium).toString(36) + matches![2] + "_premium.webp";
+                                    const img2=new Image();
+                                    img2.src=server+"/images/"+encodeURIComponent(imagePremium);
+                                    img2.onload=()=>{
+                                        const { width: imageWidth, height: imageHeight }=img2;
+                                        format.premium=Number((r_premium >> 26n) & ((1n << 2n) - 1n));
+                                        const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(format.premium,imageWidth,imageHeight,images[0],boundingRect);
+                                        setImagePremium({aspect:aspect as bigint,imageWidth:imageWidth,imageHeight:imageHeight,elementWidth:elementWidth as string,elementHeight:elementHeight as string,width:width as string,height:height as string,filename: "Image.webp", src: server+"/images/"+encodeURIComponent(imagePremium), refs: { image_view: createRef(), image: createRef(), input: createRef(), resize: createRef() }});
+                                    }
+                                }
+                                format.normal=Number((r >> 18n) & ((1n << 2n) - 1n));
+                                const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(format.normal,assignImages[image].imageWidth,assignImages[image].imageHeight,images[0],boundingRect);
                                 return {aspect:aspect,imageWidth:assignImages[image].imageWidth,imageHeight:assignImages[image].imageHeight,elementWidth:elementWidth,elementHeight:elementHeight,width:width,height:height,filename: "Image.webp", src: server+"/images/"+encodeURIComponent(image), refs: { image_view: createRef(), image: createRef(), input: createRef(), resize: createRef() }};
                             });
                             newImages.push({aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename: "Upload", src: sem_imagem, refs: { image_view: createRef(), image: createRef(), input: createRef(), resize: createRef() }});
@@ -275,13 +283,15 @@ function ImagemCadastro(){
                 }
             });
         }
+    },[]);
+    useEffect(()=>{
         cargo.current.addListener(updateCargo);
         window.addEventListener("resize",onResize);
         return ()=>{
             cargo.current.removeListener(updateCargo);
             window.removeEventListener("resize",onResize);
         }
-    },[]);
+    },[updateCargo,onResize]);
     useEffect(()=>{
         if (post_edit.current){
             updatePermission();
@@ -295,10 +305,7 @@ function ImagemCadastro(){
 
         var fd=new FormData();
         var descricao=refs.descricao.current!.value;
-        const newImages=[];
-        for (const image of images){
-            image.src != sem_imagem && newImages.push(Number(image.aspect));
-        }
+
         if (edit.current){
             fd.append("id",post_edit.current!.id.toString());
         } else {
@@ -307,11 +314,17 @@ function ImagemCadastro(){
                 image.src != sem_imagem && images_data.push(image.refs.input.current!.files!.length > 0 ? image.refs.input.current!.files![0] : null);
             }
             images_data.forEach(image=>fd.append("imageFile[]",image!));
-            if (permission){
-                const image_data_premium=imagePremium.refs.input.current!.files!.length > 0 ? imagePremium.refs.input.current!.files![0] : null;
-                fd.append("imageFilePremium",image_data_premium!);
-            }
+            
         }
+        if (permission && (!edit.current || (!post_edit.current!.privado))){
+            const image_data_premium=imagePremium.refs.input.current!.files!.length > 0 ? imagePremium.refs.input.current!.files![0] : null;
+            fd.append("imageFilePremium",image_data_premium!);
+        }
+        const newImages=[];
+        for (const image of images){
+            image.src != sem_imagem && newImages.push(Number(image.aspect));
+        }
+
         fd.append("type","option");
         descricao!="" && fd.append("descricao",descricao);
         fd.append("original_formats",JSON.stringify(newImages));
@@ -438,7 +451,7 @@ function ImagemCadastro(){
                             <img className="image-img" style={{width: imagePremium.elementWidth, height: imagePremium.elementHeight}} ref={imagePremium.refs.image} src={imagePremium.src}/>
                         </div>
                     </div>
-                    <input className="file" ref={imagePremium.refs.input} onChange={(e)=>onImagemChange(e,true,0)} type="file" accept="image/jpg, image/jpeg" required/>
+                    <input className="file" ref={imagePremium.refs.input} onChange={(e)=>onImagemChange(e,true,0)} type="file" accept="image/jpg, image/jpeg" required={post_edit.current ? !post_edit.current.privado : true}/>
                     <div className="imagem-pt">
                         <div className="imagem" onClick={()=>{imagePremium.refs.input.current!.click()}}>
                             <div className="txt-1">{imagePremium.filename}</div>

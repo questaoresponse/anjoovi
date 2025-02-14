@@ -856,7 +856,7 @@ Route::post("/busca",function(){
                         $result = $conn->prepare("SELECT * FROM (
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto, imagem,'p' AS tipo FROM post WHERE ( titulo LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION ALL
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto, JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem,'i' AS tipo FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION ALL
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'m' AS tipo FROM post_musica WHERE ( titulo LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION ALL
@@ -916,7 +916,7 @@ Route::post("/busca",function(){
                         $result = $conn->prepare("SELECT * FROM (
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'p' AS tipo FROM post WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
-                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem,'i' AS tipo FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
+                            ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'m' AS tipo FROM post_musica WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
@@ -944,7 +944,7 @@ Route::post("/busca",function(){
                         $result = $conn->prepare("SELECT COUNT(*) AS num FROM (
                             ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post  WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 13=0)
                             UNION
-                            ( SELECT id,usuario,descricao AS titulo,NULL AS texto,JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? ) AND privado & 13=0)
+                            ( SELECT id,usuario,descricao AS titulo,NULL AS texto,imagem FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? ) AND privado & 13=0)
                             UNION
                             ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post_musica WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 13=0)
                             UNION
@@ -3050,8 +3050,24 @@ Route::post("/ups",function(){
 // });
 Route::post("/ajeitar",function(){
     $conn=$GLOBALS["conn"];
-    $r=$conn->query("SELECT * FROM post_imagem WHERE JSON_UNQUOTE(JSON_EXTRACT(d,'$.o'))>1739481600");
-    
+    $r=p($conn->query("SELECT imagem,id FROM post_imagem WHERE JSON_UNQUOTE(JSON_EXTRACT(d,'$.o'))>1739481600"));
+    foreach ($r as $r2){
+        $images=json_decode($r2["imagem"],true);
+        $new_images=[];
+        foreach ($images as $image){
+            if (preg_match("/^([A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*)(_\d+_i.*)/",$image,$matches)){
+                $number=base_convert($matches[1],36,10);
+                $new_number=($number >> 26);
+                if ($new_number > 6 && ($number & 1)==0){
+                    $number=0;
+                }
+                $file=base_convert($number,10,36) . $matches[2];
+                array_push($new_images,$file);
+            }
+        };
+        $new_images=json_encode($new_images);
+        $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$new_images,$r2["id"]]);
+    }
 });
 // Route::post("/ajeitar",function(){
 //     $conn=$GLOBALS["conn"];
