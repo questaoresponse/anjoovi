@@ -18,11 +18,14 @@ const Content1=memo(({showAbout,initChat,showCard,option,globals,values,navigate
     var src;
     if (post){
         option_correct=post.tipo=="p" ? "noticia" : post.tipo=="i" ? "imagem" : post.tipo=="m" ? "musica" : post.tipo=="t" ? "texto" : post.tipo=="v" ? "video" : "playlist";
-        if (["p","i","m","v","pl"].includes(post.tipo)){
+        if (["p","m","v","pl"].includes(post.tipo)){
             type="img";
             src=post.imagem;
         } else if (post.tipo=="t"){
             type="text";
+        } else if (post.tipo=="i"){
+            type="img";
+            src=JSON.parse(post.imagem)[0];
         }
     }
     return (
@@ -66,11 +69,14 @@ const Content2=memo(({showAbout,initChat,showCard,option,globals,values,navigate
     var src;
     if (post){
         option_correct=post.tipo=="p" ? "noticia" : post.tipo=="i" ? "imagem" : post.tipo=="m" ? "musica" : post.tipo=="t" ? "texto" : post.tipo=="v" ? "video" : "playlist";
-        if (["p","i","m","v","pl"].includes(post.tipo)){
+        if (["p","m","v","pl"].includes(post.tipo)){
             type="img";
             src=post.imagem;
         } else if (post.tipo=="t"){
             type="text";
+        } else if (post.tipo=="i"){
+            type="img";
+            src=JSON.parse(post.imagem)[0];
         }
     }
     return (
