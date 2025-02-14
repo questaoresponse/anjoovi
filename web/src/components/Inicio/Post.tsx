@@ -29,6 +29,10 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                     var isWidthBigger=false;
                     var containerAspect=0;
                     var imageAspect=0;
+                    if (i){
+                        cm=JSON.parse(cm)[0];
+
+                    }
                     const matches = cm ? cm.match(/^(.*)(?=_\d+_i)/) : null;
                     if (matches) {
                         const r_parsed = BigInt(parseInt(matches[1],36));

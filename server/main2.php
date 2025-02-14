@@ -333,7 +333,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     p.descricao, 
                     NULL AS subtitulo, 
                     NULL AS texto, 
-                    JSON_UNQUOTE(JSON_EXTRACT(p.imagem, '$[0]')) AS imagem, 
+                    p.imagem, 
                     NULL AS arquivo, 
                     NULL AS duration, 
                     NULL AS zip, 
@@ -502,7 +502,7 @@ function getAlgoritmoNoticia($isGeral,$conn,$usuario,$id,$pt=0,$limit=48){
                     descricao,
                     NULL AS subtitulo,
                     NULL AS texto,
-                    JSON_UNQUOTE(JSON_EXTRACT(p.imagem, '$[0]')) AS imagem,
+                    p.imagem,
                     NULL AS arquivo,
                     NULL AS duration,
                     NULL AS zip,
@@ -1561,7 +1561,7 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
                 }
                 $info[0]["card"]=json_encode($card);
                 $posts=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,imagem,'p' AS tipo FROM post WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
-                $imagens=p($conn->prepare("SELECT usuario,descricao AS titulo,NULL AS texto,id,views_id,JSON_UNQUOTE(JSON_EXTRACT(imagem, '$[0]')) AS imagem,'i' AS tipo FROM post_imagem WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
+                $imagens=p($conn->prepare("SELECT usuario,descricao AS titulo,NULL AS texto,id,views_id,imagem,'i' AS tipo FROM post_imagem WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
                 $musicas=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,imagem,'m' AS tipo FROM post_musica WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
                 $textos=p($conn->prepare("SELECT usuario,NULL AS titulo,texto,id,views_id,'' AS imagem,'t' AS tipo FROM post_texto WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
                 $videos=p($conn->prepare("SELECT usuario,titulo,NULL AS texto,id,views_id,imagem,'v' AS tipo FROM post_video WHERE usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));

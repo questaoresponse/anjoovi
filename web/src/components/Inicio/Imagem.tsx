@@ -44,7 +44,7 @@ const Nt=memo(({descricao,post,size,index,onLinkClick,isValidURL,onLoaded,func,s
     const [showComment,setShowComment]=useState(false);
     useEffect(()=>{
         isMain && onLoaded!();
-    },[]);
+    },[post]);
 
     return <div className='posts-div'>
         {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/imagem/"+post.id,post.id)}} to={"/imagem/"+post.id} className="p-imagem disabled">
