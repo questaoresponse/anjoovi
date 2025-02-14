@@ -1339,23 +1339,27 @@ Route::post("/admin/imagens_cadastro", function(){
                     $file = request()->file("imageFile");
                     $file_count=0;
                     $number=$permission==2 ? 1 : 0;
+                    $flag_premium=0;
+                    if ($permission==2){
+                        $filePremium=request()->file("imageFilePremium");
+                        // deactive the frist bit, because its file is visible for all users non-premium;
+                        // reset the bits between 28 and 63 and shift the bits between 0 and 27 to 8 positions, leaving free the firsts 8 bits;
+                        $flag=($original_format_premium & ((1 << 21) - 1));
+                        $flag_premium=$flag << 29;
+                        $flag=2 | ($flag << 8);
+                        $dImage=base_convert($flag,10,36) . "_" . $id . "_i_premium.webp";
+                        $filePremium->createwebp($caminhoDestino,$dImage);
+                    }
                     foreach ($_FILES["imageFile"]["tmp_name"] as $key => $tmpName){
                         // reset the bits between 28 and 63 and shift the bits between 0 and 27 to 8 positions, leaving free the firsts 8 bits;
-                        $flag=$number | ((($original_format[$key] ? $original_format[$key] : 0) & ((1 << 37) - 1)) << 8);
+                        // set 1 to first
+                        $flag=$number | ((($original_format[$key] ? $original_format[$key] : 0) & ((1 << 21) - 1)) << 8) | $flag_premium;
                         $image=base_convert($flag,10,36) . "_" . $id . "_i_" . $file_count . "_file.webp";
                         $file->createwebp($caminhoDestino,$image,$key);
                         $file_count++;
                         array_push($images,$image);
                     }
-                    if ($permission==2){
-                        $filePremium=request()->file("imageFilePremium");
-                        // deactive the frist bit, because its file is visible for all users non-premium;
-                        $number=$number & ~1;
-                        // reset the bits between 28 and 63 and shift the bits between 0 and 27 to 8 positions, leaving free the firsts 8 bits;
-                        $flag=$number | (($original_format_premium & ((1 << 37) - 1)) << 8);
-                        $dImage=base_convert($flag,10,36) . "_" . $id . "_i_premium.webp";
-                        $filePremium->createwebp($caminhoDestino,$dImage);
-                    }
+                    
                     $images=json_encode($images);
                 } else if ($isCadastro){
                     return response()->json(["result"=>"false","type"=>"image"]);

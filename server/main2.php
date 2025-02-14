@@ -3026,27 +3026,32 @@ Route::post("/ups",function(){
 //     // $e=$u & ((1 << 11) -1);
 //     // echo "." . $e;
 // });
+// Route::post("/ajeitar",function(){
+//     $conn=$GLOBALS["conn"];
+//     $arquivos = glob(__DIR__ . '/../public_html/images/*'); // Lista todos os arquivos e pastas
+//     foreach ($arquivos as $arquivo) {
+//         if (is_file($arquivo)) {
+//             $arquivo=explode("/",$arquivo);
+//             $arquivo=$arquivo[count($arquivo)-1];
+//             if (preg_match("/^0_(\d+)(?=_i_)/",$arquivo,$matches)){
+//                 $id=intval($matches[1]);
+//                 $r=$conn->prepare("SELECT imagem FROM post_imagem WHERE id=?",[$id]);
+//                 if ($r->num_rows>0){
+//                     $r=p($r)[0];
+//                     $l=json_decode($r["imagem"],true);
+//                     if ($l && count($l)==1){
+//                         $arr=json_encode([$arquivo]);
+//                         $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$arr,$id]);
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// });
 Route::post("/ajeitar",function(){
     $conn=$GLOBALS["conn"];
-    $arquivos = glob(__DIR__ . '/../public_html/images/*'); // Lista todos os arquivos e pastas
-    foreach ($arquivos as $arquivo) {
-        if (is_file($arquivo)) {
-            $arquivo=explode("/",$arquivo);
-            $arquivo=$arquivo[count($arquivo)-1];
-            if (preg_match("/^0_(\d+)(?=_i_)/",$arquivo,$matches)){
-                $id=intval($matches[1]);
-                $r=$conn->prepare("SELECT imagem FROM post_imagem WHERE id=?",[$id]);
-                if ($r->num_rows>0){
-                    $r=p($r)[0];
-                    $l=json_decode($r["imagem"],true);
-                    if ($l && count($l)==1){
-                        $arr=json_encode([$arquivo]);
-                        $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$arr,$id]);
-                    }
-                }
-            }
-        }
-    }
+    $r=$conn->query("SELECT * FROM post_imagem WHERE JSON_UNQUOTE(JSON_EXTRACT(d,'$.o'))>1739481600");
+    
 });
 // Route::post("/ajeitar",function(){
 //     $conn=$GLOBALS["conn"];
