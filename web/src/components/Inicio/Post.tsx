@@ -6,9 +6,7 @@ import loading_src from "../static/loading.png";
 function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,posts:any[],verifyScroll?:any}){
     const server=globals.server;
     const mobile=globals.mobile;
-    if (!isLoaded){
         // posts=Array.from({length:48},()=>{return {imagem:false,titulo:"",usuario:""}});
-    }
     return (
         <div onScroll={verifyScroll || (()=>{})} id="tabela" className={'p-0 postc'+(!isLoaded ? " loading" : "")}>
             {posts.map((post:any,index:number)=>{
@@ -43,7 +41,7 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                     const originalFormat=(containerAspect==0 && imageAspect==0) || !mobile;
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;
                     content=t ? null : <div style={{aspectRatio:originalFormat ? "16/9" : "initial",width:"100%",height:originalFormat ? "auto" : (1 / containerAspect * window.innerWidth * 0.97) + "px"}} className='imagemd'>
-                        <img style={{maxWidth:originalFormat ? "100%" : "initial",maxHeight:originalFormat ? "100%" : "initial",objectFit:originalFormat ? "cover" : "initial",width:originalFormat ?  "initial" : isWidthBigger ? imageAspect * window.innerWidth * 0.97 + "px" : "100%",height:originalFormat ? "initial" : isWidthBigger ? "100%" : 1 / imageAspect * window.innerWidth * 0.97 + "px"}} className={'image'} src={server+"/images/"+encodeURIComponent(cm) + (isPremiumView || cm.endsWith("premium.webp") ? "?q="+Math.floor(Math.random() * 4294967296) : "")}/>
+                        <img style={{maxWidth:originalFormat ? "100%" : "initial",maxHeight:originalFormat ? "100%" : "initial",objectFit:originalFormat ? "contain" : "cover",width:originalFormat ?  "100%" : isWidthBigger ? imageAspect * window.innerWidth * 0.97 + "px" : "100%",height:originalFormat ? "100%" : isWidthBigger ? "100%" : 1 / imageAspect * window.innerWidth * 0.97 + "px"}} className='image' src={server+"/images/"+encodeURIComponent(cm) + (isPremiumView || cm.endsWith("premium.webp") ? "?q="+Math.floor(Math.random() * 4294967296) : "")}/>
                     </div>
                 }
                 const parts=(post.descricao || post.titulo || post.texto || "").split(/(?:\r\n| )/);

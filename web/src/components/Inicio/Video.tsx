@@ -54,12 +54,12 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
             {!isMain ? <Link onClick={(e:any)=>{e.preventDefault();func("/video/"+post.id,post.id)}} to={"/video/"+post.id} className="p-video disabled">
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className="titulo-video">{post.titulo.map((line,i)=>{
-                    return <>
+                    return <div key={String(i)}>
                         {line.map((titulo,index)=>{
                             return titulo.length>0 && (titulo[0]=="#" || titulo[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={titulo[0]=="#" ? "/busca?q="+encodeURIComponent(titulo) : "/@"+encodeURIComponent(titulo.slice(1))}>{titulo + (line.length-1>index ? " " : "")}</Link> : titulo + (line.length-1>index ? " " : "")
                         })}
                         <br></br>
-                    </>
+                    </div>
                 })}</div>
                 <div className="campo-video">
                     <img className='campo-video-content' src={post.srcImagem}></img>
@@ -85,12 +85,12 @@ function Video({isPlaylist,id,func,isMain,Elements,post,onLoaded}:{isPlaylist?:a
             </Link> : <div className='p-video pm'>
                 <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>
                 <div className="titulo-video">{post.titulo.map((line,i)=>{
-                    return <>
+                    return <div key={String(i)}>
                         {line.map((titulo,index)=>{
                             return titulo.length>0 && (titulo[0]=="#" || titulo[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={titulo[0]=="#" ? "/busca?q="+encodeURIComponent(titulo) : "/@"+encodeURIComponent(titulo.slice(1))}>{titulo + (line.length-1>index ? " " : "")}</Link> : titulo + (line.length-1>index ? " " : "")
                         })}
                         <br></br>
-                    </>
+                    </div>
                 })}</div>
                 <VideoController ref={refs.videoController} props={{ref:refs.video,onTimeUpdate:onTimeUpdate}} srcVideo={post.srcVideo}/>
                 {/* <div className={"texto-video txt " + (!isMain ? " resumo" : "")}>{post.text.map((line:string[],i:number)=>{

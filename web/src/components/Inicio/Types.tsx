@@ -10,7 +10,7 @@ import Playlist from "./Playlist";
 import Video from "./Video";
 import Product from "./Product";
 const Elements=(posts:any,func:any,onLinkClick:any)=>{
-    return ()=>{
+    return memo(()=>{
         return posts.map((post:any,index:number)=>{
             switch (post.tipo){
                 case "p":
@@ -29,7 +29,7 @@ const Elements=(posts:any,func:any,onLinkClick:any)=>{
                     return <Product post={post} key={index} func={func} isMain={false} onLinkClick={onLinkClick}/>
             }
         });
-    }
+    });
 }
 function Types(){
     const { server, redirectError, navigate, navigateClass, player }:GlobalContextInterface=useGlobal();

@@ -41,12 +41,11 @@ function Home() {
     const verifyScroll=useCallback(()=>{
         if (window.scrollY+800>document.documentElement.scrollHeight && !awaitingLoad.current){
             pt.current+=1;
-           setPosts({...posts,isLoaded:false});
+           setPosts(posts=>{ return {...posts,isLoaded:false}});
             awaitingLoad.current=true;
             auth.post(server,{type:"posts",pt:pt.current.toString()}).then(result=>{
                 if (result.data.result=="true"){
-                    setPosts(posts=>{return {...posts,posts:[...posts.posts,...result.data.posts]}});
-                    setPosts({...posts,isLoaded:true});
+                    setPosts(posts=>{return {...posts,posts:[...posts.posts,...result.data.posts],isLoaded:true}});
                     awaitingLoad.current=false;
                 }
             });
