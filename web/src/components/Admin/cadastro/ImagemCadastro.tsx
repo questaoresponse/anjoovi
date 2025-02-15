@@ -356,7 +356,11 @@ function ImagemCadastro(){
                     },2000);
                     refs.descricao.current!.value="";
                     setImages([{aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
-                    setImagePremium({aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
+                    setImageFormat({normal:1,premium:1});
+                    if (permission){
+                        setImagePremium({aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
+                        setPermission(false);
+                    }
                 }
             }
         })
@@ -402,6 +406,11 @@ function ImagemCadastro(){
             }
         }
     },[images]);
+    useEffect(()=>{
+        if (message){
+            images[0].refs.input.current!.value="";
+        }
+    },[message]);
     return (
         <div id="pg" className="ic">
             <div id="dt" className="fechado">
