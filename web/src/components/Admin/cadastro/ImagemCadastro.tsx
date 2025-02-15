@@ -83,7 +83,7 @@ function ImagemCadastro(){
                     newWidth=width;
                     newHeight=height;
                     elementWidth=newWidth;
-                    elementHeight=newHeight;
+                    elementHeight=imageHeight / imageWidth * height;
                     break;
                 case 2:
                     newWidth=height * 4/5;

@@ -34,6 +34,7 @@ function VideosCadastro(){
         original_format_premium:useRef<HTMLSelectElement>(null),
         imagem_view_premium:useRef<HTMLDivElement>(null),
         image_element_premium:useRef<HTMLImageElement>(null),
+        canvas:useRef<HTMLCanvasElement>(null)
     }
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
@@ -175,6 +176,35 @@ function VideosCadastro(){
             }
         }
     }
+    const getImageUrl=async (url:string):Promise<{ imageBlob: Blob, imageUrl: string }>=>{
+        return new Promise((r,_)=>{
+            const video = document.createElement("video");
+            video.src = url;
+            video.crossOrigin = "anonymous"; // Se o vídeo for externo, precisa de CORS
+            video.muted = true; // Necessário para autoplay no Chrome
+            video.playsInline = true;
+        
+            video.addEventListener("loadeddata", function () {
+                video.currentTime = 0; // Definir para o primeiro frame
+            });
+        
+            video.addEventListener("seeked", function () {
+                const canvas = document.createElement("canvas");
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext("2d");
+        
+                ctx!.drawImage(video, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob((imageBlob) => {
+                    if (imageBlob) {
+                        r({ imageBlob, imageUrl: canvas.toDataURL("image/jpg") }); // Retorna o Blob
+                    }
+                }, "image/jpeg");
+            });
+        
+            video.load(); // Carregar o vídeo
+        });
+    }
     const onChangeVideo=(e:any)=>{
         const file = e.target.files[0];
         if (file) {
@@ -197,16 +227,12 @@ function VideosCadastro(){
                     ffmpeg.current.writeFile(filename,await fetchFile(file));
                     const output="output."+filename.split(".").slice(-1);
                     await ffmpeg.current.exec(["-i",filename,"-t","00:01:00","-c","copy",output]);
-                    await ffmpeg.current.exec(['-i', filename, '-ss','0','-frames:v','1', 'output%03d.jpg']);
                     const data=new Uint8Array(await ffmpeg.current.readFile(output) as ArrayBuffer);
-                    const fileData=new Uint8Array(await ffmpeg.current.readFile("output001.jpg") as ArrayBuffer);
                     await ffmpeg.current.deleteFile(filename);
                     await ffmpeg.current.deleteFile(output);
-                    await ffmpeg.current.deleteFile("output001.jpg");
                     const videoBlob=new Blob([data.buffer],{ type:"video/"+filename.split(".").slice(-1) });
                     const videoUrl=URL.createObjectURL(videoBlob);
-                    const imageBlob=new Blob([fileData.buffer],{ type:"image/jpg" });
-                    const imageUrl=URL.createObjectURL(imageBlob);
+                    const { imageBlob, imageUrl }=await getImageUrl(videoUrl);
                     setDimensions(false,{
                         file:videoBlob,
                         name:file.name,

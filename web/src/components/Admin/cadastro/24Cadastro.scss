@@ -51,10 +51,10 @@
             padding-bottom: initial;
         }
     }
-    .imagem-view img{
+    .imagem-view img, .imagem-view video{
         position: absolute;
         width:100%;
-        height:initial;
+        height: auto;
         left: initial;
         right: initial;
         top: auto;

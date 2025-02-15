@@ -19,3 +19,7 @@ declare module "*.svg" {
   const value: string;
   export default value;
 }
+declare module 'mp4box' {
+  var MP4Box: any;
+  export = MP4Box;
+}

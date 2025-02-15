@@ -218,7 +218,7 @@ function Cadastro24(){
                     <label>Capa</label>
                     <div className="imagem-div">
                         <div ref={refs.imagem_view} className="imagem-view col-12 col-md-6">
-                            {fileInfos.type=="mp4" ? <video ref={refs.image_element as MutableRefObject<HTMLVideoElement>} controls className="of" src={fileInfos.src}></video> : <img ref={refs.image_element as MutableRefObject<HTMLImageElement>} className='of' src={fileInfos.src}/>};
+                            {fileInfos.type=="mp4" ? <video ref={refs.image_element as MutableRefObject<HTMLVideoElement>} controls className="of" src={fileInfos.src}></video> : <img ref={refs.image_element as MutableRefObject<HTMLImageElement>} className='of' src={fileInfos.src}/>}
                         </div>
                         <input className="file" ref={refs.file} onChange={onImagemChange} type="file" accept="image/jpg, image/jpeg, video/mp4" required/>
                         <div className="imagem-pt">

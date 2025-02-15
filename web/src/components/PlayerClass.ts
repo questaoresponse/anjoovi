@@ -205,7 +205,7 @@ class PlayerClass{
     syncMusics(index:number,page_id:number){
         if (this.page_id==page_id && this.music_index!=-1){
             const currentTime=this.getTime(this.musics[index].currentTime);
-            this.musics[index].setPlay && this.musics[index].setPlay!(this.music_index==index);
+            this.musics[index].setPlay && this.musics[index].setPlay!(this.music_index==index && !this.paused);
             this.musics[index].setCurrentTime && this.musics[index].setCurrentTime!(currentTime);
         }
     }
