@@ -237,7 +237,7 @@ function ImagemCadastro(){
                 refs.descricao.current!.value=post.descricao;
                 // return if post is private;
                 post.privado=(post.privado & 2)==2;
-                refs.permission.current!.value=post.privado ? "1" : "0";
+                isPremium && (refs.permission.current!.value=post.privado ? "1" : "0");
                 setPermission(post.privado);
                 post_edit.current=post;
                 const postImages=JSON.parse(post.imagem);
@@ -259,7 +259,7 @@ function ImagemCadastro(){
                                 const r_parsed=BigInt(`0x${BigInt(parseInt(matches![1], 36)).toString(16)}`);
                                 // const r_parsed = BigInt(parseInt(matches![1],36));
                                 const r = r_parsed >> 8n;
-                                if ((r_parsed & 1n)==1n){
+                                if (isPremium && (r_parsed & 1n)==1n){
                                     const r_premium=((r >> 21n) << 8n) | 2n;
                                     const imagePremium=(r_premium).toString(36) + matches![2] + "_premium.webp";
                                     const img2=new Image();

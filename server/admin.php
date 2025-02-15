@@ -1309,13 +1309,14 @@ Route::post("/admin/imagens_cadastro", function(){
             } else if ($type=="cadastro" || $type=="edit"){
                 $dados=request()->all();
                 $isCadastro=$type=="cadastro";
-                if (!isset($dados["original_formats"]) || ($isCadastro && (!isset($_FILES["imageFile"]) || !isset($_FILES["imageFilePremium"])))) return response()->json(["result"=>"false"]);
+                $permission=isset($dados["permission"]) ? 2 : 0;
+                if (($permission==2 && !isset($dados["original_formats"])) || ($isCadastro && (!isset($_FILES["imageFile"]) || ($permission==2 && !isset($_FILES["imageFilePremium"]))))) return response()->json(["result"=>"false"]);
                 $conn = $GLOBALS["conn"];
                 // if (!session()->has("key")) return;
                 // if (strlen($titulo)==0) return;
                 $acessos=0;
                 $permission=isset($dados["permission"]) ? 2 : 0;
-                $old_permission;
+                $old_permission=0;
                 $original_formats=json_decode($dados["original_formats"],true);
                 $original_format_premium=isset($dados["original_format_premium"]) ? $dados["original_format_premium"] : 0;
                 $descricao=isset($dados["descricao"]) ? $dados["descricao"] : null;
@@ -1336,7 +1337,7 @@ Route::post("/admin/imagens_cadastro", function(){
                         return response()->json(["result"=>"false","type"=>"id"]);
                     }
                 }
-                if ($old_permission!=$permission && $permission==2 && !isset($_FILES["imageFilePremium"]));
+                if ($old_permission!=$permission && $permission==2 && !isset($_FILES["imageFilePremium"])) return response()->json(["result"=>"false"]);
                 if ($isCadastro && request()->has("imageFile") && (($permission==2 && request()->has("imageFilePremium")) || ($permission==0))) {
                     $caminhoDestino = __DIR__ . "/../public_html/images/";
                     $file = request()->file("imageFile");
@@ -1370,31 +1371,33 @@ Route::post("/admin/imagens_cadastro", function(){
                     $number=$permission==2 ? 1 : 0;
                     $flag_premium=0;
                     $new_images=[];
-                    if ($old_permission==$permission){
-                        preg_match("/^(.*)(_\d+_i)/",$images[0],$matches);
-                        $flag=(base_convert($matches[1],36,10) >> 29) & ((1 << 21) - 1);
-                        $flag=2 | ($flag << 8);
-                        $old_file=base_convert($flag,10,36) . $matches[2] . "_premium.webp";
+                    if ($old_permission!=0 || $permission!=0){
+                        if ($old_permission==$permission){
+                            preg_match("/^(.*)(_\d+_i)/",$images[0],$matches);
+                            $flag=(base_convert($matches[1],36,10) >> 29) & ((1 << 21) - 1);
+                            $flag=2 | ($flag << 8);
+                            $old_file=base_convert($flag,10,36) . $matches[2] . "_premium.webp";
 
-                        $flag=0;
-                        $flag=$original_format_premium & ((1 << 21) - 1);
-                        $flag_premium=$flag << 29;
-                        $flag=2 | ($flag << 8);
-                        $file=base_convert($flag,10,36) . "_" . $id . "_i_premium.webp";
-                        rename($caminhoDestino . $old_file, $caminhoDestino . $file);
-                    } else {
-                        if ($permission==2){
-                            $filePremium=request()->file("imageFilePremium");
+                            $flag=0;
                             $flag=$original_format_premium & ((1 << 21) - 1);
                             $flag_premium=$flag << 29;
                             $flag=2 | ($flag << 8);
-                            $dImage=base_convert($flag,10,36) . "_" . $id . "_i_premium.webp";
-                            $filePremium->createwebp($caminhoDestino,$dImage);
+                            $file=base_convert($flag,10,36) . "_" . $id . "_i_premium.webp";
+                            rename($caminhoDestino . $old_file, $caminhoDestino . $file);
                         } else {
-                            preg_match("/^(.*)(_\d+_i)/",$images[0],$matches);
-                            $number=((base_convert($matches[1],36,10) >> 29) << 8) | 2;
-                            $file=base_convert($number,10,36) . $matches[2] . "_premium.webp";
-                            unlink($caminhoDestino . $file);
+                            if ($permission==2){
+                                $filePremium=request()->file("imageFilePremium");
+                                $flag=$original_format_premium & ((1 << 21) - 1);
+                                $flag_premium=$flag << 29;
+                                $flag=2 | ($flag << 8);
+                                $dImage=base_convert($flag,10,36) . "_" . $id . "_i_premium.webp";
+                                $filePremium->createwebp($caminhoDestino,$dImage);
+                            } else {
+                                preg_match("/^(.*)(_\d+_i)/",$images[0],$matches);
+                                $number=((base_convert($matches[1],36,10) >> 29) << 8) | 2;
+                                $file=base_convert($number,10,36) . $matches[2] . "_premium.webp";
+                                unlink($caminhoDestino . $file);
+                            }
                         }
                     }
 
