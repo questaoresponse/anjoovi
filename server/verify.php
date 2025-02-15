@@ -40,7 +40,7 @@ $arr=explode("/",explode("?",$_SERVER["REQUEST_URI"])[0]);
 $filename=array_splice($arr,-1)[0];
 function get_filename($filename){
     if (preg_match('/^(\d+)(_\d+_i)/',$filename,$matches)){
-        return (intval($matches[1]) & ~1) + $matches[2] + "_premium.webp";
+        return base_convert((((intval($matches[1]) >> 29) << 8) | 2),10,36) + $matches[2] + "_premium.webp";
     }
 }
 if (isset($_COOKIE["token"])){
