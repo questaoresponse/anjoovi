@@ -148,17 +148,18 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
             if (countLoaded.current > 0) return;
             countLoaded.current++;
         }
-        console.log(post.srcImagem);
-        const originalFormat=post.srcImagem.originalFormat || !globals.mobile;
+        const originalFormat=post.srcImagem.originalFormat;
+        const p=globals.mobile ? 0.97 : 0.58;
+        const containerAspectRatio=globals.mobile ? 1 : 16/9;
         setSize({
-            containerAspectRatio:originalFormat ? globals.mobile ? "1" : "16/9" : "initial",
+            containerAspectRatio:String(containerAspectRatio),
             containerWidth:"100%",
-            containerHeight:originalFormat ? "auto" : (1 / post.srcImagem.containerAspect * window.innerWidth * 0.97) + "px",
+            containerHeight:originalFormat || !globals.mobile ? "auto" : (1 / post.srcImagem.containerAspect * window.innerWidth * p) + "px",
             elementMaxWidth:originalFormat ? "100%" : "initial",
             elementMaxHeight:originalFormat ? "100%" : "initial",
             elementObjectFit:originalFormat ? "contain" : "initial",
-            elementWidth:originalFormat ?  "100%" : post.srcImagem.isWidthBigger ? post.srcImagem.imageAspect * window.innerWidth * 0.97 + "px" : "100%",
-            elementHeight:originalFormat ? "100%" : post.srcImagem.isWidthBigger ? "100%" : 1 / post.srcImagem.imageAspect * window.innerWidth * 0.97 + "px"
+            elementWidth:originalFormat ?  "100%" : post.srcImagem.isWidthBigger || !globals.mobile ? post.srcImagem.imageAspect * window.innerWidth * p * (1 / containerAspectRatio) + "px" : "100%",
+            elementHeight:originalFormat ? "100%" : post.srcImagem.isWidthBigger || !globals.mobile ? "100%" : 1 / post.srcImagem.imageAspect * window.innerWidth * p + "px"
         });
     },[post,globals.mobile]);
     calcDimensions(false,true);
@@ -170,6 +171,9 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
             window.removeEventListener("resize",calcDimensions);
         }
     },[calcDimensions]);
+    useEffect(()=>{
+        console.log(size,post.srcImagem.containerAspect,post.id);
+    },[size]);
 
     return !isMain ? <Nt post={post} size={size} onLinkClick={onLinkClick} isValidURL={isValidURL} onLoaded={onLoaded!} func={func} summarized={summarized} setSummarized={setSummarized} isMain={isMain} isPlaylist={isPlaylist} auth={auth} globals={globals}/> : (
         <div>

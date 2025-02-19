@@ -24,6 +24,7 @@ const Nt=memo(({post,postId,values,onLinkClick,onLoaded,func,isMain}:{post:postI
     useEffect(()=>{
         isMain && onLoaded!();
     },[]);
+    console.log(values.currentInfos.post);
     var value:any;
     switch (values.infos.tipo){
         case 'post':
@@ -84,7 +85,7 @@ const playlistComponent=memo(({postAtual,values,server,postId,go}:{postAtual:any
 function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any,onLoaded?:()=>void}){
     var id=id;
     const globals=useGlobal();
-    const { navigate, server }=globals;
+    const { navigate, server, cargo }=globals;
     const auth=useAuth();
     const locationTrue=useLocation();
     const location=useRef<{pathname:string,_pathname:string,search:string,_search:string}>({
@@ -128,7 +129,7 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
         return Number(number) < 10 ? "0"+number : String(number);
     }
     function get_date_s(d:any){
-        const [datePart, timePart] = new Date(d + ' -03:00').toLocaleString().split(', ');
+        const [datePart, timePart] = new Date((d - 10800) * 1000).toLocaleString().split(', ');
         const [day, month, year] = datePart.split('/');
         const data:any = new Date(`${year}-${month}-${day}T${timePart}`);
         const dia = zero(data.getDate());
@@ -139,15 +140,39 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
 
         return `${dia}/${mes}/${ano} às ${hora}h${minuto}`;
     }
-    const analyze=(post:any)=>{
+    const analyze=(post:any,comments:any=undefined)=>{
         switch (post.tipo){
             case "p":
                 var dj=post.d ? JSON.parse(post.d) : { o:"2024-01-01 00:00:00" };
                 var d=dj.o;
                 var texto=(post.texto || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []);
+
+                var containerAspect=0;
+                var imageAspect=0;
+                var isWidthBigger=false;
+                const matches = post.imagem ? post.imagem.match(/^(.*)(?=_\d+_p)/) : null;
+                var srcImagem={ isWidthBigger: false, containerAspect: 0, imageAspect: 0, originalFormat: true, src: "" };
+                if (matches) {
+                    const r_parsed = BigInt(parseInt(matches[1],36));
+                    const r = r_parsed >> 8n;
+                    if ((r_parsed & 1n)==1n && (cargo.current.cargo! & 4)==0){
+                        isWidthBigger = (r & (1n << 41n))!=0n;
+                        containerAspect=Number((r >> 39n) & ((1n << 2n) - 1n));
+                        containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
+                        imageAspect=(Number(r & ((1n << 39n) - 1n)) / 10000);
+                    } else {
+                        isWidthBigger = (r & (1n << 20n))!=0n;
+                        containerAspect=Number((r >> 18n) & ((1n << 2n) - 1n));
+                        containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
+                        imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
+                    }
+                    const originalFormat=containerAspect==0 && imageAspect==0;
+                    srcImagem={ isWidthBigger, containerAspect, imageAspect, originalFormat, src: server+"/images/"+encodeURIComponent(post.imagem) };
+                }
+
                 return {
                     isLoaded:true,
-                    srcImagem:server+"/images/"+encodeURIComponent(post.imagem),
+                    srcImagem,
                     titulo:(post.titulo || "").split(" "),
                     subtitulo:(post.subtitulo || "").split(" "),
                     logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
@@ -161,14 +186,39 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
                     id:post.id,
                     tipo:post.tipo,
                     n_comment:post.n_comment,
+                    comments:comments
                 };
             case "i":
                 var dj=JSON.parse(post.d);
                 var d=dj.o;
                 var texto=(post.descricao || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []);
+                const imagem=post.imagem[0]=="[" ? JSON.parse(post.imagem) : [post.imagem];
                 return {
                     alta:[],
-                    srcImagem:server+"/images/"+encodeURIComponent(post.imagem),
+                    srcImagem:imagem.map((imagem:string)=>{
+                        var containerAspect=0;
+                        var imageAspect=0;
+                        var isWidthBigger=false;
+                        const matches = imagem ? imagem.match(/^(.*)(?=_\d+_i)/) : null;
+                        if (matches) {
+                            const r_parsed = BigInt(parseInt(matches[1],36));
+                            const r = r_parsed >> 8n;
+                            if ((r_parsed & 1n)==1n && (cargo.current.cargo! & 4)==0){
+                                isWidthBigger = (r & (1n << 41n))!=0n;
+                                containerAspect=Number((r >> 39n) & ((1n << 2n) - 1n));
+                                containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
+                                imageAspect=(Number(r & ((1n << 39n) - 1n)) / 10000);
+                            } else {
+                                isWidthBigger = (r & (1n << 20n))!=0n;
+                                containerAspect=Number((r >> 18n) & ((1n << 2n) - 1n));
+                                containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
+                                imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
+                            }
+
+                        }
+                        const originalFormat=containerAspect==0 && imageAspect==0;
+                        return {isWidthBigger,containerAspect,imageAspect,originalFormat,src:server+"/images/"+encodeURIComponent(imagem)};
+                    }),
                     logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,
                     nome:post.nome,
                     usuario:post.usuario,
@@ -179,6 +229,7 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
                     text:texto,
                     id:post.id,
                     n_comment:post.n_comment,
+                    comments:comments,
                     tipo:post.tipo
                 };
         }
@@ -191,7 +242,6 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
         }
         auth.get(server+"/"+types[post.post_tipo]+"/"+post.posts[currentId.current]+"?c=1").then(result=>{
             if (result.data.result=="true"){
-                
                 setValues({
                     infos:{
                         tipo:post.post_tipo,
@@ -200,7 +250,7 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
                         posts:post.playlists
                     },
                     currentInfos:{
-                        post:analyze(result.data.post),
+                        post:analyze(result.data.post,result.data.comments),
                         posts:result.data.posts
                     }
                 });
@@ -212,6 +262,9 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
             get();
         }
     },[post]);
+    useEffect(()=>{
+        console.log(values);
+    },[values]);
 
     const go=useCallback((id:number,index:number)=>{
         setPostId(id);
@@ -219,7 +272,7 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
         u.set("v",index.toString());
         const search="?"+u.toString();
         location.current.search=search;
-        navigate!(location.current.pathname+search,{changeURL:false,lookTop:true});
+        navigate!(location.current.pathname+search,{changeURL:true,lookTop:true});
     },[]);
     
     

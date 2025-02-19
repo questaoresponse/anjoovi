@@ -3167,9 +3167,10 @@ Route::post("/ajeitar",function(){
     $r=p($conn->query("SELECT imagem,id FROM post"));
     foreach ($r as $line){
         $imagesDir=__DIR__ . "/../public_html/images/";
-        $imagem=$line["imagem"];
-        $dimensions=getimagesize($imagesDir . $imagem);
-        $imagem="_" . $line["id"] . "_p_file.webp";
+        $old_image=$line["imagem"];
+        $dimensions=getimagesize($imagesDir . $old_image);
+        $id=$line["id"];
+        $new_image="_" . $id . "_p_file.webp";
         $width=$dimensions[0];
         $height=$dimensions[1];
         $containerWidth=0;
@@ -3187,11 +3188,13 @@ Route::post("/ajeitar",function(){
             $elementWidth=$containerWidth;
             $elementHeight=$containerHeight;
         }
-        $isWidthBigger=($width < $height ? 1 : 0) << 28;
+        $isWidthBigger=($elementWidth > 1 ? 1 : 0) << 28;
         $containerAspect=0 << 26;
         $elementAspect=(intval($elementWidth / $elementHeight * 10000) & ((1 << 18) - 1)) << 8;
         $number=$isWidthBigger | $containerAspect | $elementAspect;
-        echo base_convert($number,10,36) . $imagem;
+        $new_image=base_convert($number,10,36) . $new_image;
+        rename($imagesDir . $old_image, $imagesDir . $new_image);
+        $conn->prepare("UPDATE post SET imagem=? WHERE id=?",[$new_image,$id]);
     }
 });
 Route::post("/functions",function(){

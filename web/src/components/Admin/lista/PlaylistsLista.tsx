@@ -54,7 +54,7 @@ function PlaylistsLista(){
             </>
         )
     }
-    const NewTable=({post,n,Recriar}:{post:any,n:number,Recriar:any})=>{
+    const NewTable=({post,n,recriar}:{post:any,n:number,recriar:any})=>{
         return (
             <div className="linha">
                 <div className="id">{n}</div>
@@ -63,7 +63,7 @@ function PlaylistsLista(){
                 </Link>
                 <div className="data">{post.d}</div>
                 <div className="opcoes">
-                    <Opcoes auth={auth} post={post} globals={globals} recriar={Recriar} location={location}/>
+                    <Opcoes auth={auth} post={post} globals={globals} recriar={recriar} location={location}/>
                 </div>
             </div>
         )

@@ -73,15 +73,14 @@ function Types(){
                     if ((r_parsed & 1n)==1n && (cargo.current.cargo! & 4)==0){
                         isWidthBigger = (r & (1n << 41n))!=0n;
                         containerAspect=Number((r >> 39n) & ((1n << 2n) - 1n));
-                        containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
                         imageAspect=(Number(r & ((1n << 39n) - 1n)) / 10000);
+                        containerAspect=containerAspect==0 ? imageAspect : containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
                     } else {
                         isWidthBigger = (r & (1n << 20n))!=0n;
                         containerAspect=Number((r >> 18n) & ((1n << 2n) - 1n));
-                        containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
                         imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
+                        containerAspect=containerAspect==0 ? imageAspect : containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
                     }
-                    console.log(containerAspect);
                     const originalFormat=containerAspect==0 && imageAspect==0;
                     srcImagem={ isWidthBigger, containerAspect, imageAspect, originalFormat, src: server+"/images/"+encodeURIComponent(post.imagem) };
                 }
@@ -120,16 +119,15 @@ function Types(){
                             const r_parsed = BigInt(parseInt(matches[1],36));
                             const r = r_parsed >> 8n;
                             if ((r_parsed & 1n)==1n && (cargo.current.cargo! & 4)==0){
-                                console.log(cargo.current.cargo!);
                                 isWidthBigger = (r & (1n << 41n))!=0n;
                                 containerAspect=Number((r >> 39n) & ((1n << 2n) - 1n));
-                                containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
                                 imageAspect=(Number(r & ((1n << 39n) - 1n)) / 10000);
+                                containerAspect=containerAspect==0 ? imageAspect : containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
                             } else {
                                 isWidthBigger = (r & (1n << 20n))!=0n;
                                 containerAspect=Number((r >> 18n) & ((1n << 2n) - 1n));
-                                containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
                                 imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
+                                containerAspect=containerAspect==0 ? imageAspect : containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
                             }
 
                         }
@@ -335,9 +333,12 @@ function Types(){
                 "product":true,
             };
             if (pathname.split("/").length>=3 && pathname.split("/")[1] in pathnames){
-                id.current=Number(pathname.split("/")[2]);
-                window && navigate(pathname,{changeURL:false,lookTop:false,callHandle:false});
-                get(false,pathname);
+                if (!pathname.match(/v=\d+$/)){
+                    id.current=Number(pathname.split("/")[2]);
+                    window && navigate(pathname,{changeURL:false,lookTop:false,callHandle:false});
+                    console.log(pathname);
+                    get(false,pathname);
+                }
             }
         }
     },[]);

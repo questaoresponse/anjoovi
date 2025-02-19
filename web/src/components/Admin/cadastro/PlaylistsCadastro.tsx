@@ -111,9 +111,9 @@ function PlaylistsCadastro(){
                     <input className='input' id="titulo" ref={refs.titulo} required/>
                     <label>Tipo</label>
                     <select id="tipo" onChange={onChangeSelect}>
-                        <option value="post">texto</option>
-                        <option value="post_imagem">imagem</option>
-                        <option value="post_musica">musica</option>
+                        <option value="post">Matéria</option>
+                        <option value="post_imagem">Imagem</option>
+                        <option value="post_musica">Música</option>
                     </select>
                     <div id="list">
                         {list.map((el,index)=>{

@@ -100,7 +100,6 @@
     //     background-color: rgba(0,0,0,0.1);
     // }
     .campo-img-noticia img{
-        position:absolute;
         background:white;
         display:block;
         height:100%;
@@ -158,8 +157,7 @@
     }
     @media screen and (min-width:769px){
         .campo-img-noticia{
-            width:100%;
-            padding-bottom: calc(100% / 1280 * 720);
+            aspect-ratio: 16/9;
         }
 
     }
