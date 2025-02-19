@@ -3164,14 +3164,14 @@ Route::post("/ups",function(){
 // });
 Route::post("/ajeitar",function(){
     $conn=$GLOBALS["conn"];
-    $r=p($conn->prepare("SELECT imagem,id FROM post WHERE usuario=?"));
+    $r=p($conn->query("SELECT imagem,id FROM post"));
     foreach ($r as $line){
         $imagesDir=__DIR__ . "/../public_html/images/";
         $imagem=$line["imagem"];
         $dimensions=getimagesize($imagesDir . $imagem);
         $imagem="_" . $line["id"] . "_p_file.webp";
-        $width=$dimensions[1];
-        $height=$dimensions[2];
+        $width=$dimensions[0];
+        $height=$dimensions[1];
         $containerWidth=0;
         $containerHeight=0;
         $elementWidth=0;
@@ -3179,14 +3179,19 @@ Route::post("/ajeitar",function(){
         if ($width < $height){
             $containerWidth=$width/$height;
             $containerHeight=1;
+            $elementWidth=$containerWidth;
+            $elementHeight=$containerHeight;
         } else {
             $containerWidth=1;
             $containerHeight=$height/$width;
+            $elementWidth=$containerWidth;
+            $elementHeight=$containerHeight;
         }
         $isWidthBigger=($width < $height ? 1 : 0) << 28;
-        $containerAspect=intval($containerWidth / $containerHeight * 10000) << 26;
-        $elementAspect=(intval($imageWidth / $imageHeight * 10000) & ((1 << 18) - 1)) << 8;
+        $containerAspect=0 << 26;
+        $elementAspect=(intval($elementWidth / $elementHeight * 10000) & ((1 << 18) - 1)) << 8;
         $number=$isWidthBigger | $containerAspect | $elementAspect;
+        echo base_convert($number,10,36) . $imagem;
     }
 });
 Route::post("/functions",function(){
