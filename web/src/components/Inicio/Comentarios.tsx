@@ -12,7 +12,7 @@ interface commentInterface{
     texto:string,
     loading:boolean
 }
-function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,previousRequest?:MutableRefObject<(string | boolean)[]>,playlistComponent?:any,tipo?:any,showComment?:boolean,values?:any}){
+function Comentarios({previousRequest, postAtual, postId, go, ...values}:{postAtual:any,previousRequest?:MutableRefObject<(string | boolean)[]>,playlistComponent?:any,tipo?:any,showComment?:boolean,postId?:number,go?:(post:any,index:number)=>void,values?:any}){
     const PlaylistComponent=values.playlistComponent || null;
     const globals=useGlobal();
     const { server, navigate }=globals;
@@ -133,7 +133,7 @@ function Comentarios({previousRequest, postAtual, ...values}:{postAtual:any,prev
         refs.btn.current!.disabled=e.target.value.trim()==""; 
     };
     return values.showComment==undefined || values.showComment ? <div id="cmdd" className="comm">
-            {PlaylistComponent ? <PlaylistComponent postAtual={postAtual} values={values.values}></PlaylistComponent> : null}
+            {PlaylistComponent ? <PlaylistComponent postAtual={postAtual} server={server} postId={postId} go={go} values={values.values}></PlaylistComponent> : null}
             <div id="cmn">{count+(count>1 ? " Comentários" : " Comentário")}</div>
             <div id="cmd">
                 <form onSubmit={Comentar} id="cmf">

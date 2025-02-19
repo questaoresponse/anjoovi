@@ -61,9 +61,34 @@ function Types(){
                 var dj=post.d ? JSON.parse(post.d) : { o:"2024-01-01 00:00:00" };
                 var d=dj.o;
                 var texto=(post.texto || "").split(/\n/g).map((line:string)=>line ? line.split(" ") : []);
+
+                var containerAspect=0;
+                var imageAspect=0;
+                var isWidthBigger=false;
+                const matches = post.imagem ? post.imagem.match(/^(.*)(?=_\d+_p)/) : null;
+                var srcImagem={ isWidthBigger: false, containerAspect: 0, imageAspect: 0, originalFormat: true, src: "" };
+                if (matches) {
+                    const r_parsed = BigInt(parseInt(matches[1],36));
+                    const r = r_parsed >> 8n;
+                    if ((r_parsed & 1n)==1n && (cargo.current.cargo! & 4)==0){
+                        isWidthBigger = (r & (1n << 41n))!=0n;
+                        containerAspect=Number((r >> 39n) & ((1n << 2n) - 1n));
+                        containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
+                        imageAspect=(Number(r & ((1n << 39n) - 1n)) / 10000);
+                    } else {
+                        isWidthBigger = (r & (1n << 20n))!=0n;
+                        containerAspect=Number((r >> 18n) & ((1n << 2n) - 1n));
+                        containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
+                        imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
+                    }
+                    console.log(containerAspect);
+                    const originalFormat=containerAspect==0 && imageAspect==0;
+                    srcImagem={ isWidthBigger, containerAspect, imageAspect, originalFormat, src: server+"/images/"+encodeURIComponent(post.imagem) };
+                }
+
                 return {
                     isLoaded:true,
-                    srcImagem:server+"/images/"+encodeURIComponent(post.imagem),
+                    srcImagem,
                     titulo:(post.titulo || "").split(" "),
                     subtitulo:(post.subtitulo || "").split(" "),
                     logo:post.logo ? server+"/images/"+encodeURIComponent(post.logo) : null,

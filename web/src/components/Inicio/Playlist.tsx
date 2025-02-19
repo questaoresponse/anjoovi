@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo, useCallback } from 'react';
 import { useGlobal } from '../Global';
 import { useAuth } from '../Auth';
 import { useLocation } from 'react-router-dom';
@@ -20,6 +20,67 @@ interface postInterface{
     titulo:string[],
     tipo:string
 }
+const Nt=memo(({post,postId,values,onLinkClick,onLoaded,func,isMain}:{post:postInterface,postId:number,values:any,onLinkClick:()=>void,onLoaded:()=>void,func:(path:string,id:number)=>void,isMain:boolean})=>{
+    useEffect(()=>{
+        isMain && onLoaded!();
+    },[]);
+    var value:any;
+    switch (values.infos.tipo){
+        case 'post':
+            value=<Noticia isPlaylist={true} isMain={false} id={postId} post={values.currentInfos.post} onLinkClick={onLinkClick}/>;
+            break;
+        case 'post_imagem':
+            value=<Imagem isPlaylist={true} isMain={false} id={postId} post={values.currentInfos.post} onLinkClick={onLinkClick}/>;
+            break;
+        case "post_musica":
+            value=<Musica isPlaylist={true} isMain={false} id={postId} post={values.currentInfos.post} onLinkClick={onLinkClick}/>;
+            break;
+    }
+    return <div className='posts-div'>
+        {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/playlist/"+post.id+"?v=0",post.id)}} to={"/playlist/"+post.id+"?v=0"} id="plist disabled">
+            <div id="bottom">
+                <div id="content">
+                    {value}
+                </div>
+            </div>
+        </Link> : <div className="plist pm">
+            <div id="bottom">
+                <div id="content">
+                        {value}
+                </div>
+            </div>
+        </div>}
+    </div>
+});
+const playlistComponent=memo(({postAtual,values,server,postId,go}:{postAtual:any,values:any,server:string, postId:number, go:(post:any,index:number)=>void})=>{
+    return <div id="right">
+        <div id="titulo-playlist" className='txt'>{postAtual ? postAtual.titulo : ""}</div>
+        <div id="posts">
+            {/* <div id="pts" ref={refs.scroll}> */}
+                {values.infos.posts.map((info:any,index:number)=>{
+                    return (
+                        <div className={'post'+(info.post==postId ? " selected" : "")} key={index} onClick={()=>{go(info.post,index)}}>
+                            <div className='div_imagem'>
+                                <img src={server+"/images/"+encodeURIComponent(info.imagem)} alt="" />
+                            </div>
+                            <div className="titulo-post txt">{info.titulo}</div>
+                        </div>
+                    )
+                })}
+            {/* </div> */}
+        </div>
+        {/* <div ref={refs.previous} id="previous" className='h' onClick={toPrevious}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
+                <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+            </svg>
+        </div>
+        <div ref={refs.next} id="next" className='h' onClick={toNext}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
+                <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+            </svg>
+        </div> */}
+    </div>
+});
 function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:number,func?:any,isMain?:any,Elements?:any,post:any,onLinkClick:any,onLoaded?:()=>void}){
     var id=id;
     const globals=useGlobal();
@@ -152,28 +213,16 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
         }
     },[post]);
 
-    const go=(id:number,index:number)=>{
+    const go=useCallback((id:number,index:number)=>{
         setPostId(id);
         const u=new URLSearchParams(location.current.search);
         u.set("v",index.toString());
         const search="?"+u.toString();
         location.current.search=search;
         navigate!(location.current.pathname+search,{changeURL:false,lookTop:true});
-    }
-    let value:any;
-    if (values.infos && values.currentInfos.post){
-        switch (values.infos.tipo){
-            case 'post':
-                value=<Noticia isPlaylist={true} isMain={false} id={postId} post={values.currentInfos.post} onLinkClick={onLinkClick}/>
-                break;
-            case 'post_imagem':
-                value=<Imagem isPlaylist={true} isMain={false} id={postId} post={values.currentInfos.post} onLinkClick={onLinkClick}/>
-                break;
-            default:
-                value=<Musica isPlaylist={true} isMain={false} id={postId} post={values.currentInfos.post} onLinkClick={onLinkClick}/>
-                break;
-        }
-    }
+    },[]);
+    
+    
     // const toPrevious=()=>{
     //     currentScroll.current > 0 && (currentScroll.current-=1);
     //     if (currentScroll.current > 0){ 
@@ -214,65 +263,18 @@ function Playlist({id,func,isMain,Elements,post,onLinkClick,onLoaded}:{id?:numbe
         // }
         // // refs.scroll.current!.style.transform="translateX("+(currentScroll.current * -21)+"vw)";
     // });
-    const playlistComponent=({postAtual,values}:{postAtual:any,values:any})=>{
-        return <div id="right">
-            <div id="titulo-playlist" className='txt'>{postAtual ? postAtual.titulo : ""}</div>
-            <div id="posts">
-                {/* <div id="pts" ref={refs.scroll}> */}
-                    {values.infos.posts.map((info:any,index:number)=>{
-                        return (
-                            <div className={'post'+(info.post==postId ? " selected" : "")} key={index} onClick={()=>{go(info.post,index)}}>
-                                <div className='div_imagem'>
-                                    <img src={globals.server+"/images/"+encodeURIComponent(info.imagem)} alt="" />
-                                </div>
-                                <div className="titulo-post txt">{info.titulo}</div>
-                            </div>
-                        )
-                    })}
-                {/* </div> */}
-            </div>
-            {/* <div ref={refs.previous} id="previous" className='h' onClick={toPrevious}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
-                    <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
-                </svg>
-            </div>
-            <div ref={refs.next} id="next" className='h' onClick={toNext}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
-                    <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
-                </svg>
-            </div> */}
-        </div>
-    };
-    const Nt=({post}:{post:postInterface})=>{
-        useEffect(()=>{
-            isMain && onLoaded!();
-        },[]);
-        return <div className='posts-div'>
-            {!isMain ? <Link onClick={(e:eventInterface)=>{e.preventDefault();func("/playlist/"+post.id+"?v=0",post.id)}} to={"/playlist/"+post.id+"?v=0"} id="plist disabled">
-                <div id="bottom">
-                    <div id="content">
-                        {value}
-                    </div>
-                </div>
-            </Link> : <div className="plist pm">
-                <div id="bottom">
-                    <div id="content">
-                            {value}
-                    </div>
-                </div>
-            </div>}
-        </div>
-    }
-    return !isMain ? <Nt post={post}/> : (
+    
+    
+    return !isMain ? <Nt post={post} postId={postId} values={values} onLinkClick={onLinkClick} onLoaded={onLoaded!} func={func} isMain={isMain}/> : (
         <div>
             <div id="pg" className={'no cont playlist'}> 
             {/* {id ? <Ads solt="7693763089"/> : <></>} */}
                 <div id="bottom">
                     <div id="s1">
-                        <Nt post={post}></Nt>
+                        <Nt post={post} postId={postId} values={values} onLinkClick={onLinkClick} onLoaded={onLoaded!} func={func} isMain={isMain}></Nt>
                         <Elements></Elements>
                     </div>
-                    {!globals.mobile ? <Comentarios values={values} postAtual={post} playlistComponent={playlistComponent} tipo={post.tipo}/> : <></> }
+                    {!globals.mobile ? <Comentarios values={values} postAtual={post} postId={postId} go={go} playlistComponent={playlistComponent} tipo={post.tipo}/> : <></> }
                     {/* {!props.id && !globals.mobile && <Alta server={server} posts={infos.alta}/>} */}
                 </div>
             </div>

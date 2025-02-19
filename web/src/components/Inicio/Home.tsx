@@ -6,6 +6,7 @@ import './Home.scss';
 import Post from './Post.jsx';
 import Storie from './Storie.jsx';
 import Link from '../Link.tsx';
+
 interface postsInterface{
     isLoaded:boolean,
     canal:any[],

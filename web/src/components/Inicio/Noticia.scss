@@ -127,6 +127,18 @@
         max-height: 2.6em;
         max-lines: 2;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+    .texto-noticia.overflow{
+        max-height: 2.6em;
+        max-lines: 2;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+    .resumo-btn{
+        color: gray;
+        cursor: pointer;
+        width: fit-content;
     }
     .visualizacoes{
         font-size:120%;

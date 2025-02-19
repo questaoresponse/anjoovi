@@ -3,6 +3,11 @@
 use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Auth\HttpHandler\HttpHandlerFactory;
 use GuzzleHttp\Client;
+
+// Encontra todos os arquivos PHP na pasta
+
+require_once __DIR__ . "/../vendor/autoload.php";
+use MongoDB\BSON\fromJSON;
 class Oc{
     private $ch;
     private $response;
@@ -1437,7 +1442,7 @@ Route::get("/playlist/{id}",function($id){
             ) AS p2
             WHERE FIND_IN_SET(CASE WHEN p.tipo='post' THEN p2.id1 WHEN p.tipo='post_imagem' THEN p2.id2 ELSE p2.id3 END, REPLACE(REPLACE(REPLACE(p.posts, '[', ''), ']', ''),'\"',''))
         ) AS idd,
-        'pl' AS tipo, tipo AS post_tipo,
+        'pl' AS tipo, tipo AS post_tipo
     FROM playlist p WHERE id=? AND privado & 15=0",[$id]);
     if ($r->num_rows>0){
         $r=p($r)[0];
@@ -1445,6 +1450,7 @@ Route::get("/playlist/{id}",function($id){
             $r["id"]=$id;
             $response=["result"=>"true","usuario"=>$usuario,"post"=>$r];
             if (isset($_GET["i"])){
+                $views_id=$r["views_id"];
                 $response["posts"]=getAlgoritmoNoticia(false,$conn,$usuario,$views_id,0,24);
             }
             response()->json($response);
@@ -3048,27 +3054,52 @@ Route::post("/ups",function(){
 //         }
 //     }
 // });
-Route::post("/ajeitar",function(){
-    $conn=$GLOBALS["conn"];
-    $r=p($conn->query("SELECT imagem,id FROM post_imagem WHERE JSON_UNQUOTE(JSON_EXTRACT(d,'$.o'))>1739481600"));
-    foreach ($r as $r2){
-        $images=json_decode($r2["imagem"],true);
-        $new_images=[];
-        foreach ($images as $image){
-            if (preg_match("/^([A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*)(_\d+_i.*)/",$image,$matches)){
-                $number=base_convert($matches[1],36,10);
-                $new_number=($number >> 26);
-                if ($new_number > 6 && ($number & 1)==0){
-                    $number=0;
-                }
-                $file=base_convert($number,10,36) . $matches[2];
-                array_push($new_images,$file);
-            }
-        };
-        $new_images=json_encode($new_images);
-        $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$new_images,$r2["id"]]);
-    }
-});
+// Route::post("/ajeitar",function(){
+//     $conn=$GLOBALS["conn"];
+//     $r=p($conn->query("SELECT imagem,id FROM post_imagem WHERE JSON_UNQUOTE(JSON_EXTRACT(d,'$.o'))>1739481600"));
+//     foreach ($r as $r2){
+//         $images=json_decode($r2["imagem"],true);
+//         $new_images=[];
+//         foreach ($images as $image){
+//             if (preg_match("/^([A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*)(_\d+_i.*)/",$image,$matches)){
+//                 $number=base_convert($matches[1],36,10);
+//                 $new_number=($number >> 26);
+//                 if ($new_number > 6 && ($number & 1)==0){
+//                     $number=0;
+//                 }
+//                 $file=base_convert($number,10,36) . $matches[2];
+//                 array_push($new_images,$file);
+//             }
+//         };
+//         $new_images=json_encode($new_images);
+//         $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$new_images,$r2["id"]]);
+//     }
+// });
+// Route::post("/mongo",function(){
+//     $conn=$GLOBALS["conn"];
+//     $data=p($conn->query("SELECT * FROM views"));
+//     $document = MongoDB\BSON\Document::fromPHP($data);
+//     $content=$document->__toString();
+//     $compressedData=gzencode($content,9);
+//     header('Content-Encoding: gzip');
+//     header('Content-Type: text/plain');
+//     header('Content-Length: ' . strlen($compressedData));
+
+//     // Enviar os dados comprimidos
+//     echo $compressedData;
+// });
+// Route::post("/mongo2",function(){
+//     $conn=$GLOBALS["conn"];
+//     $data=p($conn->query("SELECT * FROM views"));
+//     $content=json_encode($data);
+//     $compressedData=gzencode($content,9);
+//     header('Content-Encoding: gzip');
+//     header('Content-Type: text/plain');
+//     header('Content-Length: ' . strlen($compressedData));
+
+//     // Enviar os dados comprimidos
+//     echo $compressedData;
+// });
 // Route::post("/ajeitar",function(){
 //     $conn=$GLOBALS["conn"];
 //     $results=p($conn->query("SELECT imagem,id FROM post_imagem"));
@@ -3131,6 +3162,33 @@ Route::post("/ajeitar",function(){
 //     // }
 //     // echo json_encode(["time"=>$t1, "time2"=>$t2]);
 // });
+Route::post("/ajeitar",function(){
+    $conn=$GLOBALS["conn"];
+    $r=p($conn->prepare("SELECT imagem,id FROM post WHERE usuario=?"));
+    foreach ($r as $line){
+        $imagesDir=__DIR__ . "/../public_html/images/";
+        $imagem=$line["imagem"];
+        $dimensions=getimagesize($imagesDir . $imagem);
+        $imagem="_" . $line["id"] . "_p_file.webp";
+        $width=$dimensions[1];
+        $height=$dimensions[2];
+        $containerWidth=0;
+        $containerHeight=0;
+        $elementWidth=0;
+        $elementHeight=0;
+        if ($width < $height){
+            $containerWidth=$width/$height;
+            $containerHeight=1;
+        } else {
+            $containerWidth=1;
+            $containerHeight=$height/$width;
+        }
+        $isWidthBigger=($width < $height ? 1 : 0) << 28;
+        $containerAspect=intval($containerWidth / $containerHeight * 10000) << 26;
+        $elementAspect=(intval($imageWidth / $imageHeight * 10000) & ((1 << 18) - 1)) << 8;
+        $number=$isWidthBigger | $containerAspect | $elementAspect;
+    }
+});
 Route::post("/functions",function(){
     if (isset($_POST["key"]) && $_POST["key"]=="7894j96~-[njd98n705yfhq´-d3=rfekk9"){
         $type=$_POST["type"];

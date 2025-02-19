@@ -11,19 +11,12 @@ function PlaylistsCadastro(){
     const [dados,setDados]=useState<{id:number,titulo:string}[]>([]);
     const [list,setList]=useState<{post:{titulo:string | null,id:number | null},ref:React.RefObject<HTMLDivElement>}[]>([{post:{titulo:null,id:null},ref:createRef<HTMLDivElement>()}]);
     const open_current=useRef<number>();
+    const [showAdd,setShowAdd]=useState(false);
     const refs={
         titulo:useRef<HTMLInputElement>(null),
         input:useRef<HTMLInputElement>(null),
         error:useRef<HTMLDivElement>(null),
         uploaded:useRef<HTMLDivElement>(null),
-        add:useRef<HTMLDivElement>(null),
-    }
-    const setIsAdd=(value:boolean)=>{
-        if (value){
-            refs.add.current!.classList.replace("f","a");
-        } else {
-            refs.add.current!.classList.replace("a","f");
-        }
     }
     const showError=()=>{
         refs.error.current!.classList.replace("f","a");
@@ -57,7 +50,7 @@ function PlaylistsCadastro(){
                     // reseta as informacoes existentes
                     setList([{post:{titulo:null,id:null},ref:createRef<HTMLDivElement>()}]);
                     setIsPesquisa(false);
-                    setIsAdd(false);
+                    setShowAdd(false);
                     refs.titulo.current!.value="";
                 }
             });
@@ -85,20 +78,12 @@ function PlaylistsCadastro(){
         // reseta as informacoes existentes
         setList([{post:{titulo:null,id:null},ref:createRef<HTMLDivElement>()}]);
         setIsPesquisa(false);
-        setIsAdd(false);
+        setShowAdd(false);
     }
     const select=(titulo:string,id:number)=>{
         setList(list=>{
             list[open_current.current!].post={titulo,id};
-            if (list.filter(list=>!list.post.id).length>0){
-                if (refs.add.current!.classList.contains("a")){
-                    setIsAdd(false);
-                }
-            } else {
-                if (!refs.add.current!.classList.contains("a")){
-                    setIsAdd(true);
-                }
-            }
+            setShowAdd(list.filter(list=>!list.post.id).length==0);
             quitMenu();
             return list;
         });
@@ -109,7 +94,12 @@ function PlaylistsCadastro(){
         setList(list=>list.concat({post:{titulo:null,id:null},ref:createRef<HTMLDivElement>()}));
 
         // retira o 'adicionar'
-        setIsAdd(false);
+        setShowAdd(false);
+    }
+    const removeItem=(index:number)=>{
+        if (index==0) return;
+        setList(list=>list.filter((_,i)=>i!=index));
+        setShowAdd(list.filter(list=>!list.post.id).length==0);
     }
     return (
         <div id="pg" className="pc">
@@ -130,13 +120,14 @@ function PlaylistsCadastro(){
                             return (
                                 <div className='item-list' key={index}>
                                     <div ref={el.ref} className='title-list txt-1'>{el.post.titulo}</div>
-                                    <div className='add-list' onClick={()=>{showSearch(index)}}>+</div>
+                                    <div className='add-item' onClick={()=>{showSearch(index)}}>+</div>
+                                    <div className={'remove-item' + (index==0 ? " disabled" : "")} onClick={()=>{removeItem(index)}}>-</div>
                                 </div>
 
                             )
                         })}
                     </div>
-                    <div ref={refs.add} className='f' onClick={addItem}>adicionar</div>
+                    <div className='add-btn' style={{display:showAdd ? "block" : "none"}} onClick={addItem}>adicionar</div>
                     <button type="submit" id="button">Enviar</button>
                 </form>
                 <div style={{display:isPesquisa ? "block" : "none"}} id="pesquisa">

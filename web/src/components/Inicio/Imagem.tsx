@@ -72,15 +72,18 @@ const Nt=memo(({descricao,post,size,index,onLinkClick,isValidURL,onLoaded,func,s
             </div>
         </Link> : <div className="p-imagem pm">
             <Conteudo infos={post} auth={auth} globals={globals}></Conteudo> 
-            {summarized ? <div className='descricao-resumo-imagem'><div className="descricao-imagem txt overflow" ref={descricao}>{post.text.map((line:string[],i:number)=>{
-                return <div key={String(i)}>
-                    {line.map((texto:string,index:number)=>{
-                        return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )
-                    })}
-                    <br></br>
-                </div>
-            })}</div><div className='resumo-btn' onClick={()=>setSummarized(false)}>Ler mais...</div></div> : 
-            <div className={"descricao-imagem txt " + (!isMain ? " resumo" : "")} ref={descricao}>{post.text.map((line:string[],i:number)=>{
+            {summarized ? <div className='descricao-resumo-imagem'>
+                <div className="descricao-imagem txt overflow" ref={descricao}>{post.text.map((line:string[],i:number)=>{
+                    return <div key={String(i)}>
+                        {line.map((texto:string,index:number)=>{
+                            return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )
+                        })}
+                        <br></br>
+                    </div>
+                })}</div>
+                <div className='resumo-btn' onClick={()=>setSummarized(false)}>Ler mais...</div>
+            </div> : 
+            <div className="descricao-imagem txt" ref={descricao}>{post.text.map((line:string[],i:number)=>{
                 return <div key={String(i)}>
                     {line.map((texto:string,index:number)=>{
                         return texto.length>1 && (texto[0]=="#" || texto[0]=="@") ? <Link className='tag' key={String(i)+String(index)} to={texto[0]=="#" ? "/busca?q="+encodeURIComponent(texto) : "/@"+encodeURIComponent(texto.slice(1))}>{texto + ( line.length-1>index ? " " : "" )}</Link> : isValidURL(texto) ? <div key={index} className='tag' onClick={()=>onLinkClick(texto)}>{texto}</div> : texto + ( line.length-1>index ? " " : "" )

@@ -588,88 +588,114 @@ Route::post("/admin/noticias_cadastro", function(){
                 // if (!session()->has("key")) return;
                 $conn = $GLOBALS["conn"];
                 $dados=request()->all();
-                ['titulo'=>$titulo ] = $_POST;
-                $permission=($GLOBALS["cargo"] & 4)==4 ? ($_POST["permission"]=="0" ? 0 : 2) : 0;
+                $isCadastro=$type=="cadastro";
+                $permission=($GLOBALS["cargo"] & 4)==4 && isset($dados["permission"]) && $dados["permission"]==2 ? 2 : 0;
+                if (!isset($dados["titulo"]) || !isset($dados["original_format"]) || ($permission==2 && !isset($dados["original_format_premium"])) || ($isCadastro && (!isset($_FILES["imageFile"]) || ($permission==2 && !isset($_FILES["imageFilePremium"]))))) return response()->json(["result"=>"false"]);
+
+                ["titulo"=>$titulo, "original_format"=>$original_format] = $_POST;
+                
                 // if (strlen($titulo)==0) return;
                 $subtitulo=isset($dados["subtitulo"]) ? $dados["subtitulo"] : null;
-                $original_format=isset($dados["original_format"]);
-                $original_format_d=isset($dados["original_format_d"]);
+                $texto=isset($dados["texto"]) ? $dados["texto"] : null;
+                $original_format_premium=$permission==2 ? $dados["original_format_premium"] : null;
+
                 $acessos=0;
-                $texto=null;
-                $old_image=null;
-                $imagem=null;
                 $old_permission=0;
-                $d=null;
+                // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
                 $id=null;
+                $d=null;
+                $image=null;
                 if ($isCadastro){
                     $id=intval(p($conn->query("SELECT COALESCE(MAX(id) + 1, 1) AS id FROM post"))[0]["id"]);
                 } else {
                     $id=$_POST["id"];
-                    $result=$conn->prepare("SELECT imagem,privado,d FROM post WHERE usuario=? AND id=?",[$usuario,$id]);
+                    $result=$conn->prepare("SELECT privado,imagem,d FROM post WHERE usuario=? AND id=?",[$usuario,$id]);
                     if ($result->num_rows>0){
-                        ["imagem"=>$imagem,"privado"=>$old_permission,"d"=>$d]=p($result)[0];
-                        $old_image=$imagem;
-                        $old_permission=intval($permission) & 2;
+                        ["privado"=>$privado,"imagem"=>$image,"d"=>$d]=p($result)[0];
+                        $old_permission=$privado & 2;
                     } else {
                         return response()->json(["result"=>"false","type"=>"id"]);
                     }
                 }
-                $texto=isset($dados["texto"]) ? $dados["texto"] : null;
-                $hasDImage=$permission==2;
-                // $conn->query("CREATE TABLE IF NOT EXISTS post(usuario TEXT, categoria TEXT, destaque TEXT, titulo TEXT, subtitulo TEXT, texto TEXT, imagem TEXT, acessos INT, id INT)");
-                if (($isCadastro || isset($dados["imagens_edit"])) && (request()->has("imagem") || ($hasDImage && request()->has("dImagem")))) {
-                    $file = request()->file("imagem");
-                    $dFile = request()->has("dImagem") ? request()->file("dImagem") : null;
-                    if (mime_content_type($file->file["tmp_name"]) === 'image/jpeg' || mime_content_type($dFile->file["tmp_name"]) === 'image/jpeg'){
-                        $caminhoDestino = __DIR__ . "/../public_html/images/";
-                        $filename=null;
-                        if (!$imagem || ($imagem && $file)){
-                            if ($imagem){
-                                unlink($caminhoDestino . $imagem);
-                            }
-                            $filename = $file->getClientOriginalName("webp");
-                            $imagem=(($permission & 2)==2 ? "p_" : "") . (!$original_format ? "r_" : "") . $id . "_p_" . $filename;
-                            $file->createwebp($caminhoDestino,$imagem);
-                            $img=imagem($caminhoDestino.$imagem);
-                        } else {
-                            $filename=$imagem;
-                        }
-                        if ($permission==2 && $dFile){
-                            if ($old_permission){
-                                unlink($caminhoDestino . substr($imagem,2));
-                            }
-                            if ($hasDImage && $dFile){
-                                $dImagem=(!$original_format ? "r_" : "") . $id . "_p_" . $filename;
-                                $dFile->createwebp($caminhoDestino,$dImagem);
-                                $img=imagem($caminhoDestino.$dImagem);
-                            }
-                        }
-                        // if permission has changed and new permission is public;
-                        // Salvar a imagem em um diretório
-                    } else {
-                        return response()->json(["result"=>"false","type"=>"mimeType"]);
+                if ($old_permission!=$permission && $permission==2 && !isset($_FILES["imageFilePremium"])) return response()->json(["result"=>"false"]);
+                if ($isCadastro && request()->has("imageFile") && (($permission==2 && request()->has("imageFilePremium")) || ($permission==0))) {
+                    $caminhoDestino = __DIR__ . "/../public_html/images/";
+                    $file = request()->file("imageFile");
+                    $number=$permission==2 ? 1 : 0;
+                    $flag_premium=0;
+                    if ($permission==2){
+                        $filePremium=request()->file("imageFilePremium");
+                        // deactive the frist bit, because its file is visible for all users non-premium;
+                        // reset the bits between 28 and 63 and shift the bits between 0 and 27 to 8 positions, leaving free the firsts 8 bits;
+                        $flag=$original_format_premium & ((1 << 21) - 1);
+                        $flag_premium=$flag << 29;
+                        $flag=2 | ($flag << 8);
+                        $dImage=base_convert($flag,10,36) . "_" . $id . "_p_premium.webp";
+                        $filePremium->createwebp($caminhoDestino,$dImage);
                     }
-                } else {
-                    if ($isCadastro){
-                        return response()->json(["result"=>"false","type"=>"image"]);
-                    }
+                    // reset the bits between 28 and 63 and shift the bits between 0 and 27 to 8 positions, leaving free the firsts 8 bits;
+                    // set 1 to first
+                    $flag=$number | (($original_format & ((1 << 21) - 1)) << 8) | $flag_premium;
+                    $image=base_convert($flag,10,36) . "_" . $id . "_p_file.webp";
+                    $file->createwebp($caminhoDestino,$image);
+                } else if ($isCadastro){
+                    return response()->json(["result"=>"false","type"=>"image"]);
                 }
-                if ($permission==0 && $permission!=$old_permission){
-                    unlink(__DIR__ . '/../public_html/images/' . substr($old_image,2));
+                if (!$isCadastro){
+                    $caminhoDestino = __DIR__ . "/../public_html/images/";
+                    $number=$permission==2 ? 1 : 0;
+                    $flag_premium=0;
+                    $new_images=[];
+                    if ($old_permission!=0 || $permission!=0){
+                        if ($old_permission==$permission){
+                            preg_match("/^(.*)(_\d+_p)/",$images[0],$matches);
+                            $flag=(base_convert($matches[1],36,10) >> 29) & ((1 << 21) - 1);
+                            $flag=2 | ($flag << 8);
+                            $old_file=base_convert($flag,10,36) . $matches[2] . "_premium.webp";
+
+                            $flag=0;
+                            $flag=$original_format_premium & ((1 << 21) - 1);
+                            $flag_premium=$flag << 29;
+                            $flag=2 | ($flag << 8);
+                            $file=base_convert($flag,10,36) . "_" . $id . "_p_premium.webp";
+                            rename($caminhoDestino . $old_file, $caminhoDestino . $file);
+                        } else {
+                            if ($permission==2){
+                                $filePremium=request()->file("imageFilePremium");
+                                $flag=$original_format_premium & ((1 << 21) - 1);
+                                $flag_premium=$flag << 29;
+                                $flag=2 | ($flag << 8);
+                                $dImage=base_convert($flag,10,36) . "_" . $id . "_p_premium.webp";
+                                $filePremium->createwebp($caminhoDestino,$dImage);
+                            } else {
+                                preg_match("/^(.*)(_\d+_p)/",$images[0],$matches);
+                                $number=((base_convert($matches[1],36,10) >> 29) << 8) | 2;
+                                $file=base_convert($number,10,36) . $matches[2] . "_premium.webp";
+                                unlink($caminhoDestino . $file);
+                            }
+                        }
+                    }
+
+                    $original_format=isset($original_formats[$i]) ? $original_formats[$i] : 0;
+                    preg_match("/^(.*)(_\d+_p_.*)/",$image,$matches);
+                    $flag=$number | (($original_format & ((1 << 21) - 1)) << 8) | $flag_premium;
+                    $file=base_convert($flag,10,36) . $matches[2];
+                    rename($caminhoDestino . $image, $caminhoDestino . $file);
+                    $image=$file;
                 }
                 if ($isCadastro){
                     $conn = $GLOBALS["conn"];
                     $d=get_d();
                     $views_id=get_views_id($conn);
                     $conn->prepare("INSERT INTO post(nome,usuario,titulo,subtitulo,texto,imagem,acessos,views_id,id,d,privado) 
-                        SELECT nome, usuario, ? AS titulo, ? AS subtitulo, ? AS texto, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d,(CASE WHEN cargo & 1=1 THEN ? | 8 ELSE ? END) AS privado FROM user WHERE usuario=?",[$titulo,$subtitulo,$texto,$imagem,$acessos,$views_id,$id,$d,$permission,$permission,$usuario]);
+                        SELECT nome, usuario, ? AS titulo, ? AS subtitulo, ? AS texto, ? AS imagem, ? AS acessos, ? AS views_id, ? AS id, ? AS d,(CASE WHEN cargo & 1=1 THEN ? | 8 ELSE ? END) AS privado FROM user WHERE usuario=?",[$titulo,$subtitulo,$texto,$image,$acessos,$views_id,$id,$d,$permission,$permission,$usuario]);
                     insert_views($conn,$usuario,"post",$views_id,$id);
                     add_n_posts($usuario,$conn);
                 } else {
                     $d=json_decode($d,true);
                     $d["a"]=get_updated_date();
                     $d=json_encode($d);
-                    $conn->prepare("UPDATE post SET titulo=?,subtitulo=?,texto=?,imagem=?,d=?,privado=CASE WHEN ?==2 THEN privado | 2 ELSE privado & ~2 END WHERE usuario=? AND id=?",[$titulo,$subtitulo,$texto,$imagem,$d,$permission,$usuario,$id]);
+                    $conn->prepare("UPDATE post SET titulo=?,subtitulo=?,texto=?,imagem=?,d=?,privado=CASE WHEN ?==2 THEN privado | 2 ELSE privado & ~2 END WHERE usuario=? AND id=?",[$titulo,$subtitulo,$texto,$image,$d,$permission,$usuario,$id]);
                 }
                 response()->json(["result"=>"true","usuario"=>$usuario]);
             }
@@ -926,378 +952,6 @@ Route::post("/admin/24_lista",function(){
         login();
     }
 });
-Route::post("/admin/denuncias_lista",function(){
-    $usuario=$GLOBALS["user"];
-    if ($usuario){
-        $cargo=$GLOBALS["cargo"];
-        if (($cargo & 2)==2){
-            $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
-            function gpa($type){
-                $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-                $usuario=$GLOBALS["user"];
-                $conn=$GLOBALS["conn"];
-                $s=null;
-                $num=null;
-                $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
-                $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
-                $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
-                if ($type=="pesquisa"){
-                    $s=$conn->prepare("SELECT id,titulo,num,post_tipo,post_id,d FROM denuncia WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search]);
-                    $num=$conn->prepare("SELECT COUNT(*) AS num FROM denuncia WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search]);
-                } else {
-                    $s=$conn->query("SELECT id,titulo,num,post_tipo,post_id,d FROM denuncia GROUP BY post_id,post_tipo ORDER BY id DESC LIMIT $n,10");
-                    $num=$conn->query("SELECT COUNT(*) AS num FROM denuncia");
-                }
-                $r=p($s);
-                $num=p($num)[0]["num"];
-                response()->json(["result"=>"true","noticias"=>$r,"n_registros"=>$num,"usuario"=>$usuario]);
-            }
-            if (request("type")=="info"){
-                gpa($tipo);
-            } else if (request("type")=="option"){
-                if ($tipo=="normal"){
-                    $cargo=$GLOBALS["cargo"];
-                    $id=intval(request("id"));
-                    $conn = $GLOBALS["conn"];
-                    //$s=$conn->prepare("SELECT * FROM post WHERE usuario=?AND privado=0",[$usuario]);
-                    // unlink(__DIR__ . "/../images/" . p($result)[0]["imagem"]);
-                    //$s=$conn->prepare("DELETE FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
-                    if (($cargo & 2)==2){
-                        $conn->prepare("DELETE FROM denuncia WHERE id=?",[$id]);
-                    } else {
-                        $conn->prepare("DELETE FROM denuncia WHERE usuario=? AND id=?",[$usuario,$id]);
-                    }
-                    gpa($tipo);
-                } else {
-                    gpa($tipo);
-                }
-                // $num=$conn->query("SELECT COUNT(*) AS num FROM post WHERE usuario")
-            } else {
-                response()->json(["result"=>"false"]);
-            }
-        } else {
-            r404();
-        }
-    } else {
-        login();
-    }
-});
-Route::post("/admin/denuncias_infos/{id}",function($id){
-    $usuario=$GLOBALS["user"];
-    if ($usuario){
-        $cargo=$GLOBALS["cargo"];
-        if (($cargo & 2)==2){
-            $conn=$GLOBALS["conn"];
-            $result=$conn->prepare("SELECT * FROM denuncia WHERE id=?",[$id]);
-            if ($result->num_rows>0){
-                $result=p($result)[0];
-                response()->json(["result"=>"true","tipos"=>$result["tipo"],"datas"=>$result["d"]]);
-            } else {
-                r404();
-            }
-        } else {
-            r404();
-        }
-    } else {
-        login();
-    }
-});
-Route::get("/admin/settings",function(){
-    $GLOBALS["user"] || header("location:/admin");
-    include(__DIR__ . '/../public_html/templates/main/main.html');
-});
-Route::post("/admin/settings",function(){
-    
-    $usuario=$GLOBALS["user"];
-    if ($usuario){
-    if (request("type")=="info"){
-        $conn = $GLOBALS["conn"];
-        $config=$conn->prepare("SELECT usuario,logo,banner FROM user WHERE usuario=?",[$usuario]);
-        $config=p($config)[0];
-        response()->json(["config"=>$config,"usuario"=>$usuario]);
-    } else if (request("type")=="option"){
-        $type=request()->query("type");
-        $conn = $GLOBALS["conn"];
-        $config=$conn->prepare("SELECT logo,banner,id FROM user WHERE usuario=?",[$usuario]);
-        $config=p($config)[0];
-        if ($type=="logo"){
-            if (request("operation")=="d"){
-                if (isset($config["logo"])){
-                    unlink(__DIR__ . "/../public_html/images/" . $config["logo"]);
-                }
-                $s=$conn->prepare("UPDATE user SET logo=NULL WHERE usuario=?",[$usuario]);
-            } else {
-                if (isset($config["logo"])){
-                    unlink(__DIR__ . "/../public_html/images/" . $config["logo"]);
-                }
-                $logo=null;
-                if (request()->has("logo")) {
-                    $file = request()->file("logo");
-                    $caminhoDestino = __DIR__ . "/../public_html/images/";
-                    $logo = $file->getClientOriginalName();
-                    $logo=$config["id"] . "_logo_" . $logo;
-                    $file->move($caminhoDestino,$logo);
-                    // Caminho para a imagem original
-                    $img=imagem($caminhoDestino.$logo);
-                    $img->resize(800,800);
-                }
-                $s=$conn->prepare("UPDATE user SET logo=? WHERE usuario=?",[$logo,$usuario]);
-                response()->json(["result"=>"true","usuario"=>$usuario,"lsrc"=>$logo]);
-            }
-        }
-        if ($type=="banner"){
-            if (request("operation")=="d"){
-                if (isset($config["banner"])){
-                    unlink(__DIR__ . "/../public_html/images/" . $config["banner"]);
-                }
-                $s=$conn->prepare("UPDATE user SET banner=NULL WHERE usuario=?",[$usuario]);
-            } else {
-                if (isset($config["banner"])){
-                    unlink(__DIR__ . "/../public_html/images/" . $config["banner"]);
-                }
-                $banner=null;
-                if (request()->has("banner")) {
-                    $file = request()->file("banner");
-                    $caminhoDestino = __DIR__ . "/../public_html/images/";
-                    $banner = $file->getClientOriginalName();
-                    $banner=$config["id"] . "_banner_" . $banner;
-                    $file->move($caminhoDestino,$banner);
-                    $img=imagem($caminhoDestino.$banner);
-                    $img->resize(2048,512);
-                }
-                $s=$conn->prepare("UPDATE user SET banner=? WHERE usuario=?",[$banner,$usuario]);
-                response()->json(["result"=>"true","usuario"=>$usuario,"banner"=>$banner]);
-            }
-        }
-    } else {
-        response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/settings/main.html'));
-    }
-    } else {
-        login();
-    }
-});
-// Route::get("/admin/usuarios",function(){
-//     $usuario=$GLOBALS["user"];
-//     if ($usuario){
-//         $cargo=$GLOBALS["cargo"];
-//         ($cargo & 2)==2 ? include(__DIR__ . '/../public_html/templates/main/main.html') : header("location:/erro?origin=/");
-//     } else {
-//         header("location:/erro?origin=/");
-//     }
-// });
-// Route::post("/admin/usuarios",function(){
-//     $usuario=$GLOBALS["user"];
-//     $cargo=$GLOBALS["cargo"];
-//     if ($usuario && ($cargo & 2)==2){
-//         if (request("type")=="info"){
-//             $conn = $GLOBALS["conn"];
-//             $s=$conn->prepare("SELECT nome,usuario,banner FROM user WHERE usuario!=?",[$usuario]);
-//             $r=p($s);
-//             response()->json(["usuarios"=>$r]);
-//         } else {
-//             response()->json(file_get_contents(__DIR__ . '/../public_html/templates/lista_usuarios/main.html'));
-//         }
-//     } else {
-//         login();
-//     }
-//     // include(__DIR__ . '/../public_html/templates/admin/lista_usuarios/index.php');
-// });
-Route::get("/admin/metricas",function(){
-    $GLOBALS["user"] || header("location:/admin");
-    include(__DIR__ . '/../public_html/templates/main/main.html');
-});
-Route::post("/admin/metricas",function(){
-    
-    $usuario=$GLOBALS["user"];
-    if ($usuario){
-        if (request("type")=="info"){
-        $cargo=$GLOBALS["cargo"];
-        $conn = $GLOBALS["conn"];
-        $p=null;
-        $total_u=null;
-        if (($cargo & 2)==2){
-            $p=$conn->query("SELECT tipo,d2,d FROM views WHERE tipo!='playlist'");
-            // $result=p($conn->query("SELECT * FROM views_atual"));
-            // $d=new DateTime();
-            // foreach($result as $v){
-            //     $dv=$v["d"];
-            //     $dv=DateTime::createFromFormat('Y-m-d H:i:s', $dv);
-            //     $dv->modify('+10 seconds');
-            //     if ($d>$dv){
-            //         $conn->prepare("DELETE FROM views_atual WHERE id=?",[$v["id"]]);
-            //     }
-            // }
-            // $total_u=p($conn->query("SELECT tipo,usuario FROM views_atual"));
-            $total_u=p($conn->query("SELECT usuario,peer_tokens FROM user WHERE online=2"));
-        } else {
-            $p=$conn->prepare("SELECT tipo,d2,d FROM views WHERE usuario=? AND tipo!='playlist'",[$usuario]);
-        }
-        $p=p($p);
-        response()->json(["posts"=>$p,"total_u"=>$total_u,"usuario"=>$usuario]);
-        } else {
-            response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/grafico/main.html'));
-        }
-    } else {
-        login();
-    }
-});
-// Route::post("/admin/metricas",function(){
-//     $usuario=$GLOBALS["user"];
-//     if ($usuario){
-//         if (request("type")=="info"){
-//             $cargo=$GLOBALS["cargo"];
-//             $conn = $GLOBALS["conn"];
-//             $r=null;
-//             $total_u=null;
-//             $t1=0;
-//             $t2=0;
-//             if (($cargo & 2)==2){
-//                 $r=p($conn->query("SELECT tipo,d2,d FROM views WHERE tipo!='playlist'"));
-//                 $t1=strlen(json_encode($r));
-//                 $ba=microtime(true);
-//                 $r2=p($conn->query("SELECT id,usuario FROM user"));
-//                 $users=[];
-//                 foreach ($r2 as $l){
-//                     $users[$l["usuario"]]=intval($l["id"]);
-//                 }
-//                 for ($i=0;$i<count($r);$i++){
-//                     $c=$r[$i];
-//                     $p=json_decode($c["d2"],true);
-//                     $a=[];
-//                     try{
-//                         foreach ($p as $y=>$yv){
-//                             // $y=bin2hex(pack("S",$y));
-//                             $a[$y]=[];
-//                             foreach ($yv as $d=>$dv){
-//                                 // $d=bin2hex(pack("S",$d));
-//                                 $a[$y][$d]=[];
-//                                 foreach ($dv as $array=>$arrayv){
-//                                     $anterior=0;
-//                                     foreach ($arrayv as $time=>$timev){
-//                                         // $codigo=0;
-//                                         // foreach (str_split($timev) as $char) {
-//                                         //     $codigo = $codigo * 256 + ord($char);  // Cria um número a partir da string
-//                                         // }
-//                                         $t=intval(strtotime($time) / 1000);
-//                                         $d=$t-$anterior;
-//                                         // echo $t,$anterior;
-//                                         $id=$timev && is_string($timev) && isset($users[$timev]) ? $users[$timev] : 0;
-//                                         $a[$y][$d][$array][]=( $id << 22) | $d;
-//                                         $anterior=$t;
-//                                     }
-//                                 }
-//                             }
-//                         }
-//                         $r[$i]["d2"]=json_encode($a);
-//                         $d=json_decode($r[$i]["d"],true)["o"];
-//                         $r[$i]["d"]=json_encode(["d"=>strtotime($d) / 1000]);
-//                     } catch (Exception $e){
-//                         echo $e->getMessage();
-//                         $r[$i]=[];
-//                     }
-//                 }
-//                 // $result=p($conn->query("SELECT * FROM views_atual"));
-//                 // $d=new DateTime();
-//                 // foreach($result as $v){
-//                 //     $dv=$v["d"];
-//                 //     $dv=DateTime::createFromFormat('Y-m-d H:i:s', $dv);
-//                 //     $dv->modify('+10 seconds');
-//                 //     if ($d>$dv){
-//                 //         $conn->prepare("DELETE FROM views_atual WHERE id=?",[$v["id"]]);
-//                 //     }
-//                 // }
-//                 // $total_u=p($conn->query("SELECT tipo,usuario FROM views_atual"));
-//                 $total_u=p($conn->query("SELECT usuario,peer_tokens FROM user WHERE online=2"));
-//             } else {
-//                 $r=p($conn->prepare("SELECT tipo,d2,d FROM views WHERE usuario=? AND tipo!='playlist' AND tipo!='musica' AND tipo!='post_musica'",[$usuario]));
-//                 $ba=microtime(true);
-//                 $r2=p($conn->query("SELECT id,usuario FROM user"));
-//                 $users=[];
-//                 foreach ($r2 as $l){
-//                     $users[$l["usuario"]]=intval($l["id"]);
-//                 }
-//                 $t1=0;
-//                 $t2=0;
-//                 for ($i=0;$i<count($r);$i++){
-//                     $c=$r[$i];
-//                     $t1+=strlen($c["d2"]);
-//                     $p=json_decode($c["d2"],true);
-//                     $a=[];
-//                     try{
-//                         foreach ($p as $y=>$yv){
-//                             // $y=bin2hex(pack("S",$y));
-//                             $a[$y]=[];
-//                             foreach ($yv as $d=>$dv){
-//                                 // $d=bin2hex(pack("S",$d));
-//                                 $a[$y][$d]=[];
-//                                 foreach ($dv as $array=>$arrayv){
-//                                     $anterior=0;
-//                                     foreach ($arrayv as $time=>$timev){
-//                                         // $codigo=0;
-//                                         // foreach (str_split($timev) as $char) {
-//                                         //     $codigo = $codigo * 256 + ord($char);  // Cria um número a partir da string
-//                                         // }
-//                                         $t=intval(strtotime($time) / 1000);
-//                                         $d=$t-$anterior;
-//                                         // echo $t,$anterior;
-//                                         $id=$timev && is_string($timev) && isset($users[$timev]) ? $users[$timev] : 0;
-//                                         $a[$y][$d][$array][]=( $id << 22) | $d;
-//                                         $anterior=$t;
-//                                     }
-//                                 }
-//                             }
-//                         }
-//                         $r[$i]=gzcompress(json_encode($a));
-//                     } catch (Exception $e){
-//                         echo $e->getMessage();
-//                         $r[$i]=[];
-//                     }
-//                 }
-//             }
-//             $zi=microtime(true);
-//             $t2=strlen(json_encode($r));
-//             $compressedData=json_encode(["a"=>$t2/$t1,"b"=>$t2,"c"=>$t1,"posts"=>$r,"total_u"=>$total_u,"usuario"=>$usuario,"t"=>$zi-$ba]);
-//             // header('Content-Type: application/octet-stream');  // Ou um tipo adequado dependendo dos dados
-//             // header('Content-Length: ' . strlen($compressedData));  // Tamanho dos dados comprimidos
-
-//             // Enviar os dados comprimidos para o cliente
-//             echo $compressedData;
-//         } else {
-//             response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/grafico/main.html'));
-//         }
-//     } else {
-//         login();
-//     }
-// });
-Route::get("/admin/sair",function(){
-    session()->forget("key");
-    return redirect("/");
-});
-Route::post("/admin/sair",function(){
-    // session()->forget("key");
-    // response()->json(["header_location"=>"/"]);
-    $user=$GLOBALS["user"];
-    if ($user){
-        $GLOBALS["cargo"]=128;
-        $token=isset($_POST["mToken"]) ? $_POST["mToken"] : null;
-        if ($token){
-            $conn=$GLOBALS["conn"];
-            $tokens=json_decode(p($conn->prepare("SELECT tokens FROM user WHERE usuario=?",[$user]))[0]["tokens"]);
-            $tokens=json_encode(array_diff($tokens,[$token]));
-            $conn->prepare("UPDATE user SET tokens=? WHERE usuario=?",[$tokens,$user]);
-        }
-        logout();
-    }
-    response()->json(["result"=>"true"]);
-});
-Route::post("/cargo",function(){
-    $usuario=$GLOBALS["user"];
-    if ($usuario){
-        response()->json(["result"=>"true","cargo"=>$GLOBALS["cargo"]]);
-    } else {
-        response()->json(["result"=>"true","cargo"=>null]);
-    }
-});
 Route::post("/admin/imagens_cadastro", function(){
     $usuario=$GLOBALS["user"];
     if ($usuario){
@@ -1309,13 +963,12 @@ Route::post("/admin/imagens_cadastro", function(){
             } else if ($type=="cadastro" || $type=="edit"){
                 $dados=request()->all();
                 $isCadastro=$type=="cadastro";
-                $permission=isset($dados["permission"]) ? 2 : 0;
+                $permission=($cargo & 4)==4 && isset($dados["permission"]) && $dados["permission"]==2 ? 2 : 0;
                 if (($permission==2 && !isset($dados["original_formats"])) || ($isCadastro && (!isset($_FILES["imageFile"]) || ($permission==2 && !isset($_FILES["imageFilePremium"]))))) return response()->json(["result"=>"false"]);
                 $conn = $GLOBALS["conn"];
                 // if (!session()->has("key")) return;
                 // if (strlen($titulo)==0) return;
                 $acessos=0;
-                $permission=isset($dados["permission"]) ? 2 : 0;
                 $old_permission=0;
                 $original_formats=json_decode($dados["original_formats"],true);
                 $original_format_premium=isset($dados["original_format_premium"]) ? $dados["original_format_premium"] : 0;
@@ -1425,7 +1078,7 @@ Route::post("/admin/imagens_cadastro", function(){
                     $d=json_decode($d,true);
                     $d["a"]=get_updated_date();
                     $d=json_encode($d);
-                    $conn->prepare("UPDATE post_imagem p LEFT JOIN user u ON p.usuario=u.usuario SET privado=(CASE WHEN cargo & 4=4 THEN (CASE WHEN ?=2 THEN privado | 2 ELSE privado & ~2 END) ELSE privado END),descricao=?,p.imagem=?,p.d=? WHERE p.usuario=? AND p.id=?",[$permission,$descricao,$images,$d,$usuario,$id]);
+                    $conn->prepare("UPDATE post_imagem p LEFT JOIN user u ON p.usuario=u.usuario SET privado=(CASE WHEN ?=2 THEN privado | 2 ELSE privado & ~2 END),descricao=?,p.imagem=?,p.d=? WHERE p.usuario=? AND p.id=?",[$permission,$descricao,$images,$d,$usuario,$id]);
                 }
                 response()->json(["result"=>"true","usuario"=>$usuario]);
             }
@@ -2201,7 +1854,7 @@ Route::post("/admin/playlists_cadastro",function(){
                         add_n_posts($usuario,$conn);
                         response()->json(["result"=>"true"]);
                     } else {
-                    response()->json(["result"=>"false"]);
+                        response()->json(["result"=>"false"]);
                     }
                 } else {
                     response()->json(["result"=>"false"]);
@@ -2466,6 +2119,378 @@ Route::post("/admin/products_lista",function(){
         login();
     }
     // return view("admin.noticias_lista.index",compact("r","usuario","cargo"));
+});
+Route::post("/admin/denuncias_lista",function(){
+    $usuario=$GLOBALS["user"];
+    if ($usuario){
+        $cargo=$GLOBALS["cargo"];
+        if (($cargo & 2)==2){
+            $tipo=isset($_POST["tipo"]) ? request("tipo") : "normal";
+            function gpa($type){
+                $type=isset($_GET["search"]) ? "pesquisa" : "normal";
+                $usuario=$GLOBALS["user"];
+                $conn=$GLOBALS["conn"];
+                $s=null;
+                $num=null;
+                $pg=isset($_GET["pg"]) ? request()->query("pg") : 1;
+                $n=($pg-1)*10 >= 0 ? ($pg-1)*10 : 0;
+                $search=$type=="pesquisa" ? "%" . request()->query("search") . "%" : null;
+                if ($type=="pesquisa"){
+                    $s=$conn->prepare("SELECT id,titulo,num,post_tipo,post_id,d FROM denuncia WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?) ORDER BY id DESC LIMIT $n,10",[$search,$search]);
+                    $num=$conn->prepare("SELECT COUNT(*) AS num FROM denuncia WHERE LOWER(titulo) LIKE LOWER(?) || LOWER(d) LIKE LOWER(?)",[$search,$search]);
+                } else {
+                    $s=$conn->query("SELECT id,titulo,num,post_tipo,post_id,d FROM denuncia GROUP BY post_id,post_tipo ORDER BY id DESC LIMIT $n,10");
+                    $num=$conn->query("SELECT COUNT(*) AS num FROM denuncia");
+                }
+                $r=p($s);
+                $num=p($num)[0]["num"];
+                response()->json(["result"=>"true","noticias"=>$r,"n_registros"=>$num,"usuario"=>$usuario]);
+            }
+            if (request("type")=="info"){
+                gpa($tipo);
+            } else if (request("type")=="option"){
+                if ($tipo=="normal"){
+                    $cargo=$GLOBALS["cargo"];
+                    $id=intval(request("id"));
+                    $conn = $GLOBALS["conn"];
+                    //$s=$conn->prepare("SELECT * FROM post WHERE usuario=?AND privado=0",[$usuario]);
+                    // unlink(__DIR__ . "/../images/" . p($result)[0]["imagem"]);
+                    //$s=$conn->prepare("DELETE FROM post WHERE id=? AND usuario=?",[$id,$usuario]);
+                    if (($cargo & 2)==2){
+                        $conn->prepare("DELETE FROM denuncia WHERE id=?",[$id]);
+                    } else {
+                        $conn->prepare("DELETE FROM denuncia WHERE usuario=? AND id=?",[$usuario,$id]);
+                    }
+                    gpa($tipo);
+                } else {
+                    gpa($tipo);
+                }
+                // $num=$conn->query("SELECT COUNT(*) AS num FROM post WHERE usuario")
+            } else {
+                response()->json(["result"=>"false"]);
+            }
+        } else {
+            r404();
+        }
+    } else {
+        login();
+    }
+});
+Route::post("/admin/denuncias_infos/{id}",function($id){
+    $usuario=$GLOBALS["user"];
+    if ($usuario){
+        $cargo=$GLOBALS["cargo"];
+        if (($cargo & 2)==2){
+            $conn=$GLOBALS["conn"];
+            $result=$conn->prepare("SELECT * FROM denuncia WHERE id=?",[$id]);
+            if ($result->num_rows>0){
+                $result=p($result)[0];
+                response()->json(["result"=>"true","tipos"=>$result["tipo"],"datas"=>$result["d"]]);
+            } else {
+                r404();
+            }
+        } else {
+            r404();
+        }
+    } else {
+        login();
+    }
+});
+Route::get("/admin/settings",function(){
+    $GLOBALS["user"] || header("location:/admin");
+    include(__DIR__ . '/../public_html/templates/main/main.html');
+});
+Route::post("/admin/settings",function(){
+    
+    $usuario=$GLOBALS["user"];
+    if ($usuario){
+    if (request("type")=="info"){
+        $conn = $GLOBALS["conn"];
+        $config=$conn->prepare("SELECT usuario,logo,banner FROM user WHERE usuario=?",[$usuario]);
+        $config=p($config)[0];
+        response()->json(["config"=>$config,"usuario"=>$usuario]);
+    } else if (request("type")=="option"){
+        $type=request()->query("type");
+        $conn = $GLOBALS["conn"];
+        $config=$conn->prepare("SELECT logo,banner,id FROM user WHERE usuario=?",[$usuario]);
+        $config=p($config)[0];
+        if ($type=="logo"){
+            if (request("operation")=="d"){
+                if (isset($config["logo"])){
+                    unlink(__DIR__ . "/../public_html/images/" . $config["logo"]);
+                }
+                $s=$conn->prepare("UPDATE user SET logo=NULL WHERE usuario=?",[$usuario]);
+            } else {
+                if (isset($config["logo"])){
+                    unlink(__DIR__ . "/../public_html/images/" . $config["logo"]);
+                }
+                $logo=null;
+                if (request()->has("logo")) {
+                    $file = request()->file("logo");
+                    $caminhoDestino = __DIR__ . "/../public_html/images/";
+                    $logo = $file->getClientOriginalName();
+                    $logo=$config["id"] . "_logo_" . $logo;
+                    $file->move($caminhoDestino,$logo);
+                    // Caminho para a imagem original
+                    $img=imagem($caminhoDestino.$logo);
+                    $img->resize(800,800);
+                }
+                $s=$conn->prepare("UPDATE user SET logo=? WHERE usuario=?",[$logo,$usuario]);
+                response()->json(["result"=>"true","usuario"=>$usuario,"lsrc"=>$logo]);
+            }
+        }
+        if ($type=="banner"){
+            if (request("operation")=="d"){
+                if (isset($config["banner"])){
+                    unlink(__DIR__ . "/../public_html/images/" . $config["banner"]);
+                }
+                $s=$conn->prepare("UPDATE user SET banner=NULL WHERE usuario=?",[$usuario]);
+            } else {
+                if (isset($config["banner"])){
+                    unlink(__DIR__ . "/../public_html/images/" . $config["banner"]);
+                }
+                $banner=null;
+                if (request()->has("banner")) {
+                    $file = request()->file("banner");
+                    $caminhoDestino = __DIR__ . "/../public_html/images/";
+                    $banner = $file->getClientOriginalName();
+                    $banner=$config["id"] . "_banner_" . $banner;
+                    $file->move($caminhoDestino,$banner);
+                    $img=imagem($caminhoDestino.$banner);
+                    $img->resize(2048,512);
+                }
+                $s=$conn->prepare("UPDATE user SET banner=? WHERE usuario=?",[$banner,$usuario]);
+                response()->json(["result"=>"true","usuario"=>$usuario,"banner"=>$banner]);
+            }
+        }
+    } else {
+        response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/settings/main.html'));
+    }
+    } else {
+        login();
+    }
+});
+// Route::get("/admin/usuarios",function(){
+//     $usuario=$GLOBALS["user"];
+//     if ($usuario){
+//         $cargo=$GLOBALS["cargo"];
+//         ($cargo & 2)==2 ? include(__DIR__ . '/../public_html/templates/main/main.html') : header("location:/erro?origin=/");
+//     } else {
+//         header("location:/erro?origin=/");
+//     }
+// });
+// Route::post("/admin/usuarios",function(){
+//     $usuario=$GLOBALS["user"];
+//     $cargo=$GLOBALS["cargo"];
+//     if ($usuario && ($cargo & 2)==2){
+//         if (request("type")=="info"){
+//             $conn = $GLOBALS["conn"];
+//             $s=$conn->prepare("SELECT nome,usuario,banner FROM user WHERE usuario!=?",[$usuario]);
+//             $r=p($s);
+//             response()->json(["usuarios"=>$r]);
+//         } else {
+//             response()->json(file_get_contents(__DIR__ . '/../public_html/templates/lista_usuarios/main.html'));
+//         }
+//     } else {
+//         login();
+//     }
+//     // include(__DIR__ . '/../public_html/templates/admin/lista_usuarios/index.php');
+// });
+Route::get("/admin/metricas",function(){
+    $GLOBALS["user"] || header("location:/admin");
+    include(__DIR__ . '/../public_html/templates/main/main.html');
+});
+Route::post("/admin/metricas",function(){
+    
+    $usuario=$GLOBALS["user"];
+    if ($usuario){
+        if (request("type")=="info"){
+        $cargo=$GLOBALS["cargo"];
+        $conn = $GLOBALS["conn"];
+        $p=null;
+        $total_u=null;
+        if (($cargo & 2)==2){
+            $p=$conn->query("SELECT tipo,d2,d FROM views WHERE tipo!='playlist'");
+            // $result=p($conn->query("SELECT * FROM views_atual"));
+            // $d=new DateTime();
+            // foreach($result as $v){
+            //     $dv=$v["d"];
+            //     $dv=DateTime::createFromFormat('Y-m-d H:i:s', $dv);
+            //     $dv->modify('+10 seconds');
+            //     if ($d>$dv){
+            //         $conn->prepare("DELETE FROM views_atual WHERE id=?",[$v["id"]]);
+            //     }
+            // }
+            // $total_u=p($conn->query("SELECT tipo,usuario FROM views_atual"));
+            $total_u=p($conn->query("SELECT usuario,peer_tokens FROM user WHERE online=2"));
+        } else {
+            $p=$conn->prepare("SELECT tipo,d2,d FROM views WHERE usuario=? AND tipo!='playlist'",[$usuario]);
+        }
+        $p=p($p);
+        response()->json(["posts"=>$p,"total_u"=>$total_u,"usuario"=>$usuario]);
+        } else {
+            response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/grafico/main.html'));
+        }
+    } else {
+        login();
+    }
+});
+// Route::post("/admin/metricas",function(){
+//     $usuario=$GLOBALS["user"];
+//     if ($usuario){
+//         if (request("type")=="info"){
+//             $cargo=$GLOBALS["cargo"];
+//             $conn = $GLOBALS["conn"];
+//             $r=null;
+//             $total_u=null;
+//             $t1=0;
+//             $t2=0;
+//             if (($cargo & 2)==2){
+//                 $r=p($conn->query("SELECT tipo,d2,d FROM views WHERE tipo!='playlist'"));
+//                 $t1=strlen(json_encode($r));
+//                 $ba=microtime(true);
+//                 $r2=p($conn->query("SELECT id,usuario FROM user"));
+//                 $users=[];
+//                 foreach ($r2 as $l){
+//                     $users[$l["usuario"]]=intval($l["id"]);
+//                 }
+//                 for ($i=0;$i<count($r);$i++){
+//                     $c=$r[$i];
+//                     $p=json_decode($c["d2"],true);
+//                     $a=[];
+//                     try{
+//                         foreach ($p as $y=>$yv){
+//                             // $y=bin2hex(pack("S",$y));
+//                             $a[$y]=[];
+//                             foreach ($yv as $d=>$dv){
+//                                 // $d=bin2hex(pack("S",$d));
+//                                 $a[$y][$d]=[];
+//                                 foreach ($dv as $array=>$arrayv){
+//                                     $anterior=0;
+//                                     foreach ($arrayv as $time=>$timev){
+//                                         // $codigo=0;
+//                                         // foreach (str_split($timev) as $char) {
+//                                         //     $codigo = $codigo * 256 + ord($char);  // Cria um número a partir da string
+//                                         // }
+//                                         $t=intval(strtotime($time) / 1000);
+//                                         $d=$t-$anterior;
+//                                         // echo $t,$anterior;
+//                                         $id=$timev && is_string($timev) && isset($users[$timev]) ? $users[$timev] : 0;
+//                                         $a[$y][$d][$array][]=( $id << 22) | $d;
+//                                         $anterior=$t;
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                         $r[$i]["d2"]=json_encode($a);
+//                         $d=json_decode($r[$i]["d"],true)["o"];
+//                         $r[$i]["d"]=json_encode(["d"=>strtotime($d) / 1000]);
+//                     } catch (Exception $e){
+//                         echo $e->getMessage();
+//                         $r[$i]=[];
+//                     }
+//                 }
+//                 // $result=p($conn->query("SELECT * FROM views_atual"));
+//                 // $d=new DateTime();
+//                 // foreach($result as $v){
+//                 //     $dv=$v["d"];
+//                 //     $dv=DateTime::createFromFormat('Y-m-d H:i:s', $dv);
+//                 //     $dv->modify('+10 seconds');
+//                 //     if ($d>$dv){
+//                 //         $conn->prepare("DELETE FROM views_atual WHERE id=?",[$v["id"]]);
+//                 //     }
+//                 // }
+//                 // $total_u=p($conn->query("SELECT tipo,usuario FROM views_atual"));
+//                 $total_u=p($conn->query("SELECT usuario,peer_tokens FROM user WHERE online=2"));
+//             } else {
+//                 $r=p($conn->prepare("SELECT tipo,d2,d FROM views WHERE usuario=? AND tipo!='playlist' AND tipo!='musica' AND tipo!='post_musica'",[$usuario]));
+//                 $ba=microtime(true);
+//                 $r2=p($conn->query("SELECT id,usuario FROM user"));
+//                 $users=[];
+//                 foreach ($r2 as $l){
+//                     $users[$l["usuario"]]=intval($l["id"]);
+//                 }
+//                 $t1=0;
+//                 $t2=0;
+//                 for ($i=0;$i<count($r);$i++){
+//                     $c=$r[$i];
+//                     $t1+=strlen($c["d2"]);
+//                     $p=json_decode($c["d2"],true);
+//                     $a=[];
+//                     try{
+//                         foreach ($p as $y=>$yv){
+//                             // $y=bin2hex(pack("S",$y));
+//                             $a[$y]=[];
+//                             foreach ($yv as $d=>$dv){
+//                                 // $d=bin2hex(pack("S",$d));
+//                                 $a[$y][$d]=[];
+//                                 foreach ($dv as $array=>$arrayv){
+//                                     $anterior=0;
+//                                     foreach ($arrayv as $time=>$timev){
+//                                         // $codigo=0;
+//                                         // foreach (str_split($timev) as $char) {
+//                                         //     $codigo = $codigo * 256 + ord($char);  // Cria um número a partir da string
+//                                         // }
+//                                         $t=intval(strtotime($time) / 1000);
+//                                         $d=$t-$anterior;
+//                                         // echo $t,$anterior;
+//                                         $id=$timev && is_string($timev) && isset($users[$timev]) ? $users[$timev] : 0;
+//                                         $a[$y][$d][$array][]=( $id << 22) | $d;
+//                                         $anterior=$t;
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                         $r[$i]=gzcompress(json_encode($a));
+//                     } catch (Exception $e){
+//                         echo $e->getMessage();
+//                         $r[$i]=[];
+//                     }
+//                 }
+//             }
+//             $zi=microtime(true);
+//             $t2=strlen(json_encode($r));
+//             $compressedData=json_encode(["a"=>$t2/$t1,"b"=>$t2,"c"=>$t1,"posts"=>$r,"total_u"=>$total_u,"usuario"=>$usuario,"t"=>$zi-$ba]);
+//             // header('Content-Type: application/octet-stream');  // Ou um tipo adequado dependendo dos dados
+//             // header('Content-Length: ' . strlen($compressedData));  // Tamanho dos dados comprimidos
+
+//             // Enviar os dados comprimidos para o cliente
+//             echo $compressedData;
+//         } else {
+//             response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/grafico/main.html'));
+//         }
+//     } else {
+//         login();
+//     }
+// });
+Route::get("/admin/sair",function(){
+    session()->forget("key");
+    return redirect("/");
+});
+Route::post("/admin/sair",function(){
+    // session()->forget("key");
+    // response()->json(["header_location"=>"/"]);
+    $user=$GLOBALS["user"];
+    if ($user){
+        $GLOBALS["cargo"]=128;
+        $token=isset($_POST["mToken"]) ? $_POST["mToken"] : null;
+        if ($token){
+            $conn=$GLOBALS["conn"];
+            $tokens=json_decode(p($conn->prepare("SELECT tokens FROM user WHERE usuario=?",[$user]))[0]["tokens"]);
+            $tokens=json_encode(array_diff($tokens,[$token]));
+            $conn->prepare("UPDATE user SET tokens=? WHERE usuario=?",[$tokens,$user]);
+        }
+        logout();
+    }
+    response()->json(["result"=>"true"]);
+});
+Route::post("/cargo",function(){
+    $usuario=$GLOBALS["user"];
+    if ($usuario){
+        response()->json(["result"=>"true","cargo"=>$GLOBALS["cargo"]]);
+    } else {
+        response()->json(["result"=>"true","cargo"=>null]);
+    }
 });
 Route::post('/admin/destaque',function(){
     $usuario=$GLOBALS["user"];

@@ -3,6 +3,7 @@ $GLOBALS["isSecure"]=isset($_SERVER["HTTP_ORIGIN"]) ? str_starts_with($_SERVER["
 // Verifique se a URL contém um host
 if (isset($_SERVER["HTTP_ORIGIN"])) {
     $servers=[
+        "http://192.168.18.93:12345"=>"http://192.168.18.93:12345",
         "https://localhost:4000"=>"h0rnsgzt-4000.brs.devtunnels.ms",
         "https://www.anjoovi.com"=>".www.anjoovi.com",
         "https://192.168.18.93:4000"=>"192.168.18.93"

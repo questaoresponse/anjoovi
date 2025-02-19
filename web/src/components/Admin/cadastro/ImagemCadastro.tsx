@@ -108,7 +108,7 @@ function ImagemCadastro(){
                 case 1:
                     newWidth=width;
                     newHeight=height;
-                    elementWidth=width;
+                    elementWidth=imageWidth / imageHeight * width;
                     elementHeight=height;
                     break;
                 case 2:

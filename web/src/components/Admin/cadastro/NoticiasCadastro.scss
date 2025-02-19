@@ -50,4 +50,13 @@
         height:40vh;
         line-height: 1.3em;
     }
+    .image-container{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    .image-img{
+        object-fit: initial !important;
+    }
 }
