@@ -3199,13 +3199,13 @@ Route::post("/ajeitar",function(){
                 $number=$isWidthBigger | $containerAspect | $elementAspect;
                 $new_image=base_convert($number,10,36) . $new_image;
                 array_push($new_images,$new_image);
+                echo $new_image;
                 // rename($imagesDir . $old_images, $imagesDir . $new_images);
             } else {
                 array_push($new_images,$old_image);
             }
         }
         $new_images=json_encode($new_images);
-        echo $new_images;
         //$conn->prepare("UPDATE post SET imagem=? WHERE id=?",[$new_images,$id]);
     }
 });
