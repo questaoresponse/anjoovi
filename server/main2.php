@@ -3174,7 +3174,7 @@ Route::post("/ajeitar",function(){
         for ($i=0;$i<count($images);$i++){
             $old_image=$images[$i];
             if (preg_match("/^([a-z]*)(?=_\d+_i)/",$old_image,$matches)){
-                if (((base_convert($matches[1],10,36) >> 8) & ((1 << 18) - 1))==0){
+                if (((base_convert($matches[1],36,10) >> 8) & ((1 << 18) - 1))==0){
                     echo "foie." . $old_image;
                 }
                 $dimensions=getimagesize($imagesDir . $old_image);
