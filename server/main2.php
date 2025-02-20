@@ -3168,13 +3168,13 @@ Route::post("/ajeitar",function(){
     foreach ($r as $line){
         $imagesDir=__DIR__ . "/../public_html/images/";
         $images=$line["imagemd"];
+        $id=$line["id"];
         $images=json_decode($images,true);
         $new_images=[];
         for ($i=0;$i<count($images);$i++){
             $old_image=$images[$i];
             if (substr($old_image,0,2)=="0_"){
                 $dimensions=getimagesize($imagesDir . $old_image);
-                $id=$line["id"];
                 $new_image="_" . $id . "_i_" . $i . "_file.webp";
                 $width=$dimensions[0];
                 $height=$dimensions[1];
@@ -3198,15 +3198,14 @@ Route::post("/ajeitar",function(){
                 $elementAspect=(intval($elementWidth / $elementHeight * 10000) & ((1 << 18) - 1)) << 8;
                 $number=$isWidthBigger | $containerAspect | $elementAspect;
                 $new_image=base_convert($number,10,36) . $new_image;
+                rename($imagesDir . $old_image, $imagesDir . $new_image);
                 array_push($new_images,$new_image);
-                echo $new_image;
-                // rename($imagesDir . $old_images, $imagesDir . $new_images);
             } else {
                 array_push($new_images,$old_image);
             }
         }
         $new_images=json_encode($new_images);
-        //$conn->prepare("UPDATE post SET imagem=? WHERE id=?",[$new_images,$id]);
+        $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$new_images,$id]);
     }
 });
 Route::post("/functions",function(){
