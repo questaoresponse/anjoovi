@@ -3170,6 +3170,7 @@ Route::post("/ajeitar",function(){
         $old_images=$line["imagemd"];
         if (substr($old_images,2)=="0_"){
             $imagens=json_decode($imagens,true);
+            $new_images=[];
             for ($i=0;$i<count($imagens);$i++){
                 $old_image=$imagens[$i];
                 $dimensions=getimagesize($imagesDir . $old_image);
@@ -3196,7 +3197,8 @@ Route::post("/ajeitar",function(){
                 $containerAspect=0 << 26;
                 $elementAspect=(intval($elementWidth / $elementHeight * 10000) & ((1 << 18) - 1)) << 8;
                 $number=$isWidthBigger | $containerAspect | $elementAspect;
-                $new_images=base_convert($number,10,36) . $new_images;
+                $new_image=base_convert($number,10,36) . $new_image;
+                array_push($new_images,$new_image);
                 // rename($imagesDir . $old_images, $imagesDir . $new_images);
             }
             $new_images=json_encode($new_images);
