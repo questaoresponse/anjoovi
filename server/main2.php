@@ -3164,16 +3164,19 @@ Route::post("/ups",function(){
 // });
 Route::post("/ajeitar",function(){
     $conn=$GLOBALS["conn"];
-    $r=p($conn->query("SELECT imagemd,id FROM post_imagem"));
+    $r=p($conn->query("SELECT imagem,id FROM post_imagem"));
     foreach ($r as $line){
         $imagesDir=__DIR__ . "/../public_html/images/";
-        $images=$line["imagemd"];
+        $images=$line["imagem"];
         $id=$line["id"];
         $images=json_decode($images,true);
         $new_images=[];
         for ($i=0;$i<count($images);$i++){
             $old_image=$images[$i];
-            if (substr($old_image,0,2)=="0_"){
+            if (preg_match("/^([a-z]*)(?=_\d+_i)/",$old_image,$matches)){
+                if (((base_convert($matches[1],10,36) >> 8) & ((1 << 18) - 1))==0){
+                    echo "foie." . $old_image;
+                }
                 $dimensions=getimagesize($imagesDir . $old_image);
                 $new_image="_" . $id . "_i_" . $i . "_file.webp";
                 $width=$dimensions[0];
@@ -3195,17 +3198,17 @@ Route::post("/ajeitar",function(){
                 }
                 $isWidthBigger=($elementWidth > 1 ? 1 : 0) << 28;
                 $containerAspect=0 << 26;
-                $elementAspect=(intval($elementWidth / $elementHeight * 10000) & ((1 << 18) - 1)) << 8;
+                $elementAspect=(floor($elementWidth / $elementHeight * 10000) & ((1 << 18) - 1)) << 8;
                 $number=$isWidthBigger | $containerAspect | $elementAspect;
                 $new_image=base_convert($number,10,36) . $new_image;
-                rename($imagesDir . $old_image, $imagesDir . $new_image);
+                // rename($imagesDir . $old_image, $imagesDir . $new_image);
                 array_push($new_images,$new_image);
             } else {
                 array_push($new_images,$old_image);
             }
         }
         $new_images=json_encode($new_images);
-        $conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$new_images,$id]);
+        //$conn->prepare("UPDATE post_imagem SET imagem=? WHERE id=?",[$new_images,$id]);
     }
 });
 Route::post("/functions",function(){
