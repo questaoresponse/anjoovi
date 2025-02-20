@@ -3175,7 +3175,7 @@ Route::post("/ajeitar",function(){
             if (substr($old_image,0,2)=="0_"){
                 $dimensions=getimagesize($imagesDir . $old_image);
                 $id=$line["id"];
-                $new_images="_" . $id . "_i_" . $i . "_file.webp";
+                $new_image="_" . $id . "_i_" . $i . "_file.webp";
                 $width=$dimensions[0];
                 $height=$dimensions[1];
                 $containerWidth=0;
