@@ -3168,7 +3168,7 @@ Route::post("/ajeitar",function(){
     foreach ($r as $line){
         $imagesDir=__DIR__ . "/../public_html/images/";
         $old_images=$line["imagemd"];
-        if (substr($old_images,2)=="0_"){
+        if (substr($old_images,0,2)=="0_"){
             $imagens=json_decode($imagens,true);
             $new_images=[];
             for ($i=0;$i<count($imagens);$i++){
