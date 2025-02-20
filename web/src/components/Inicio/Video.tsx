@@ -34,7 +34,7 @@ const Nt=memo(({post,video,videoController,onLoaded,func,onTimeUpdate,isMain,isP
     const [showComment,setShowComment]=useState(false);
     useEffect(()=>{
         isMain && onLoaded!();
-    },[]);
+    },[post]);
     return <div className='posts-div'>
         {!isMain ? <Link onClick={(e:any)=>{e.preventDefault();func("/video/"+post.id,post.id)}} to={"/video/"+post.id} className="p-video disabled">
             <Conteudo infos={post} auth={auth} globals={globals}></Conteudo>

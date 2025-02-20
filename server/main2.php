@@ -3164,37 +3164,45 @@ Route::post("/ups",function(){
 // });
 Route::post("/ajeitar",function(){
     $conn=$GLOBALS["conn"];
-    $r=p($conn->query("SELECT imagem,id FROM post"));
+    $r=p($conn->query("SELECT imagemd,id FROM post_imagem"));
     foreach ($r as $line){
         $imagesDir=__DIR__ . "/../public_html/images/";
-        $old_image=$line["imagem"];
-        $dimensions=getimagesize($imagesDir . $old_image);
-        $id=$line["id"];
-        $new_image="_" . $id . "_p_file.webp";
-        $width=$dimensions[0];
-        $height=$dimensions[1];
-        $containerWidth=0;
-        $containerHeight=0;
-        $elementWidth=0;
-        $elementHeight=0;
-        if ($width < $height){
-            $containerWidth=$width/$height;
-            $containerHeight=1;
-            $elementWidth=$containerWidth;
-            $elementHeight=$containerHeight;
-        } else {
-            $containerWidth=1;
-            $containerHeight=$height/$width;
-            $elementWidth=$containerWidth;
-            $elementHeight=$containerHeight;
+        $old_images=$line["imagemd"];
+        if (substr($old_images,2)=="0_"){
+            $imagens=json_decode($imagens,true);
+            for ($i=0;$i<count($imagens);$i++){
+                $old_image=$imagens[$i];
+                $dimensions=getimagesize($imagesDir . $old_image);
+                $id=$line["id"];
+                $new_images="_" . $id . "_i_" . $i . "_file.webp";
+                $width=$dimensions[0];
+                $height=$dimensions[1];
+                $containerWidth=0;
+                $containerHeight=0;
+                $elementWidth=0;
+                $elementHeight=0;
+                if ($width < $height){
+                    $containerWidth=$width/$height;
+                    $containerHeight=1;
+                    $elementWidth=$containerWidth;
+                    $elementHeight=$containerHeight;
+                } else {
+                    $containerWidth=1;
+                    $containerHeight=$height/$width;
+                    $elementWidth=$containerWidth;
+                    $elementHeight=$containerHeight;
+                }
+                $isWidthBigger=($elementWidth > 1 ? 1 : 0) << 28;
+                $containerAspect=0 << 26;
+                $elementAspect=(intval($elementWidth / $elementHeight * 10000) & ((1 << 18) - 1)) << 8;
+                $number=$isWidthBigger | $containerAspect | $elementAspect;
+                $new_images=base_convert($number,10,36) . $new_images;
+                // rename($imagesDir . $old_images, $imagesDir . $new_images);
+            }
+            $new_images=json_encode($new_images);
+            echo $new_images;
+            //$conn->prepare("UPDATE post SET imagem=? WHERE id=?",[$new_images,$id]);
         }
-        $isWidthBigger=($elementWidth > 1 ? 1 : 0) << 28;
-        $containerAspect=0 << 26;
-        $elementAspect=(intval($elementWidth / $elementHeight * 10000) & ((1 << 18) - 1)) << 8;
-        $number=$isWidthBigger | $containerAspect | $elementAspect;
-        $new_image=base_convert($number,10,36) . $new_image;
-        rename($imagesDir . $old_image, $imagesDir . $new_image);
-        $conn->prepare("UPDATE post SET imagem=? WHERE id=?",[$new_image,$id]);
     }
 });
 Route::post("/functions",function(){
