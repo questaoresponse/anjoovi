@@ -1698,7 +1698,7 @@ Route::post("/admin/videos_lista",function(){
     $cargo=cargo($user);
     function gpa($type){
         $type=isset($_GET["search"]) ? "pesquisa" : "normal";
-        $usuario=$GLOBALS["user"];
+        $user=$GLOBALS["user"];
         $cargo=$GLOBALS["cargo"];
         $conn=$GLOBALS["conn"];
         $s=null;

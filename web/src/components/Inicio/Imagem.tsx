@@ -57,8 +57,10 @@ const Nt=memo(({descricao,post,size,index,onLinkClick,isValidURL,onLoaded,func,s
                     <br></br>
                 </div>
             })}</div>
-            <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-imagem">
-                {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
+            <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}}>
+                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-imagem">
+                    {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
+                </div>
             </div>
             <div className="data_d">
                 <p className="data data_data">{post.dataText}</p>
@@ -91,22 +93,23 @@ const Nt=memo(({descricao,post,size,index,onLinkClick,isValidURL,onLoaded,func,s
                     <br></br>
                 </div>
             })}</div> }
-            <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-imagem">
-                {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
-                
-                {post.srcImagem!.length > 1 ? <>
-                    <svg onClick={onLeftClick} className={'arrow-left' + ( showArrowLeft ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
-                        <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/>
-                    </svg>
-                    <svg onClick={onRightClick} className={'arrow-right' + ( showArrowRight ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
-                    <path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/>
-                    </svg>
-                    <div className='dot-list'>{Array.from({length:post.srcImagem!.length},(_,i:number)=>{
-                        return <svg key={String(i)} className={'dot-item' + (i==index ? " selected" : "")} xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+            <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}}>
+                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-imagem">
+                    {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
+                    {post.srcImagem!.length > 1 ? <>
+                        <svg onClick={onLeftClick} className={'arrow-left' + ( showArrowLeft ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
+                            <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/>
                         </svg>
-                    })}</div>
-                </> : <></>}
+                        <svg onClick={onRightClick} className={'arrow-right' + ( showArrowRight ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
+                        <path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/>
+                        </svg>
+                        <div className='dot-list'>{Array.from({length:post.srcImagem!.length},(_,i:number)=>{
+                            return <svg key={String(i)} className={'dot-item' + (i==index ? " selected" : "")} xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                            </svg>
+                        })}</div>
+                    </> : <></>}
+                </div>
             </div>
             <div className="data_d">
                 <p className="data data_data">{post.dataText}</p>
@@ -173,18 +176,18 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
             if (countLoaded.current > 0) return;
             countLoaded.current++;
         }
-        const originalFormat=post.srcImagem.originalFormat;
+        const originalFormat=post.srcImagem[index].originalFormat;
         const p=globals.mobile ? 0.97 : 0.58;
         const containerAspectRatio=globals.mobile ? 1 : 16/9;
         setSize({
             containerAspectRatio:String(containerAspectRatio),
-            containerWidth:"100%",
-            containerHeight:originalFormat || !globals.mobile ? "auto" : (1 / post.srcImagem.containerAspect * window.innerWidth * p) + "px",
+            containerWidth:globals.mobile ? "100%" : (post.srcImagem[index].containerAspect * window.innerWidth * p * (1 / containerAspectRatio)) + "px",
+            containerHeight:originalFormat ? "auto" : globals.mobile ? (1 / post.srcImagem[index].containerAspect * window.innerWidth * p)+ "px" : "100%",
             elementMaxWidth:originalFormat ? "100%" : "initial",
             elementMaxHeight:originalFormat ? "100%" : "initial",
             elementObjectFit:originalFormat ? "contain" : "initial",
-            elementWidth:originalFormat ?  "100%" : post.srcImagem.isWidthBigger || !globals.mobile ? post.srcImagem.imageAspect * window.innerWidth * p * (1 / containerAspectRatio) + "px" : "100%",
-            elementHeight:originalFormat ? "100%" : post.srcImagem.isWidthBigger || !globals.mobile ? "100%" : 1 / post.srcImagem.imageAspect * window.innerWidth * p + "px"
+            elementWidth:originalFormat ?  "100%" : post.srcImagem[index].isWidthBigger ? post.srcImagem[index].imageAspect * window.innerWidth * p + "px" : globals.mobile ? "100%" : post.srcImagem[index].imageAspect * window.innerWidth * p + "px",
+            elementHeight:originalFormat ? "100%" : post.srcImagem[index].isWidthBigger || !globals.mobile ? "100%" : 1 / post.srcImagem[index].imageAspect * window.innerWidth * p * containerAspectRatio + "px",
         });
     },[index,post,globals.mobile]);
     calcDimensions(false,true);

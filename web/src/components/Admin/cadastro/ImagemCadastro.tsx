@@ -50,7 +50,7 @@ function ImagemCadastro(){
     const location=useLocation();
     const [images,setImages]=useState<imageInterface[]>([{aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}}]);
     const [imagePremium,setImagePremium]=useState<imageInterface>({aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem,refs:{image_view:createRef(),image:createRef(),input:createRef(),resize:createRef()}});
-    const [imageFormat,setImageFormat]=useState({normal:1,premium:1});
+    const [imageFormat,setImageFormat]=useState({normal:0,premium:0});
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
     const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
@@ -253,7 +253,7 @@ function ImagemCadastro(){
                         if (n==postImages.length){
                             const { width, height } = images[0].refs.image_view.current!.getBoundingClientRect();
                             const  boundingRect:{width:number,height:number}={width,height};
-                            var format={ normal:1, premium:1 };
+                            var format={ normal:0, premium:0 };
                             const newImages=postImages.map((image:string)=>{
                                 const matches = image.match(/^(.*)(_\d+_i).*\.webp/);
                                 const r_parsed=BigInt(`0x${BigInt(parseInt(matches![1], 36)).toString(16)}`);

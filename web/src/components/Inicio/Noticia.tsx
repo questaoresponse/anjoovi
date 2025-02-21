@@ -58,8 +58,10 @@ const Nt=memo(({post,size,onLinkClick,isValidURL,onLoaded,func,summarized,setSum
             <div className="subtitulo-noticia">{post.subtitulo.map((subtitulo,index)=>{
                 return subtitulo.length>1 && (subtitulo[0]=="#" || subtitulo[0]=="@") ? <Link className='tag' key={String(index)} to={subtitulo[0]=="#" ? "/busca?q="+encodeURIComponent(subtitulo) : "/@"+encodeURIComponent(subtitulo.slice(1))}>{subtitulo + ( post.subtitulo.length-1>index ? " " : " " )}</Link> : subtitulo + ( post.subtitulo.length-1>index ? " " : "" )
             })}</div>
-            <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-noticia">
-                {post.srcImagem ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem.src}/> : <></>}
+            <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}}>
+                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-noticia">
+                    {post.srcImagem ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem.src}/> : <></>}
+                </div>
             </div>
             <div className="texto-noticia txt resumo">{post.text.map((line:string[],i:number)=>{
                 return <div key={i}>
@@ -88,8 +90,10 @@ const Nt=memo(({post,size,onLinkClick,isValidURL,onLoaded,func,summarized,setSum
             <p className="subtitulo-noticia">{post.subtitulo.map((subtitulo,index)=>{
                 return subtitulo.length>0 && (subtitulo[0]=="#" || subtitulo[0]=="@") ? <Link className='tag' key={String(index)} to={subtitulo[0]=="#" ? "/busca?q="+encodeURIComponent(subtitulo) : "/@"+encodeURIComponent(subtitulo.slice(1))}>{subtitulo + ( post.subtitulo.length-1>index ? " " : "" )}</Link> : subtitulo + ( post.subtitulo.length-1>index ? " " : "" )
             })}</p>
-            <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-noticia">
-                {post.srcImagem ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem.src}/> : <></>}
+            <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}}>
+                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-noticia">
+                    {post.srcImagem ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem.src}/> : <></>}
+                </div>
             </div>
             {summarized ? <div className="texto-resumo-noticia">
                 <div className="texto-noticia txt overflow">{post.text.map((line:string[],i:number)=>{
@@ -153,13 +157,13 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
         const containerAspectRatio=globals.mobile ? 1 : 16/9;
         setSize({
             containerAspectRatio:String(containerAspectRatio),
-            containerWidth:"100%",
-            containerHeight:originalFormat || !globals.mobile ? "auto" : (1 / post.srcImagem.containerAspect * window.innerWidth * p) + "px",
+            containerWidth:globals.mobile ? "100%" : (post.srcImagem.containerAspect * window.innerWidth * p * (1 / containerAspectRatio)) + "px",
+            containerHeight:originalFormat ? "auto" : globals.mobile ? (1 / post.srcImagem.containerAspect * window.innerWidth * p)+ "px" : "100%",
             elementMaxWidth:originalFormat ? "100%" : "initial",
             elementMaxHeight:originalFormat ? "100%" : "initial",
             elementObjectFit:originalFormat ? "contain" : "initial",
-            elementWidth:originalFormat ?  "100%" : post.srcImagem.isWidthBigger || !globals.mobile ? post.srcImagem.imageAspect * window.innerWidth * p * (1 / containerAspectRatio) + "px" : "100%",
-            elementHeight:originalFormat ? "100%" : post.srcImagem.isWidthBigger || !globals.mobile ? "100%" : 1 / post.srcImagem.imageAspect * window.innerWidth * p + "px"
+            elementWidth:originalFormat ?  "100%" : post.srcImagem.isWidthBigger ? post.srcImagem.imageAspect * window.innerWidth * p + "px" : globals.mobile ? "100%" : post.srcImagem.imageAspect * window.innerWidth * p + "px",
+            elementHeight:originalFormat ? "100%" : post.srcImagem.isWidthBigger || !globals.mobile ? "100%" : 1 / post.srcImagem.imageAspect * window.innerWidth * p * containerAspectRatio + "px",
         });
     },[post,globals.mobile]);
     calcDimensions(false,true);
@@ -171,9 +175,6 @@ function Noticia({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:
             window.removeEventListener("resize",calcDimensions);
         }
     },[calcDimensions]);
-    useEffect(()=>{
-        console.log(size,post.srcImagem.containerAspect,post.id);
-    },[size]);
 
     return !isMain ? <Nt post={post} size={size} onLinkClick={onLinkClick} isValidURL={isValidURL} onLoaded={onLoaded!} func={func} summarized={summarized} setSummarized={setSummarized} isMain={isMain} isPlaylist={isPlaylist} auth={auth} globals={globals}/> : (
         <div>

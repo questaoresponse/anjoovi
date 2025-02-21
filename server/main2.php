@@ -3088,18 +3088,18 @@ Route::post("/ups",function(){
 //     // Enviar os dados comprimidos
 //     echo $compressedData;
 // });
-// Route::post("/mongo2",function(){
-//     $conn=$GLOBALS["conn"];
-//     $data=p($conn->query("SELECT * FROM views"));
-//     $content=json_encode($data);
-//     $compressedData=gzencode($content,9);
-//     header('Content-Encoding: gzip');
-//     header('Content-Type: text/plain');
-//     header('Content-Length: ' . strlen($compressedData));
+Route::post("/mongo2",function(){
+    $conn=$GLOBALS["conn"];
+    $data=p($conn->query("SELECT * FROM views"));
+    $content=json_encode($data);
+    $compressedData=gzencode($content,9);
+    header('Content-Encoding: gzip');
+    header('Content-Type: text/plain');
+    header('Content-Length: ' . strlen($compressedData));
 
-//     // Enviar os dados comprimidos
-//     echo $compressedData;
-// });
+    // Enviar os dados comprimidos
+    echo $compressedData;
+});
 // Route::post("/ajeitar",function(){
 //     $conn=$GLOBALS["conn"];
 //     $results=p($conn->query("SELECT imagem,id FROM post_imagem"));

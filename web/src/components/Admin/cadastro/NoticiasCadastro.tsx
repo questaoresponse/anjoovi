@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useGlobal } from "../../Global.tsx";
 import { resultInterface, useAuth } from "../../Auth.jsx";
@@ -57,7 +57,7 @@ function NoticiasCadastro(){
     const location=useLocation();
     const [image,setImage]=useState<noticiaInterface>({aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem});
     const [imagePremium,setImagePremium]=useState<noticiaInterface>({aspect:initialAspect,imageWidth:0,imageHeight:0,elementWidth:"100%",elementHeight:"100%",width:"100%",height:"100%",filename:"Upload",src:sem_imagem});
-    const [imageFormat,setImageFormat]=useState({normal:1,premium:1});
+    const [imageFormat,setImageFormat]=useState({normal:0,premium:0});
     const [message,setMessage]=useState(false);
     const [errorImage,setErrorImage]=useState(false);
     const [isPremium,setIsPremium]=useState(((cargo.current.cargo || 0) & 4)==4);
@@ -160,7 +160,7 @@ function NoticiasCadastro(){
                         break;
                     }
                 }
-                const format=(isPremium ? imageFormat.premium : imageFormat.normal)-1;
+                const format=isPremium ? imageFormat.premium : imageFormat.normal;
                 const setImageFn = isPremium ? setImagePremium : setImage;
                 if (fileType && fileType=="jpeg"){
                     const reader2=new FileReader();
@@ -191,15 +191,43 @@ function NoticiasCadastro(){
         }
     }
     edit.current=location.pathname=="/admin/noticias_edit";
-    const updateCargo=(cargo:number)=>{
+    const updateCargo=useCallback((cargo:number)=>{
         setIsPremium((cargo & 4)==4);
-    }
+    },[]);
     const updatePermission=()=>{
         if (isPremium){
             refs.permission.current!.value=post_edit.current!.privado ? "1" : "0";
             setPermission(true);
         }
     }
+    const onResize=useCallback(()=>{
+        if (permission){
+            setImagePremium(image=>{
+                if (image.src==sem_imagem) return image;
+                const format=Number(refs.resize_premium.current!.value)-1;
+                const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(format,image.imageWidth,image.imageHeight);
+                image.aspect=aspect as bigint;
+                image.elementWidth=elementWidth as string;
+                image.elementHeight=elementHeight as string;
+                image.width=width as string;
+                image.height=height as string;
+
+                return {...image};
+            });
+        }
+        setImage(image=>{
+            if (image.src==sem_imagem) return image;
+            const format=Number(refs.resize.current!.value)-1;
+            const [aspect,elementWidth,elementHeight,width,height]=calcDimensions(format,image.imageWidth,image.imageHeight);
+            image.aspect=aspect as bigint;
+            image.elementWidth=elementWidth as string;
+            image.elementHeight=elementHeight as string;
+            image.width=width as string;
+            image.height=height as string;
+
+            return image;
+        });
+    },[]);
     useEffect(()=>{
         globals.setSelected("publicar");
         if (edit.current){
@@ -220,7 +248,7 @@ function NoticiasCadastro(){
                         img.src=server+"/images/"+encodeURIComponent(image);
                         img.onload=()=>{
                             const { width: imageWidth, height: imageHeight } = img;
-                            var format={ normal:1, premium:1 };
+                            var format={ normal:0, premium:0 };
         
                                 const matches = image.match(/^(.*)(_\d+_i).*\.webp/);
                                 const r_parsed=BigInt(`0x${BigInt(parseInt(matches![1], 36)).toString(16)}`);
@@ -247,11 +275,15 @@ function NoticiasCadastro(){
                 }
             });
         }
+    },[]);
+    useEffect(()=>{
         cargo.current.addListener(updateCargo);
+        window.addEventListener("resize",onResize);
         return ()=>{
             cargo.current.removeListener(updateCargo);
+            window.removeEventListener("resize",onResize);
         }
-    },[]);
+    },[updateCargo,onResize]);
     useEffect(()=>{
         if (post_edit.current){
             updatePermission();
@@ -350,7 +382,7 @@ function NoticiasCadastro(){
                             <div className="imagem" onClick={()=>{refs.input.current!.click()}}>
                                 <div className="txt-1">{image.filename}</div>
                             </div>
-                            <select value={String(imageFormat.normal)} onChange={()=>ChangeOriginalFormat(false)} ref={refs.resize} className="original_format">
+                            <select value={String(imageFormat.normal+1)} onChange={()=>ChangeOriginalFormat(false)} ref={refs.resize} className="original_format">
                                 <option value="1">Original</option>
                                 <option value="2">1:1</option>
                                 <option value="3">4:5</option>
@@ -371,7 +403,7 @@ function NoticiasCadastro(){
                                 <div className="imagem" onClick={()=>{refs.image_premium.current!.click()}}>
                                     <div className="txt-1">{imagePremium.filename}</div>
                                 </div>
-                                <select value={String(imageFormat.premium)} onChange={()=>ChangeOriginalFormat(true)} ref={refs.resize_premium} className="original_format">
+                                <select value={String(imageFormat.premium+1)} onChange={()=>ChangeOriginalFormat(true)} ref={refs.resize_premium} className="original_format">
                                     <option value="1">Original</option>
                                     <option value="2">1:1</option>
                                     <option value="3">4:5</option>
