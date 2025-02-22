@@ -48,7 +48,15 @@
     .infos-post{
         width:100%;
         position: relative;
-        display: block;
+        display: flex;
+        flex-direction: row;
+    }
+    .logo_c{
+        position: relative;
+        margin-top:2%;
+    }
+    .infos-post-container{
+        width: calc(100% - 2.4em - 10px);
     }
     .titulo{
         margin-top: 2%;

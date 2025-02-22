@@ -2,6 +2,7 @@ import { memo } from 'react';
 import Link from '../Link';
 import './Post.scss';
 import loading_src from "../static/loading.png";
+import Logo from '../Logo';
 
 function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,posts:any[],verifyScroll?:any}){
     const server=globals.server;
@@ -81,10 +82,13 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                             { content}
                         </Link>}
                         <div className={"infos-post"+(post.tipo=="t" ? " post-texto" : "")}>
-                            <Link to={l!} className='titulo a txt'>{parts.map((part:string,index:number)=>{
-                                return part[0]=="#" || part[0]=="@" ? <Link className='tag' to={part[0]=="#" ? "/busca?q="+encodeURIComponent(part) : "/@"+encodeURIComponent(part.slice(1))} key={index}>{part + (parts.length - 1 > index ? " " : "")}</Link> : part + (parts.length - 1 > index ? " " : "")
-                            })}</Link>
-                            <Link to={"/@"+encodeURIComponent(post.usuario)} className='nome a txt'>{post.usuario}</Link>
+                            <Logo width={"2.4em"} logo={null} usuario={post.usuario}></Logo>
+                            <div className="infos-post-container">
+                                <Link to={l!} className='titulo a txt'>{parts.map((part:string,index:number)=>{
+                                    return part[0]=="#" || part[0]=="@" ? <Link className='tag' to={part[0]=="#" ? "/busca?q="+encodeURIComponent(part) : "/@"+encodeURIComponent(part.slice(1))} key={index}>{part + (parts.length - 1 > index ? " " : "")}</Link> : part + (parts.length - 1 > index ? " " : "")
+                                })}</Link>
+                                <Link to={"/@"+encodeURIComponent(post.usuario)} className='nome a txt'>{post.usuario}</Link>
+                            </div>
                         </div>
                     </div>
                 </div>
