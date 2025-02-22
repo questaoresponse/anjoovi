@@ -14,6 +14,8 @@
     margin-right:auto;
     padding:0;
     overflow: visible;
+    display: flex;
+    flex-wrap: wrap;
     @include pc(){
         width:calc(var(--div-width) + var(--div-width) * 0.01) !important;
         margin-left:calc(var(--div-margin) - var(--div-width) * 0.01) !important;        
