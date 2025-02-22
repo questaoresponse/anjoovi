@@ -313,7 +313,7 @@ class rsp{
         header("Content-Type: application/cbor");
         if (is_array($v)){
             $v["cargo"]=$GLOBALS["cargo"];
-            echo CborEncoder::encode($v);
+            echo json_encode($v);
         } else {
             echo $v;
         }
