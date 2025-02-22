@@ -2281,11 +2281,11 @@ Route::post("/admin/metricas",function(){
             $end=microtime(true);
             $t1=($end - $start) * 1000;
         }
-        $start=microtime(true);
-        CborEncoder::encode(["posts"=>$p,"total_u"=>$total_u,"usuario"=>$usuario,"t1"=>$t1]);
-        $end=microtime(true);
-        $t2=($end - $start) * 1000;
-        echo json_encode(["posts"=>$p,"total_u"=>$total_u,"usuario"=>$usuario,"t1"=>$t1,"t2"=>$t2]);
+        // $start=microtime(true);
+        // CborEncoder::encode(["posts"=>$p,"total_u"=>$total_u,"usuario"=>$usuario,"t1"=>$t1]);
+        // $end=microtime(true);
+        // $t2=($end - $start) * 1000;
+        response()->json(["posts"=>$p,"total_u"=>$total_u,"usuario"=>$usuario,"t1"=>$t1,"t2"=>$t2]);
     } else {
         response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/grafico/main.html'));
     }
