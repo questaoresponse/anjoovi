@@ -27,14 +27,15 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                 } else {
                     cm=post.imagem;
                 }
+                cm=(cm || "");
                 var isPremiumView=false;
                 var format=0;
                 var containerAspect=0;
                 var imageAspect=0;
-                if (i){
+                if (i && cm!=""){
                     cm=JSON.parse(cm)[0];
                 }
-                const matches = cm ? cm.match(/^(.*)(?=_\d+_(p|i))/) : null;
+                const matches = cm!="" ? cm.match(/^(.*)(?=_\d+_(p|i))/) : null;
                 if (matches) {
                     const r_parsed = BigInt(parseInt(matches[1],36));
                     isPremiumView=(r_parsed & 1n)==1n;

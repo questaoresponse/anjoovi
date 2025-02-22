@@ -103,6 +103,7 @@ const AuthProvider = ({ children }:{children:any}) => {
                 }
               })
               .then((result)=>{
+                 result.data=decode(new Uint8Array(result.data));
                 var res=result;
                 // try {
                 //   res=JSON.parse(result.data);
