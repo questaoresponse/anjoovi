@@ -68,7 +68,7 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                                 maxHeight:originalFormat ? "100%" : "initial",
                                 objectFit:originalFormat ? "contain" : "initial",
                                 aspectRatio: String(originalFormat  ? "initial" : imageAspect),
-                                width:originalFormat || isElementWidthBigger || format==1 ? "100%" : "fit-content",
+                                width:originalFormat || isElementWidthBigger || imageAspect==1 ? "100%" : "fit-content",
                                 height:!originalFormat && isElementWidthBigger ? "fit-content" : "100%",
                             }} className='image' src={server+"/images/"+encodeURIComponent(cm) + (isPremiumView || cm.endsWith("premium.webp") ? "?q="+Math.floor(Math.random() * 4294967296) : "")}/>
                         </div>
