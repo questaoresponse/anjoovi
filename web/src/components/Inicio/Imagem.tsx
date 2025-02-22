@@ -58,8 +58,8 @@ const Nt=memo(({descricao,post,size,index,onLinkClick,isValidURL,onLoaded,func,s
                     <br></br>
                 </div>
             })}</div>
-            <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}} className="campo-img-imagem">
-                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}}>
+            <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}} className='campo-img-imagem'>
+            <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight,display:"flex",justifyContent:"center",alignItems:"center",overflow: "hidden"}}>
                     {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,aspectRatio:size.elementAspectRatio,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
                 </div>
             </div>
@@ -94,8 +94,8 @@ const Nt=memo(({descricao,post,size,index,onLinkClick,isValidURL,onLoaded,func,s
                     <br></br>
                 </div>
             })}</div> }
-            <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}}>
-                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-imagem">
+            <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}} className='campo-img-imagem'>
+                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight,display:"flex",justifyContent:"center",alignItems:"center",overflow: "hidden"}}>
                     {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,aspectRatio:size.elementAspectRatio,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
                     {post.srcImagem!.length > 1 ? <>
                         <svg onClick={onLeftClick} className={'arrow-left' + ( showArrowLeft ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
@@ -177,20 +177,18 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
             if (countLoaded.current > 0) return;
             countLoaded.current++;
         }
-        const originalFormat=post.srcImagem[index].originalFormat;
-        const p=globals.mobile ? 0.97 : 0.58;
-        const containerAspectRatio=globals.mobile ? 1 : 16/9;
-        
+        const isElementWidthBigger=(post.srcImagem[index].format==3 || (post.srcImagem[index].format!=1 && post.srcImagem[index].imageAspect > 1))  ? true : false;
+        const originalFormat=(post.srcImagem[index].format==0 && post.srcImagem[index].imageAspect==0);
         setSize({
-            containerAspectRatio:String(containerAspectRatio),
-            containerWidth:globals.mobile ? "100%" : (post.srcImagem[index].containerAspect * window.innerWidth * p * (1 / containerAspectRatio)) + "px",
-            containerHeight:originalFormat ? "auto" : globals.mobile ? (1 / post.srcImagem[index].containerAspect * window.innerWidth * p)+ "px" : "100%",
+            containerAspectRatio:originalFormat || post.srcImagem[index].format!=0 ? String(post.srcImagem[index].containerAspect) : "initial",
+            containerWidth:globals.mobile ? "100%" : "initial",
+            containerHeight:originalFormat || !globals.mobile ? "100%" : "initial",
             elementMaxWidth:originalFormat ? "100%" : "initial",
             elementMaxHeight:originalFormat ? "100%" : "initial",
             elementObjectFit:originalFormat ? "contain" : "initial",
-            elementAspectRatio:String(originalFormat || (!post.srcImagem[index].isWidthBigger && globals.mobile) ? post.srcImagem[index].imageAspect * containerAspectRatio : post.srcImagem[index].imageAspect),
-            elementWidth:originalFormat || (!post.srcImagem[index].isWidthBigger && globals.mobile) ? "100%" : "initial",
-            elementHeight:originalFormat ? "100%" : post.srcImagem[index].isWidthBigger || !globals.mobile ? "100%" : "initial",
+            elementAspectRatio: String(originalFormat  ? "initial" : post.srcImagem[index].imageAspect),
+            elementWidth:originalFormat || isElementWidthBigger ? "100%" : "fit-content",
+            elementHeight:!originalFormat && isElementWidthBigger ? "fit-content" : "100%",
         });
     },[index,post,globals.mobile]);
     calcDimensions(false,true);

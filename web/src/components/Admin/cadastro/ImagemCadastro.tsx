@@ -127,8 +127,7 @@ function ImagemCadastro(){
         // shift left the aspectContainer for 18 positions and reserving the 37° bit for original orientation of image and reserving the firsts 18 positions for aspectImage;
         const aspectImage=BigInt(Math.floor(elementWidth / elementHeight * 10000)) & ((1n << 18n) - 1n);
         const formatAsBit=BigInt(format) << 18n;
-        const isWidthBigger=(elementWidth > width ? (1n << 20n) : 0n);
-        const aspect=aspectImage | formatAsBit | isWidthBigger;
+        const aspect=aspectImage | formatAsBit;
         return [aspect, elementWidth+"px", elementHeight+"px", newWidth+"px", newHeight+"px" ];
     }
     const onImagemChange=(e:any,isPremium:boolean,index:number)=>{

@@ -75,13 +75,8 @@
         background:rgba(0,0,0,0);
         display:flex;
         justify-content: center;
-        width: 100%;
         aspect-ratio: 16/9;
         border-radius: 20px;
-        @include pc(){
-            width:70%;
-
-        }
         overflow: hidden;
         // border-radius: 20px;
         // overflow: hidden;
@@ -154,12 +149,6 @@
             font-size:175%;
             width:98%;
         }
-    }
-    @media screen and (min-width:769px){
-        .campo-img-noticia{
-            aspect-ratio: 16/9;
-        }
-
     }
 }
 .p-noticia.loading{

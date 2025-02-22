@@ -27,9 +27,9 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                         cm=post.imagem;
                     }
                     var isPremiumView=false;
+                    var format=0;
                     var containerAspect=0;
                     var imageAspect=0;
-                    var format=0;
                     if (i){
                         cm=JSON.parse(cm)[0];
 

@@ -3196,10 +3196,9 @@ Route::post("/ajeitar",function(){
                     $elementWidth=$containerWidth;
                     $elementHeight=$containerHeight;
                 }
-                $isWidthBigger=($elementWidth > 1 ? 1 : 0) << 28;
                 $containerAspect=0 << 26;
                 $elementAspect=(floor($elementWidth / $elementHeight * 10000) & ((1 << 18) - 1)) << 8;
-                $number=$isWidthBigger | $containerAspect | $elementAspect;
+                $number=$containerAspect | $elementAspect;
                 $new_image=base_convert($number,10,36) . $new_image;
                 // rename($imagesDir . $old_image, $imagesDir . $new_image);
                 array_push($new_images,$new_image);
