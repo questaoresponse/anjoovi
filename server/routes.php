@@ -310,7 +310,7 @@ function session($key=null){
 }
 class rsp{
     public function json($v){
-        header("Content-Type: application/json");
+        header("Content-Type: application/cbor");
         if (is_array($v)){
             $v["cargo"]=$GLOBALS["cargo"];
             echo CborEncoder::encode($v);
