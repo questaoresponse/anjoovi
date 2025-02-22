@@ -1587,11 +1587,11 @@ Route::post(["/@{name}","/@{name}/{parte}"],function($name,$parte=null){
                     $card=["links"=>[],"titles"=>[],"descriptions"=>[]];
                 }
                 $info[0]["card"]=json_encode($card);
-                $posts=p($conn->prepare("SELECT p.usuario,logo,titulo,NULL AS texto,id,views_id,imagem,'p' AS tipo FROM post p LEFT JOIN user u ON u.usuario=p.usuario WHERE p.usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
-                $imagens=p($conn->prepare("SELECT p.usuario,logo,descricao AS titulo,NULL AS texto,id,views_id,imagem,'i' AS tipo FROM post_imagem p LEFT JOIN user u ON u.usuario=p.usuario WHERE p.usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
-                $musicas=p($conn->prepare("SELECT p.usuario,logo,titulo,NULL AS texto,id,views_id,imagem,'m' AS tipo FROM post_musica p LEFT JOIN user u ON u.usuario=p.usuario WHERE p.usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
-                $textos=p($conn->prepare("SELECT p.usuario,logo,NULL AS titulo,texto,id,views_id,'' AS imagem,'t' AS tipo FROM post_texto p LEFT JOIN user u ON u.usuario=p.usuario WHERE p.usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
-                $videos=p($conn->prepare("SELECT p.usuario,logo,titulo,NULL AS texto,id,views_id,imagem,'v' AS tipo FROM post_video p LEFT JOIN user u ON u.usuario=p.usuario WHERE p.usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
+                $posts=p($conn->prepare("SELECT p.usuario,logo,titulo,NULL AS texto,p.id,views_id,imagem,'p' AS tipo FROM post p LEFT JOIN user u ON u.usuario=p.usuario WHERE p.usuario=? AND privado & 15=0 ORDER BY p.id DESC LIMIT 48",[$name]));
+                $imagens=p($conn->prepare("SELECT p.usuario,logo,descricao AS titulo,NULL AS texto,p.id,views_id,imagem,'i' AS tipo FROM post_imagem p LEFT JOIN user u ON u.usuario=p.usuario WHERE p.usuario=? AND privado & 15=0 ORDER BY id DESC LIMIT 48",[$name]));
+                $musicas=p($conn->prepare("SELECT p.usuario,logo,titulo,NULL AS texto,p.id,views_id,imagem,'m' AS tipo FROM post_musica p LEFT JOIN user u ON u.usuario=p.usuario WHERE p.usuario=? AND privado & 15=0 ORDER BY p.id DESC LIMIT 48",[$name]));
+                $textos=p($conn->prepare("SELECT p.usuario,logo,NULL AS titulo,texto,p.id,views_id,'' AS imagem,'t' AS tipo FROM post_texto p LEFT JOIN user u ON u.usuario=p.usuario WHERE p.usuario=? AND privado & 15=0 ORDER BY p.id DESC LIMIT 48",[$name]));
+                $videos=p($conn->prepare("SELECT p.usuario,logo,titulo,NULL AS texto,p.id,views_id,imagem,'v' AS tipo FROM post_video p LEFT JOIN user u ON u.usuario=p.usuario WHERE p.usuario=? AND privado & 15=0 ORDER BY p.id DESC LIMIT 48",[$name]));
                 $visualized=false;
                 if ($usuario){
                     $visualized=p($conn->prepare("SELECT (CASE WHEN COUNT(CASE WHEN d2 LIKE (?) THEN 1 ELSE NULL END) = COUNT(*) THEN COUNT(*) ELSE 0 END) AS visualized FROM views WHERE usuario=? AND excluido='false' AND tipo='post_24'
