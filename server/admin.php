@@ -2255,29 +2255,36 @@ Route::post("/admin/metricas",function(){
     if (!$usuario) return login();
 
     if (request("type")=="info"){
-    $cargo=$GLOBALS["cargo"];
-    $conn = $GLOBALS["conn"];
-    $p=null;
-    $total_u=null;
-    if (($cargo & 2)==2){
-        $p=$conn->query("SELECT tipo,d2,d FROM views WHERE tipo!='playlist'");
-        // $result=p($conn->query("SELECT * FROM views_atual"));
-        // $d=new DateTime();
-        // foreach($result as $v){
-        //     $dv=$v["d"];
-        //     $dv=DateTime::createFromFormat('Y-m-d H:i:s', $dv);
-        //     $dv->modify('+10 seconds');
-        //     if ($d>$dv){
-        //         $conn->prepare("DELETE FROM views_atual WHERE id=?",[$v["id"]]);
-        //     }
-        // }
-        // $total_u=p($conn->query("SELECT tipo,usuario FROM views_atual"));
-        $total_u=p($conn->query("SELECT usuario,peer_tokens FROM user WHERE online=2"));
-    } else {
-        $p=$conn->prepare("SELECT tipo,d2,d FROM views WHERE usuario=? AND tipo!='playlist'",[$usuario]);
-    }
-    $p=p($p);
-    response()->json(["posts"=>$p,"total_u"=>$total_u,"usuario"=>$usuario]);
+        $cargo=$GLOBALS["cargo"];
+        $conn = $GLOBALS["conn"];
+        $p=null;
+        $total_u=null;
+        $t1=0;
+        if (($cargo & 2)==2){
+            $p=p($conn->query("SELECT tipo,d2,d FROM views WHERE tipo!='playlist'"));
+            // $result=p($conn->query("SELECT * FROM views_atual"));
+            // $d=new DateTime();
+            // foreach($result as $v){
+            //     $dv=$v["d"];
+            //     $dv=DateTime::createFromFormat('Y-m-d H:i:s', $dv);
+            //     $dv->modify('+10 seconds');
+            //     if ($d>$dv){
+            //         $conn->prepare("DELETE FROM views_atual WHERE id=?",[$v["id"]]);
+            //     }
+            // }
+            // $total_u=p($conn->query("SELECT tipo,usuario FROM views_atual"));
+            $total_u=p($conn->query("SELECT usuario,peer_tokens FROM user WHERE online=2"));
+        } else {
+            $start=microtime(true);
+            $p=p($conn->prepare("SELECT tipo,d2,d FROM views WHERE usuario=? AND tipo!='playlist'",[$usuario]));
+            $end=microtime(true);
+            $t1=($end - $start) * 1000;
+        }
+        // $start=microtime(true);
+        // echo json_encode(["posts"=>$p,"total_u"=>$total_u,"usuario"=>$usuario,"t1"=>$t1]);
+        // $end=microtime(true);
+        // $t2=($end - $start) * 1000;
+        response()->json(["posts"=>$p,"total_u"=>$total_u,"usuario"=>$usuario,"t1"=>$t1]);
     } else {
         response()->json(file_get_contents(__DIR__ . '/../public_html/templates/admin/grafico/main.html'));
     }

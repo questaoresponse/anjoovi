@@ -52,7 +52,7 @@ function Busca(){
                     "6":posts.filter((post:any)=>post.tipo=="pl"),
                     "7":posts.filter((post:any)=>post.tipo=="pd")
                 },
-                canals:data.canals
+                canals:Array.isArray(data.canals) ? data.canals : []
             }});
         });
     }

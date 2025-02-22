@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 
 // Encontra todos os arquivos PHP na pasta
 
-require_once __DIR__ . "/../vendor/autoload.php";
 use MongoDB\BSON\fromJSON;
 class Oc{
     private $ch;
@@ -670,6 +669,28 @@ function update_acessos_d($usuario,$acessos_d,$index=null,$count=null){
         array_push($acessos_d[$year][$day],$json);
     }
     return json_encode($acessos_d);
+}
+function compacted_array($p2,$isSingleObject=false){
+    $p=array();
+    if ($isSingleObject){
+        $n=0;
+        $keys=array_keys($p2);
+        for ($j=0;$j<count($p2);$j++){
+            $p[$n]=$p2[$keys[$j]];
+            $n++;
+        }
+    } else {
+        for ($i=0;$i<count($p2);$i++){
+            $p[$i]=[];
+            $n=0;
+            $keys=array_keys($p2[$i]);
+            for ($j=0;$j<count($p2[$i]);$j++){
+                $p[$i][$n]=$p2[$i][$keys[$j]];
+                $n++;
+            }
+        }
+    }
+    return $p;
 }
 }
 Route::post("/inicio_header",function(){

@@ -31,7 +31,7 @@ function Home() {
                 var l:any=result.data;
                 l.isLoaded=true;
                 setPosts(l);
-                setAltas(result.data.alta);
+                setAltas(Array.isArray(result.data.alta) ? result.data.alta : []);
                 localStorage.setItem("p",JSON.stringify(l));
             }
         });

@@ -1,6 +1,7 @@
 {
     
     "require": {
-        "mongodb/mongodb": "^1.20"
+        "mongodb/mongodb": "^1.20",
+        "welpie21/cbor.php": "^1.0"
     }
 }

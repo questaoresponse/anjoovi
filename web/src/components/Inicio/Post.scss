@@ -73,7 +73,7 @@
         -webkit-line-clamp: 2;
         line-height: 1.19em;
     }
-    .infos-post.post-texto > .titulo{
+    .titulo:not(.infos-post .titulo){
         max-lines:6;
         height: initial;
         max-height: 0;
@@ -123,7 +123,7 @@
         margin-top: 10px;
     }
     @media screen and (min-width: 769px) {
-        .infos-post.post-texto > .titulo{
+        .titulo:not(.infos-post .titulo){
             aspect-ratio: 16/9;
             max-height: initial;
         }

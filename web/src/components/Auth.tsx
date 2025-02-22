@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect } from 'react';
 import { useGlobal } from './Global.tsx';
 import axios from 'axios';
+import { decode } from "cbor-x";
 // import axios from 'axios';
 interface resultInterface{
   data:{
@@ -129,11 +130,13 @@ const AuthProvider = ({ children }:{children:any}) => {
           } else {
             data={token:token!,...data};
             axios.post(url,data,{
+              responseType:"arraybuffer",
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
               },
             })
             .then((result)=>{
+              result.data=decode(new Uint8Array(result.data));
               var res=result;
               // try {
               //   res=JSON.parse(result.data);
@@ -158,8 +161,11 @@ const AuthProvider = ({ children }:{children:any}) => {
           url=url.replace("www.anjoovi.com","www.dev.anjoovi.com");
         }
         return new Promise(async (r,j)=>{
-          axios.put(url)
+          axios.put(url,undefined,{
+            responseType:"arraybuffer"
+          })
           .then((result:any)=>{
+            result.data=decode(new Uint8Array(result.data));
             a(result,r);
           })
           .catch ((err)=>{

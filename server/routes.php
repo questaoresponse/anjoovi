@@ -1,4 +1,7 @@
-<?php 
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+use Beau\CborPHP\CborEncoder;
+
 $GLOBALS["isSecure"]=isset($_SERVER["HTTP_ORIGIN"]) ? str_starts_with($_SERVER["HTTP_ORIGIN"],"https://") : true;
 // Verifique se a URL contém um host
 if (isset($_SERVER["HTTP_ORIGIN"])) {
@@ -307,9 +310,10 @@ function session($key=null){
 }
 class rsp{
     public function json($v){
+        header("Content-Type: application/json");
         if (is_array($v)){
             $v["cargo"]=$GLOBALS["cargo"];
-            echo json_encode($v);
+            echo CborEncoder::encode($v);
         } else {
             echo $v;
         }
