@@ -50,7 +50,7 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                             imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
                         }
                     }
-                    const isElementWidthBigger=(format==3 || (format!=1 && imageAspect > 1))  ? true : false;
+                    const isElementWidthBigger=(format==3 || (imageAspect < 1 && mobile) || (format!=1 && imageAspect > 1))  ? true : false;
                     const originalFormat=(format==0 && imageAspect==0);
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;
                     content=t ? null : <div style={{aspectRatio:mobile ? "initial" : "16/9"}} className='imagemd'>
@@ -75,7 +75,7 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                     </div>
                 }
                 const parts=(post.descricao || post.titulo || post.texto || "").split(/(?:\r\n| )/);
-                return <div className='coluna col-12 col-md-3 mb-4' key={index}>
+                return <div className='coluna' key={index}>
                     <div className='linha a' >
                         {post.tipo!="t" && <Link to={ l! } className="a">
                             { content}
