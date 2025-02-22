@@ -37,6 +37,7 @@ interface sizeInterface{
     elementMaxWidth:string,
     elementMaxHeight:string,
     elementObjectFit:any,
+    elementAspectRatio:string,
     elementWidth:string,
     elementHeight:string,
 }
@@ -57,9 +58,9 @@ const Nt=memo(({descricao,post,size,index,onLinkClick,isValidURL,onLoaded,func,s
                     <br></br>
                 </div>
             })}</div>
-            <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}}>
-                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-imagem">
-                    {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
+            <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}} className="campo-img-imagem">
+                <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}}>
+                    {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,aspectRatio:size.elementAspectRatio,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
                 </div>
             </div>
             <div className="data_d">
@@ -95,7 +96,7 @@ const Nt=memo(({descricao,post,size,index,onLinkClick,isValidURL,onLoaded,func,s
             })}</div> }
             <div style={{aspectRatio:globals.mobile ? "initial" : "16/9"}}>
                 <div style={{aspectRatio:size.containerAspectRatio,width:size.containerWidth,height:size.containerHeight}} className="campo-img-imagem">
-                    {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
+                    {post.srcImagem!.length > 0 ? <img style={{maxWidth:size.elementMaxWidth,maxHeight:size.elementMaxHeight,objectFit:size.elementObjectFit,aspectRatio:size.elementAspectRatio,width:size.elementWidth,height:size.elementHeight}} src={post.srcImagem[index].src}/> : <></>}
                     {post.srcImagem!.length > 1 ? <>
                         <svg onClick={onLeftClick} className={'arrow-left' + ( showArrowLeft ? "" : " disabled")} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 320 512">
                             <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/>
@@ -141,7 +142,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
     const [index,setIndex]=useState(0);
     const [showArrowLeft,setShowArrowLeft]=useState(false);
     const [showArrowRight,setShowArrowRight]=useState(false);
-    const [size,setSize]=useState<sizeInterface>({containerAspectRatio:"initial",containerWidth:"100%",containerHeight:"auto",elementMaxWidth:"100%",elementMaxHeight:"100%",elementObjectFit:"contain",elementWidth:"initial",elementHeight:"initial"});
+    const [size,setSize]=useState<sizeInterface>({containerAspectRatio:"initial",containerWidth:"100%",containerHeight:"auto",elementMaxWidth:"100%",elementMaxHeight:"100%",elementObjectFit:"contain",elementAspectRatio:"initial",elementWidth:"initial",elementHeight:"initial"});
     const countLoaded=useRef(0);
     const onLeftClick=useCallback(()=>{
         setIndex((index:number)=>{
@@ -179,6 +180,7 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
         const originalFormat=post.srcImagem[index].originalFormat;
         const p=globals.mobile ? 0.97 : 0.58;
         const containerAspectRatio=globals.mobile ? 1 : 16/9;
+        
         setSize({
             containerAspectRatio:String(containerAspectRatio),
             containerWidth:globals.mobile ? "100%" : (post.srcImagem[index].containerAspect * window.innerWidth * p * (1 / containerAspectRatio)) + "px",
@@ -186,8 +188,9 @@ function Imagem({isPlaylist,id,func,isMain,Elements,post,onLinkClick,onLoaded}:{
             elementMaxWidth:originalFormat ? "100%" : "initial",
             elementMaxHeight:originalFormat ? "100%" : "initial",
             elementObjectFit:originalFormat ? "contain" : "initial",
-            elementWidth:originalFormat ?  "100%" : post.srcImagem[index].isWidthBigger ? post.srcImagem[index].imageAspect * window.innerWidth * p + "px" : globals.mobile ? "100%" : post.srcImagem[index].imageAspect * window.innerWidth * p + "px",
-            elementHeight:originalFormat ? "100%" : post.srcImagem[index].isWidthBigger || !globals.mobile ? "100%" : 1 / post.srcImagem[index].imageAspect * window.innerWidth * p * containerAspectRatio + "px",
+            elementAspectRatio:String(originalFormat || (!post.srcImagem[index].isWidthBigger && globals.mobile) ? post.srcImagem[index].imageAspect * containerAspectRatio : post.srcImagem[index].imageAspect),
+            elementWidth:originalFormat || (!post.srcImagem[index].isWidthBigger && globals.mobile) ? "100%" : "initial",
+            elementHeight:originalFormat ? "100%" : post.srcImagem[index].isWidthBigger || !globals.mobile ? "100%" : "initial",
         });
     },[index,post,globals.mobile]);
     calcDimensions(false,true);

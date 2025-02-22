@@ -27,9 +27,9 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                         cm=post.imagem;
                     }
                     var isPremiumView=false;
+                    var isWidthBigger=false;
                     var containerAspect=0;
                     var imageAspect=0;
-                    var format=0;
                     if (i){
                         cm=JSON.parse(cm)[0];
 
@@ -40,38 +40,22 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                         isPremiumView=(r_parsed & 1n)==1n;
                         if ((r_parsed & 1n)==1n && (cargo.current.cargo! & 4)==0){
                             const r = r_parsed >> 29n;
-                            format=Number((r >> 18n) & ((1n << 2n) - 1n));
-                            containerAspect=format==2 ? 4/5 : format==3 ? 16/9 : format;
+                            isWidthBigger = (r & (1n << 20n))!=0n;
+                            containerAspect=Number((r >> 18n) & ((1n << 2n) - 1n));
+                            containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
                             imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
                         } else {
                             const r = r_parsed >> 8n;
-                            format=Number((r >> 18n) & ((1n << 2n) - 1n));
-                            containerAspect=format==2 ? 4/5 : format==3 ? 16/9 : format;
+                            isWidthBigger = (r & (1n << 20n))!=0n;
+                            containerAspect=Number((r >> 18n) & ((1n << 2n) - 1n));
+                            containerAspect=containerAspect==2 ? 4/5 : containerAspect==3 ? 16/9 : containerAspect;
                             imageAspect=(Number(r & ((1n << 18n) - 1n)) / 10000);
                         }
                     }
-                    const isElementWidthBigger=(format==3 || (format!=1 && imageAspect > 1))  ? true : false;
-                    const originalFormat=(format==0 && imageAspect==0);
+                    const originalFormat=(containerAspect==0 && imageAspect==0) || !mobile;
                     l=(post.playlist || playlist ? '/playlist' : n ? '/noticia' : i ? '/imagem' : m ? '/musica' : t ? '/texto' : v ? "/video" : "/product")+'/'+post.id;
-                    content=t ? null : <div style={{aspectRatio:mobile ? "initial" : "16/9"}} className='imagemd'>
-                        <div style={{
-                            aspectRatio:originalFormat || format!=0 ? String(containerAspect) : "initial",
-                            width:mobile ? "100%" : "initial",
-                            height:originalFormat || !mobile ? "100%" : "initial",
-                            display:"flex",
-                            justifyContent:"center",
-                            alignItems:"center",
-                            overflow: "hidden",
-                        }}>
-                            <img style={{
-                                maxWidth:originalFormat ? "100%" : "initial",
-                                maxHeight:originalFormat ? "100%" : "initial",
-                                objectFit:originalFormat ? "contain" : "initial",
-                                aspectRatio: String(originalFormat  ? "initial" : imageAspect),
-                                width:originalFormat || isElementWidthBigger ? "100%" : "fit-content",
-                                height:!originalFormat && isElementWidthBigger ? "fit-content" : "100%",
-                            }} className='image' src={server+"/images/"+encodeURIComponent(cm) + (isPremiumView || cm.endsWith("premium.webp") ? "?q="+Math.floor(Math.random() * 4294967296) : "")}/>
-                        </div>
+                    content=t ? null : <div style={{aspectRatio:originalFormat ? "16/9" : "initial",width:"100%",height:originalFormat ? "auto" : (1 / containerAspect * window.innerWidth * 0.97) + "px"}} className='imagemd'>
+                        <img style={{maxWidth:originalFormat ? "100%" : "initial",maxHeight:originalFormat ? "100%" : "initial",objectFit:originalFormat ? "contain" : "cover",width:originalFormat ?  "100%" : isWidthBigger ? imageAspect * window.innerWidth * 0.97 + "px" : "100%",height:originalFormat ? "100%" : isWidthBigger ? "100%" : 1 / imageAspect * window.innerWidth * 0.97 + "px"}} className='image' src={server+"/images/"+encodeURIComponent(cm) + (isPremiumView || cm.endsWith("premium.webp") ? "?q="+Math.floor(Math.random() * 4294967296) : "")}/>
                     </div>
                 }
                 const parts=(post.descricao || post.titulo || post.texto || "").split(/(?:\r\n| )/);
