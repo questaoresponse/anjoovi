@@ -111,7 +111,7 @@ const Grafico3=(({graficos2}:{graficos2:any})=>{
             <Tooltip content={({payload}) => {
                 return payload && payload.length > 0 ? <div style={{display:"flex",flexDirection:"row",alignItems:"center"}}><div style={{backgroundColor:"black",width:"0.75em",height:"0.75em",borderRadius:"50%",marginRight:"5px"}}></div>{payload![0].payload.name}&nbsp;&nbsp;<div style={{marginLeft:"10px",color:"black"}}>{payload![0].payload.value}</div></div> : null;
             }}/>
-        <Line type="monotone" dataKey="value" stroke="blue" animationDuration={500}/>
+        <Line type="monotone" dataKey="value" stroke="black" animationDuration={500}/>
     </LineChart>
 });
 const Grafico4=(({graficos2,year,months,currentIntervals}:{graficos2:any,year:number | undefined,months:string[],currentIntervals:MutableRefObject<number[]>})=>{
@@ -493,7 +493,6 @@ function Metricas(){
                     } else if (post.tipo=="post_video"){
                         this.data.pub_post_video[pub_y][pub_m][pub_d]++;
                     };
-                    console.log(this.data.pub_geral[pub_y][0].length,pub_y,pub_m,pub_d);
                     // const pub_
                     const years=Object.keys(dates);
                     for (const year of years){
