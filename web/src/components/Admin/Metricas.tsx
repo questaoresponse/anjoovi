@@ -1,7 +1,7 @@
-import { useEffect, useReducer, useRef, useState, memo } from "react";
+import { useEffect, useReducer, useRef, useState, memo, MutableRefObject, useCallback } from "react";
 import { useGlobal } from "../Global.tsx";
 import { useAuth } from "../Auth.jsx";
-import ReactECharts from 'echarts-for-react';
+import { LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line, PieChart, Pie, Legend, Cell } from "recharts";
 import './Metricas.scss';
 interface canvasInterface{
     resize:(width:number,height:number,ratio:number)=>void,
@@ -36,80 +36,147 @@ declare global{
 //     )
 // });
 const Grafico1=memo((props:{dados:any})=>{
-    const option = {
-        tooltip: {
-            trigger: 'item',
-        },
-        legend: {
-            top: '5%',
-            left: 'center'
-        },
-        series: [
-            {
-                type: 'pie',
-                radius: ['40%','60%'],
-                label:{
-                    show: false,
-                    position: "center",
-                },
-                data: [
-                    { value:props.dados[0], name:"celular" },
-                    { value:props.dados[1], name:"computador" }
-                ],
-                itemStyle:{
-                    borderColor: "#fff",
-                    borderWidth: 2,
-                },
-                emphasis: {
-                    itemStyle: {
-                        shadowBlur: 5,
-                        shadowOffsetX: 0,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                }
-            }
-        ]
-    };
-
-    return <ReactECharts option={option} style={{ width: 250, height: 200 }} />;
-    });
+    const [size,setSize]=useState({width:window.innerHeight * 0.3,height:window.innerHeight * 0.3});
+    const onResize=useCallback(()=>{
+        setSize({width:window.innerHeight * 0.3,height:window.innerHeight * 0.3});
+    },[]);
+    useEffect(()=>{
+        document.body.addEventListener("resize",onResize);
+        return ()=>{
+            document.body.removeEventListener("resize",onResize);
+        }
+    },[]);
+    const COLORS=['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];  
+    return <PieChart width={size.width} height={size.height}>
+        <Pie
+            data={props.dados.map((value:number,index:number)=>{ return {name:index==0 ? "celular" : "computador",value}})}
+            dataKey="value"
+            nameKey="name"
+            cx="50%" // posição no eixo X
+            cy="50%" // posição no eixo Y
+            outerRadius={80} // raio externo
+            fill="#8884d8"
+            label
+        >{props.dados.map((_:any, index:number) => (
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+        ))}</Pie>
+        <Tooltip/>
+        <Legend/>
+  </PieChart>;
+});
 const Grafico2=((props:any)=>{
-    const option = {
-        tooltip: {
-            trigger: 'item',
-        },
-        legend: {
-            top: '5%',
-            left: 'center'
-        },
-        series: [
-            {
-                type: 'pie',
-                radius: ['40%','60%'],
-                label:{
-                    show: false,
-                    position: "center",
-                },
-                data: [
-                    { value:props.dados[0], name:"logados" },
-                    { value:props.dados[1], name:"não logados" }
-                ],
-                itemStyle:{
-                    borderColor: "#fff",
-                    borderWidth: 2,
-                },
-                emphasis: {
-                    itemStyle: {
-                        shadowBlur: 5,
-                        shadowOffsetX: 0,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                }
-            }
-        ]
-    };
-
-    return <ReactECharts option={option} style={{ width: 250, height: 200 }} />;
+    const [size,setSize]=useState({width:window.innerHeight * 0.3,height:window.innerHeight * 0.3});
+    const onResize=useCallback(()=>{
+        setSize({width:window.innerHeight * 0.3,height:window.innerHeight * 0.3});
+    },[]);
+    useEffect(()=>{
+        document.body.addEventListener("resize",onResize);
+        return ()=>{
+            document.body.removeEventListener("resize",onResize);
+        }
+    },[]);
+    const COLORS=['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+    return <PieChart width={size.width} height={size.height}>
+        <Pie
+            data={props.dados.map((value:number,index:number)=>{ return {name:index==0 ? "logado" : "não logado",value}})}
+            dataKey="value"
+            nameKey="name"
+            cx="50%" // posição no eixo X
+            cy="50%" // posição no eixo Y
+            outerRadius={80} // raio externo
+            fill="#8884d8"
+            label
+        >{props.dados.map((_:any, index:number) => (
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+        ))}</Pie>
+        <Tooltip/>
+        <Legend/>
+  </PieChart>;
+});
+const Grafico3=(({graficos2}:{graficos2:any})=>{
+    const [size,setSize]=useState({width:window.innerWidth * 0.97,height:window.innerWidth * 9 / 16});
+    const onResize=useCallback(()=>{
+        setSize({width:window.innerWidth * 0.97,height:window.innerWidth * 9 / 1});
+    },[]);
+    useEffect(()=>{
+        document.body.addEventListener("resize",onResize);
+        return ()=>{
+            document.body.removeEventListener("resize",onResize);
+        }
+    },[]);
+    return <LineChart width={size.width} height={size.height} data={graficos2[0].data.map(({name,value}:{name:any,value:any})=>{ return {name, value:value[1]}})}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+            <Tooltip content={({payload}) => {
+                return payload && payload.length > 0 ? <div style={{display:"flex",flexDirection:"row",alignItems:"center"}}><div style={{backgroundColor:"black",width:"0.75em",height:"0.75em",borderRadius:"50%",marginRight:"5px"}}></div>{payload![0].payload.name}&nbsp;&nbsp;<div style={{marginLeft:"10px",color:"black"}}>{payload![0].payload.value}</div></div> : null;
+            }}/>
+        <Line type="monotone" dataKey="value" stroke="blue" animationDuration={500}/>
+    </LineChart>
+});
+const Grafico4=(({graficos2,year,months,currentIntervals}:{graficos2:any,year:number | undefined,months:string[],currentIntervals:MutableRefObject<number[]>})=>{
+    const [size,setSize]=useState({width:window.innerWidth * 0.97,height:window.innerWidth * 9 / 16});
+    const onResize=useCallback(()=>{
+        setSize({width:window.innerWidth * 0.97,height:window.innerWidth * 9 / 1});
+    },[]);
+    useEffect(()=>{
+        document.body.addEventListener("resize",onResize);
+        return ()=>{
+            document.body.removeEventListener("resize",onResize);
+        }
+    },[]);
+    return <LineChart width={size.width} height={size.height} data={graficos2[1].data.map(({name,value,index}:{name:string,value:any,index:number})=>{ return { name, value:value[1], index }})}>
+        <CartesianGrid strokeDasharray="3 3"/>
+        <XAxis dataKey="name"/>
+        <YAxis/>
+        <Tooltip content={({payload})=>{
+            if (!payload || payload.length==0) return null;
+            const monthLimits = {
+                leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
+                normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
+            };
+            const i=payload[0].payload.index;
+            const limit=(year! % 4 === 0 && year! % 100 !==0) || (year! % 400 === 0) ? monthLimits.leap : monthLimits.normal;
+            const m=limit.findIndex((_,m)=>i>=limit[m] && i<=limit[m+1]);
+            const d=(Math.floor(i)-limit[m]);
+            const n=payload[0].value;
+            const name=months[currentIntervals.current[0]+m];
+            return <div style={{display:"flex",flexDirection:"row",alignItems:"center"}}><div style={{backgroundColor:"black",width:"0.75em",height:"0.75em",borderRadius:"50%",marginRight:"5px"}}></div>{d} - {name}&nbsp;&nbsp;<div style={{marginLeft:"10px",color:"black"}}>{n}</div></div>;
+        }}/>
+        <Line type="monotone" dataKey="value" stroke="black"/>
+    </LineChart>
+});
+const Grafico5=(({graficos2,year,months,currentIntervals}:{graficos2:any,year:number | undefined,months:string[],currentIntervals:MutableRefObject<number[]>})=>{
+    const [size,setSize]=useState({width:window.innerWidth * 0.97,height:window.innerWidth * 9 / 16});
+    const onResize=useCallback(()=>{
+        setSize({width:window.innerWidth * 0.97,height:window.innerWidth * 9 / 1});
+    },[]);
+    useEffect(()=>{
+        document.body.addEventListener("resize",onResize);
+        return ()=>{
+            document.body.removeEventListener("resize",onResize);
+        }
+    },[]);
+    return <LineChart width={size.width} height={size.height} data={graficos2[2].data.map(({name,value,index}:{name:string,value:any,index:number})=>{ return { name, value:value[1], index }})}>
+        <CartesianGrid strokeDasharray="3 3"/>
+        <XAxis dataKey="name"/>
+        <YAxis/>
+        <Tooltip content={({payload})=>{
+            if (!payload || payload.length==0 || isNaN(Number(payload[0].value))) return null;
+            const monthLimits = {
+                leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
+                normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
+            };
+            const i=payload[0].payload.index;
+            const limit=(year! % 4 === 0 && year! % 100 !==0) || (year! % 400 === 0) ? monthLimits.leap : monthLimits.normal;
+            const m=limit.findIndex((_,m)=>i>limit[m] && i<limit[m+1]+1);
+            const d=(Math.floor(i)-limit[m]);
+            const n=payload[0].value;
+            const name=months[currentIntervals.current[0]+m];
+            return <div style={{display:"flex",flexDirection:"row",alignItems:"center"}}><div style={{backgroundColor:"black",width:"0.75em",height:"0.75em",borderRadius:"50%",marginRight:"5px"}}></div>{d} - {name}&nbsp;&nbsp;<div style={{marginLeft:"10px",color:"black"}}>{n}</div></div>;
+        }}/>
+        <Line type="monotone" dataKey="value" stroke="black" animationDuration={500}/>
+    </LineChart>
 });
 const reducer=(state:any,action:any)=>{
     switch (action.type){
@@ -128,8 +195,7 @@ function Metricas(){
         grafico3:[],
         grafico4:{data:[],label:[]},
         grafico5:{data:[],label:[]}
-        // grafico
-    })
+    });
     // const previousData=useRef({grafico3:{label:[],data:[]},grafico4:{label:[],data:[]}});
     // const graficos={
     //     grafico3:useRef<HTMLCanvasElement>(null),
@@ -145,7 +211,7 @@ function Metricas(){
         currentIntervals.current=v;
     }
     const [yearContent,setYearContent]=useState<number[]>([]);
-    const [selected,setSelected]=useState<string | null>();
+    const [selected,setSelected]=useState<string | null>(null);
     const currentSelected=useRef<string | null>(null);
     const [year,setYearState]=useState();
     const currentYear=useRef();
@@ -159,6 +225,8 @@ function Metricas(){
     const refs={
         month:useRef(),
         numMes:useRef<HTMLDivElement>(null),
+        interval1:useRef<HTMLSelectElement>(null),
+        interval2:useRef<HTMLSelectElement>(null),
     }
     
     const gerar=(datab:any)=>{
@@ -265,7 +333,7 @@ function Metricas(){
             soma:{},
         };
         posts:any[]=[];
-        year="2024";
+        year="";
         constructor(dados:any){
             this.posts=dados.posts;
             this.update();
@@ -384,7 +452,7 @@ function Metricas(){
                 leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
                 normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
             };
-            const year_arrays:{[key:string]:any}={};
+            const year_arrays:{[key:string]:any[]}={};
             const dt=new Date();
             const y=dt.getFullYear();
             const limit=(y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0) ? monthLimits.leap : monthLimits.normal;
@@ -397,8 +465,8 @@ function Metricas(){
                     const pub_y=String(pub_date.getFullYear());
                     const pub_m=pub_date.getMonth();
                     const dp=pub_date.getDate();
-                    pub_date.setDate(dp-1);
-                    const pub_d=pub_date.getDate();
+                    pub_date.setDate(dp);
+                    const pub_d=pub_date.getDate()-1;
                     if (!(pub_y in year_arrays)){
                         year_arrays[pub_y]=this.get_year_array(Number(pub_y));
                     }
@@ -425,6 +493,7 @@ function Metricas(){
                     } else if (post.tipo=="post_video"){
                         this.data.pub_post_video[pub_y][pub_m][pub_d]++;
                     };
+                    console.log(this.data.pub_geral[pub_y][0].length,pub_y,pub_m,pub_d);
                     // const pub_
                     const years=Object.keys(dates);
                     for (const year of years){
@@ -432,7 +501,6 @@ function Metricas(){
                         const limit=(intYear % 4 === 0 && intYear % 100 !== 0) || (intYear % 400 === 0) ? monthLimits.leap : monthLimits.normal;
                         if (!(year in year_arrays)){
                             year_arrays[year]=this.get_year_array(intYear);
-
                         }
                         if (!(year in this.data.geral)){
                             this.data.geral[year]=JSON.parse(JSON.stringify(year_arrays[year]));
@@ -646,7 +714,7 @@ function Metricas(){
         }
     }
     const update=()=>{
-        if (datas.current){
+        if (datas.current && datas.current.grafico3 && datas.current.grafico4 && datas.current.grafico5){
             const interval1=currentIntervals.current[0];
             const interval2=currentIntervals.current[1];
             const o=interval2>=interval1 ? [interval1,interval2] : [interval2,interval1];
@@ -715,8 +783,8 @@ function Metricas(){
         }
     },[globals.modules.current]);
     const [graficos2, setGraficos2]=useState<{label:string[],data:number[] | number[]}[]>([{label:[],data:[]},{label:[],data:[]},{label:[],data:[]}]);
-    // const init_grafico=(grafico:any,grafico2:any,data:{data:any,label:any} | null=null)=>{
-    //     var lb,dt:number[][] | null=null;
+    // const init_grafico=(grafico:any,grafico2:any,data:{data:any,label:any}=null)=>{
+    //     var lb,dt:number[][]=null;
     //     if (data){
     //         lb=data!.label;
     //         dt=data!.data;
@@ -756,11 +824,11 @@ function Metricas(){
             modify();
         }
     },[intervals,year]);
-    const onChangeInterval1=(e:any)=>{
-        setIntervalValues([Number(e.target.value),intervals[1]].sort())
+    const onChangeInterval1=(_:any)=>{
+        setIntervalValues([Number(refs.interval1.current!.value),Number(refs.interval2.current!.value)].sort());
     }
-    const onChangeInterval2=(e:any)=>{
-        setIntervalValues([intervals[0],Number(e.target.value)].sort());
+    const onChangeInterval2=(_:any)=>{
+        setIntervalValues([Number(refs.interval1.current!.value),Number(refs.interval2.current!.value)].sort());
     }
     const onChangeYear=(e:any)=>{
         setYear(Number(e.target.value));
@@ -793,7 +861,7 @@ function Metricas(){
             var pv=d1/dados.grafico3.data[i].length;
             var dv=d1 * (i) - 1;
             for (var j=0;j<dados.grafico3.data[i].length;j++){
-                contents[0].push({name:i,value:[dv + pv * (j+1),dados.grafico3.data[i][j]]});
+                contents[0].push({name:i,value:[dv + pv * (j+1),dados.grafico3.data[i][j]],index:dv + pv * j});
             }
         }
         const monthLimits = {
@@ -803,15 +871,14 @@ function Metricas(){
         const limit=(year! % 4 === 0 && year! % 100 !==0) || (year! % 400 === 0) ? monthLimits.leap : monthLimits.normal;
         for (var i=0;i<dados.grafico4.data.length;i++){
             for (var j=0;j<dados.grafico4.data[i].length;j++){
-                contents[1].push({name:months[i],value:[limit[i]+j+1,dados.grafico4.data[i][j]]});
+                contents[1].push({name:months[i],value:[limit[i]+j+1,dados.grafico4.data[i][j]],index:limit[i]+j+1});
             }
         }
         for (var i=0;i<dados.grafico5.data.length;i++){
             for (var j=0;j<dados.grafico5.data[i].length;j++){
-                contents[2].push({name:months[i],value:[limit[i]+j+1,dados.grafico5.data[i][j]]});
+                contents[2].push({name:months[i],value:[limit[i]+j+1,dados.grafico5.data[i][j]],index:limit[i]+j+1});
             }
         }
-        // const max=Math.max(dados.grafico4.data.map((data:any)=>Math.max(data)));
         setGraficos2([{label:dados.grafico3.label,data:contents[0]},{label:dados.grafico4.label as string[],data:contents[1]},{label:dados.grafico5.label as string[],data:contents[2]}]);
     };
     useEffect(()=>{
@@ -820,124 +887,14 @@ function Metricas(){
             modify();
         }
     },[selected]);
-    const option1 = {
-        tooltip: { trigger: 'item' },
-        grid:{
-            top: 30,
-            left: 30,   // Remove a margem esquerda
-            right: 30,  // Remove a margem direita
-            bottom: 0, // Remove a margem inferior
-            containLabel: true // Faz com que o conteúdo seja ajustado ao grid
-        },
-        xAxis: { type: 'category', data: Array.from({length:24},(_,b:any)=>b) },
-        yAxis: { type: 'value' },
-        series: [{ data: graficos2[0].data, type: 'line', symbolSize: 8, color:"#000000" }],
-        // dataZoom: [
-        //     {
-        //         type: 'slider',  // Usando um slider para zoom
-        //         show: true,  // Mostrar o controle de zoom
-        //         xAxisIndex: [0],  // Ativar zoom no eixo X
-        //         start: 0,  // Posição inicial do zoom (0% = começo)
-        //         end: 100     // Posição final do zoom (100% = fim)
-        //     }
-        // ]
-    };
-    const option2 = {
-        tooltip: { trigger: 'item', formatter: function({value}:{_:any,value:any}) {
-            const monthLimits = {
-                leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
-                normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
-            };
-            const i=value[0];
-            const limit=(year! % 4 === 0 && year! % 100 !==0) || (year! % 400 === 0) ? monthLimits.leap : monthLimits.normal;
-            const m=limit.findIndex((_,m)=>i>=limit[m] && i<=limit[m+1]);
-            const d=(Math.floor(i)-limit[m]);
-            const n=value[1];
-            const name=months[currentIntervals.current[0]+m];
-            return `<div style="display:flex;flex-direction:row;align-items:center"><div style="background-color:black;width:0.75em;height:0.75em;border-radius:50%;margin-right:5px;"></div>${d}-${name}&nbsp;&nbsp;<div style="margin-left:10px;color:black">${n}</div><div>`;
-        } },
-        grid:{
-            top: 30,
-            left: 30,   // Remove a margem esquerda
-            right: 30,  // Remove a margem direita
-            bottom: 0, // Remove a margem inferior
-            containLabel: true // Faz com que o conteúdo seja ajustado ao grid
-        },
-        xAxis: { type: 'category',axisLabel: { interval: 0,  // Exibe todos os rótulos
-            formatter: function(_:any, index:any) {
-                // Defina uma lógica para controlar quais rótulos aparecerão
-                // Exemplo: Exibir rótulos apenas nos dias múltiplos de 30
-                const limit=[0,31,59,90,120,151,181,212,243,273,304,334][intervals[0]];
-                const c=[[16 - limit,0],[45 - limit,1],[75 - limit,2],[105 - limit,3],[136 - limit,4],[166 - limit,5],[197 - limit,6],[228 - limit,7],[258 - limit,8],[289 - limit,9],[319 - limit,10],[350 - limit,11]].filter((v:any)=>intervals[0] <= v[1] && v[1] <= intervals[1]).find((v)=>v[0]==index);
-                if (c) {
-                    return months[c[1]];  // Exibe o rótulo
-                } else {
-                    return '';  // Não exibe o rótulo
-                }
-            } } },
-        yAxis: { type: 'value' },
-        series: [{ data: graficos2[1].data, type: 'line', symbolSize: 8, color:"#000000" }],
-        // dataZoom: [
-        //     {
-        //         type: 'slider',  // Usando um slider para zoom
-        //         show: true,  // Mostrar o controle de zoom
-        //         xAxisIndex: [0],  // Ativar zoom no eixo X
-        //         start: 0,  // Posição inicial do zoom (0% = começo)
-        //         end: 100     // Posição final do zoom (100% = fim)
-        //     }
-        // ]
-    };
-    const option3 = {
-        tooltip: { trigger: 'item', formatter: function({value}:{_:any,value:any}) {
-            const monthLimits = {
-                leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
-                normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
-            };
-            const i=value[0];
-            const limit=(year! % 4 === 0 && year! % 100 !==0) || (year! % 400 === 0) ? monthLimits.leap : monthLimits.normal;
-            const m=limit.findIndex((_,m)=>i>limit[m] && i<limit[m+1]+1);
-            const d=(Math.floor(i)-limit[m]);
-            const n=value[1];
-            const name=months[currentIntervals.current[0]+m];
-            return `<div style="display:flex;flex-direction:row;align-items:center"><div style="background-color:black;width:0.75em;height:0.75em;border-radius:50%;margin-right:5px;"></div>${d}-${name}&nbsp;&nbsp;<div style="margin-left:10px;color:black">${n}</div><div>`;
-        } },
-        grid:{
-            top: 30,
-            left: 30,   // Remove a margem esquerda
-            right: 30,  // Remove a margem direita
-            bottom: 0, // Remove a margem inferior
-            containLabel: true // Faz com que o conteúdo seja ajustado ao grid
-        },
-        xAxis: { type: 'category',axisLabel: { interval: 0,  // Exibe todos os rótulos
-            formatter: function(_:any, index:any) {
-                // Defina uma lógica para controlar quais rótulos aparecerão
-                // Exemplo: Exibir rótulos apenas nos dias múltiplos de 30
-                const limit=[0,31,59,90,120,151,181,212,243,273,304,334][intervals[0]];
-                const c=[[16 - limit,0],[45 - limit,1],[75 - limit,2],[105 - limit,3],[136 - limit,4],[166 - limit,5],[197 - limit,6],[228 - limit,7],[258 - limit,8],[289 - limit,9],[319 - limit,10],[350 - limit,11]].filter((v:any)=>intervals[0] <= v[1] && v[1] <= intervals[1]).find((v)=>v[0]==index);
-                if (c) {
-                    return months[c[1]];  // Exibe o rótulo
-                } else {
-                    return '';  // Não exibe o rótulo
-                }
-            } } },
-        yAxis: { type: 'value' },
-        series: [{ data: graficos2[2].data, type: 'line', symbolSize: 8, color:"#000000" }],
-        // dataZoom: [
-        //     {
-        //         type: 'slider',  // Usando um slider para zoom
-        //         show: true,  // Mostrar o controle de zoom
-        //         xAxisIndex: [0],  // Ativar zoom no eixo X
-        //         start: 0,  // Posição inicial do zoom (0% = começo)
-        //         end: 100     // Posição final do zoom (100% = fim)
-        //     }
-        // ]
-    };
     return (
         <>
             <div id="dt" className="met">
                 <div id="pg">
-                    { isTotal && <Grafico1 dados={dados.grafico1}/> }
-                    { isTotal && <Grafico2 dados={dados.grafico2}/> }
+                    { isTotal  ? <div className="infos-users">
+                        <Grafico1 dados={dados.grafico1}/>
+                        <Grafico2 dados={dados.grafico2}/>
+                    </div> : null}
                     {/* <Grafico3 dados={dados.grafico3}/> */}
                     <div id="tipo">
                         <div className={"select"+(selected || " selected1")}></div>
@@ -952,12 +909,12 @@ function Metricas(){
                         </div>
                     </div>
                     <div className="label-name">Visualização diária:</div>
-                    <ReactECharts className="grafico3" style={{width:"100%",height:"80vh"}} option={option1} />
+                    <Grafico3 graficos2={graficos2}></Grafico3>
+                    <Grafico4 graficos2={graficos2} year={year} months={months} currentIntervals={currentIntervals}></Grafico4>
+                    <Grafico5 graficos2={graficos2} year={year} months={months} currentIntervals={currentIntervals}></Grafico5>
                     {/* <canvas id="grafico3" ref={graficos.grafico3}></canvas> */}
                     <div className="label-name">Visualização geral:</div>
-                    <ReactECharts className="grafico4" style={{width:"100%",height:"80vh"}} option={option2} />
                     <div className="label-name">Número de postagens:</div>
-                    <ReactECharts className="grafico5" style={{width:"100%",height:"80vh"}} option={option3} />
                     {/* <canvas id="grafico4" style={{marginTop:"2"}} ref={graficos.grafico4}></canvas> */}
                     <div id="options">
                         <div id="option1" className="option">
@@ -975,7 +932,7 @@ function Metricas(){
                         <div id="interval-div">
                             <div id="option2" className="option">
                                 <div className="label-name">Mês de inicio:</div>
-                                <select onChange={onChangeInterval1} id="select-interval1">
+                                <select ref={refs.interval1} onChange={onChangeInterval1} id="select-interval1">
                                     <option value="0">Janeiro</option>
                                     <option value="1">Fevereiro</option>
                                     <option value="2">Março</option>
@@ -992,7 +949,7 @@ function Metricas(){
                             </div>
                             <div id="option3" className="option">
                                 <div className="label-name">Mês final:</div>
-                                <select defaultValue="11" onChange={onChangeInterval2} id="select-interval2">
+                                <select ref={refs.interval2} defaultValue="11" onChange={onChangeInterval2} id="select-interval2">
                                     <option value="0">Janeiro</option>
                                     <option value="1">Fevereiro</option>
                                     <option value="2">Março</option>

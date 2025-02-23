@@ -98,12 +98,13 @@ const AuthProvider = ({ children }:{children:any}) => {
             }
             if (!p[0].porcentagem){
               axios.post(url,data,{
+                responseType: "arraybuffer",
                 headers: {
                   'Content-Type': 'multipart/form-data',
                 }
               })
               .then((result)=>{
-                 result.data=decode(new Uint8Array(result.data));
+                result.data=decode(new Uint8Array(result.data));
                 var res=result;
                 // try {
                 //   res=JSON.parse(result.data);
@@ -124,7 +125,11 @@ const AuthProvider = ({ children }:{children:any}) => {
                 },
                 onUploadProgress: p[0].porcentagem        
               })
-              .then(res=>a(res,r))
+              .then(result=>{
+                result.data=decode(new Uint8Array(result.data));
+                var res=result;
+                a(res,r);
+              })
               .catch (error=>errorRequest(error));
 
             }

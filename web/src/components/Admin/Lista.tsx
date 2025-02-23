@@ -126,7 +126,7 @@ function Lista(propsl:any){
             if (result.error){
                 globals.redirectError.current(result.error);
             } else {
-                result.data.posts=result.data.posts.map((post:any)=>{ 
+                result.data.posts=(Array.isArray(result.data.posts) ? result.data.posts : []).map((post:any)=>{ 
                     return {...post,privado:post.privado ? Number(post.privado) : undefined}
                 });
                 Recriar(result.data);

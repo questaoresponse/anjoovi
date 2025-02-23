@@ -82,7 +82,7 @@ function Post({isLoaded,globals,posts,verifyScroll}:{isLoaded:any,globals:any,po
                             { content }
                         </Link>}
                         <div className={"infos-post"+(post.tipo=="t" ? " post-texto" : "")}>
-                            <Logo width={"2.4em"} logo={post.logo} usuario={post.usuario}></Logo>
+                            <Logo width={"2.1em"} logo={post.logo} usuario={post.usuario}></Logo>
 
                             <div className="infos-post-container">
                                 { post.tipo!="t" ? <Link to={l!} className='titulo a txt'>{parts.map((part:string,index:number)=>{

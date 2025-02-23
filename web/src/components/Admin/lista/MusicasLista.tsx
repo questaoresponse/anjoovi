@@ -21,7 +21,7 @@ function MusicasLista(){
                     if (result.error){
                         props.globals.redirectError.current(result.error);
                     } else {
-                        result.data.posts=result.data.posts.map((post:any)=>{ return {...post,privado:post.privado ? Number(post.privado) : undefined}});
+                        result.data.posts=(Array.isArray(result.data.posts) ? result.data.posts : []).map((post:any)=>{ return {...post,privado:post.privado ? Number(post.privado) : undefined}});
                         props.recriar(result.data);
                     }
                 })

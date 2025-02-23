@@ -56,7 +56,7 @@
         margin-top:2%;
     }
     .infos-post-container{
-        width: calc(100% - 2.4em - 10px);
+        width: calc(100% - 2.1em - 10px);
     }
     .titulo{
         margin-top: 2%;
@@ -70,6 +70,7 @@
         max-height:3em;
         cursor:pointer;
         max-lines:2;
+        line-clamp: 2;
         -webkit-line-clamp: 2;
         line-height: 1.19em;
     }
@@ -77,6 +78,7 @@
         max-lines:6;
         height: initial;
         max-height: 0;
+        line-clamp: 6;
         -webkit-line-clamp: 6;
         margin-top: 0;
         left: 0;
@@ -95,6 +97,7 @@
         height:1.2em;
         line-height: 1.2em;
         max-lines: 1;
+        line-clamp: 1;
         -webkit-line-clamp: 1;
         overflow-wrap: normal;
         cursor:pointer;

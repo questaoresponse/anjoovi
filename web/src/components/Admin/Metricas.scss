@@ -117,6 +117,10 @@ canvas{
     select{
         height: 2em !important;
     }
+    .infos-users{
+        display: flex;
+        flex-direction: column;    
+    }
     @include pc(){
         #interval-div{
             width: 50%;
@@ -129,6 +133,9 @@ canvas{
         }
         .option *{
             width: 75%;
+        }
+        .infos-users{
+            flex-direction: row;
         }
     }
 }
