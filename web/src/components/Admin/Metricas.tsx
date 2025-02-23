@@ -211,14 +211,19 @@ function Metricas(){
         currentIntervals.current=v;
     }
     const [yearContent,setYearContent]=useState<number[]>([]);
-    const [selected,setSelected]=useState<string | null>(null);
+    const [selected,setSelectedState]=useState<string | null>(null);
     const currentSelected=useRef<string | null>(null);
     const [year,setYearState]=useState();
     const currentYear=useRef();
     const setYear=(v:any)=>{
-        globals.modules.current && c2.current && c2.current.update_year && c2.current.update_year(Number(v));
+        c2.current && c2.current.update_year && c2.current.update_year(Number(v));
         setYearState(v);
         currentYear.current=v;
+    }
+    const setSelected=(v:any)=>{
+        setSelectedState(v);
+        currentSelected.current=v;
+        modify();
     }
     const c2=useRef<Teste>();
     const st=useRef<any>(null);
@@ -447,7 +452,7 @@ function Metricas(){
             if (data){
                 this.posts=data.posts;
             }
-            console.time("aian");
+            console.time("ok");
             const monthLimits = {
                 leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
                 normal: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
@@ -597,7 +602,7 @@ function Metricas(){
                     this.data.pub_post_video[year]=JSON.parse(JSON.stringify(year_arrays[year]));
                 }
             }
-            console.timeEnd("aian");
+            console.timeEnd("ok");
         }
         // call(name:string,args=[]):any{
         //     return this.method;
@@ -657,7 +662,7 @@ function Metricas(){
             }
         }
     }
-    const agendado=useRef<any>(false);
+    // const agendado=useRef<any>(false);
     const datas=useRef<{grafico3:number[][],grafico4:number[],grafico5:number[],soma:number[]} | null>(null);
     const get=()=>{
         auth.post(server+"/admin/metricas",{type:"info"}).then((result)=>{
@@ -676,11 +681,8 @@ function Metricas(){
                     c2.current=new Teste(result.data);
                     // c2.current!.init(JSON.stringify(result.data),date.getFullYear(),date.getMonth(),date.getDate());
                 }
-                if (currentSelected.current){
-                    modify();
-                } else {
-                    setSelected(" selected1");
-                }
+                setSelected(" selected1");
+                
                     //datas.current={grafico3:c2.current.get_day_geral(),grafico4:c2.current.get_geral(),soma:c2.current.get_soma()};
                 // } else {
                 //     agendado.current=result.data;
@@ -704,7 +706,6 @@ function Metricas(){
                 " selected7":"post_video"
             };
             if (currentSelected.current==" selected1"){
-                // console.log(c2.current.call("get_geral"));
                 datas.current={grafico3:c2.current.get_day_geral(),grafico4:c2.current.get_geral(),grafico5:c2.current.get_pub_geral(),soma:c2.current.get_soma()};
             } else if (currentSelected.current in options){
                 datas.current={grafico3:c2.current.get_day(options[currentSelected.current]),grafico4:c2.current.get(options[currentSelected.current]),grafico5:c2.current.get_pub(options[currentSelected.current]),soma:c2.current.get_soma()};
@@ -765,69 +766,25 @@ function Metricas(){
             // window.removeEventListener("resize",resize);
         }
     },[]);
-    useEffect(()=>{
-        if (agendado.current){
-            // const data=globals.modules.current.Data;
-            // let date=new Date();
-            // setYear(date.getFullYear());
-            c2.current=new Teste(agendado.current);
-            // c2.current!.init(JSON.stringify(agendado.current),date.getFullYear(),date.getMonth(),date.getDate());
-            datas.current={grafico3:c2.current!.get_day_geral(),grafico4:c2.current!.get_geral(),grafico5:c2.current!.get_pub_geral(),soma:c2.current!.get_soma()};
-            if (currentSelected.current){
-                modify();
-            } else {
-                setSelected(" selected1");
-            }
-            agendado.current=false;
-        }
-    },[globals.modules.current]);
-    const [graficos2, setGraficos2]=useState<{label:string[],data:number[] | number[]}[]>([{label:[],data:[]},{label:[],data:[]},{label:[],data:[]}]);
-    // const init_grafico=(grafico:any,grafico2:any,data:{data:any,label:any}=null)=>{
-    //     var lb,dt:number[][]=null;
-    //     if (data){
-    //         lb=data!.label;
-    //         dt=data!.data;
-    //     } else {
-    //         lb=["0","0"];
-    //         dt=[[20],[30]];
-    //     }
-    //     // if (grafico.id=="grafico4" && data==null) return;
-    //     grafico.getContext("2d",{willReadFrequently:true});
-    //     grafico2.getContext("2d",{willReadFrequently:true});
-    //     // console.time("time");
-    //     var canvas:canvasInterface=new globals.modules.current.Canvas(grafico,grafico2);
-    //     canvas.init(document.body.clientWidth,document.body.clientWidth/1280*720,window.devicePixelRatio,{labels:lb,posts:dt});
-    //     function gt(e:any){
-    //         var p=grafico.getBoundingClientRect();
-    //         // console.time("e");
-    //         canvas.mouseover(e.clientX - p.left,e.clientY - p.top);
-    //         // console.timeEnd("e");
-    //     }
-    //     grafico.addEventListener("mouseover",gt)
-    //     grafico.addEventListener("mousemove",gt)
-    //     grafico.addEventListener("mouseout",()=>{
-    //         canvas.mouseout();
-    //     })
-    //     grafico.addEventListener("click",gt)
-    //     // console.timeEnd("time");
-    //     return canvas;
-    // }
     // useEffect(()=>{
-    //     if (globals.modules.current){
-    //         window.cv=init_grafico(graficos.grafico3.current,document.createElement("canvas"));
-    //         window.cv2=init_grafico(graficos.grafico4.current,document.createElement("canvas"));
+    //     if (agendado.current){
+    //         c2.current=new Teste(agendado.current);
+    //         datas.current={grafico3:c2.current!.get_day_geral(),grafico4:c2.current!.get_geral(),grafico5:c2.current!.get_pub_geral(),soma:c2.current!.get_soma()};
+    //         setSelected(" selected1");
+    //         agendado.current=false;
     //     }
     // },[globals.modules.current]);
+    const [graficos2, setGraficos2]=useState<{label:string[],data:number[] | number[]}[]>([{label:[],data:[]},{label:[],data:[]},{label:[],data:[]}]);
     useEffect(()=>{
         if (year && datas.current){
             modify();
         }
     },[intervals,year]);
     const onChangeInterval1=(_:any)=>{
-        setIntervalValues([Number(refs.interval1.current!.value),Number(refs.interval2.current!.value)].sort());
+        setIntervalValues([Number(refs.interval1.current!.value),Number(refs.interval2.current!.value)].sort((a,b)=>a - b));
     }
     const onChangeInterval2=(_:any)=>{
-        setIntervalValues([Number(refs.interval1.current!.value),Number(refs.interval2.current!.value)].sort());
+        setIntervalValues([Number(refs.interval1.current!.value),Number(refs.interval2.current!.value)].sort((a,b)=>a - b));
     }
     const onChangeYear=(e:any)=>{
         setYear(Number(e.target.value));
@@ -840,7 +797,7 @@ function Metricas(){
             // window.cv.update({labels:dados.grafico3.label,posts:dados.grafico3.data});
             // window.cv2.update({labels:dados.grafico4.label,posts:dados.grafico4.data});
         }
-    },[dados,globals.modules.current]);
+    },[dados]);
     const months=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
     const updateGraphics=(dados:{grafico3:{data:any[],label:string[]},grafico4:{data:any[],label:string[]},grafico5:{data:any[],label:string[]}})=>{
         const contents:any[]=[[],[],[]];
@@ -870,22 +827,16 @@ function Metricas(){
         const limit=(year! % 4 === 0 && year! % 100 !==0) || (year! % 400 === 0) ? monthLimits.leap : monthLimits.normal;
         for (var i=0;i<dados.grafico4.data.length;i++){
             for (var j=0;j<dados.grafico4.data[i].length;j++){
-                contents[1].push({name:months[i],value:[limit[i]+j+1,dados.grafico4.data[i][j]],index:limit[i]+j+1});
+                contents[1].push({name:months[currentIntervals.current[0]+i],value:[limit[i]+j+1,dados.grafico4.data[i][j]],index:limit[i]+j+1});
             }
         }
         for (var i=0;i<dados.grafico5.data.length;i++){
             for (var j=0;j<dados.grafico5.data[i].length;j++){
-                contents[2].push({name:months[i],value:[limit[i]+j+1,dados.grafico5.data[i][j]],index:limit[i]+j+1});
+                contents[2].push({name:months[currentIntervals.current[0]+i],value:[limit[i]+j+1,dados.grafico5.data[i][j]],index:limit[i]+j+1});
             }
         }
         setGraficos2([{label:dados.grafico3.label,data:contents[0]},{label:dados.grafico4.label as string[],data:contents[1]},{label:dados.grafico5.label as string[],data:contents[2]}]);
     };
-    useEffect(()=>{
-        if (selected){
-            currentSelected.current=selected;
-            modify();
-        }
-    },[selected]);
     return (
         <>
             <div id="dt" className="met">
