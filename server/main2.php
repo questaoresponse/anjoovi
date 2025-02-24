@@ -879,7 +879,7 @@ Route::post("/busca",function(){
                 // $s = $conn->prepare("SELECT * FROM post  WHERE titulo LIKE ? AND privado=0 ORDER BY id DESC LIMIT 15");
                     if (count($list)>0){
                         $list="'" . implode("','",$list) . "'";
-                        $result = $conn->prepare("SELECT * FROM (
+                        $result = $conn->prepare("SELECT u.logo,r.posts,r.d,r.acessos,r.views_id,r.id,r.usuario,r.titulo,r.texto,r.imagem,r.tipo FROM (
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto, imagem,'p' AS tipo FROM post WHERE ( titulo LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION ALL
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
@@ -905,7 +905,7 @@ Route::post("/busca",function(){
                             'pl' AS tipo FROM playlist p WHERE ( titulo LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 15=0 ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC LIMIT 16 )
                             UNION ALL
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'pd' AS tipo FROM post_product WHERE ( descricao LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado=0 ORDER BY acessos DESC LIMIT 16)
-                        ) AS result ORDER BY views_id DESC",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
+                        ) AS r LEFT JOIN user u ON r.usuario=u.usuario ORDER BY views_id DESC",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
                         $r=p($result);
                         $result = $conn->prepare("SELECT COUNT(*) AS num FROM (
                             ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post  WHERE ( titulo LIKE ? || usuario LIKE ? || usuario IN ($list) ) AND privado & 13=0)
@@ -939,7 +939,7 @@ Route::post("/busca",function(){
                         $result = $conn->prepare("SELECT COUNT(*) AS num FROM user  WHERE ( nome LIKE ? OR usuario LIKE ? ) AND cargo & 1=0",[$p,$p]);
                         $n+=p($result)[0]["num"];
                     } else {
-                        $result = $conn->prepare("SELECT * FROM (
+                        $result = $conn->prepare("SELECT u.logo,r.posts,r.d,r.acessos,r.views_id,r.id,r.usuario,r.titulo,r.texto,r.imagem,r.tipo FROM (
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,titulo,NULL AS texto,imagem,'p' AS tipo FROM post WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
                             UNION
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'i' AS tipo FROM post_imagem WHERE ( descricao LIKE ? || usuario LIKE ? ) AND privado & 13=0 ORDER BY acessos DESC LIMIT 16)
@@ -965,7 +965,7 @@ Route::post("/busca",function(){
                             'pl' AS tipo FROM playlist p WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 15=0 ORDER BY JSON_UNQUOTE(JSON_EXTRACT(d, '$.o')) DESC LIMIT 16 )
                             UNION
                             ( SELECT '[]' AS posts,d,acessos,views_id,id,usuario,descricao AS titulo,NULL AS texto,imagem,'pd' AS tipo FROM post_product WHERE ( descricao LIKE ? || usuario LIKE ? ) AND privado & 15=0 ORDER BY acessos DESC LIMIT 16)
-                        ) AS result ORDER BY views_id DESC",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
+                        ) AS r LEFT JOIN user u ON r.usuario=u.usuario ORDER BY views_id DESC",[$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p,$p]);
                         $r=p($result);
                         $result = $conn->prepare("SELECT COUNT(*) AS num FROM (
                             ( SELECT id,usuario,titulo,NULL AS texto,imagem FROM post  WHERE ( titulo LIKE ? || usuario LIKE ? ) AND privado & 13=0)
