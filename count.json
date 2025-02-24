@@ -1,0 +1,31 @@
+
+{
+    "admin":{
+        "path":"./../teste/src/components/Admin/",
+        "files":"*"
+    },
+    "inicio":{
+        "path":"./../teste/src/components/Inicio/",
+        "files":"*"
+    },
+    "html":{
+        "path":"./../teste/",
+        "files":["index.html"]
+    },
+    "server":{
+        "path":"./../anjoovi/",
+        "files":["function.php","routes/admin.php","routes/routes.php","routes/main2.php","routes/main.php","routes/noticia.php","routes/imagem.php","routes/musica.php"]
+    },
+    "components fora":{
+        "path":"./../teste/src/components/",
+        "files":["Ads.jsx","Auth.jsx","Erro.jsx","Global.tsx","GlobalFunction.jsx","Logo.jsx","Logo.css","Logop.jsx","Logop.css"]
+    },
+    "fora":{
+        "path":"./../teste/src/",
+        "files":["admin.scss","App.tsx","d.ts","function.scss","index.css","main.jsx"]
+    },
+    "rust":{
+        "path":"./../busca/src/",
+        "files":["lib.rs","date.rs","canvas.rs","id.rs"]
+    }
+}

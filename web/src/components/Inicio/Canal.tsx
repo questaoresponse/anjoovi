@@ -220,7 +220,7 @@ function Canal(){
                 }});
             }
             if (c>1){
-                var all = correct.map(key => data[key]).reduce((acc, arr) => acc.concat(arr), []);
+                var all = correct.map(key => Array.isArray(data[key]) ? data[key] : []).reduce((acc, arr) => acc.concat(arr), []);
                 if (all.length>0){
                     const comparar=(a:any,b:any)=>{
                         return b.views_id - a.views_id;
@@ -265,7 +265,7 @@ function Canal(){
                 }
                 if (!is_geral){
                     for (const name in names){
-                        gerals[names[name]]=options[name] ? options[name][0] : null;
+                        gerals[names[name]]=options[name] && Array.isArray(options[name]) ? options[name][0] : null;
                     }
                 }   
                 dd["inicio"]=geral;

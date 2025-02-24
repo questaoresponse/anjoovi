@@ -120,6 +120,7 @@ const AuthProvider = ({ children }:{children:any}) => {
               });
             } else {
               axios.post(url,data,{
+                responseType: "arraybuffer",
                 headers: {
                   'Content-Type': 'multipart/form-data',
                 },
